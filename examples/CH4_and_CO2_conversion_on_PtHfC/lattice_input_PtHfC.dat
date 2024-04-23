@@ -1,0 +1,152 @@
+
+lattice periodic_cell
+
+   cell_vectors
+   13.08 0.00  
+   0.00 13.08 
+   repeat_cell 3 3
+   n_cell_sites 28
+   n_site_types 3
+   site_type_names tC tM Pt
+   site_types tC tC tC tC tC tC tC tC tC tC tC tC tM tM tM tM tM tM tM tM tM tM tM tM tM tM tM Pt
+   site_coordinates
+      0.000 0.000 # tC 1
+      0.250 0.000 # tC 2
+      0.500 0.000 # tC 3
+      0.750 0.000 # tC 4
+      0.000 0.250 # tC 5
+      0.750 0.250 # tC 6
+      0.000 0.500 # tC 7
+      0.750 0.500 # tC 8
+      0.000 0.750 # tC 9
+      0.250 0.750 # tC 10
+      0.500 0.750 # tC 11
+      0.750 0.750 # tC 12
+      0.125 0.125 # tM 13
+      0.625 0.125 # tM 14
+      0.875 0.125 # tM 15
+      0.875 0.375 # tM 16
+      0.125 0.625 # tM 17
+      0.625 0.625 # tM 18
+      0.875 0.625 # tM 19
+      0.125 0.875 # tM 20
+      0.375 0.875 # tM 21
+      0.625 0.875 # tM 22
+      0.875 0.875 # tM 23
+      0.375 0.125 # tM 24
+      0.125 0.375 # tM 25
+      0.625 0.375 # tM 26
+      0.375 0.625 # tM 27
+      0.375 0.375 # Pt 28
+   neighboring_structure
+      1-2 self
+      1-5 self  
+      1-13 self
+      2-3 self
+      2-13 self
+      2-24 self
+      2-28 self
+      3-4 self
+      3-14 self
+      3-24 self
+      3-28 self
+      4-1 east
+      4-6 self
+      4-14 self
+      4-15 self
+      5-7 self
+      5-13 self
+      5-25 self
+      5-28 self
+      6-5 east
+      6-8 self
+      6-14 self
+      6-15 self
+      6-16 self
+      6-26 self
+      6-28 self
+      7-9 self
+      7-17 self
+      7-25 self 
+      7-28 self
+      8-7 east
+      8-12 self
+      8-16 self
+      8-18 self
+      8-19 self
+      8-26 self
+      8-28 self
+      9-1 north
+      9-10 self
+      9-17 self
+      9-20 self
+      10-2 north
+      10-11 self
+      10-17 self
+      10-20 self
+      10-21 self
+      10-27 self
+      10-28 self
+      11-3 north
+      11-12 self
+      11-18 self
+      11-21 self
+      11-22 self
+      11-27 self
+      11-28 self
+      12-4 north
+      12-9 east
+      12-18 self
+      12-19 self
+      12-22 self
+      12-23 self
+      13-24 self
+      13-25 self
+      14-15 self
+      14-24 self
+      14-26 self
+      15-1 east
+      15-5 east
+      15-13 east
+      15-16 self
+      16-5 east
+      16-7 east
+      16-19 self
+      16-25 east
+      16-26 self
+      17-20 self
+      17-25 self
+      17-27 self
+      18-19 self
+      18-22 self
+      18-26 self
+      18-27 self
+      19-7 east
+      19-9 east
+      19-17 east
+      19-23 self
+      20-1 north
+      20-2 north
+      20-13 north
+      20-21 self
+      21-2 north
+      21-3 north
+      21-22 self
+      21-24 north
+      21-27 self
+      22-3 north
+      22-4 north
+      22-14 north
+      22-23 self
+      23-1 northeast
+      23-4 north
+      23-9 east
+      23-15 north
+      23-20 east
+      24-28 self
+      25-28 self
+      26-28 self
+      27-28 self
+   end_neighboring_structure
+
+end_lattice
