@@ -50,10 +50,11 @@ The following columns are **mandatory**:
 
 Example:
 
-| index |type      |gas_molec_weight| sym_number | degeneracy | inertia_moments      |gas_energy|
-|-------|----------|----------------|------------|------------|----------------------|----------|
-| CO    |linear    |28.01           | 1          | 1          | [8.973619026272551]  |1.96      |
-| O2    |linear    |32.0            | 2          | 3          | [12.178379354326061] |2.6       |
+| index  | type    |gas_molec_weight| sym_number | degeneracy | inertia_moments      | gas_energy |
+|--------|---------|----------------|------------|------------|----------------------|------------|
+| CO     | linear  |28.01           | 1          | 1          | [8.973619026272551]  | 1.96       |
+| O2     | linear  |32.0            | 2          | 3          | [12.178379354326061] | 2.6        |
+| CO2    | linear  |44.01           | 2.0        | 1.0        | [44.317229117708344] | 0.0        |
 
 
 #### 2. Prepare a reaction model
@@ -91,9 +92,7 @@ Example:
 | O2_adsorption   | 2     | topC topC  |1-2        |5.34     | ['1 * 1', '2 * 1']    | ['1 O* 1', '2 O* 1']  |0.0      | O2       | [194.973022]                                                                                       | [79.738187, 77.981497, 40.487926, 39.798116, 38.056578, 37.441762]                                   | []                                                                                        |0.0        |
 | CO2_adsorption  | 1     | topC       |           |5.34     | ['1 * 1']             | ['1 CO2* 1']          |0.0      | CO2      | [294.059036, 163.752147, 78.494148, 78.310738]                                                     | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | []                                                                                        |0.0        |
 | CO+O_reaction   | 2     | topC topC  |1-2        |         | ['1 CO* 1', '2 O* 1'] | ['1 CO2* 1', '2 * 1'] |1.249    |          | [240.448231, 83.18955, 80.04067, 61.668486, 59.849388, 38.271338, 36.143131, 12.378844, 10.126178] | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [217.940927, 81.361728, 66.833494, 56.917831, 50.342099, 37.430358, 19.074043, 12.356398] |           |
-| CO_dissociation | 2     | topC topC  |1-2        |         | ['1 CO* 1', '2 * 1']  | ['1 C* 1', '2 O* 1']  |2.176    |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [138.064404, 78.64274, 39.644889, 38.175445, 32.997051, 23.89371]                                    | [129.799624, 55.940895, 41.760039, 33.292377, 20.816034]                                  |           |
 | CO_diffusion    | 2     | topC topC  |1-2        |         | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  |1.156    |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |           |
-| C_diffusion     | 2     | topC topC  |1-2        |         | ['1 C* 1', '2 * 1']   | ['1 * 1', '2 C* 1']   |1.449    |          | [138.207451, 24.592242, 17.986572]                                                                 | [138.207451, 24.592242, 17.986572]                                                                   | [85.015794, 66.512731]                                                                    |           |
 | O_diffusion     | 2     | topC topC  |1-2        |         | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   |1.221    |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |           |
 
 #### 3. Prepare an energetics model
@@ -102,11 +101,6 @@ The information on the energetics model is contained in a third DataFrame, where
 
 ```{important}
 The row index has to be the name of the cluster. 
-```
-
-```{tip}
-It is recommended to add *_point* at the end of the cluster name for one-body terms (e.g. *CO_point*), and *_pair* at 
-the end of the name for two-body terms (e.g. *CO+CO_pair*).
 ```
 
 The following columns are **mandatory**:
@@ -125,17 +119,12 @@ Example:
 |--------------|-----------|-------|----------|--------------------------|-----------|--------------------|
 | CO2_point    |-1.576     | 1     |tC        |['1 CO2* 1']              |           |                    |
 | CO_point     |0.233      | 1     |tC        |['1 CO* 1']               |           |                    |
-| C_point      |2.452      | 1     |tC        |['1 C* 1']                |           |                    |
 | O_point      |-1.333     | 1     |tC        |['1 O* 1']                |           |                    |
 | CO2+CO2_pair |-0.062     | 2     |tC tC     |['1 CO2* 1', '2 CO2* 1']  |1-2        | 2                  |
 | CO2+CO_pair  |-0.184     | 2     |tC tC     |['1 CO2* 1', '2 CO* 1']   |1-2        |                    |
-| CO2+C_pair   |-0.168     | 2     |tC tC     |['1 CO2* 1', '2 C* 1']    |1-2        |                    |
 | CO2+O_pair   |-0.162     | 2     |tC tC     |['1 CO2* 1', '2 O* 1']    |1-2        |                    |
 | CO+CO_pair   |0.177      | 2     |tC tC     |['1 CO* 1', '2 CO* 1']    |1-2        | 2                  |
-| CO+C_pair    |0.117      | 2     |tC tC     |['1 CO* 1', '2 C* 1']     |1-2        |                    |
 | CO+O_pair    |-0.032     | 2     |tC tC     |['1 CO* 1', '2 O* 1']     |1-2        |                    |
-| C+C_pair     |0.096      | 2     |tC tC     |['1 C* 1', '2 C* 1']      |1-2        | 2                  |
-| C+O_pair     |-0.036     | 2     |tC tC     |['1 C* 1', '2 O* 1']      |1-2        |                    |
 | O+O_pair     |0.034      | 2     |tC tC     |['1 O* 1', '2 O* 1']      |1-2        | 2                  |
 
 
@@ -151,7 +140,8 @@ Currently, the only way to create a lattice model is by reading a lattice_input.
 
 Example:
 
-![Alt text](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png)
+![lattice](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png?raw=true)
+
 
     # lattice_input_for_HfC.dat file
 
@@ -237,14 +227,7 @@ The required DataFrames can be created from Python dictionaries as follows:
                'sym_number': 2,
                'degeneracy': 3,
                'inertia_moments': [12.178379354326061],
-               'gas_energy': 2.60},
-        'CO2': {'type': 'linear',
-                'gas_molec_weight': 44.01,
-                'sym_number': 2,
-                'degeneracy': 1,
-                'inertia_moments': [44.317229117708344],
-                'gas_energy': 0.00},
-    }
+               'gas_energy': 2.60}}
     
     gas_data = pd.DataFrame()
     new_row = pd.Series([], dtype='object')
@@ -268,17 +251,6 @@ The required DataFrames can be created from Python dictionaries as follows:
                           'molecule': 'CO',
                           'area_site': 5.34,
                           'prox_factor': 0.0},
-        'O2_adsorption': {'site_types': 'tC tC',
-                          'initial': ['1 * 1', '2 * 1'],
-                          'final': ['1 O* 1', '2 O* 1'],
-                          'activ_eng': 0.0,
-                          'vib_energies_is': [194.97],
-                          'vib_energies_ts': [],
-                          'vib_energies_fs': [79.74, 77.98, 40.49, 39.80, 38.06, 37.44],
-                          'molecule': 'O2',
-                          'area_site': 5.34,
-                          'neighboring': '1-2',
-                          'prox_factor': 0.0},
         'CO+O_reaction': {'site_types': 'tC tC',
                           'initial': ['1 CO* 1', '2 O* 1'],
                           'final': ['1 CO2* 1', '2 * 1'],
@@ -286,8 +258,7 @@ The required DataFrames can be created from Python dictionaries as follows:
                           'vib_energies_is': [240.45, 83.19, 80.04, 61.66, 59.84, 38.27, 36.14, 12.37, 10.12],
                           'vib_energies_ts': [217.94, 81.36, 66.83, 56.91, 50.34, 37.43, 19.07, 12.35],
                           'vib_energies_fs': [171.18, 145.66, 96.96, 86.25, 56.20, 52.37, 35.93, 24.34, 21.02],
-                          'neighboring': '1-2'},
-    }
+                          'neighboring': '1-2'}}
     
     reaction_data = pd.DataFrame()
     new_row = pd.Series([], dtype='object')
@@ -298,7 +269,23 @@ The required DataFrames can be created from Python dictionaries as follows:
 
 ##### Energetic model
 
-TODO
+    import pandas as pd
+    
+    clusters = {
+        'CO_point': {'site_types': 'tC',
+                     'lattice_state': ['1 CO* 1'],
+                     'cluster_eng': 0.233},
+        'CO+CO_pair': {'site_types': 'tC tC',
+                       'neighboring': '1-2',
+                       'lattice_state': ['1 CO* 1', '2 CO* 1'],
+                       'cluster_eng': 0.177}}
+    
+    energetics_data = pd.DataFrame()
+    new_row = pd.Series([], dtype='object')
+    for cluster in clusters:
+        new_row = pd.Series(clusters[cluster])
+        new_row.name = cluster
+        energetics_data = pd.concat([energetics_data, new_row.to_frame().T])
 
 ## Contributors
 
