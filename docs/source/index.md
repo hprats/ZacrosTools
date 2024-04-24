@@ -43,7 +43,7 @@ The following columns are **mandatory**:
 - **sym_number** (*int*): symmetry number of the molecule
 - **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
   function. Default value: 1
-- **intertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å^2).
+- **intertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å<sup>2</sup>).
   1 element for linear molecules, 3 elements for non-linear molecules.
   Can be obtained from ase.Atoms.get_moments_of_inertia()
 - **gas_energy** (*float*): formation energy (in eV)
@@ -76,7 +76,7 @@ The following columns are **mandatory**:
   For non-activated adsorption, define this as an empty list i.e. []
 - **vib_energies_fs** (*list*): vibrational energies for the final state (in meV)
 - **molecule** (*str*): gas-phase molecule involved. Only required for adsorption steps. Default value: None
-- **area_site** (*float*): area of adsorption site (in Å^2). Only required for adsorption steps.
+- **area_site** (*float*): area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps.
   Default value: None
 
 The following columns are **optional**:
