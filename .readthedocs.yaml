@@ -19,7 +19,7 @@ python:
   install:
     - requirements: docs/requirements.txt
     - method: pip
-      path: zacrosio
+      path: zacrostools
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
