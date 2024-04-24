@@ -175,15 +175,13 @@ Example:
 
 With all this information, a KMC model can be created as follows:
 
-    import numpy as np
-    import pandas as pd
     from zacrostools.kmc_model import KMCModel
     from zacrostools.lattice_input import LatticeModel
-
+    
     kmc_model = KMCModel(gas_data=pd.read_csv(f'gas_data.csv', index_col=0),
                          mechanism_data=pd.read_csv(f'mechanism.csv', index_col=0),
                          energetics_data=pd.read_csv(f'energetics.csv', index_col=0),
-                         lattice_model=LatticeModel.from_file(path=f"lattice_input_{catalyst}.dat"))
+                         lattice_model=LatticeModel.from_file(path=f"lattice_input_for_HfC.dat"))
 
 ### Generation of Zacros input files
 
