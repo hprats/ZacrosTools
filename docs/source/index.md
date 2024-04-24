@@ -151,7 +151,7 @@ Currently, the only way to create a lattice model is by reading a lattice_input.
 
 Example:
 
-![lattice.png](./lattice.png)
+![Alt text](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png)
 
     # lattice_input_for_HfC.dat file
 
