@@ -186,3 +186,7 @@ fabric.properties
 
 # idea folder, uncomment if you don't need it
 .idea
+
+# added by me
+make.bat
+Makefile
