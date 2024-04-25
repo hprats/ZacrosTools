@@ -190,12 +190,10 @@ pressures as follows:
 
     for pCO in np.logspace(-3, 1, 10):
         for pO in np.logspace(-6, -2, 10):
-            pressure = {'CO': pCO, 'O': pO, 'CO2': 0.0}
             for temperature in np.linspace(500, 800, 10):
-                folder_name = f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}"
-                kmc_model.create_job_dir(path=folder_name,
+                kmc_model.create_job_dir(path=f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}",
                                          temperature=temperature,
-                                         pressure=pressure,
+                                         pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
                                          report='on event 10000',
                                          stop={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400})
 
