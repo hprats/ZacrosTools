@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name='zacrostools',
-    version='0.2-beta',
+    version='0.3-beta',
     description='A collective of tools for the preparation of input files for ZACROS',
     long_description=long_description,
     long_description_content_type='text/markdown',
