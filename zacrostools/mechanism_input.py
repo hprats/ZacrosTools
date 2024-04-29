@@ -68,7 +68,7 @@ class ReactionModel:
                 pre_expon, pe_ratio = self.get_pre_expon(step=step, temperature=temperature, gas_data=gas_data,
                                                          manual_scaling=manual_scaling)
                 if step in manual_scaling:
-                    infile.write(f"  pre_expon {pre_expon:.3e}   # scaled 1e-{manual_scaling[step]}\n")
+                    infile.write(f"  pre_expon {pre_expon:.3e}   # scaled {manual_scaling[step]:.3e}\n")
                 else:
                     infile.write(f"  pre_expon {pre_expon:.3e}\n")
                 infile.write(f"  pe_ratio {pe_ratio:.3e}\n")
@@ -115,7 +115,7 @@ class ReactionModel:
                                             vib_energies_fs=vib_energies_fs)
 
         if step in manual_scaling:
-            pe_fwd = pe_fwd * 10 ** (-manual_scaling[step])
-            pe_rev = pe_rev * 10 ** (-manual_scaling[step])
+            pe_fwd = pe_fwd * manual_scaling[step]
+            pe_rev = pe_rev * manual_scaling[step]
         pe_ratio = pe_fwd / pe_rev
         return pe_fwd, pe_ratio
