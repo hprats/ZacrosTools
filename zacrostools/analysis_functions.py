@@ -51,14 +51,14 @@ def get_data_general(path):
 
 
 def get_data_specnum(path, ignore=0.0):
-    data_specnum = {'average': {}, 'tof': {}, 'KMC_time': 0.0}
+    data_specnum = {'average': {}, 'tof': {}, 'kmc_time': 0.0}
     with open(f"{path}/specnum_output.txt", "r") as infile:
         header = infile.readline().split()
     full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
     index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], full_data[-1, 2] * ignore / 100))[0][0]
     data = np.delete(full_data, slice(0, index), 0)
     # Lattice energy
-    data_specnum['average']['Energy'] = np.average(data[:, 4])
+    data_specnum['average']['energy'] = np.average(data[:, 4])
     # Average number of adsorbed species
     i = 5
     while "*" in header[i]:
@@ -73,7 +73,7 @@ def get_data_specnum(path, ignore=0.0):
         else:
             data_specnum['tof'][header[j]] = np.polyfit(data[:, 2], data[:, j], 1)[0]
     # KMC time
-    data_specnum['KMC_time'] = data[-1, 2]
+    data_specnum['kmc_time'] = data[-1, 2]
     return data_specnum
 
 

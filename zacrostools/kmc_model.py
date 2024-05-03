@@ -64,6 +64,8 @@ class KMCModel:
             auto_scaling = []
         if auto_scaling_tags is None:
             auto_scaling_tags = {}
+        if len(auto_scaling) == 0 and len(auto_scaling_tags) > 0:
+            print('WARNING: auto_scaling_tags provided but dynamic scaling is not enabled')
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
