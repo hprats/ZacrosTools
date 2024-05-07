@@ -51,7 +51,16 @@ def get_data_general(path):
 
 
 def get_data_specnum(path, ignore=0.0):
-    data_specnum = {'average': {}, 'tof': {}, 'kmc_time': 0.0}
+    with open(f"{path}/specnum_output.txt", "r") as infile:
+        header = infile.readline().split()
+    full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
+    index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], full_data[-1, 2] * ignore / 100))[0][0]
+    data = np.delete(full_data, slice(0, index), 0)
+    return data, header
+
+
+def old_get_data_specnum(path, ignore=0.0):
+    data_specnum = {'average': {}, 'tof': {}, 'final_time': 0.0}
     with open(f"{path}/specnum_output.txt", "r") as infile:
         header = infile.readline().split()
     full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
@@ -72,14 +81,29 @@ def get_data_specnum(path, ignore=0.0):
             data_specnum['tof'][header[j]] = 0.00
         else:
             data_specnum['tof'][header[j]] = np.polyfit(data[:, 2], data[:, j], 1)[0]
-    # KMC time
-    data_specnum['kmc_time'] = data[-1, 2]
+    # Final KMC time
+    data_specnum['final_time'] = data[-1, 2]
+    # Final lattice energy
+    data_specnum['final_energy'] = data[-1, 4]
     return data_specnum
+
+
+def get_tof(path, product, min_molec, ignore=0.0):
+    with open(f"{path}/specnum_output.txt", "r") as infile:
+        header = infile.readline().split()
+    full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
+    index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], full_data[-1, 2] * ignore / 100))[0][0]
+    data = np.delete(full_data, slice(0, index), 0)
+    # TOF in s-1
+    tof = float('NaN')
+    if data[-1, header.index(product)] - data[0, header.index(product)] >= min_molec:
+        tof = np.polyfit(data[:, 2], data[:, header.index(product)], 1)[0]
+    return tof
 
 
 def get_selectivity(path, main_product, side_products, min_tof, ignore=0.0):   # min tof in s-1
     selectivity = float('NaN')
-    data_specnum = get_data_specnum(path, ignore)
+    data_specnum = old_get_data_specnum(path, ignore)
     tof_main_product = data_specnum['tof'][main_product]
     tof_side_products = 0.0
     for side_product in side_products:
@@ -92,7 +116,7 @@ def get_selectivity(path, main_product, side_products, min_tof, ignore=0.0):   #
 def get_dominant_ads(path, ads_sites, ignore=0.0):
     dominant_ads_per_site = {'dominant_ads': {}, 'site_coverage': {}}
     data_general = get_data_general(path)
-    data_specnum = get_data_specnum(path, ignore)
+    data_specnum = old_get_data_specnum(path, ignore)
     site_types = list(data_general['site_types'])
     for i, site_type in enumerate(site_types):
         total_average = 0.0
