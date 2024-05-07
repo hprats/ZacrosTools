@@ -51,7 +51,7 @@ class KMCModel:
             List of processes that will be marked as 'stiffness_scalable' in mechanism_input.dat.
             Default value: []
         auto_scaling_tags: dict, optional
-            Dictionary of keywords controling the dynamic scaling algorithm and the correspondign values,
+            Dictionary of keywords controling the dynamic scaling algorithm and the corresponding values,
             e.g. {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}
             Default value: {}
 
