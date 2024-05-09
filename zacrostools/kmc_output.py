@@ -19,8 +19,8 @@ class KMCOutput:
         # Get data from specnum_output.txt
         data_specnum, header = get_data_specnum(path, ignore)
         self.final_time = data_specnum[-1, 2]
-        self.final_energy = data_specnum[-1, 4]
-        self.energy = np.average(data_specnum[:, 4])
+        self.final_energy = data_specnum[-1, 4] / self.area
+        self.energy = np.average(data_specnum[:, 4]) / self.area
 
         # Production (molec) and TOF (molec/s-1/Å2)
         self.production = {}  # needed for selectivity
