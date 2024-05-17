@@ -20,18 +20,18 @@ $ git clone https://github.com/hprats/ZacrosTools.git
 ```
 The only requirements are [scipy](https://scipy.org/) and [pandas](https://pandas.pydata.org/).
 
-## How to use it
+## How to prepare the Zacros input files
 
-In ZacrosTools, a KMC model is represented as a KMCModel object {py:func}`zacrostools.kmc_model.KMCModel`. 
-To create a KMCModel object, the user has to supply information on the gas-phase species involved, a reaction model,
-an energetics model, and a lattice model.
+In ZacrosTools, a KMC model is represented as a KMCModel object {py:func}`zacrostools.kmc_model.KMCModel`, which 
+contains information on the gas-phase species involved, the reaction model, the energetics model, and the lattice model.
 
 ### Creating a new KMC model in ZacrosTools
 
-#### 1. Prepare the information on the gas-phase species 
+Below are listed the steps to create a new KMC model.
 
-This information has to be contained in a Pandas DataFrame, where each row corresponds to a gas-phase molecule. 
-The row index has to be the name of the species. 
+#### Step 1. Prepare the information on the gas-phase species 
+
+This information has to be contained in a Pandas DataFrame, where each row corresponds to a gas-phase molecule.
 
 ```{important}
 The row index has to be the name of the species.
@@ -56,11 +56,41 @@ Example:
 | O2     | linear  |32.0            | 2          | 3          | [12.178379354326061] | 2.6        |
 | CO2    | linear  |44.01           | 2.0        | 1.0        | [44.317229117708344] | 0.0        |
 
+This Pandas DataFrame can be created, for instance, by including all the information on a .csv file and reading it:
 
-#### 2. Prepare a reaction model
+    import pandas as pd
 
-The information on the reaction model is contained in a second DataFrame, where each row corresponds to an elementary
-step.
+    gas_data=pd.read_csv('gas_data.csv', index_col=0)
+
+Alternatively, it can be created from a Python Dictionary:
+
+    import pandas as pd
+    
+    gas_molecules = {
+        'CO': {'type': 'linear',
+               'gas_molec_weight': 28.01,
+               'sym_number': 1,
+               'degeneracy': 1,
+               'inertia_moments': [8.973619026272551],
+               'gas_energy': 1.96},
+        'O2': {'type': 'linear',
+               'gas_molec_weight': 32.0,
+               'sym_number': 2,
+               'degeneracy': 3,
+               'inertia_moments': [12.178379354326061],
+               'gas_energy': 2.60}}
+    
+    gas_data = pd.DataFrame()
+    new_row = pd.Series([], dtype='object')
+    for molecule in gas_molecules:
+        new_row = pd.Series(gas_molecules[molecule])
+        new_row.name = molecule
+        gas_data = pd.concat([gas_data, new_row.to_frame().T])
+
+#### Step 2. Prepare a reaction model
+
+The information on the reaction model is also contained in a Pandas DataFrame, where each row corresponds to an 
+elementary step.
 
 ```{important}
 The row index has to be the name of the step.
@@ -95,7 +125,44 @@ Example:
 | CO_diffusion    | 2     | topC topC  |1-2        |         | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  |1.156    |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |           |
 | O_diffusion     | 2     | topC topC  |1-2        |         | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   |1.221    |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |           |
 
-#### 3. Prepare an energetics model
+This Pandas DataFrame can also be created by including all the information on a .csv file and reading it:
+
+    import pandas as pd
+
+    mechanism_data=pd.read_csv('mechanism.csv', index_col=0)
+
+or from a Python Dictionary:
+
+    import pandas as pd
+    
+    steps = {
+        'CO_adsorption': {'site_types': 'tC',
+                          'initial': ['1 * 1'],
+                          'final': ['1 CO* 1'],
+                          'activ_eng': 0.0,
+                          'vib_energies_is': [264.16],
+                          'vib_energies_ts': [],
+                          'vib_energies_fs': [240.50, 82.74, 60.13, 60.08, 7.27, 6.55],
+                          'molecule': 'CO',
+                          'area_site': 5.34,
+                          'prox_factor': 0.0},
+        'CO+O_reaction': {'site_types': 'tC tC',
+                          'initial': ['1 CO* 1', '2 O* 1'],
+                          'final': ['1 CO2* 1', '2 * 1'],
+                          'activ_eng': 1.249,
+                          'vib_energies_is': [240.45, 83.19, 80.04, 61.66, 59.84, 38.27, 36.14, 12.37, 10.12],
+                          'vib_energies_ts': [217.94, 81.36, 66.83, 56.91, 50.34, 37.43, 19.07, 12.35],
+                          'vib_energies_fs': [171.18, 145.66, 96.96, 86.25, 56.20, 52.37, 35.93, 24.34, 21.02],
+                          'neighboring': '1-2'}}
+    
+    mechanism_data = pd.DataFrame()
+    new_row = pd.Series([], dtype='object')
+    for step in steps:
+        new_row = pd.Series(steps[step])
+        new_row.name = step
+        mechanism_data = pd.concat([mechanism_data, new_row.to_frame().T])
+
+#### Step 3. Prepare an energetics model
 
 The information on the energetics model is contained in a third DataFrame, where each row corresponds to an cluster.
 
@@ -127,8 +194,34 @@ Example:
 | CO+O_pair    |-0.032     | 2     |tC tC     |['1 CO* 1', '2 O* 1']     |1-2        |                    |
 | O+O_pair     |0.034      | 2     |tC tC     |['1 O* 1', '2 O* 1']      |1-2        | 2                  |
 
+This Pandas DataFrame can be created in the same way than the other ones. 
+From a .csv file:
 
-#### 4. Prepare a lattice model
+    import pandas as pd
+
+    energetics_data=pd.read_csv('energetics.csv', index_col=0)
+
+or from a Python dictionary:
+
+    import pandas as pd
+    
+    clusters = {
+        'CO_point': {'site_types': 'tC',
+                     'lattice_state': ['1 CO* 1'],
+                     'cluster_eng': 0.233},
+        'CO+CO_pair': {'site_types': 'tC tC',
+                       'neighboring': '1-2',
+                       'lattice_state': ['1 CO* 1', '2 CO* 1'],
+                       'cluster_eng': 0.177}}
+    
+    energetics_data = pd.DataFrame()
+    new_row = pd.Series([], dtype='object')
+    for cluster in clusters:
+        new_row = pd.Series(clusters[cluster])
+        new_row.name = cluster
+        energetics_data = pd.concat([energetics_data, new_row.to_frame().T])
+
+#### Step 4. Prepare a lattice model
 
 Finally, a lattice model is needed to create a KMCModel. The lattice model is stored as a 
 {py:func}`zacrostools.lattice_input.LatticeModel` object. 
@@ -138,7 +231,9 @@ Currently, the only way to create a lattice model is by reading a lattice_input.
 
     lattice_model = LatticeModel.from_file('lattice_inputs/lattice_input_for_HfC.dat')
 
-Example:
+In future releases, the user will be able to create the lattice_input.dat file directly from ZacrosTools.
+
+Example of a lattice input file for HfC(001):
 
 ![lattice](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png?raw=true)
 
@@ -171,22 +266,23 @@ Example:
     
     end_lattice
 
-#### 5. Create the KMC model
+#### Step 5. Create the KMC model
 
-With all this information, a KMC model can be created as follows:
+Finally, a KMC model can be created as follows:
 
     from zacrostools.kmc_model import KMCModel
     from zacrostools.lattice_input import LatticeModel
     
-    kmc_model = KMCModel(gas_data=pd.read_csv(f'gas_data.csv', index_col=0),
-                         mechanism_data=pd.read_csv(f'mechanism.csv', index_col=0),
-                         energetics_data=pd.read_csv(f'energetics.csv', index_col=0),
-                         lattice_model=LatticeModel.from_file(path=f"lattice_input_for_HfC.dat"))
+    kmc_model = KMCModel(gas_data=gas_data,
+                         mechanism_data=mechanism_data,
+                         energetics_data=energetics_data,
+                         lattice_model=lattice_model)
 
 ### Generation of Zacros input files
 
-Once the KMC model is created, the user can generate all the Zacros input files at a range of temperatures and partial
-pressures as follows:
+Once the KMC model is created, the Zacros input files can be generated using the 
+{py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function. For instance, to run a scan over a range of 
+temperatures and partial pressures, the following loop can be used to create all input files:
 
     for pCO in np.logspace(-3, 1, 10):
         for pO in np.logspace(-6, -2, 10):
@@ -197,91 +293,23 @@ pressures as follows:
                                          report='on event 10000',
                                          stop={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400})
 
-The {py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function allows to select the reporting parameters, the 
-stopping criteria, as well as manual scaling factors for specific steps or enabling automatic scaling for fast 
-processes.
+Note that the {py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function allows to select the reporting 
+parameters, the stopping criteria, as well as manual scaling factors for specific steps or enabling automatic scaling 
+for fast processes.
 
-### Creating a DataFrame
+## How to obtain the simulation results
 
-#### From Python dictionaries
+When the KMC simulation finishes, the results can be obtained as follows:
 
-The required DataFrames can be created from Python dictionaries as follows:
+    from zacrostools.kmc_output import KMCOutput
 
-##### Gas-phase species
+    kmc_output = KMCOutput(path=path_to_results)
+    tof_H2 = kmc_output.tof['H2']
+    selectivity_H2_to_H2O = kmc_output.get_selectivity(main_product='H2', side_products=['H2O'])
 
-    import pandas as pd
-    
-    gas_molecules = {
-        'CO': {'type': 'linear',
-               'gas_molec_weight': 28.01,
-               'sym_number': 1,
-               'degeneracy': 1,
-               'inertia_moments': [8.973619026272551],
-               'gas_energy': 1.96},
-        'O2': {'type': 'linear',
-               'gas_molec_weight': 32.0,
-               'sym_number': 2,
-               'degeneracy': 3,
-               'inertia_moments': [12.178379354326061],
-               'gas_energy': 2.60}}
-    
-    gas_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for molecule in gas_molecules:
-        new_row = pd.Series(gas_molecules[molecule])
-        new_row.name = molecule
-        gas_data = pd.concat([gas_data, new_row.to_frame().T])
-
-##### Reaction model
-
-    import pandas as pd
-    
-    steps = {
-        'CO_adsorption': {'site_types': 'tC',
-                          'initial': ['1 * 1'],
-                          'final': ['1 CO* 1'],
-                          'activ_eng': 0.0,
-                          'vib_energies_is': [264.16],
-                          'vib_energies_ts': [],
-                          'vib_energies_fs': [240.50, 82.74, 60.13, 60.08, 7.27, 6.55],
-                          'molecule': 'CO',
-                          'area_site': 5.34,
-                          'prox_factor': 0.0},
-        'CO+O_reaction': {'site_types': 'tC tC',
-                          'initial': ['1 CO* 1', '2 O* 1'],
-                          'final': ['1 CO2* 1', '2 * 1'],
-                          'activ_eng': 1.249,
-                          'vib_energies_is': [240.45, 83.19, 80.04, 61.66, 59.84, 38.27, 36.14, 12.37, 10.12],
-                          'vib_energies_ts': [217.94, 81.36, 66.83, 56.91, 50.34, 37.43, 19.07, 12.35],
-                          'vib_energies_fs': [171.18, 145.66, 96.96, 86.25, 56.20, 52.37, 35.93, 24.34, 21.02],
-                          'neighboring': '1-2'}}
-    
-    reaction_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for step in steps:
-        new_row = pd.Series(steps[step])
-        new_row.name = step
-        reaction_data = pd.concat([reaction_data, new_row.to_frame().T])
-
-##### Energetic model
-
-    import pandas as pd
-    
-    clusters = {
-        'CO_point': {'site_types': 'tC',
-                     'lattice_state': ['1 CO* 1'],
-                     'cluster_eng': 0.233},
-        'CO+CO_pair': {'site_types': 'tC tC',
-                       'neighboring': '1-2',
-                       'lattice_state': ['1 CO* 1', '2 CO* 1'],
-                       'cluster_eng': 0.177}}
-    
-    energetics_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for cluster in clusters:
-        new_row = pd.Series(clusters[cluster])
-        new_row.name = cluster
-        energetics_data = pd.concat([energetics_data, new_row.to_frame().T])
+```{warning}
+This section of the documentation is under development. 
+```
 
 ## Contributors
 
