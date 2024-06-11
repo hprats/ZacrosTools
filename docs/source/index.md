@@ -1,7 +1,7 @@
 # ZacrosTools
 
 ```{warning}
-This project is under development.
+This project is still under development.
 ```
 
 ZacrosTools is a simple toolkit for the preparation of **[Zacros](https://zacros.org/)** input files. It is specially 
@@ -27,7 +27,7 @@ contains information on the gas-phase species involved, the reaction model, the 
 
 ### Creating a new KMC model in ZacrosTools
 
-Below are listed the steps to create a new KMC model.
+Below are listed the steps to create a new KMC model. 
 
 #### Step 1. Prepare the information on the gas-phase species 
 
