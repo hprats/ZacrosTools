@@ -9,7 +9,7 @@
 project = 'ZacrosTools Documentation'
 copyright = '2024, Hector Prats'
 author = 'Hector Prats'
-release = '0.4-beta'
+release = '0.5-beta'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

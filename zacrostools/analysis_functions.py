@@ -20,7 +20,10 @@ def find_nearest(array, value):
 
 
 def get_data_general(path):
-    dmatch = ['Number of surface species',
+    dmatch = ['Number of gas species',
+              'Gas species names',
+              'Number of surface species',
+              'Surface species names',
               'Total number of lattice sites',
               'Lattice surface area',
               'Site type names and total number of sites of that type']
@@ -28,9 +31,18 @@ def get_data_general(path):
     with open(f"{path}/general_output.txt", 'r') as file_object:
         line = file_object.readline()
         while len(dmatch) != 0:
+            if 'Number of gas species' in line:
+                data['n_gas_species'] = int(line.split()[-1])
+                dmatch.remove('Number of gas species')
+            if 'Gas species names' in line:
+                data['gas_species_names'] = line.split(':')[-1].split()
+                dmatch.remove('Gas species names')
             if 'Number of surface species' in line:
                 data['n_surf_species'] = int(line.split()[-1])
                 dmatch.remove('Number of surface species')
+            if 'Surface species names' in line:
+                data['surf_species_names'] = [ads[0:-1] for ads in line.split(':')[-1].split()]
+                dmatch.remove('Surface species names')
             if 'Total number of lattice sites' in line:
                 data['n_sites'] = int(line.split()[-1])
                 dmatch.remove('Total number of lattice sites')
