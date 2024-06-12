@@ -97,9 +97,9 @@ class KMCOutput:
         self.av_energy = np.average(data_specnum[:, 4]) / self.area
         self.final_energy = data_specnum[-1, 4] / self.area
 
-        # Production (molec) and TOF (molec/s-1/Å2)
+        # Production (molec) and TOF (molec·s^-1·Å^-2)
         self.production = {}
-        self.total_production = {}  # needed for selectivity
+        self.total_production = {}  # useful when calculating selectivity (i.e., set min_total_production)
         self.tof = {}
         for i in range(5 + self.n_surf_species, len(header)):
             ads = header[i]
