@@ -281,13 +281,23 @@ for fast processes.
 
 ## Reading output files
 
-Zacros output files can be read and processed using the {py:func}`zacrostools.kmc_output.KMCOutput` class. For instance:
+In ZacrosTools, a finished KMC simulation can be stored as a KMCOutput object {py:func}`zacrostools.kmc_output.KMCOutput`, 
+from which all the information can be extracted.
+
+### Creating a new KMCOutput object in ZacrosTools
+
+To create a new KMCOutput from a finished calculation, the user must indicate the path where the output files are located:
 
     from zacrostools.kmc_output import KMCOutput
 
-    kmc_output = KMCOutput(path=path_to_output_files)
+    kmc_output = KMCOutput(path=path_to_calculation_)
 
-### Plot number of product molecules and coverage as a function of simulated time
+### Extracting data from KMCOutput and plotting the results
+
+All KMC results can be obtained from the different {py:func}`zacrostools.kmc_output.KMCOutput` attributes.
+Below there are some examples.
+
+#### Plot number of product molecules and coverage as a function of simulated time
 
     fig, axes = plt.subplots(2, 1, figsize=(2, 4), sharex=True)
 
@@ -300,7 +310,7 @@ Zacros output files can be read and processed using the {py:func}`zacrostools.km
     for ads in spec_sites:
         axes[1].plot(kmc_output.time, kmc_output.coverage[ads], label=ads)
 
-### Get TOF and average coverage
+#### Get TOF and average coverage
 
     # TOF (in molec·s^-1·Å^-2)
     for molecule in kmc_output.gas_species_names:
@@ -310,11 +320,11 @@ Zacros output files can be read and processed using the {py:func}`zacrostools.km
     for ads in spec_sites:
         print(f"Coverage {ads}: {kmc_output.av_coverage[ads]:.2f}")
 
-### Get selectivity
+#### Get selectivity
 
     selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])  # in %
 
-### Plot contour plots (pX,pY) for TOF and selectivity
+#### Plot contour plots (pX,pY) for TOF and selectivity
     
     list_pX_values = [0.001, 0.01, 0.1, 1.0, 10]
     list_pY_values = [0.001, 0.01, 0.1, 1.0, 10]
@@ -338,7 +348,7 @@ Zacros output files can be read and processed using the {py:func}`zacrostools.km
         axes[i].set_xscale('log')
         axes[i].set_yscale('log')
 
-### Plot kinetic phase diagram 
+#### Plot kinetic phase diagram 
     
     spec_values = {'H': 0.5, 'CH3': 1.5, 'CH2': 2.5, 'CH': 3.5, 'C': 4.5, 'CO': 5.5, 'CO2': 6.5, 'O': 7.5}
 
@@ -358,10 +368,6 @@ Zacros output files can be read and processed using the {py:func}`zacrostools.km
 
     axes.set_xscale('log')
     axes.set_yscale('log')
-
-### Additional plots
-
-Have a look at all the attributes from the KMCOutput object in {py:func}`zacrostools.kmc_output.KMCOutput`
 
 ```{warning}
 This section of the documentation is under development. 
