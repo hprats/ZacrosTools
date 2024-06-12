@@ -10,7 +10,7 @@ class ReactionModel:
     Parameters:
 
     mechanism_data: Pandas DataFrame
-        Informaton on the reaction model
+        Information on the reaction model
         The reaction name is taken as the index of each row
 
         The following columns are required:
@@ -18,10 +18,10 @@ class ReactionModel:
             - initial (list): initial configuration in Zacros format, e.g. ['1 CO* 1','2 * 1']
             - final (list): final configuration in Zacros format, e.g. ['1 C* 1','2 O* 1']
             - activ_eng (float): activation energy (in eV)
-            - vib_energies_is (list of floats): vibrational energie for the initial state (in meV)
-            - vib_energie_ts (list of floats): vibrational energie for the transition state (in meV).
+            - vib_energies_is (list of floats): vibrational energies for the initial state (in meV)
+            - vib_energies_ts (list of floats): vibrational energies for the transition state (in meV).
               For non-activated adsorption, define this as an empty list i.e. []
-            - vib_energie_fs (list of floats): vibrational energie for the final state (in meV)
+            - vib_energies_fs (list of floats): vibrational energies for the final state (in meV)
             - molecule (str): gas-phase molecule involved. Only required for adsorption steps. Default value: None
             - area_site (float): area of adsorption site (in Å^2). Only required for adsorption steps. Default value: None
         The following columns are optional:
@@ -74,8 +74,9 @@ class ReactionModel:
                 infile.write(f"  pe_ratio {pe_ratio:.3e}\n")
                 infile.write(f"  activ_eng {self.df.loc[step, 'activ_eng']:.2f}\n")
                 for keyword in ['prox_factor', 'angles']:  # optional keywords
-                    if not pd.isna(self.df.loc[step, keyword]):
-                        infile.write(f"  {keyword} {self.df.loc[step, keyword]}\n")
+                    if keyword in self.df.columns:
+                        if not pd.isna(self.df.loc[step, keyword]):
+                            infile.write(f"  {keyword} {self.df.loc[step, keyword]}\n")
                 if step in auto_scaling:
                     infile.write(f"  stiffness_scalable \n")
                 infile.write(f"\nend_reversible_step\n\n")
