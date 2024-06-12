@@ -3,11 +3,10 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# Manually added to avoid import errors with zacrostools:
+import os
+import sys
 
-import os, sys
-
-sys.path.append(os.path.abspath('/Users/hprats/PycharmProjects/ZacrosTools'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -20,10 +19,15 @@ release = '0.6-beta'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['myst_parser', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['myst_parser',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.viewcode']  # add 'sphinx.ext.autosummary'? Chat GPT...
 
 templates_path = ['_templates']
 exclude_patterns = []
+
+# Enable autosummary
+# autosummary_generate = True  # Chat GPT ...
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
