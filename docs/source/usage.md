@@ -290,7 +290,7 @@ To create a new KMCOutput from a finished calculation, the user must indicate th
 
     from zacrostools.kmc_output import KMCOutput
 
-    kmc_output = KMCOutput(path=path_to_calculation_)
+    kmc_output = KMCOutput(path=path_to_calculation_files)
 
 ### Extracting data from KMCOutput and plotting the results
 
