@@ -31,9 +31,28 @@ class LatticeModel:
         lattice_model: LatticeModel
 
         """
+
+        lattice_lines = []
+        start_pattern_detected = False
+        end_pattern_detected = False
+
         with open(path, 'r') as infile:
-            lines = infile.readlines()
-        lattice_model = cls(lines=lines)
+
+            while not start_pattern_detected:
+                line = infile.readline()
+                if 'default_choice' in line or 'periodic_cell' in line or 'explicit' in line:
+                    lattice_lines.append(line)
+                    start_pattern_detected = True
+
+            while not end_pattern_detected:
+                line = infile.readline()
+                if 'end_lattice' in line:
+                    lattice_lines.append(line)
+                    end_pattern_detected = True
+                else:
+                    lattice_lines.append(line)
+
+        lattice_model = cls(lines=lattice_lines)
         return lattice_model
 
     def write_lattice_input(self, path):
