@@ -8,8 +8,7 @@ from zacrostools.kmc_output import KMCOutput
 
 catalyst = 'PtHfC'  # PtHfC or HfC
 reaction = 'DRM'  # DRM, SRM, POM, WGS or RWGS
-scan_name = 'no_scaling'  # scaling_default or no_scaling
-temperature = 1000
+temperature = 1000  # in K
 grid_points_pX = 15
 grid_points_pY = 15
 plot_points = []  # [2, 2] or []
@@ -23,8 +22,8 @@ print("\nPlotting results for scan ... ")
 print(f"Catalyst: {catalyst}")
 print(f"Reaction: {reaction}")
 print(f"Temperature: {temperature} K")
-print(f"Number of grid poits in pX: {grid_points_pX}")
-print(f"Number of grid poits in pY: {grid_points_pY}")
+print(f"Number of grid points in pX: {grid_points_pX}")
+print(f"Number of grid points in pY: {grid_points_pY}")
 print(f"Ignore first {ignore} % of total simulated time")
 print(f"Plot TOF_X if molec_X produced > {min_molec} molecules")
 print(f"Plot selectivity_X/Y if molec_X + molec_Y produced > {min_molec} molecules")
@@ -70,21 +69,19 @@ for path in glob(f"{scan_path}/*"):
     folder_name = path.split('/')[-1]
     kmc_output = KMCOutput(path=path, ignore=ignore, coverage_per_site=True, ads_sites=spec_sites)
     for product in products:
-        df.loc[folder_name, f"production_{product}"] = kmc_output.production[product]
+        df.loc[folder_name, f"production_{product}"] = kmc_output.total_production[product]
         df.loc[folder_name, f"tof_{product}"] = kmc_output.tof[product]
     df.loc[folder_name, f"selectivity"] = kmc_output.get_selectivity(main_product=main_product,
                                                                      side_products=side_products)
-    df.loc[folder_name, "main_and_side_prod"] = kmc_output.production[main_product]
+    df.loc[folder_name, "main_and_side_prod"] = kmc_output.total_production[main_product]
     for side_product in side_products:
-        df.loc[folder_name, "main_and_side_prod"] += kmc_output.production[side_product]
+        df.loc[folder_name, "main_and_side_prod"] += kmc_output.total_production[side_product]
     for i, site_type in enumerate(kmc_output.site_types):
-        df.loc[folder_name, f"coverage_{site_type}"] = kmc_output.total_coverage_per_site_type[site_type]
+        df.loc[folder_name, f"coverage_{site_type}"] = kmc_output.av_total_coverage_per_site_type[site_type]
         df.loc[folder_name, f"dominant_ads_{site_type}"] = kmc_output.dominant_ads_per_site_type[site_type]
     df.loc[folder_name, "final_time"] = kmc_output.final_time
     df.loc[folder_name, "final_energy"] = kmc_output.final_energy
     df.loc[folder_name, "area"] = kmc_output.area
-
-df.to_csv(f"/Users/install/Desktop/{scan_name}.csv")
 
 # Plot data
 xlist = np.logspace(reactions[reaction]['logpX_min'], reactions[reaction]['logpX_min'] + 5, grid_points_pX)
@@ -213,10 +210,8 @@ if plot_points:
             axs[plot_points[0], plot_points[1]].plot(pX, pY, marker='.', color='k')
 
 plt.tight_layout()
-plt.savefig(f'/Users/install/Desktop/Results_{scan_name}_{reaction}_{temperature}.pdf', bbox_inches='tight',
-            transparent=False)
+plt.savefig(f'Results_{reaction}_{temperature}.pdf', bbox_inches='tight', transparent=False)
 
-print(f"Figure saved: Results_{scan_name}_{reaction}_{temperature}.pdf")
+print(f"Figure saved in Results_{reaction}_{temperature}.pdf (in the examples folder)")
 
 plt.show()
-
