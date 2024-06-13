@@ -54,7 +54,7 @@ class KMCModel:
             Default value: []
         auto_scaling_tags: dict, optional
             Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g. {'check_every': 500,
-             'min_separation': 400.0, 'max_separation': 600.0}
+            'min_separation': 400.0, 'max_separation': 600.0}.
             Default value: {}
         """
 
