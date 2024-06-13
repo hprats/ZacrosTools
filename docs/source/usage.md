@@ -262,9 +262,28 @@ Finally, a KMC model can be created as follows:
 
 ### Generation of Zacros input files
 
-Once the KMC model is created, the Zacros input files can be generated using the 
-{py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function. For instance, to run a scan over a range of 
-temperatures and partial pressures, the following loop can be used to create all input files:
+Once the KMC model is created, the Zacros input files for the desired operating conditions can be generated using the 
+{py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function. This function also contains parameters regarding 
+the reporting scheme, the stopping criteria, and the scaling of reaction rates for fast events:
+
+The following columns are **mandatory**:
+- **path** (*str*): the path for the job directory where input files will be written
+- **temperature** (*float*): reaction temperature (in K)
+- **pressure** (*dict*): partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
+
+The following columns are **optional**:
+- **report** (*str*): reporting scheme in Zacros format. Default value: 'on event 100000'
+- **stop** (*dict*): stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 'max_time' and 
+'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
+- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
+{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default value: {}
+- **auto_scaling_steps** (*list*): Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat. Default 
+value: []
+- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values, 
+e.g. {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}. Default value: {}
+
+For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
+create all input files:
 
     for pCO in np.logspace(-3, 1, 10):
         for pO in np.logspace(-6, -2, 10):
@@ -274,10 +293,6 @@ temperatures and partial pressures, the following loop can be used to create all
                                          pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
                                          report='on event 10000',
                                          stop={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400})
-
-Note that the {py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function allows to select the reporting 
-parameters, the stopping criteria, as well as manual scaling factors for specific steps or enabling automatic scaling 
-for fast processes.
 
 ## Reading output files
 

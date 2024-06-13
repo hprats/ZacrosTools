@@ -11,11 +11,11 @@ class KMCModel:
     Parameters
     ----------
     gas_data: pd.DataFrame
-        A Pandas DataFrame containing informaton about the gas molecules.
+        A Pandas DataFrame containing information about the gas molecules.
     mechanism_data: pd.DataFrame
-        A Pandas DataFrame containing informaton about the reaction model.
+        A Pandas DataFrame containing information about the reaction model.
     energetics_data: pd.DataFrame
-        A Pandas DataFrame containing informaton about the energetic model.
+        A Pandas DataFrame containing information about the energetic model.
     lattice_model: zacrostools.lattice_input.LatticeModel
         A lattice model
     """
@@ -27,7 +27,7 @@ class KMCModel:
         self.energetic_model = EnergeticModel(energetics_data=energetics_data)
         self.lattice_model = lattice_model
 
-    def create_job_dir(self, path, temperature, pressure, report='on event 10000', stop=None,
+    def create_job_dir(self, path, temperature, pressure, reporting_scheme='on event 10000', stopping_criteria=None,
                        manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None):
         """
 
@@ -39,25 +39,26 @@ class KMCModel:
             Reaction temperature (in K)
         pressure: dict
             Partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
-        report: str, optional
+        reporting_scheme: str, optional
             Reporting scheme in Zacros format. Default value: 'on event 100000'
-        stop: dict, optional
+        stopping_criteria: dict, optional
             Stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 'max_time' and 'wall_time'
             Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
-        manual_scaling: list of str, optional
-            List of processes to downscale manually, e.g. ['CO_diffusion', 'O_diffusion']
-            Default value: []
+        manual_scaling: dict, optional
+            Step names (keys) and their corresponding manual scaling factors (values) e.g. {'CO_diffusion': 1.0e-1,
+            'O_diffusion': 1.0e-2}
+            Default value: {}
         auto_scaling_steps: list of str, optional
-            List of steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
+            Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
             Default value: []
         auto_scaling_tags: dict, optional
-            Dictionary of keywords controling the dynamic scaling algorithm and the corresponding values,
-            e.g. {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}
+            Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g. {'check_every': 500,
+             'min_separation': 400.0, 'max_separation': 600.0}
             Default value: {}
-
         """
-        if stop is None:
-            stop = {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
+
+        if stopping_criteria is None:
+            stopping_criteria = {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
         if manual_scaling is None:
             manual_scaling = {}
         if auto_scaling_steps is None:
@@ -69,8 +70,9 @@ class KMCModel:
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
-            self.write_simulation_input(temperature=temperature, pressure=pressure, report=report, stop=stop,
-                                        auto_scaling_steps=auto_scaling_steps, auto_scaling_tags=auto_scaling_tags)
+            self.write_simulation_input(temperature=temperature, pressure=pressure, reporting_scheme=reporting_scheme,
+                                        stopping_criteria=stopping_criteria, auto_scaling_steps=auto_scaling_steps,
+                                        auto_scaling_tags=auto_scaling_tags)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
                                                       manual_scaling=manual_scaling,
                                                       auto_scaling_steps=auto_scaling_steps)
@@ -79,7 +81,8 @@ class KMCModel:
         else:
             print(f'{self.path} already exists (nothing done)')
 
-    def write_simulation_input(self, temperature, pressure, report, stop, auto_scaling_steps, auto_scaling_tags):
+    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_steps,
+                               auto_scaling_tags):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs_names = [x.replace('_point', '') for x in self.energetic_model.df.index if '_point' in x]
@@ -104,9 +107,9 @@ class KMCModel:
             infile.write('surf_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs_names) + '\n')
             infile.write('surf_specs_dent\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs_dent) + '\n')
             for tag in ['snapshots', 'process_statistics', 'species_numbers']:
-                infile.write((tag + '\t').expandtabs(26) + report + '\n')
+                infile.write((tag + '\t').expandtabs(26) + reporting_scheme + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
-                infile.write((tag + '\t').expandtabs(26) + str(stop[tag]) + '\n')
+                infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria[tag]) + '\n')
             if len(auto_scaling_steps) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in auto_scaling_tags:
