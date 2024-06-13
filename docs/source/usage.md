@@ -272,9 +272,9 @@ The following columns are **mandatory**:
 - **pressure** (*dict*): partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
 
 The following columns are **optional**:
-- **report** (*str*): reporting scheme in Zacros format. Default value: 'on event 100000'
-- **stop** (*dict*): stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 'max_time' and 
-'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
+- **reporting_scheme** (*str*): reporting scheme in Zacros format. Default value: 'on event 100000'
+- **stopping_criteria** (*dict*): stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 
+'max_time' and 'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
 - **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
 {'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default value: {}
 - **auto_scaling_steps** (*list*): Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat. Default 
