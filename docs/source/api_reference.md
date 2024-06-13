@@ -13,7 +13,7 @@
 ```
 
 ```{eval-rst}
-.. autofunction:: zacrostools.kmc_output.KMCOutput
+.. automodule:: zacrostools.kmc_output.KMCOutput
     :members:
     :undoc-members:
     :show-inheritance:
