@@ -11,7 +11,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     url='https://github.com/hprats/ZacrosTools',
-    download_url='https://github.com/hprats/ZacrosTools/archive/refs/tags/v0.7-beta.tar.gz',
+    download_url='https://github.com/hprats/ZacrosTools/archive/refs/tags/v0.8-beta.tar.gz',
     author='Hector Prats',
     author_email='hpratsgarcia@gmail.com',
     keywords=['python', 'chemistry', 'KMC', 'ZACROS'],
