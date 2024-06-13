@@ -41,7 +41,7 @@ class ReactionModel:
         """Not implemented yet"""
         pass
 
-    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, auto_scaling):
+    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, auto_scaling_steps):
         """Writes the mechanism_input.dat file"""
         write_header(f"{path}/mechanism_input.dat")
         with open(f"{path}/mechanism_input.dat", 'a') as infile:
@@ -77,7 +77,7 @@ class ReactionModel:
                     if keyword in self.df.columns:
                         if not pd.isna(self.df.loc[step, keyword]):
                             infile.write(f"  {keyword} {self.df.loc[step, keyword]}\n")
-                if step in auto_scaling:
+                if step in auto_scaling_steps:
                     infile.write(f"  stiffness_scalable \n")
                 infile.write(f"\nend_reversible_step\n\n")
                 infile.write('############################################################################\n\n')

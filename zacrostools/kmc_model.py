@@ -28,7 +28,7 @@ class KMCModel:
         self.lattice_model = lattice_model
 
     def create_job_dir(self, path, temperature, pressure, report='on event 10000', stop=None,
-                       manual_scaling=None, auto_scaling=None, auto_scaling_tags=None):
+                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None):
         """
 
         Parameters
@@ -47,8 +47,8 @@ class KMCModel:
         manual_scaling: list of str, optional
             List of processes to downscale manually, e.g. ['CO_diffusion', 'O_diffusion']
             Default value: []
-        auto_scaling: list of str, optional
-            List of processes that will be marked as 'stiffness_scalable' in mechanism_input.dat.
+        auto_scaling_steps: list of str, optional
+            List of steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
             Default value: []
         auto_scaling_tags: dict, optional
             Dictionary of keywords controling the dynamic scaling algorithm and the corresponding values,
@@ -60,25 +60,26 @@ class KMCModel:
             stop = {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
         if manual_scaling is None:
             manual_scaling = {}
-        if auto_scaling is None:
-            auto_scaling = []
+        if auto_scaling_steps is None:
+            auto_scaling_steps = []
         if auto_scaling_tags is None:
             auto_scaling_tags = {}
-        if len(auto_scaling) == 0 and len(auto_scaling_tags) > 0:
+        if len(auto_scaling_steps) == 0 and len(auto_scaling_tags) > 0:
             print('WARNING: auto_scaling_tags provided but dynamic scaling is not enabled')
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
             self.write_simulation_input(temperature=temperature, pressure=pressure, report=report, stop=stop,
-                                        auto_scaling=auto_scaling, auto_scaling_tags=auto_scaling_tags)
+                                        auto_scaling_steps=auto_scaling_steps, auto_scaling_tags=auto_scaling_tags)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
-                                                      manual_scaling=manual_scaling, auto_scaling=auto_scaling)
+                                                      manual_scaling=manual_scaling,
+                                                      auto_scaling_steps=auto_scaling_steps)
             self.energetic_model.write_energetics_input(path=self.path)
             self.lattice_model.write_lattice_input(path=self.path)
         else:
             print(f'{self.path} already exists (nothing done)')
 
-    def write_simulation_input(self, temperature, pressure, report, stop, auto_scaling, auto_scaling_tags):
+    def write_simulation_input(self, temperature, pressure, report, stop, auto_scaling_steps, auto_scaling_tags):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs_names = [x.replace('_point', '') for x in self.energetic_model.df.index if '_point' in x]
@@ -106,7 +107,7 @@ class KMCModel:
                 infile.write((tag + '\t').expandtabs(26) + report + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
                 infile.write((tag + '\t').expandtabs(26) + str(stop[tag]) + '\n')
-            if len(auto_scaling) > 0:
+            if len(auto_scaling_steps) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in auto_scaling_tags:
                     infile.write((tag + '\t').expandtabs(26) + str(auto_scaling_tags[tag]) + '\n')
