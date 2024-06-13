@@ -332,7 +332,7 @@ Example:
 
 #### Get selectivity
 
-The **selectivity** can be obtained by using the method {py:func}`zacrostools.kmc_output.KMCOutput.get_selectivity()` 
+The **selectivity** can be obtained by using the method {py:meth}`zacrostools.kmc_output.KMCOutput.get_selectivity()` 
 (in %)
 
 Example:
