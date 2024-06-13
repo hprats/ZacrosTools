@@ -148,6 +148,17 @@ class KMCOutput:
                                                                  key=self.av_coverage_per_site_type[site_type].get)
 
     def get_selectivity(self, main_product, side_products):
+        """
+        Get the selectivity.
+
+        Parameters
+        ----------
+        main_product: str
+            Name of the main product
+        side_products: list of str
+            Names of the side products
+
+        """
         selectivity = float('NaN')
         tof_side_products = 0.0
         for side_product in side_products:
