@@ -49,10 +49,12 @@ class EnergeticModel:
                 for element in lattice_state:
                     infile.write(f"    {element}\n")
                 infile.write(f"  site_types {self.df.loc[cluster, 'site_types']}\n")
-                for keyword in ['graph_multiplicity', 'angles']:  # optional keywords
-                    if keyword in self.df.columns:
-                        if not pd.isna(self.df.loc[cluster, keyword]):
-                            infile.write(f"  {keyword} {self.df.loc[cluster, keyword]}\n")
+                if 'graph_multiplicity' in self.df.columns:
+                    if not pd.isna(self.df.loc[cluster, 'graph_multiplicity']):
+                        infile.write(f"  graph_multiplicity {int(self.df.loc[cluster, 'graph_multiplicity'])}\n")
+                if 'angles' in self.df.columns:
+                    if not pd.isna(self.df.loc[cluster, 'angles']):
+                        infile.write(f"  angles {self.df.loc[cluster, 'angles']}\n")
                 infile.write(f"  cluster_eng {self.df.loc[cluster, 'cluster_eng']:.2f}\n\n")
                 infile.write(f"end_cluster\n\n")
                 infile.write('############################################################################\n\n')
