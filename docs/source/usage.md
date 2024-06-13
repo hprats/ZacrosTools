@@ -277,10 +277,10 @@ The following columns are **optional**:
 'max_time' and 'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
 - **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
 {'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default value: {}
-- **auto_scaling_steps** (*list*): Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat. Default 
-value: []
+- **auto_scaling_steps** (*list*): Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat, e.g. 
+['CO_diffusion', 'O_diffusion']. Default value: []
 - **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values, 
-e.g. {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}. Default value: {}
+e.g. {'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}. Default value: {}
 
 For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
 create all input files:
@@ -291,8 +291,9 @@ create all input files:
                 kmc_model.create_job_dir(path=f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}",
                                          temperature=temperature,
                                          pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
-                                         report='on event 10000',
-                                         stop={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400})
+                                         reporting_scheme='on event 10000',
+                                         stopping_criteria={'max_steps': 'infinity', 'max_time': 'infinity', 
+                                                            'wall_time': 43200})
 
 ## Reading output files
 

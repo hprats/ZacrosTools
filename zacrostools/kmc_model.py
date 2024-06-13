@@ -1,4 +1,5 @@
 import os
+import sys
 from random import randint
 from zacrostools.input_functions import write_header
 from zacrostools.mechanism_input import ReactionModel
@@ -66,7 +67,7 @@ class KMCModel:
         if auto_scaling_tags is None:
             auto_scaling_tags = {}
         if len(auto_scaling_steps) == 0 and len(auto_scaling_tags) > 0:
-            print('WARNING: auto_scaling_tags provided but dynamic scaling is not enabled')
+            sys.exit('ERROR: auto_scaling_tags defined but no steps are stiffness scalable.')
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
@@ -110,7 +111,7 @@ class KMCModel:
                 infile.write((tag + '\t').expandtabs(26) + reporting_scheme + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
                 infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria[tag]) + '\n')
-            if len(auto_scaling_steps) > 0:
+            if len(auto_scaling_tags) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in auto_scaling_tags:
                     infile.write((tag + '\t').expandtabs(26) + str(auto_scaling_tags[tag]) + '\n')
