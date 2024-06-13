@@ -13,8 +13,9 @@
 ```
 
 ```{eval-rst}
-.. automodule:: zacrostools.kmc_output.KMCOutput
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autofunction:: zacrostools.kmc_output.KMCOutput
+```
+
+```{eval-rst}
+.. autofunction:: zacrostools.kmc_output.KMCOutput.get_selectivity
 ```
