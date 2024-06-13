@@ -299,18 +299,28 @@ Below there are some examples.
 
 #### Plot number of product molecules and coverage as a function of simulated time
 
+- **Product molecules:** kmc_output.production[gas_species]  (in molec.)
+- **Coverage:** kmc_output.coverage[surf_species]  (in %)
+
+Example:
+
     fig, axes = plt.subplots(2, 1, figsize=(2, 4), sharex=True)
 
     # Number of product molecules
-    for molecule in kmc_output.gas_species_names:
-        if kmc_output.tof[molecule] > 0.0:  # products only
-            axes[0].plot(kmc_output.time, kmc_output.production[molecule], label=molecule + '$_{(g)}$')
+    for gas_species in kmc_output.gas_species_names:
+        if kmc_output.tof[gas_species] > 0.0:  # products only
+            axes[0].plot(kmc_output.time, kmc_output.production[gas_species], label=gas_species+'$_{(g)}$')
 
     # Coverage (in %)
-    for ads in spec_sites:
-        axes[1].plot(kmc_output.time, kmc_output.coverage[ads], label=ads)
+    for surf_species in spec_sites:
+        axes[1].plot(kmc_output.time, kmc_output.coverage[surf_species], label=surf_species)
 
 #### Get TOF and average coverage
+
+- **TOF:** kmc_output.tof[gas_species]  (in molec·s^-1·Å^-2)
+- **Average coverage:** kmc_output.av_coverage[surf_species]  (in %)
+
+Example:
 
     # TOF (in molec·s^-1·Å^-2)
     for molecule in kmc_output.gas_species_names:
@@ -322,9 +332,16 @@ Below there are some examples.
 
 #### Get selectivity
 
+The **selectivity** can be obtained by using the method {py:func}`zacrostools.kmc_output.KMCOutput.get_selectivity()` 
+(in %)
+
+Example:
+
     selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])  # in %
 
 #### Plot contour plots (pX,pY) for TOF and selectivity
+
+Example:
     
     list_pX_values = [0.001, 0.01, 0.1, 1.0, 10]
     list_pY_values = [0.001, 0.01, 0.1, 1.0, 10]
@@ -349,6 +366,8 @@ Below there are some examples.
         axes[i].set_yscale('log')
 
 #### Plot kinetic phase diagram 
+
+Example:
     
     spec_values = {'H': 0.5, 'CH3': 1.5, 'CH2': 2.5, 'CH': 3.5, 'C': 4.5, 'CO': 5.5, 'CO2': 6.5, 'O': 7.5}
 
