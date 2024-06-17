@@ -20,5 +20,6 @@ Hector Prats
    :caption: Contents
 
    installation.md
-   usage.md
+   writing_input_files.md
+   reading_output_files.md
    api_reference.md
