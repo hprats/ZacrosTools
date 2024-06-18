@@ -1,6 +1,6 @@
 import ast
 import pandas as pd
-from zacrostools.input_functions import write_header
+from zacrostools.write_functions import write_header
 
 
 class EnergeticModel:

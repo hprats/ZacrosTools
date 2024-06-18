@@ -42,14 +42,14 @@ reactions = {
     'RWGS': {'reactants': ['CO2', 'H2'], 'products': ['CO', 'H2O', 'CH4', 'O2'], 'logpX_min': -5, 'logpY_min': -4}}
 
 # List of processes that would be stiffness scalable
-auto_scaling = ['fH2O', 'bCH3', 'bCH2', 'bCH']
+auto_scaling_steps = ['fH2O', 'bCH3', 'bCH2', 'bCH']
 for step in df_mechanism.index:
     if step[0] == 'a':  # Include reactant adsorption steps
         if step.replace('_HfC', '').replace('_Pt', '')[1:] in reactions[reaction]['reactants']:
-            auto_scaling.append(step)  # add reactant steps
+            auto_scaling_steps.append(step)  # add reactant steps
     elif step[0] == 'd':  # Include all diffusion steps within the HfC region
         if '_HfC' in step:
-            auto_scaling.append(step)
+            auto_scaling_steps.append(step)
 
 
 for pX in np.logspace(reactions[reaction]['logpX_min'], reactions[reaction]['logpX_min'] + 5, grid_points_pX):
@@ -62,6 +62,6 @@ for pX in np.logspace(reactions[reaction]['logpX_min'], reactions[reaction]['log
         job.create_job_dir(path=path,
                            temperature=temperature,
                            pressure=pressure,
-                           report='on event 100000',
-                           stop={'max_steps': 'infinity', 'max_time': 50000, 'wall_time': 172800},
-                           auto_scaling=auto_scaling)
+                           reporting_scheme='on event 100000',
+                           stopping_criteria={'max_steps': 'infinity', 'max_time': 50000, 'wall_time': 172800},
+                           auto_scaling_steps=auto_scaling_steps)

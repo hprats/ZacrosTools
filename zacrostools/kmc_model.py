@@ -1,7 +1,7 @@
 import os
 import sys
 from random import randint
-from zacrostools.input_functions import write_header
+from zacrostools.write_functions import write_header
 from zacrostools.mechanism_input import ReactionModel
 from zacrostools.energetics_input import EnergeticModel
 
@@ -72,8 +72,7 @@ class KMCModel:
         if not os.path.exists(self.path):
             os.mkdir(self.path)
             self.write_simulation_input(temperature=temperature, pressure=pressure, reporting_scheme=reporting_scheme,
-                                        stopping_criteria=stopping_criteria, auto_scaling_steps=auto_scaling_steps,
-                                        auto_scaling_tags=auto_scaling_tags)
+                                        stopping_criteria=stopping_criteria, auto_scaling_tags=auto_scaling_tags)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
                                                       manual_scaling=manual_scaling,
                                                       auto_scaling_steps=auto_scaling_steps)
@@ -82,8 +81,7 @@ class KMCModel:
         else:
             print(f'{self.path} already exists (nothing done)')
 
-    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_steps,
-                               auto_scaling_tags):
+    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_tags):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs_names = [x.replace('_point', '') for x in self.energetic_model.df.index if '_point' in x]

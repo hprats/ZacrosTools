@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-from zacrostools.analysis_functions import get_data_general, get_data_specnum
+from zacrostools.read_functions import parse_general_output, get_data_specnum
 
 
 class KMCOutput:
@@ -80,7 +80,7 @@ class KMCOutput:
         self.path = path
 
         # Get data from general_output.txt file
-        data_general = get_data_general(path)
+        data_general = parse_general_output(path)
         self.n_gas_species = data_general['n_gas_species']
         self.gas_species_names = data_general['gas_species_names']
         self.n_surf_species = data_general['n_surf_species']

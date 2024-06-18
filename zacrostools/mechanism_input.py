@@ -1,7 +1,8 @@
 import ast
 import sys
 import pandas as pd
-from zacrostools.input_functions import write_header, calc_ads, calc_surf_proc
+from zacrostools.write_functions import write_header
+from zacrostools.calc_functions import calc_ads, calc_surf_proc
 
 
 class ReactionModel:
