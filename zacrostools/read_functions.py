@@ -51,10 +51,10 @@ def parse_simulation_input(path):
             if 'pressure' in line:
                 data['pressure'] = float(line.split()[-1])
                 dmatch.remove('pressure')
-            if 'gas_specs_names' in line:
+            elif 'gas_specs_names' in line:
                 data['gas_specs_names'] = line.split()[1:]
                 dmatch.remove('gas_specs_names')
-            if 'gas_molar_fracs' in line:
+            elif 'gas_molar_fracs' in line:
                 data['gas_molar_fracs'] = [float(x) for x in line.split()[1:]]
                 dmatch.remove('gas_molar_fracs')
             line = file_object.readline()
