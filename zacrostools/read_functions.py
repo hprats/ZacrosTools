@@ -65,6 +65,17 @@ def get_data_specnum(path, ignore=0.0):
     with open(f"{path}/specnum_output.txt", "r") as infile:
         header = infile.readline().split()
     full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
-    index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], full_data[-1, 2] * ignore / 100))[0][0]
+    index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], float(full_data[-1, 2] * ignore / 100)))[0][0]
     data = np.delete(full_data, slice(0, index), 0)
     return data, header
+
+
+def get_step_names(path):
+    step_names = []
+    with open(f"{path}/mechanism_input.dat", 'r') as file_object:
+        line = file_object.readline()
+        while 'end_mechanism' not in line:
+            if 'reversible_step' in line and 'end_reversible_step' not in line:
+                step_names.append(line.split()[-1])
+            line = file_object.readline()
+    return step_names
