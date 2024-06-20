@@ -18,10 +18,16 @@ Below there are some examples.
 
 ### Plot number of product molecules and coverage as a function of simulated time
 
-- **Product molecules:** kmc_output.production[gas_species]  (in molec.)
-- **Coverage:** kmc_output.coverage[surf_species]  (in %)
+- **Number of produced molecules (array):** kmc_output.production[gas_species]  (in molec.)
+- **Coverage (array):** kmc_output.coverage[surf_species]  (in %)
+- **Average coverage (float):** kmc_output.av_coverage[surf_species]  (in %)
 
 Example:
+    
+    import matplotlib.pyplot as plt
+    from zacrostools.kmc_output import KMCOutput
+
+    kmc_output = KMCOutput(path=path_to_calculation_files)
 
     fig, axes = plt.subplots(2, 1, figsize=(2, 4), sharex=True)
 
@@ -31,13 +37,45 @@ Example:
             axes[0].plot(kmc_output.time, kmc_output.production[gas_species], label=gas_species+'$_{(g)}$')
 
     # Coverage (in %)
-    for surf_species in spec_sites:
+    for surf_species in kmc_output.surf_species_names:
+        if kmc_output.av_coverage[surf_species] > 1.0  # only plot surface species with a coverage > 1 %
         axes[1].plot(kmc_output.time, kmc_output.coverage[surf_species], label=surf_species)
+
+    for ax in axes:
+        ax.legend()
+    plt.show()
+
+
+### Plot coverage per site type
+
+- **Coverage per site type (array):** kmc_output.coverage_per_site_type[surf_species]  (in %)
+- **Average coverage per site type (float):** kmc_output.av_coverage_per_site_type[surf_species]  (in %)
+
+Example:
+
+    import matplotlib.pyplot as plt
+    from zacrostools.kmc_output import KMCOutput
+
+    kmc_output = KMCOutput(path=path_to_calculation_files, 
+                           coverage_per_site=True, 
+                           ads_sites={'C': 'hollow', 'CO': 'top', 'O': 'bridge'})
+
+    fig, axes = plt.subplots(1, len(kmc_output.site_types), figsize=(2 * len(kmc_output.site_types), 2), sharey=True)
+
+    # Coverage per site type (in %)
+    for i, site in enumerate(kmc_output.coverage_per_site_type):
+        for ads in kmc_output.coverage_per_site_type[site]:
+            if kmc_output.av_coverage_per_site_type[site][ads] > 1.0: # only plot surface species with a coverage > 1 %
+                axes[i].plot(kmc_output.time, kmc_output.coverage_per_site_type[site][ads], label=ads)
+        axes[i].legend()
+        axes[i].set_title(site)
+
+    plt.show()
 
 ### Get TOF and average coverage
 
-- **TOF:** kmc_output.tof[gas_species]  (in molec·s^-1·Å^-2)
-- **Average coverage:** kmc_output.av_coverage[surf_species]  (in %)
+- **TOF (float):** kmc_output.tof[gas_species]  (in molec·s^-1·Å^-2)
+- **Average coverage (float):** kmc_output.av_coverage[surf_species]  (in %)
 
 Example:
 
@@ -51,8 +89,9 @@ Example:
 
 ### Get selectivity
 
-The **selectivity** can be obtained by using the method {py:meth}`zacrostools.kmc_output.KMCOutput.get_selectivity()` 
-(in %)
+The **selectivity** can be obtained by using the method {py:meth}`zacrostools.kmc_output.KMCOutput.get_selectivity()`.
+
+- **Selectivity (float):** kmc_output.selectivity[main_product, side_products]  (in %)
 
 Example:
 
