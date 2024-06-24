@@ -29,7 +29,7 @@ class KMCModel:
         self.energetic_model = EnergeticModel(energetics_data=energetics_data)
         self.lattice_model = lattice_model
 
-    def create_job_dir(self, path, temperature, pressure, reporting_scheme='on event 10000', stopping_criteria=None,
+    def create_job_dir(self, path, temperature, pressure, reporting_scheme=None, stopping_criteria=None,
                        manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=16,
                        sig_figs_pe=16):
         """
@@ -42,8 +42,11 @@ class KMCModel:
             Reaction temperature (in K)
         pressure: dict
             Partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
-        reporting_scheme: str, optional
-            Reporting scheme in Zacros format. Default value: 'on event 100000'
+        reporting_scheme: dict, optional
+            Reporting scheme in Zacros format. Must contain the following keys: 'snapshots', 'process_statistics' and
+            'species_numbers'
+            Default value: {'snapshots': 'on event 10000', 'process_statistics': 'on event 10000',
+            'species_numbers': 'on event 10000'}
         stopping_criteria: dict, optional
             Stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 'max_time' and 'wall_time'
             Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
@@ -67,6 +70,9 @@ class KMCModel:
             Default value: 16
         """
 
+        if reporting_scheme is None:
+            reporting_scheme = {'snapshots': 'on event 10000', 'process_statistics': 'on event 10000',
+                                'species_numbers': 'on event 10000'}
         if stopping_criteria is None:
             stopping_criteria = {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
         if manual_scaling is None:
@@ -121,7 +127,7 @@ class KMCModel:
             infile.write('surf_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs.keys()) + '\n')
             infile.write('surf_specs_dent\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs.values()) + '\n')
             for tag in ['snapshots', 'process_statistics', 'species_numbers']:
-                infile.write((tag + '\t').expandtabs(26) + reporting_scheme + '\n')
+                infile.write((tag + '\t').expandtabs(26) + str(reporting_scheme[tag]) + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
                 infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria[tag]) + '\n')
             if len(auto_scaling_tags) > 0:
