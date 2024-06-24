@@ -1,5 +1,6 @@
 import os
 import sys
+import ast
 from random import randint
 from zacrostools.write_functions import write_header
 from zacrostools.mechanism_input import ReactionModel
@@ -29,7 +30,8 @@ class KMCModel:
         self.lattice_model = lattice_model
 
     def create_job_dir(self, path, temperature, pressure, reporting_scheme='on event 10000', stopping_criteria=None,
-                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None):
+                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=8,
+                       sig_figs_pe=8):
         """
 
         Parameters
@@ -56,6 +58,13 @@ class KMCModel:
             Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g. {'check_every': 500,
             'min_separation': 400.0, 'max_separation': 600.0}.
             Default value: {}
+        sig_figs_energies: int, optional
+            Number of significant figures used when writing 'cluster_eng' in energetics_input.dat and 'activ_eng' in
+            mechanism_input.dat.
+            Default value: 8
+        sig_figs_pe: int, optional
+            Number of significant figures used when writing 'pre_expon' and 'pe_ratio' in mechanism_input.dat.
+            Default value: 8
         """
 
         if stopping_criteria is None:
@@ -75,8 +84,11 @@ class KMCModel:
                                         stopping_criteria=stopping_criteria, auto_scaling_tags=auto_scaling_tags)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
                                                       manual_scaling=manual_scaling,
-                                                      auto_scaling_steps=auto_scaling_steps)
-            self.energetic_model.write_energetics_input(path=self.path)
+                                                      auto_scaling_steps=auto_scaling_steps,
+                                                      sig_figs_energies=sig_figs_energies,
+                                                      sig_figs_pe=sig_figs_pe)
+            self.energetic_model.write_energetics_input(path=self.path,
+                                                        sig_figs_energies=sig_figs_energies)
             self.lattice_model.write_lattice_input(path=self.path)
         else:
             print(f'{self.path} already exists (nothing done)')
@@ -84,9 +96,7 @@ class KMCModel:
     def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_tags):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
-        surf_specs_names = [x.replace('_point', '') for x in self.energetic_model.df.index if '_point' in x]
-        surf_specs_names = [x + '*' * int(self.energetic_model.df.loc[f'{x}_point', 'sites']) for x in surf_specs_names]
-        surf_specs_dent = [x.count('*') for x in surf_specs_names]
+        surf_specs = self.get_surf_specs()
         write_header(f"{self.path}/simulation_input.dat")
         with open(f"{self.path}/simulation_input.dat", 'a') as infile:
             infile.write('random_seed\t'.expandtabs(26) + str(randint(100000, 999999)) + '\n')
@@ -107,9 +117,9 @@ class KMCModel:
                 print(f"When calling KMCModel.create_job_dir(), 'pressure' dictionary must contain the names of all "
                       f"gas species ")
             infile.write(f'gas_molar_fracs\t'.expandtabs(26) + " ".join(str(x) for x in gas_molar_frac_list) + '\n')
-            infile.write('n_surf_species\t'.expandtabs(26) + str(len(surf_specs_names)) + '\n')
-            infile.write('surf_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs_names) + '\n')
-            infile.write('surf_specs_dent\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs_dent) + '\n')
+            infile.write('n_surf_species\t'.expandtabs(26) + str(len(surf_specs)) + '\n')
+            infile.write('surf_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs.keys()) + '\n')
+            infile.write('surf_specs_dent\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs.values()) + '\n')
             for tag in ['snapshots', 'process_statistics', 'species_numbers']:
                 infile.write((tag + '\t').expandtabs(26) + reporting_scheme + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
@@ -119,3 +129,17 @@ class KMCModel:
                 for tag in auto_scaling_tags:
                     infile.write((tag + '\t').expandtabs(26) + str(auto_scaling_tags[tag]) + '\n')
             infile.write(f"finish\n")
+
+    def get_surf_specs(self):
+        # Identify all surf_specs and their corresponding dentates from the energetic_model dataframe
+        # Used to write 'surf_specs_names' and 'surf_specs_dent' in the simulation_input.dat file
+        surf_specs = {}
+        for cluster in self.energetic_model.df.index:
+            lattice_state = ast.literal_eval(self.energetic_model.df.loc[cluster, 'lattice_state'])
+            for site in lattice_state:
+                surf_specs_name = site.split()[1]
+                surf_specs_dent = int(site.split()[2])
+                if surf_specs_name not in surf_specs or (
+                        surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
+                    surf_specs[surf_specs_name] = surf_specs_dent
+            return surf_specs

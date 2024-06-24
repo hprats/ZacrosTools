@@ -42,7 +42,8 @@ class ReactionModel:
         """Not implemented yet"""
         pass
 
-    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, auto_scaling_steps):
+    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, auto_scaling_steps, sig_figs_energies,
+                              sig_figs_pe):
         """Writes the mechanism_input.dat file"""
         write_header(f"{path}/mechanism_input.dat")
         with open(f"{path}/mechanism_input.dat", 'a') as infile:
@@ -69,11 +70,11 @@ class ReactionModel:
                 pre_expon, pe_ratio = self.get_pre_expon(step=step, temperature=temperature, gas_data=gas_data,
                                                          manual_scaling=manual_scaling)
                 if step in manual_scaling:
-                    infile.write(f"  pre_expon {pre_expon:.3e}   # scaled {manual_scaling[step]:.3e}\n")
+                    infile.write(f"  pre_expon {pre_expon:.{sig_figs_pe}e}   # scaled {manual_scaling[step]:.8e}\n")
                 else:
-                    infile.write(f"  pre_expon {pre_expon:.3e}\n")
-                infile.write(f"  pe_ratio {pe_ratio:.3e}\n")
-                infile.write(f"  activ_eng {self.df.loc[step, 'activ_eng']:.2f}\n")
+                    infile.write(f"  pre_expon {pre_expon:.{sig_figs_pe}e}\n")
+                infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}\n")
+                infile.write(f"  activ_eng {self.df.loc[step, 'activ_eng']:.{sig_figs_energies}f}\n")
                 for keyword in ['prox_factor', 'angles']:  # optional keywords
                     if keyword in self.df.columns:
                         if not pd.isna(self.df.loc[step, keyword]):
