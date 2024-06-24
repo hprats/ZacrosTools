@@ -48,7 +48,9 @@ class EnergeticModel:
                 infile.write(f"  lattice_state\n")
                 for element in lattice_state:
                     infile.write(f"    {' '.join(element.split())}\n")
-                infile.write(f"  site_types {self.df.loc[cluster, 'site_types']}\n")
+                if 'site_types' in self.df.columns:
+                    if not pd.isna(self.df.loc[cluster, 'site_types']):
+                        infile.write(f"  site_types {self.df.loc[cluster, 'site_types']}\n")
                 if 'graph_multiplicity' in self.df.columns:
                     if not pd.isna(self.df.loc[cluster, 'graph_multiplicity']):
                         infile.write(f"  graph_multiplicity {int(self.df.loc[cluster, 'graph_multiplicity'])}\n")
