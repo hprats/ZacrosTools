@@ -66,7 +66,9 @@ class ReactionModel:
                 infile.write(f"  final\n")
                 for element in final_state:
                     infile.write(f"    {' '.join(element.split())}\n")
-                infile.write(f"  site_types {self.df.loc[step, 'site_types']}\n")
+                if 'site_types' in self.df.columns:
+                    if not pd.isna(self.df.loc[step, 'site_types']):
+                        infile.write(f"  site_types {self.df.loc[step, 'site_types']}\n")
                 pre_expon, pe_ratio = self.get_pre_expon(step=step, temperature=temperature, gas_data=gas_data,
                                                          manual_scaling=manual_scaling)
                 if step in manual_scaling:
@@ -75,7 +77,7 @@ class ReactionModel:
                     infile.write(f"  pre_expon {pre_expon:.{sig_figs_pe}e}\n")
                 infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}\n")
                 infile.write(f"  activ_eng {self.df.loc[step, 'activ_eng']:.{sig_figs_energies}f}\n")
-                for keyword in ['prox_factor', 'angles']:  # optional keywords
+                for keyword in ['prox_factor', 'angles']:
                     if keyword in self.df.columns:
                         if not pd.isna(self.df.loc[step, keyword]):
                             infile.write(f"  {keyword} {self.df.loc[step, keyword]}\n")
