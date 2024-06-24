@@ -79,3 +79,16 @@ def get_step_names(path):
                 step_names.append(line.split()[-1])
             line = file_object.readline()
     return step_names
+
+
+def get_surf_specs(df):
+    surf_specs = {}
+    for cluster in df.index:
+        lattice_state = ast.literal_eval(df.loc[cluster, 'lattice_state'])
+        for site in lattice_state:
+            surf_specs_name = site.split()[1]
+            surf_specs_dent = int(site.split()[2])
+            if surf_specs_name not in surf_specs or (
+                    surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
+                surf_specs[surf_specs_name] = surf_specs_dent
+        return surf_specs
