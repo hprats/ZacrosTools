@@ -61,10 +61,10 @@ class ReactionModel:
                     infile.write(f"  neighboring {self.df.loc[step, 'neighboring']}\n")
                 infile.write(f"  initial\n")
                 for element in initial_state:
-                    infile.write(f"    {element}\n")
+                    infile.write(f"    {' '.join(element.split())}\n")   # remove additional white spaces
                 infile.write(f"  final\n")
                 for element in final_state:
-                    infile.write(f"    {element}\n")
+                    infile.write(f"    {' '.join(element.split())}\n")
                 infile.write(f"  site_types {self.df.loc[step, 'site_types']}\n")
                 pre_expon, pe_ratio = self.get_pre_expon(step=step, temperature=temperature, gas_data=gas_data,
                                                          manual_scaling=manual_scaling)
