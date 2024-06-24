@@ -39,7 +39,7 @@ class EnergeticModel:
         with open(f"{path}/energetics_input.dat", 'a') as infile:
             infile.write('energetics\n\n')
             infile.write('############################################################################\n\n')
-            for cluster in [x for x in self.df.index if '_gas' not in x]:
+            for cluster in self.df.index:
                 infile.write(f"cluster {cluster}\n\n")
                 lattice_state = ast.literal_eval(self.df.loc[cluster, 'lattice_state'])
                 infile.write(f"  sites {len(lattice_state)}\n")
@@ -47,7 +47,7 @@ class EnergeticModel:
                     infile.write(f"  neighboring {self.df.loc[cluster, 'neighboring']}\n")
                 infile.write(f"  lattice_state\n")
                 for element in lattice_state:
-                    infile.write(f"    {element}\n")
+                    infile.write(f"    {' '.join(element.split())}\n")
                 infile.write(f"  site_types {self.df.loc[cluster, 'site_types']}\n")
                 if 'graph_multiplicity' in self.df.columns:
                     if not pd.isna(self.df.loc[cluster, 'graph_multiplicity']):
