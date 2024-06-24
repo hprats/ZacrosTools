@@ -30,8 +30,8 @@ class KMCModel:
         self.lattice_model = lattice_model
 
     def create_job_dir(self, path, temperature, pressure, reporting_scheme='on event 10000', stopping_criteria=None,
-                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=8,
-                       sig_figs_pe=8):
+                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=16,
+                       sig_figs_pe=16):
         """
 
         Parameters
@@ -61,10 +61,10 @@ class KMCModel:
         sig_figs_energies: int, optional
             Number of significant figures used when writing 'cluster_eng' in energetics_input.dat and 'activ_eng' in
             mechanism_input.dat.
-            Default value: 8
+            Default value: 16
         sig_figs_pe: int, optional
             Number of significant figures used when writing 'pre_expon' and 'pe_ratio' in mechanism_input.dat.
-            Default value: 8
+            Default value: 16
         """
 
         if stopping_criteria is None:
