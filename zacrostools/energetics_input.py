@@ -1,6 +1,7 @@
 import ast
 import pandas as pd
 from zacrostools.write_functions import write_header
+from zacrostools.custom_exceptions import EnergeticModelError, enforce_types
 
 
 class EnergeticModel:
@@ -22,11 +23,9 @@ class EnergeticModel:
             - graph_multiplicity (int): symmetry number of the cluster, e.g. 2. Default value: 1
     """
 
+    @enforce_types
     def __init__(self, energetics_data: pd.DataFrame = None):
-        if isinstance(energetics_data, pd.DataFrame):
-            self.df = energetics_data
-        else:
-            print("Error: parameter 'energetics_data' in EnergeticModel is not a Pandas DataFrame")
+        self.df = energetics_data
 
     @classmethod
     def from_dictionary(cls, path):

@@ -1,10 +1,13 @@
 import os
-import sys
 import ast
+import pandas as pd
 from random import randint
+
+import zacrostools.lattice_input
 from zacrostools.write_functions import write_header
 from zacrostools.mechanism_input import ReactionModel
 from zacrostools.energetics_input import EnergeticModel
+from zacrostools.custom_exceptions import *
 
 
 class KMCModel:
@@ -22,12 +25,24 @@ class KMCModel:
         A lattice model
     """
 
-    def __init__(self, gas_data, mechanism_data, energetics_data, lattice_model):
+    @enforce_types
+    def __init__(self, gas_data: pd.DataFrame, mechanism_data: pd.DataFrame, energetics_data: pd.DataFrame,
+                 lattice_model: zacrostools.lattice_input.LatticeModel):
         self.path = None
         self.gas_data = gas_data
         self.reaction_model = ReactionModel(mechanism_data=mechanism_data)
         self.energetic_model = EnergeticModel(energetics_data=energetics_data)
         self.lattice_model = lattice_model
+
+        self.check_errors()
+
+    def check_errors(self):
+        """Checks for data consistency after initialization."""
+        if self.lattice_model.lattice_type != 'default':
+            if 'site_types' not in self.reaction_model.df.columns:
+                raise ReactionModelError("Custom lattice used but no 'site_types' specified in the reaction model.")
+            if 'site_types' not in self.energetic_model.df.columns:
+                raise EnergeticModelError("Custom lattice used but no 'site_types' specified in the energetic model.")
 
     def create_job_dir(self, path, temperature, pressure, reporting_scheme=None, stopping_criteria=None,
                        manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=16,
@@ -82,7 +97,7 @@ class KMCModel:
         if auto_scaling_tags is None:
             auto_scaling_tags = {}
         if len(auto_scaling_steps) == 0 and len(auto_scaling_tags) > 0:
-            sys.exit('ERROR: auto_scaling_tags defined but no steps are stiffness scalable.')
+            raise InconsistentDataError("'auto_scaling_tags' defined but no steps are stiffness scalable")
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
@@ -148,4 +163,4 @@ class KMCModel:
                 if surf_specs_name not in surf_specs or (
                         surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
                     surf_specs[surf_specs_name] = surf_specs_dent
-            return surf_specs
+        return surf_specs

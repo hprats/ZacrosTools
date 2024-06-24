@@ -1,8 +1,8 @@
 import ast
-import sys
 import pandas as pd
 from zacrostools.write_functions import write_header
 from zacrostools.calc_functions import calc_ads, calc_surf_proc
+from zacrostools.custom_exceptions import ReactionModelError, enforce_types
 
 
 class ReactionModel:
@@ -31,11 +31,9 @@ class ReactionModel:
             - angles (str): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
     """
 
-    def __init__(self, mechanism_data=None):
-        if isinstance(mechanism_data, pd.DataFrame):
-            self.df = mechanism_data
-        else:
-            print("Error: parameter 'mechanism_data' in ReactionModel is not a Pandas DataFrame")
+    @enforce_types
+    def __init__(self, mechanism_data: pd.DataFrame = None):
+        self.df = mechanism_data
 
     @classmethod
     def from_dictionary(cls, path):
@@ -53,7 +51,7 @@ class ReactionModel:
                 initial_state = ast.literal_eval(self.df.loc[step, 'initial'])
                 final_state = ast.literal_eval(self.df.loc[step, 'final'])
                 if len(initial_state) != len(final_state):
-                    sys.exit(f"Error in {step}: len IS is {len(initial_state)} but len FS is {len(final_state)}")
+                    raise ReactionModelError("Error in {step}: len IS is {len(initial_state)} but len FS is {len(final_state)}.")
                 infile.write(f"reversible_step {step}\n\n")
                 if not pd.isna(self.df.loc[step, 'molecule']):
                     infile.write(f"  gas_reacs_prods {self.df.loc[step, 'molecule']} -1\n")

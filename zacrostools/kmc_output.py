@@ -1,6 +1,6 @@
-import sys
 import numpy as np
 from zacrostools.read_functions import parse_general_output, get_data_specnum
+from zacrostools.custom_exceptions import *
 
 
 class KMCOutput:
@@ -123,8 +123,7 @@ class KMCOutput:
 
         # Coverage per site type (%)
         if len(self.site_types) == 1:
-            print("ERROR: coverage_per_site not available when there is only one site type")
-            sys.exit(f"path: {self.path}")
+            raise OutputError(f"'coverage_per_site' not available when there is only one site type. Path: {self.path}")
         if coverage_per_site:
             self.coverage_per_site_type = {}
             self.av_coverage_per_site_type = {}

@@ -1,5 +1,5 @@
-import sys
 from zacrostools.write_functions import write_header
+from zacrostools.custom_exceptions import LatticeModelError, enforce_types
 
 
 class LatticeModel:
@@ -11,13 +11,14 @@ class LatticeModel:
         Lines that will be printed in the lattice_input.dat.
     """
 
-    def __init__(self, lines=None, lattice_type=None):
+    @enforce_types
+    def __init__(self, lines: list = None, lattice_type: str = None):
         self.lines = lines
         self.lattice_type = lattice_type
 
-
     @classmethod
-    def from_file(cls, path):
+    @enforce_types
+    def from_file(cls, path: str):
         """Create a LatticeModel by reading an existing lattice_input.dat file.
 
         Parameters
@@ -53,11 +54,6 @@ class LatticeModel:
 
             while not end_pattern_detected:
                 line = infile.readline()
-                # If default lattice is used, store lattice constant
-                #if lattice_type == 'default_choice':
-                #    if any(keyword in line for keyword in
-                #           ['triangular_periodic', 'rectangular_periodic', 'hexagonal_periodic']):
-                #        lattice_constant = line.split()[1]
                 if 'end_lattice' in line:
                     lattice_lines.append(line)
                     end_pattern_detected = True
@@ -91,7 +87,7 @@ class LatticeModel:
 
         """
         if self.lattice_type == 'custom_non_periodic':
-            sys.exit("ERROR: 'repeat_cell()' method can not be used with custom non-periodic lattices")
+            raise LatticeModelError("repeat_cell()' method can not be used with custom non-periodic lattices.")
         i = 0
         line = self.lines[i]
         if self.lattice_type == 'custom_periodic':
