@@ -100,7 +100,12 @@ class KMCModel:
             for tag1, tag2 in zip(tags_dict, tags_zacros):
                 tag_list = [self.gas_data.loc[x, tag1] for x in gas_specs_names]
                 infile.write(f'{tag2}\t'.expandtabs(26) + " ".join(str(x) for x in tag_list) + '\n')
-            gas_molar_frac_list = [pressure[x] / p_tot for x in gas_specs_names]
+            try:
+                gas_molar_frac_list = [pressure[x] / p_tot for x in gas_specs_names]
+            except KeyError as ke:
+                print(f"Key not found in 'pressure' dictionary: {ke}")
+                print(f"When calling KMCModel.create_job_dir(), 'pressure' dictionary must contain the names of all "
+                      f"gas species ")
             infile.write(f'gas_molar_fracs\t'.expandtabs(26) + " ".join(str(x) for x in gas_molar_frac_list) + '\n')
             infile.write('n_surf_species\t'.expandtabs(26) + str(len(surf_specs_names)) + '\n')
             infile.write('surf_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in surf_specs_names) + '\n')
