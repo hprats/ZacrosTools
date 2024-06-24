@@ -265,15 +265,21 @@ The following columns are **mandatory**:
 - **pressure** (*dict*): partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
 
 The following columns are **optional**:
-- **reporting_scheme** (*str*): reporting scheme in Zacros format. Default value: 'on event 100000'
+- **reporting_scheme** (*dict*): reporting scheme in Zacros format. Must contain the following keys: 'snapshots', 
+'process_statistics' and 'species_numbers'. Default value: {'snapshots': 'on event 10000', 'process_statistics': 
+'on event 10000', 'species_numbers': 'on event 10000'}
 - **stopping_criteria** (*dict*): stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 
 'max_time' and 'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
-- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
+- **manual_scaling** (*list*): step names (keys) and their corresponding manual scaling factors (values) e.g. 
 {'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default value: {}
-- **auto_scaling_steps** (*list*): Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat, e.g. 
+- **auto_scaling_steps** (*list*): steps that will be marked as 'stiffness_scalable' in mechanism_input.dat, e.g. 
 ['CO_diffusion', 'O_diffusion']. Default value: []
-- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values, 
+- **auto_scaling_tags** (*dict*): keywords controlling the dynamic scaling algorithm and their corresponding values, 
 e.g. {'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}. Default value: {}
+- **sig_figs_energies** (*int*): number of significant figures used when writing 'cluster_eng' in energetics_input.dat 
+and 'activ_eng' in mechanism_input.dat. Default value: 16
+- **sig_figs_pe** (*int*): number of significant figures used when writing 'pre_expon' and 'pe_ratio' in 
+mechanism_input.dat. Default value: 16
 
 For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
 create all input files:
