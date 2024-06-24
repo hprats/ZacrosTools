@@ -1,3 +1,4 @@
+import sys
 from zacrostools.write_functions import write_header
 
 
@@ -10,11 +11,10 @@ class LatticeModel:
         Lines that will be printed in the lattice_input.dat.
     """
 
-    def __init__(self, lines=None):
-        if isinstance(lines, list):
-            self.lines = lines
-        else:
-            print("Error: parameter 'lines' in LatticeModel is not a list")
+    def __init__(self, lines=None, lattice_type=None):
+        self.lines = lines
+        self.lattice_type = lattice_type
+
 
     @classmethod
     def from_file(cls, path):
@@ -23,7 +23,7 @@ class LatticeModel:
         Parameters
         ----------
         path: str
-            Path to the directorey where the lattice_input.dat file is located
+            Path to the directory where the lattice_input.dat file is located
 
 
         Returns
@@ -44,15 +44,27 @@ class LatticeModel:
                     lattice_lines.append(line)
                     start_pattern_detected = True
 
+            if 'default_choice' in line:
+                lattice_type = 'default'
+            elif 'periodic_cell' in line:
+                lattice_type = 'custom_periodic'
+            else:
+                lattice_type = 'custom_non_periodic'
+
             while not end_pattern_detected:
                 line = infile.readline()
+                # If default lattice is used, store lattice constant
+                #if lattice_type == 'default_choice':
+                #    if any(keyword in line for keyword in
+                #           ['triangular_periodic', 'rectangular_periodic', 'hexagonal_periodic']):
+                #        lattice_constant = line.split()[1]
                 if 'end_lattice' in line:
                     lattice_lines.append(line)
                     end_pattern_detected = True
                 else:
                     lattice_lines.append(line)
 
-        lattice_model = cls(lines=lattice_lines)
+        lattice_model = cls(lines=lattice_lines, lattice_type=lattice_type)
         return lattice_model
 
     def write_lattice_input(self, path):
@@ -78,6 +90,20 @@ class LatticeModel:
             Updates the repeat_cell keyword in lattice_input.dat file.
 
         """
-        for i, line in enumerate(self.lines):
-            if 'repeat_cell' in line:
-                self.lines[i] = f'   repeat_cell {repeat_cell[0]} {repeat_cell[1]}\n'
+        if self.lattice_type == 'custom_non_periodic':
+            sys.exit("ERROR: 'repeat_cell()' method can not be used with custom non-periodic lattices")
+        i = 0
+        line = self.lines[i]
+        if self.lattice_type == 'custom_periodic':
+            while 'repeat_cell' not in line:
+                i += 1
+                line = self.lines[i]
+            self.lines[i] = f'   repeat_cell {repeat_cell[0]} {repeat_cell[1]}\n'
+        else:
+            while not any(keyword in line for keyword in
+                          ['triangular_periodic', 'rectangular_periodic', 'hexagonal_periodic']):
+                i += 1
+                line = self.lines[i]
+            keyword = line.split()[0]
+            lattice_constant = line.split()[1]
+            self.lines[i] = f'   {keyword} {lattice_constant} {repeat_cell[0]} {repeat_cell[1]}\n'
