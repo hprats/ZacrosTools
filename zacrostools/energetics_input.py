@@ -33,7 +33,7 @@ class EnergeticModel:
         """Not implemented yet"""
         pass
 
-    def write_energetics_input(self, path):
+    def write_energetics_input(self, path, sig_figs_energies):
         """Write the energetics_input.dat file"""
         write_header(f"{path}/energetics_input.dat")
         with open(f"{path}/energetics_input.dat", 'a') as infile:
@@ -55,7 +55,7 @@ class EnergeticModel:
                 if 'angles' in self.df.columns:
                     if not pd.isna(self.df.loc[cluster, 'angles']):
                         infile.write(f"  angles {self.df.loc[cluster, 'angles']}\n")
-                infile.write(f"  cluster_eng {self.df.loc[cluster, 'cluster_eng']:.2f}\n\n")
+                infile.write(f"  cluster_eng {self.df.loc[cluster, 'cluster_eng']:.{sig_figs_energies}f}\n\n")
                 infile.write(f"end_cluster\n\n")
                 infile.write('############################################################################\n\n')
             infile.write(f"end_energetics\n")
