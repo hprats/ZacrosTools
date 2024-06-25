@@ -63,7 +63,8 @@ class LatticeModel:
         lattice_model = cls(lines=lattice_lines, lattice_type=lattice_type)
         return lattice_model
 
-    def write_lattice_input(self, path):
+    @enforce_types
+    def write_lattice_input(self, path: str):
         """Write the lattice_input.dat file.
 
         Parameters
@@ -77,7 +78,8 @@ class LatticeModel:
             for line in self.lines:
                 infile.write(line)
 
-    def repeat_cell(self, repeat_cell):
+    @enforce_types
+    def repeat_cell(self, repeat_cell: list):
         """Modify the value of the repeat_cell keyword in the lattice_input.dat file.
 
         Parameters

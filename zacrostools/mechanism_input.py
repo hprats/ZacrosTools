@@ -24,7 +24,8 @@ class ReactionModel:
               For non-activated adsorption, define this as an empty list i.e. []
             - vib_energies_fs (list of floats): vibrational energies for the final state (in meV)
             - molecule (str): gas-phase molecule involved. Only required for adsorption steps. Default value: None
-            - area_site (float): area of adsorption site (in Å^2). Only required for adsorption steps. Default value: None
+            - area_site (float): area of adsorption site (in Å^2). Only required for adsorption steps. Default value:
+            None
         The following columns are optional:
             - neighboring (str): connectivity between sites involved, e.g. 1-2. Default value: None
             - prox_factor (float): proximity factor. Default value: 0.5
@@ -51,7 +52,8 @@ class ReactionModel:
                 initial_state = ast.literal_eval(self.df.loc[step, 'initial'])
                 final_state = ast.literal_eval(self.df.loc[step, 'final'])
                 if len(initial_state) != len(final_state):
-                    raise ReactionModelError("Error in {step}: len IS is {len(initial_state)} but len FS is {len(final_state)}.")
+                    raise ReactionModelError("Error in {step}: len IS is {len(initial_state)} but len FS is {len("
+                                             "final_state)}.")
                 infile.write(f"reversible_step {step}\n\n")
                 if not pd.isna(self.df.loc[step, 'molecule']):
                     infile.write(f"  gas_reacs_prods {self.df.loc[step, 'molecule']} -1\n")

@@ -62,6 +62,7 @@ for pX in np.logspace(reactions[reaction]['logpX_min'], reactions[reaction]['log
         job.create_job_dir(path=path,
                            temperature=temperature,
                            pressure=pressure,
-                           reporting_scheme='on event 100000',
+                           reporting_scheme={'snapshots': 'on event 100000', 'process_statistics': 'on event 100000',
+                                             'species_numbers': 'on event 100000'},
                            stopping_criteria={'max_steps': 'infinity', 'max_time': 50000, 'wall_time': 172800},
                            auto_scaling_steps=auto_scaling_steps)

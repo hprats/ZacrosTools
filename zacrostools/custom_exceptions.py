@@ -2,28 +2,33 @@ import functools
 import inspect
 
 
-class KMCModelError(Exception):
-    """Base class for exceptions in this module."""
+class ZacrosToolsError(Exception):
+    """Base class for exceptions in this library."""
     pass
 
 
-class LatticeModelError(KMCModelError):
+class LatticeModelError(ZacrosToolsError):
     """Exception raised for errors in the lattice model."""
     pass
 
 
-class ReactionModelError(KMCModelError):
+class ReactionModelError(ZacrosToolsError):
     """Exception raised for errors in the reaction model."""
     pass
 
 
-class EnergeticModelError(KMCModelError):
+class EnergeticModelError(ZacrosToolsError):
     """Exception raised for errors in the energetic model."""
     pass
 
 
-class InconsistentDataError(KMCModelError):
+class InconsistentDataError(ZacrosToolsError):
     """Exception raised for inconsistent data across models."""
+    pass
+
+
+class KMCOutputError(ZacrosToolsError):
+    """Exception raised for errors in the KMCModel module."""
     pass
 
 

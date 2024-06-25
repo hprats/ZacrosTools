@@ -44,9 +44,10 @@ class KMCModel:
             if 'site_types' not in self.energetic_model.df.columns:
                 raise EnergeticModelError("Custom lattice used but no 'site_types' specified in the energetic model.")
 
-    def create_job_dir(self, path, temperature, pressure, reporting_scheme=None, stopping_criteria=None,
-                       manual_scaling=None, auto_scaling_steps=None, auto_scaling_tags=None, sig_figs_energies=16,
-                       sig_figs_pe=16):
+    @enforce_types
+    def create_job_dir(self, path: str, temperature: float, pressure: dict, reporting_scheme: dict = None,
+                       stopping_criteria: dict = None, manual_scaling: dict = None, auto_scaling_steps: list = None,
+                       auto_scaling_tags: dict = None, sig_figs_energies: int = 16, sig_figs_pe: int = 16):
         """
 
         Parameters

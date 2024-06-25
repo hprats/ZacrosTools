@@ -76,7 +76,8 @@ class KMCOutput:
         Most dominant surface species per site type, to plot the kinetic phase diagrams.
     """
 
-    def __init__(self, path, ignore=0.0, coverage_per_site=False, ads_sites=None):
+    @enforce_types
+    def __init__(self, path: str, ignore: float = 0.0, coverage_per_site: bool = False, ads_sites: dict = None):
         self.path = path
 
         # Get data from general_output.txt file
@@ -123,7 +124,8 @@ class KMCOutput:
 
         # Coverage per site type (%)
         if len(self.site_types) == 1:
-            raise OutputError(f"'coverage_per_site' not available when there is only one site type. Path: {self.path}")
+            raise KMCOutputError(f"'coverage_per_site' not available when there is only one site type. Path: "
+                                 f"{self.path}")
         if coverage_per_site:
             self.coverage_per_site_type = {}
             self.av_coverage_per_site_type = {}
@@ -146,7 +148,8 @@ class KMCOutput:
                 self.dominant_ads_per_site_type[site_type] = max(self.av_coverage_per_site_type[site_type],
                                                                  key=self.av_coverage_per_site_type[site_type].get)
 
-    def get_selectivity(self, main_product, side_products):
+    @enforce_types
+    def get_selectivity(self, main_product: str, side_products: list):
         """
         Get the selectivity.
 
