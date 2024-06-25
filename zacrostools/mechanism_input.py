@@ -87,23 +87,39 @@ class ReactionModel:
                 infile.write('############################################################################\n\n')
             infile.write(f"end_mechanism\n")
 
+    def get_step_type(self, step):
+        """Determines if a given step corresponds to an adsorption by checking if 'molecule' column is empty or not"""
+        if 'molecule' not in self.df.columns:
+            return 'surface_reaction'
+        if pd.isna(self.df.loc[step, 'molecule']):
+            return 'surface_reaction'
+        if 'vib_energies_ts' not in self.df.columns:
+            return 'non_activated_adsorption'
+        if pd.isna(self.df.loc[step, 'vib_energies_ts']) or self.df.loc[step, 'vib_energies_ts'] == '[]':
+            return 'non_activated_adsorption'
+        else:
+            return 'activated_adsorption'
+
     def get_pre_expon(self, step, temperature, gas_data, manual_scaling):
         """Calculates the forward pre-exponential and the pre-exponential ratio, required for the mechanism_input.dat
         file """
         vib_energies_is = ast.literal_eval(self.df.loc[step, 'vib_energies_is'])
         vib_energies_ts = ast.literal_eval(self.df.loc[step, 'vib_energies_ts'])
         vib_energies_fs = ast.literal_eval(self.df.loc[step, 'vib_energies_fs'])
-        if not pd.isna(self.df.loc[step, 'molecule']):  # adsorption
+        step_type = self.get_step_type(step)
+        if 'adsorption' in step_type:
             molecule = self.df.loc[step, 'molecule']
             molec_mass = gas_data.loc[molecule, 'gas_molec_weight']
             inertia_moments = ast.literal_eval(gas_data.loc[molecule, 'inertia_moments'])
-            if 'degeneracy' in gas_data:  # test that it works
+            if 'degeneracy' not in self.df.columns:
+                degeneracy = 1.0
+            else:
                 if not pd.isna(gas_data.loc[molecule, 'degeneracy']):
                     degeneracy = int(gas_data.loc[molecule, 'degeneracy'])
                 else:
-                    degeneracy = 1
-            else:
-                degeneracy = 1
+                    degeneracy = 1.0
+            if step_type == 'non_activated_adsorption':  # needed in case vib_energies_ts = NaN
+                vib_energies_ts = []
             pe_fwd, pe_rev = calc_ads(area_site=self.df.loc[step, 'area_site'],
                                       molec_mass=molec_mass,
                                       temperature=temperature,

@@ -16,12 +16,15 @@ The following columns are **mandatory**:
 - **type** (*str*): 'non_linear' or 'linear'
 - **gas_molec_weight** (*float*): molecular weights (in amu) of the gas species
 - **sym_number** (*int*): symmetry number of the molecule
-- **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
-  function. Default value: 1
 - **inertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å<sup>2</sup>).
   1 element for linear molecules, 3 elements for non-linear molecules.
   Can be obtained from ase.Atoms.get_moments_of_inertia()
 - **gas_energy** (*float*): formation energy (in eV)
+
+The following columns are **optional**:
+
+- **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
+  function. Default value: 1
 
 Example:
 
@@ -71,18 +74,21 @@ elementary step.
 The row index has to be the name of the step.
 ```
 
-The following columns are **mandatory**:
+The following columns are **mandatory** for all step types:
 - **site_types** (*str*): the types of each site in the pattern
 - **initial** (*list*): initial configuration in Zacros format, e.g. ['1 CO* 1','2 * 1']
 - **final** (*list*): final configuration in Zacros format, e.g. ['1 C* 1','2 O* 1']
 - **activ_eng** (*float*): activation energy (in eV)
 - **vib_energies_is** (*list*): vibrational energies for the initial state (in meV)
-- **vib_energies_ts** (*list*): vibrational energies for the transition state (in meV).
-  For non-activated adsorption, define this as an empty list i.e. []
 - **vib_energies_fs** (*list*): vibrational energies for the final state (in meV)
-- **molecule** (*str*): gas-phase molecule involved. Only required for adsorption steps. Default value: None
+
+The following columns are only **mandatory** for adsorption steps:
+- **molecule** (*str*): gas-phase molecule involved. Only required for adsorption steps. 
 - **area_site** (*float*): area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps.
-  Default value: None
+
+The following columns is only **mandatory** for activated adsorption steps and surface reaction steps:
+- **vib_energies_ts** (*list*): vibrational energies for the transition state (in meV). For non-activated adsorption 
+steps, this value can be either undefined or an empty list i.e. []
 
 The following columns are **optional**:
 - **neighboring** (*str*): connectivity between sites involved, e.g. 1-2. Default value: None

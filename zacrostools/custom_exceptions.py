@@ -22,13 +22,18 @@ class EnergeticModelError(ZacrosToolsError):
     pass
 
 
-class InconsistentDataError(ZacrosToolsError):
-    """Exception raised for inconsistent data across models."""
+class CalcFunctionsError(ZacrosToolsError):
+    """Exception raised for errors in the calc_functions module."""
     pass
 
 
 class KMCOutputError(ZacrosToolsError):
-    """Exception raised for errors in the KMCModel module."""
+    """Exception raised for errors in the kmc_output module."""
+    pass
+
+
+class InconsistentDataError(ZacrosToolsError):
+    """Exception raised for inconsistent data across models."""
     pass
 
 

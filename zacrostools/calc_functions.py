@@ -1,7 +1,7 @@
-import sys
 import numpy as np
 from math import sqrt, exp
 from scipy.constants import pi, N_A, k, h, physical_constants
+from zacrostools.custom_exceptions import CalcFunctionsError
 
 k_eV = physical_constants["Boltzmann constant in eV/K"][0]
 atomic_mass = physical_constants["atomic mass constant"][0]
@@ -76,12 +76,13 @@ def get_q_rot(temperature, inertia_moments: list, sym_number):
         i_c = inertia_moments[2] * atomic_mass / 1.0e20
         q_rot_gas = (sqrt(pi * i_a * i_b * i_c) / sym_number) * (8 * pi ** 2 * k * temperature / h ** 2) ** (3 / 2)
     else:
-        sys.exit(f"Invalid inertia_moments")
+        raise CalcFunctionsError(f"len(inertia_moments) = {len(inertia_moments)}. Valid values are 1 (linear) or 3 "
+                                 f"(non-linear)")
     return q_rot_gas
 
 
 def calc_ads(area_site, molec_mass, temperature, vib_energies_is, vib_energies_ts, vib_energies_fs,
-             inertia_moments: list, sym_number, degeneracy=1):
+             inertia_moments, sym_number, degeneracy=1):
     """Calculates the forward and reverse pre-exponential factors for a reversible activated adsorption.
 
     Parameters
@@ -121,10 +122,10 @@ def calc_ads(area_site, molec_mass, temperature, vib_energies_is, vib_energies_t
     q_trans_2d_gas = area_site * 2 * pi * m * k * temperature / h ** 2
     q_el_gas = degeneracy
     q_vib_ads = get_q_vib(temperature=temperature, vib_energies=vib_energies_fs)
-    if not vib_energies_ts:  # non-activated
+    if not vib_energies_ts:  # non-activated if vib_energies_ts == []
         pe_fwd = area_site / sqrt(2 * pi * m * k * temperature) * 1e5  # Pa-1 to bar-1
         pe_rev = (q_el_gas * q_vib_gas * q_rot_gas * q_trans_2d_gas / q_vib_ads) * (k * temperature / h)
-    else:  # activated
+    else:  # activated if vib_energies_ts != []
         q_vib_ts = get_q_vib(temperature=temperature, vib_energies=vib_energies_ts)
         pe_fwd = (q_vib_ts / (q_el_gas * q_vib_gas * q_rot_gas * q_trans_2d_gas)) * (area_site / sqrt(2 * pi * m * k * temperature))
         pe_fwd = pe_fwd * 1e5  # Pa-1 to bar-1
