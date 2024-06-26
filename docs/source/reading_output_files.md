@@ -5,11 +5,24 @@ and then this KMCOutput can be used to extract all the simulation data and to pl
 
 ## 1. Create a KMCOutput object 
 
-A KMCOutput can be simply created by indicating the path where the output files are located:
+A KMCOutput can be created as follows
+
+The following argument is **mandatory**:
+- **path** (*str*): path of the directory containing the output files
+
+The following arguments are **optional**:
+- **ignore** (*float*): ignore first % of the total simulated time (in %). This keyword is used to ignore the data from 
+the equilibration phase when computing the averages. Default value: 0.0 
+- **coverage_per_site** (*bool*): if True, 'coverage_per_site_type' and 'av_coverage_per_site_type' are also calculated 
+(see below), and then a dictionary for 'ads_sites' must be provided. Default value: False
+- **ads_sites** (*dict*): a dictionary where the surface species are stored as keys and their values are the site types 
+where they adsorb, e.g. {'CO': 'top', 'O': 'hollow'}. Only required if 'coverage_per_site' = True. Default value: None
+
+Example:
 
     from zacrostools.kmc_output import KMCOutput
 
-    kmc_output = KMCOutput(path=path_to_calculation_files)
+    kmc_output = KMCOutput(path='zacros_results', ignore=30.0)
 
 ## 2. Extract data and plot results
 

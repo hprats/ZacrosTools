@@ -1,4 +1,4 @@
-#  Writting input files
+#  Writing input files
 
 In ZacrosTools, a KMC model is represented as a KMCModel object {py:func}`zacrostools.kmc_model.KMCModel`, which 
 contains information on the gas-phase species involved, the reaction model, the energetics model, and the lattice model.
@@ -266,7 +266,8 @@ Once the KMC model is created, the Zacros input files for the desired operating 
 the reporting scheme, the stopping criteria, and the scaling of reaction rates for fast events:
 
 The following columns are **mandatory**:
-- **path** (*str*): the path for the job directory where input files will be written
+- **path** (*str*): the path for the new directory where the input files will be written. This directory will be created
+ by ZacrosTools. 
 - **temperature** (*float*): reaction temperature (in K)
 - **pressure** (*dict*): partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
 
