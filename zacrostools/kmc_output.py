@@ -77,7 +77,9 @@ class KMCOutput:
     """
 
     @enforce_types
-    def __init__(self, path: str, ignore: float = 0.0, coverage_per_site: bool = False, ads_sites: dict = None):
+    def __init__(self, path: str, ignore: Union[float, int] = 0.0, coverage_per_site: bool = False,
+                 ads_sites: Union[dict, None] = None):
+
         self.path = path
 
         # Get data from general_output.txt file
@@ -89,6 +91,8 @@ class KMCOutput:
         self.n_sites = data_general['n_sites']
         self.area = data_general['area']
         self.site_types = data_general['site_types']
+
+        ignore = float(ignore)
 
         # Get data from specnum_output.txt
         data_specnum, header = get_data_specnum(path, ignore)

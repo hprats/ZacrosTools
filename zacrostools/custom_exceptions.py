@@ -1,5 +1,6 @@
 import functools
 import inspect
+from typing import Union, get_origin, get_args
 
 
 class ZacrosToolsError(Exception):
@@ -44,8 +45,14 @@ def enforce_types(func):
         bound_args = signature.bind(*args, **kwargs)
         for name, value in bound_args.arguments.items():
             expected_type = signature.parameters[name].annotation
-            if expected_type != inspect.Parameter.empty and not isinstance(value, expected_type):
-                raise TypeError(f"Argument '{name}' must be of type {expected_type.__name__}")
+            if expected_type != inspect.Parameter.empty:
+                if get_origin(expected_type) is Union:
+                    allowed_types = get_args(expected_type)
+                else:
+                    allowed_types = (expected_type,)
+                if not any(isinstance(value, t) for t in allowed_types):
+                    expected_types_str = ', '.join([t.__name__ for t in allowed_types])
+                    raise TypeError(f"Argument '{name}' must be one of types: {expected_types_str}")
         return func(*args, **kwargs)
 
     return wrapper
