@@ -5,7 +5,7 @@ and then this KMCOutput can be used to extract all the simulation data and to pl
 
 ## 1. Create a KMCOutput object 
 
-A KMCOutput can be created as follows
+A KMCOutput can be created as detailed below.
 
 The following argument is **mandatory**:
 - **path** (*str*): path of the directory containing the output files
