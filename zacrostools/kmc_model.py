@@ -51,7 +51,8 @@ class KMCModel:
                        # Optional arguments
                        reporting_scheme: Union[dict, None] = None, stopping_criteria: Union[dict, None] = None,
                        manual_scaling: Union[dict, None] = None, auto_scaling_steps: Union[list, None] = None,
-                       auto_scaling_tags: Union[dict, None] = None, sig_figs_energies: int = 16, sig_figs_pe: int = 16):
+                       auto_scaling_tags: Union[dict, None] = None, sig_figs_energies: int = 16, sig_figs_pe: int = 16,
+                       random_seed: Union[int, None] = None):
         """
 
         Parameters
@@ -88,6 +89,9 @@ class KMCModel:
         sig_figs_pe: int, optional
             Number of significant figures used when writing 'pre_expon' and 'pe_ratio' in mechanism_input.dat.
             Default value: 16
+        random_seed: int, optional
+            The integer seed of the random number generator. If not specified, ZacrosTools will generate one.
+            Default value: None
         """
 
         if reporting_scheme is None:
@@ -107,7 +111,8 @@ class KMCModel:
         if not os.path.exists(self.path):
             os.mkdir(self.path)
             self.write_simulation_input(temperature=temperature, pressure=pressure, reporting_scheme=reporting_scheme,
-                                        stopping_criteria=stopping_criteria, auto_scaling_tags=auto_scaling_tags)
+                                        stopping_criteria=stopping_criteria, auto_scaling_tags=auto_scaling_tags,
+                                        sig_figs_energies=sig_figs_energies, random_seed=random_seed)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
                                                       manual_scaling=manual_scaling,
                                                       auto_scaling_steps=auto_scaling_steps,
@@ -119,13 +124,17 @@ class KMCModel:
         else:
             print(f'{self.path} already exists (nothing done)')
 
-    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_tags):
+    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_tags,
+                               sig_figs_energies, random_seed):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs = self.get_surf_specs()
         write_header(f"{self.path}/simulation_input.dat")
         with open(f"{self.path}/simulation_input.dat", 'a') as infile:
-            infile.write('random_seed\t'.expandtabs(26) + str(randint(100000, 999999)) + '\n')
+            if random_seed is None:
+                infile.write('random_seed\t'.expandtabs(26) + str(randint(100000, 999999)) + '\n')
+            else:
+                infile.write('random_seed\t'.expandtabs(26) + str(random_seed) + '\n')
             infile.write('temperature\t'.expandtabs(26) + str(float(temperature)) + '\n')
             p_tot = sum(pressure.values())
             infile.write('pressure\t'.expandtabs(26) + str(p_tot) + '\n')
@@ -135,7 +144,11 @@ class KMCModel:
             tags_zacros = ['gas_energies', 'gas_molec_weights']
             for tag1, tag2 in zip(tags_dict, tags_zacros):
                 tag_list = [self.gas_data.loc[x, tag1] for x in gas_specs_names]
-                infile.write(f'{tag2}\t'.expandtabs(26) + " ".join(str(x) for x in tag_list) + '\n')
+                if tag1 == 'gas_energy':
+                    formatted_tag_list = [f'{x:.{sig_figs_energies}f}' for x in tag_list]
+                    infile.write(f'{tag2}\t'.expandtabs(26) + " ".join(formatted_tag_list) + '\n')
+                else:
+                    infile.write(f'{tag2}\t'.expandtabs(26) + " ".join(str(x) for x in tag_list) + '\n')
             try:
                 gas_molar_frac_list = [pressure[x] / p_tot for x in gas_specs_names]
             except KeyError as ke:
