@@ -283,10 +283,13 @@ The following columns are **optional**:
 ['CO_diffusion', 'O_diffusion']. Default value: []
 - **auto_scaling_tags** (*dict*): keywords controlling the dynamic scaling algorithm and their corresponding values, 
 e.g. {'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}. Default value: {}
-- **sig_figs_energies** (*int*): number of significant figures used when writing 'cluster_eng' in energetics_input.dat 
-and 'activ_eng' in mechanism_input.dat. Default value: 16
+- **sig_figs_energies** (*int*): number of significant figures used when writing 'gas_energies' in the 
+simulation_input.dat, 'cluster_eng' in the energetics_input.dat, and 'activ_eng' in mechanism_input.dat. Default value: 
+16
 - **sig_figs_pe** (*int*): number of significant figures used when writing 'pre_expon' and 'pe_ratio' in 
 mechanism_input.dat. Default value: 16
+- **random_seed** (*int*): the integer seed of the random number generator. If not specified, ZacrosTools will generate 
+one. Default value: None
 
 For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
 create all input files:
