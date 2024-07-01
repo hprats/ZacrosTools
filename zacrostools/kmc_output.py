@@ -123,7 +123,7 @@ class KMCOutput:
             self.coverage[ads] = data_specnum[:, i] / self.n_sites * 100
             self.av_coverage[ads] = np.average(data_specnum[:, i]) / self.n_sites * 100
         self.total_coverage = sum(self.coverage.values())
-        self.av_total_coverage = sum(self.av_coverage.values())
+        self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # to prevent 100.00000000001 (num. error)
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
         # Coverage per site type (%)
@@ -147,8 +147,8 @@ class KMCOutput:
             self.dominant_ads_per_site_type = {}
             for site_type in self.site_types:
                 self.total_coverage_per_site_type[site_type] = sum(self.coverage_per_site_type[site_type].values())
-                self.av_total_coverage_per_site_type[site_type] = sum(
-                    self.av_coverage_per_site_type[site_type].values())
+                self.av_total_coverage_per_site_type[site_type] = min(sum(
+                    self.av_coverage_per_site_type[site_type].values()), 100)  # to prevent 100.00000000001 (num. error)
                 self.dominant_ads_per_site_type[site_type] = max(self.av_coverage_per_site_type[site_type],
                                                                  key=self.av_coverage_per_site_type[site_type].get)
 
