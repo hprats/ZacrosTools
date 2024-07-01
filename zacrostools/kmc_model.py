@@ -38,11 +38,16 @@ class KMCModel:
 
     def check_errors(self):
         """Checks for data consistency after initialization."""
+        if self.lattice_model.lattice_type == 'default':
+            if 'site_types' in self.reaction_model.df.columns:
+                raise ReactionModelError("Remove 'site_types' from the reaction model when using a default lattice.")
+            if 'site_types' in self.energetic_model.df.columns:
+                raise EnergeticModelError("Remove 'site_types' from the energetic model when using a default lattice.")
         if self.lattice_model.lattice_type != 'default':
             if 'site_types' not in self.reaction_model.df.columns:
-                raise ReactionModelError("Custom lattice used but no 'site_types' specified in the reaction model.")
+                raise ReactionModelError("'site_types' are missing in the reaction model.")
             if 'site_types' not in self.energetic_model.df.columns:
-                raise EnergeticModelError("Custom lattice used but no 'site_types' specified in the energetic model.")
+                raise EnergeticModelError("'site_types' are missing in the energetic model.")
 
     @enforce_types
     def create_job_dir(self,
@@ -111,8 +116,9 @@ class KMCModel:
         if not os.path.exists(self.path):
             os.mkdir(self.path)
             self.write_simulation_input(temperature=temperature, pressure=pressure, reporting_scheme=reporting_scheme,
-                                        stopping_criteria=stopping_criteria, auto_scaling_tags=auto_scaling_tags,
-                                        sig_figs_energies=sig_figs_energies, random_seed=random_seed)
+                                        stopping_criteria=stopping_criteria, auto_scaling_steps=auto_scaling_steps,
+                                        auto_scaling_tags=auto_scaling_tags, sig_figs_energies=sig_figs_energies,
+                                        random_seed=random_seed)
             self.reaction_model.write_mechanism_input(path=self.path, temperature=temperature, gas_data=self.gas_data,
                                                       manual_scaling=manual_scaling,
                                                       auto_scaling_steps=auto_scaling_steps,
@@ -124,8 +130,8 @@ class KMCModel:
         else:
             print(f'{self.path} already exists (nothing done)')
 
-    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_tags,
-                               sig_figs_energies, random_seed):
+    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria, auto_scaling_steps,
+                               auto_scaling_tags, sig_figs_energies, random_seed):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs = self.get_surf_specs()
@@ -163,7 +169,7 @@ class KMCModel:
                 infile.write((tag + '\t').expandtabs(26) + str(reporting_scheme[tag]) + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
                 infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria[tag]) + '\n')
-            if len(auto_scaling_tags) > 0:
+            if len(auto_scaling_steps) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in auto_scaling_tags:
                     infile.write((tag + '\t').expandtabs(26) + str(auto_scaling_tags[tag]) + '\n')
@@ -176,9 +182,10 @@ class KMCModel:
         for cluster in self.energetic_model.df.index:
             lattice_state = ast.literal_eval(self.energetic_model.df.loc[cluster, 'lattice_state'])
             for site in lattice_state:
-                surf_specs_name = site.split()[1]
-                surf_specs_dent = int(site.split()[2])
-                if surf_specs_name not in surf_specs or (
-                        surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
-                    surf_specs[surf_specs_name] = surf_specs_dent
+                if '&' not in site:
+                    surf_specs_name = site.split()[1]
+                    surf_specs_dent = int(site.split()[2])
+                    if surf_specs_name not in surf_specs or (
+                            surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
+                        surf_specs[surf_specs_name] = surf_specs_dent
         return surf_specs

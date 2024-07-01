@@ -127,7 +127,7 @@ class KMCOutput:
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
         # Coverage per site type (%)
-        if len(self.site_types) == 1:
+        if coverage_per_site is True and len(self.site_types) == 1:
             raise KMCOutputError(f"'coverage_per_site' not available when there is only one site type. Path: "
                                  f"{self.path}")
         if coverage_per_site:

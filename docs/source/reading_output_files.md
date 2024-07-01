@@ -51,7 +51,7 @@ Example:
 
     # Coverage (in %)
     for surf_species in kmc_output.surf_species_names:
-        if kmc_output.av_coverage[surf_species] > 1.0  # only plot surface species with a coverage > 1 %
+        if kmc_output.av_coverage[surf_species] > 1.0:  # only plot surface species with a coverage > 1 %
         axes[1].plot(kmc_output.time, kmc_output.coverage[surf_species], label=surf_species)
 
     for ax in axes:
