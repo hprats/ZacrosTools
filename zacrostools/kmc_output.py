@@ -13,6 +13,9 @@ class KMCOutput:
     ignore: float, optional
         Ignore first % of simulated time, i.e., equilibration (in %).
         Default value: 0.0
+    weights: str, optional
+        Select the weights for the averages. Possible options: 'none', 'time', 'events'
+        Default value: 'none'
     coverage_per_site: bool, optional
         If True, calculate the coverage per site type.
         Default value: False

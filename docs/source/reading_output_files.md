@@ -13,6 +13,8 @@ The following argument is **mandatory**:
 The following arguments are **optional**:
 - **ignore** (*float*): ignore first % of the total simulated time (in %). This keyword is used to ignore the data from 
 the equilibration phase when computing the averages. Default value: 0.0 
+- **weights** (*str*): select the weights for the averages. Possible options: 'none', 'time', 'events'. Default value: 
+'none' (all weights are 1.0)
 - **coverage_per_site** (*bool*): if True, 'coverage_per_site_type' and 'av_coverage_per_site_type' are also calculated 
 (see below), and then a dictionary for 'ads_sites' must be provided. Default value: False
 - **ads_sites** (*dict*): a dictionary where the surface species are stored as keys and their values are the site types 
