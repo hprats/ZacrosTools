@@ -71,11 +71,47 @@ def get_data_specnum(path, ignore=0.0):
 
 
 def get_step_names(path):
-    step_names = []
-    with open(f"{path}/mechanism_input.dat", 'r') as file_object:
-        line = file_object.readline()
-        while 'end_mechanism' not in line:
-            if 'reversible_step' in line and 'end_reversible_step' not in line:
-                step_names.append(line.split()[-1])
-            line = file_object.readline()
-    return step_names
+    """ Reads a mechanism_input.dat and returns a list of all the steps"""
+    steps_names = []
+
+    with open(f"{path}/mechanism_input.dat", 'r') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith('reversible_step'):
+            step_name = line.split()[1]
+            steps_names.append(step_name)
+
+    return steps_names
+
+
+def get_stiffness_scalable_steps(path):
+    """ Reads a mechanism_input.dat and returns a list of all the steps that are stiffness scalable"""
+    steps_with_stiffness_scalable = []
+
+    with open(f"{path}/mechanism_input.dat", 'r') as file:
+        lines = file.readlines()
+
+    inside_block = False
+    current_step_name = None
+    contains_stiffness_scalable = False
+
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith('reversible_step'):
+            inside_block = True
+            current_step_name = line.split()[1]
+            contains_stiffness_scalable = False
+
+        if inside_block:
+            if 'stiffness_scalable' in line:
+                contains_stiffness_scalable = True
+            if line == 'end_reversible_step':
+                if contains_stiffness_scalable:
+                    steps_with_stiffness_scalable.append(current_step_name)
+                inside_block = False
+
+    return steps_with_stiffness_scalable
