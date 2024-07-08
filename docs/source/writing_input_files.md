@@ -79,12 +79,12 @@ The following columns are **mandatory** for all step types:
 - **initial** (*list*): initial configuration in Zacros format, e.g. ['1 CO* 1','2 * 1']
 - **final** (*list*): final configuration in Zacros format, e.g. ['1 C* 1','2 O* 1']
 - **activ_eng** (*float*): activation energy (in eV)
-- **vib_energies_is** (*list*): vibrational energies for the initial state (in meV)
-- **vib_energies_fs** (*list*): vibrational energies for the final state (in meV)
+- **vib_energies_is** (*list*): vibrational energies for the initial state (in meV). Do not include the ZPE
+- **vib_energies_fs** (*list*): vibrational energies for the final state (in meV). Do not include the ZPE
 
 The following columns are only **mandatory** for adsorption steps:
 - **molecule** (*str*): gas-phase molecule involved. Only required for adsorption steps. 
-- **area_site** (*float*): area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps.
+- **area_site** (*float*): area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps
 
 The following columns is only **mandatory** for activated adsorption steps and surface reaction steps:
 - **vib_energies_ts** (*list*): vibrational energies for the transition state (in meV). For non-activated adsorption 
@@ -94,6 +94,13 @@ The following columns are **optional**:
 - **neighboring** (*str*): connectivity between sites involved, e.g. 1-2. Default value: None
 - **prox_factor** (*float*): proximity factor. Default value: 0.5
 - **angles** (*str*): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
+
+```{caution}
+- **activ_eng** must not include the zero-point energy, as it is included in the pre-exponential factor
+- for steps with more than one species in the initial state:
+  - **activ_eng** is calculated from the co-adsorbed configuration
+  - **vib_energies_is** corresponds to the reactants at infinite separation
+```
 
 Example:
 
