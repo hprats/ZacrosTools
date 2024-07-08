@@ -77,13 +77,12 @@ class KMCOutput:
     """
 
     @enforce_types
-    def __init__(self, path: str, ignore: Union[float, int] = 0.0, coverage_per_site: bool = False,
-                 ads_sites: Union[dict, None] = None):
+    def __init__(self, path: str, ignore: Union[float, int] = 0.0, weights: str = 'none',
+                 coverage_per_site: bool = False, ads_sites: Union[dict, None] = None):
 
         self.path = path
 
-        # Get data from general_output.txt file
-        data_general = parse_general_output(path)
+        data_general = parse_general_output(path)  # Get data from general_output.txt file
         self.n_gas_species = data_general['n_gas_species']
         self.gas_species_names = data_general['gas_species_names']
         self.n_surf_species = data_general['n_surf_species']
@@ -92,20 +91,23 @@ class KMCOutput:
         self.area = data_general['area']
         self.site_types = data_general['site_types']
 
+        if coverage_per_site is True and len(self.site_types) == 1:
+            raise KMCOutputError(f"'coverage_per_site' not available when there is only one site type. Path: "
+                                 f"{self.path}")
+
         ignore = float(ignore)
 
-        # Get data from specnum_output.txt
-        data_specnum, header = get_data_specnum(path, ignore)
+        data_specnum, header = get_data_specnum(path, ignore)  # Get data from specnum_output.txt
+        self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
         self.final_time = data_specnum[-1, 2]
-        self.energy = data_specnum[:, 4] / self.area
-        self.av_energy = np.average(data_specnum[:, 4]) / self.area
+        self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
         self.final_energy = data_specnum[-1, 4] / self.area
+        self.av_energy = self.get_average(array=self.energy, weights=weights)
 
-        # Production (molec) and TOF (molec·s^-1·Å^-2)
-        self.production = {}
+        self.production = {}  # in molec
         self.total_production = {}  # useful when calculating selectivity (i.e., set min_total_production)
-        self.tof = {}
+        self.tof = {}  # in molec·s^-1·Å^-2
         for i in range(5 + self.n_surf_species, len(header)):
             ads = header[i]
             self.production[ads] = data_specnum[:, i]
@@ -115,22 +117,17 @@ class KMCOutput:
             else:
                 self.tof[header[i]] = 0.00
 
-        # Coverage (%)
         self.coverage = {}
         self.av_coverage = {}
         for i in range(5, 5 + self.n_surf_species):
             ads = header[i].replace('*', '')
             self.coverage[ads] = data_specnum[:, i] / self.n_sites * 100
-            self.av_coverage[ads] = np.average(data_specnum[:, i]) / self.n_sites * 100
+            self.av_coverage[ads] = self.get_average(array=self.coverage[ads], weights=weights)
         self.total_coverage = sum(self.coverage.values())
         self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # to prevent 100.00000000001 (num. error)
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
-        # Coverage per site type (%)
-        if coverage_per_site is True and len(self.site_types) == 1:
-            raise KMCOutputError(f"'coverage_per_site' not available when there is only one site type. Path: "
-                                 f"{self.path}")
-        if coverage_per_site:
+        if coverage_per_site:  # Coverage per site type (%)
             self.coverage_per_site_type = {}
             self.av_coverage_per_site_type = {}
             for site_type in self.site_types:
@@ -141,8 +138,8 @@ class KMCOutput:
                 site_type = ads_sites[ads]
                 self.coverage_per_site_type[site_type][ads] = data_specnum[:, i] / self.site_types[
                     ads_sites[ads]] * 100
-                self.av_coverage_per_site_type[site_type][ads] = np.average(data_specnum[:, i]) / self.site_types[
-                    ads_sites[ads]] * 100
+                self.av_coverage_per_site_type[site_type][ads] = self.get_average(
+                    array=self.coverage_per_site_type[site_type][ads], weights=weights)
             self.total_coverage_per_site_type = {}
             self.av_total_coverage_per_site_type = {}
             self.dominant_ads_per_site_type = {}
@@ -152,6 +149,18 @@ class KMCOutput:
                     self.av_coverage_per_site_type[site_type].values()), 100)  # to prevent 100.00000000001 (num. error)
                 self.dominant_ads_per_site_type[site_type] = max(self.av_coverage_per_site_type[site_type],
                                                                  key=self.av_coverage_per_site_type[site_type].get)
+
+    def get_average(self, array, weights):
+
+        if weights not in ['none', 'time', 'events']:
+            raise KMCOutputError(f"'weights' must be one of the following: 'none' (default), 'time', or 'events'.")
+
+        if weights == 'time':
+            return np.average(array[1:], weights=np.diff(self.time))
+        elif weights == 'events':
+            return np.average(array[1:], weights=np.diff(self.nevents))
+        else:  # weights == 'none'
+            return np.average(array)
 
     @enforce_types
     def get_selectivity(self, main_product: str, side_products: list):
