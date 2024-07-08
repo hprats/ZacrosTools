@@ -139,7 +139,8 @@ class KMCOutput:
             for i in range(5, 5 + self.n_surf_species):
                 ads = header[i].replace('*', '')
                 site_type = ads_sites[ads]
-                self.coverage_per_site_type[site_type][ads] = data_specnum[:, i] / self.site_types[ads_sites[ads]] * 100
+                self.coverage_per_site_type[site_type][ads] = data_specnum[:, i] / self.site_types[
+                    ads_sites[ads]] * 100
                 self.av_coverage_per_site_type[site_type][ads] = np.average(data_specnum[:, i]) / self.site_types[
                     ads_sites[ads]] * 100
             self.total_coverage_per_site_type = {}
