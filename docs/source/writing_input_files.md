@@ -97,9 +97,9 @@ The following columns are **optional**:
 
 ```{caution}
 - **activ_eng** must not include the zero-point energy, as it is included in the pre-exponential factor
-- for steps with more than one species in the initial state:
-  - **activ_eng** is calculated from the co-adsorbed configuration
-  - **vib_energies_is** corresponds to the reactants at infinite separation
+- for elementary steps with more than one surface species in the initial and/or final states: the **activ_eng** must be 
+calculated from the **co-adsorbed** configuration of the reactamts **BUT** both **vib_energies_is** and **vib_energies_fs**
+must correspond to the reactants and/or products at **infinite** separation
 ```
 
 Example:
