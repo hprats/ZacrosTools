@@ -1,6 +1,6 @@
 # Welcome to ZacrosTools Documentation
 
-Welcome to the ZacrosTools documentation. Here you will find everything you need to use the ZacrosTools library.
+Welcome to the ZacrosTools documentation. Here you will find everything you need to use this Python library.
 
 ZacrosTools is a simple toolkit to prepare **[Zacros](https://zacros.org/)** input files and read **[Zacros](https://zacros.org/)** output files. It is 
 specially useful when running pressure and/or temperature scans, which may require the preparation of many input files

@@ -19,12 +19,16 @@ The following columns are **mandatory**:
 - **inertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å<sup>2</sup>).
   1 element for linear molecules, 3 elements for non-linear molecules.
   Can be obtained from ase.Atoms.get_moments_of_inertia()
-- **gas_energy** (*float*): formation energy (in eV)
+- **gas_energy** (*float*): formation energy (in eV). Do not include the ZPE
 
 The following columns are **optional**:
 
 - **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
   function. Default value: 1
+
+```{caution}
+- The **gas_energy** must not include the ZPE (it is included in the pre-exponential factor)
+```
 
 Example:
 
@@ -96,10 +100,11 @@ The following columns are **optional**:
 - **angles** (*str*): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
 
 ```{caution}
-- **activ_eng** must not include the zero-point energy, as it is included in the pre-exponential factor
-- for elementary steps with more than one surface species in the initial and/or final states: the **activ_eng** must be 
-calculated from the **co-adsorbed** configuration of the reactamts **BUT** both **vib_energies_is** and **vib_energies_fs**
-must correspond to the reactants and/or products at **infinite** separation
+- The **activ_eng** must not include the ZPE (it is included in the pre-exponential factor)
+- For elementary steps with more than one surface species in the initial and/or final states: 
+  - the **activ_eng** must be calculated from the **co-adsorbed** configuration of the reactants 
+  - **BUT** both **vib_energies_is** and **vib_energies_fs** must correspond to the reactants and/or products at 
+**infinite** separation
 ```
 
 Example:
@@ -167,6 +172,11 @@ The following columns are **optional**:
 - **neighboring** (*str*): connectivity between sites involved, e.g. 1-2. Default value: None
 - **angles** (*str*): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
 - **graph_multiplicity** (*int*): symmetry number of the cluster, e.g. 2. Default value: 1
+
+```{caution}
+- The **cluster_eng** must not include the ZPE. For the single-body terms, the ZPE is included in the pre-exponential 
+factor. For the multi-body terms (lateral interactions), the ZPE should be ignored
+```
 
 Example:
 
