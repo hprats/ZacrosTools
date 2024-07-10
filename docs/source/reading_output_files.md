@@ -15,10 +15,6 @@ The following arguments are **optional**:
 the equilibration phase when computing the averages. Default value: 0.0 
 - **weights** (*str*): select the weights for the averages. Possible options: 'none', 'time', 'events'. Default value: 
 'none' (all weights are 1.0)
-- **coverage_per_site** (*bool*): if True, 'coverage_per_site_type' and 'av_coverage_per_site_type' are also calculated 
-(see below), and then a dictionary for 'ads_sites' must be provided. Default value: False
-- **ads_sites** (*dict*): a dictionary where the surface species are stored as keys and their values are the site types 
-where they adsorb, e.g. {'CO': 'top', 'O': 'hollow'}. Only required if 'coverage_per_site' = True. Default value: None
 
 Example:
 
@@ -42,7 +38,7 @@ Example:
     import matplotlib.pyplot as plt
     from zacrostools.kmc_output import KMCOutput
 
-    kmc_output = KMCOutput(path=path_to_calculation_files)
+    kmc_output = KMCOutput(path=files_path, ignore=0.3, weights='time')
 
     fig, axes = plt.subplots(2, 1, figsize=(2, 4), sharex=True)
 
@@ -67,13 +63,6 @@ Example:
 - **Average coverage per site type (float):** kmc_output.av_coverage_per_site_type[surf_species]  (in %)
 
 Example:
-
-    import matplotlib.pyplot as plt
-    from zacrostools.kmc_output import KMCOutput
-
-    kmc_output = KMCOutput(path=path_to_calculation_files, 
-                           coverage_per_site=True, 
-                           ads_sites={'C': 'hollow', 'CO': 'top', 'O': 'bridge'})
 
     fig, axes = plt.subplots(1, len(kmc_output.site_types), figsize=(2 * len(kmc_output.site_types), 2), sharey=True)
 
