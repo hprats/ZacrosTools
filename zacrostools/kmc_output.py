@@ -102,9 +102,9 @@ class KMCOutput:
         self.total_production = {}  # useful when calculating selectivity (i.e., set min_total_production)
         self.tof = {}  # in molec·s^-1·Å^-2
         for i in range(5 + self.n_surf_species, len(header)):
-            ads = header[i]
-            self.production[ads] = data_specnum[:, i]
-            self.total_production[ads] = data_specnum[-1, i] - data_specnum[0, i]
+            gas_spec = header[i]
+            self.production[gas_spec] = data_specnum[:, i]
+            self.total_production[gas_spec] = data_specnum[-1, i] - data_specnum[0, i]
             if data_specnum[-1, i] != 0:
                 self.tof[header[i]] = np.polyfit(data_specnum[:, 2], data_specnum[:, i], 1)[0] / self.area
             else:
@@ -114,9 +114,9 @@ class KMCOutput:
         self.coverage = {}
         self.av_coverage = {}
         for i in range(5, 5 + self.n_surf_species):
-            ads = header[i].replace('*', '')
-            self.coverage[ads] = data_specnum[:, i] / self.n_sites * 100
-            self.av_coverage[ads] = self.get_average(array=self.coverage[ads], weights=weights)
+            surf_spec = header[i].replace('*', '')
+            self.coverage[surf_spec] = data_specnum[:, i] / self.n_sites * 100
+            self.av_coverage[surf_spec] = self.get_average(array=self.coverage[surf_spec], weights=weights)
         self.total_coverage = sum(self.coverage.values())
         self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # to prevent 100.00000000001 (num. error)
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
@@ -129,12 +129,12 @@ class KMCOutput:
             self.coverage_per_site_type[site_type] = {}
             self.av_coverage_per_site_type[site_type] = {}
         for i in range(5, 5 + self.n_surf_species):
-            ads = header[i].replace('*', '')
-            site_type = ads_sites[ads]
-            self.coverage_per_site_type[site_type][ads] = data_specnum[:, i] / self.site_types[
-                ads_sites[ads]] * 100
-            self.av_coverage_per_site_type[site_type][ads] = self.get_average(
-                array=self.coverage_per_site_type[site_type][ads], weights=weights)
+            surf_spec = header[i].replace('*', '')
+            site_type = ads_sites[surf_spec]
+            self.coverage_per_site_type[site_type][surf_spec] = data_specnum[:, i] / self.site_types[
+                ads_sites[surf_spec]] * 100
+            self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
+                array=self.coverage_per_site_type[site_type][surf_spec], weights=weights)
         self.total_coverage_per_site_type = {}
         self.av_total_coverage_per_site_type = {}
         self.dominant_ads_per_site_type = {}
