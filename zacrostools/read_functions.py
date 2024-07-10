@@ -62,6 +62,14 @@ def parse_simulation_input(path):
         return data
 
 
+def get_partial_pressures(path):
+    partial_pressures = {}
+    simulation_data = parse_simulation_input(path)
+    for i, molecule in enumerate(simulation_data['gas_specs_names']):
+        partial_pressures[molecule] = simulation_data['pressure'] * simulation_data['gas_molar_fracs'][i]
+    return partial_pressures
+
+
 def get_data_specnum(path, ignore=0.0):
     with open(f"{path}/specnum_output.txt", "r") as infile:
         header = infile.readline().split()
