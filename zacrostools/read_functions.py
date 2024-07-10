@@ -1,5 +1,6 @@
 import numpy as np
 from zacrostools.calc_functions import find_nearest
+from zacrostools.custom_exceptions import EnergeticModelError
 
 
 def parse_general_output(path):
@@ -115,3 +116,67 @@ def get_stiffness_scalable_steps(path):
                 inside_block = False
 
     return steps_with_stiffness_scalable
+
+
+def get_species_sites_dict(path):
+    with open(f"{path}/energetics_input.dat", 'r') as file:
+        lines = file.readlines()
+
+    inside_block = False
+    site_types_provided = False
+    species_sites_dict = {}
+    current_species = []
+    num_sites = 0
+
+    for i, line in enumerate(lines):
+        line = line.strip()
+
+        # Detect the start of a cluster block
+        if line.startswith('cluster') and 'cluster_eng' not in line:
+            inside_block = True
+            current_species = []
+            site_types_provided = False
+
+        if inside_block:
+            if line.startswith('sites'):
+                num_sites = int(line.split()[1])
+
+            if line.startswith('lattice_state'):
+                state_lines = lines[i + 1:i + 1 + num_sites]
+                for state_line in state_lines:
+                    species = state_line.split()[1].replace('*', '')
+                    current_species.append(species)
+
+            if line.startswith('site_types'):
+                site_types_provided = True
+                types = line.split()[1:]
+                for j, site_type in enumerate(types):
+                    species = current_species[j]
+                    if species in species_sites_dict:
+                        if species_sites_dict[species] != site_type:
+                            raise EnergeticModelError(f"species {species} adsorbs to more than one site type: "
+                                                      f"{species_sites_dict[species]} and {site_type}. This is not "
+                                                      f"allowed, because it prevents to calculate the coverage per site"
+                                                      f" type. Please, define two different species, e.g. {species}_"
+                                                      f"{species_sites_dict[species]} and {species}_{site_type}")
+                    else:
+                        species_sites_dict[species] = site_type
+
+            # Detect the end of a cluster block
+            if 'end_cluster' in line:
+                if not site_types_provided:
+                    default_site_type_name = list(parse_general_output(path)['site_types'].keys())[0]
+                    # default_site_type_name = 'default'
+                    for species in current_species:
+                        if species in species_sites_dict:
+                            if species_sites_dict[species] != default_site_type_name:
+                                raise EnergeticModelError(f"species {species} adsorbs to more than one site type: "
+                                                          f"{species_sites_dict[species]} and {default_site_type_name}."
+                                                          f" When using a default_lattice, do not include the "
+                                                          f"'site_types' keyword.")
+                        else:
+                            species_sites_dict[species] = default_site_type_name
+                inside_block = False
+
+    return species_sites_dict
+
