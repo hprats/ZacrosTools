@@ -42,14 +42,18 @@ def parse_general_output(path):
 
 
 def parse_simulation_input(path):
-    dmatch = ['pressure',
+    dmatch = ['temperature',
+              'pressure',
               'gas_specs_names',
               'gas_molar_fracs']
     data = {}
     with open(f"{path}/simulation_input.dat", 'r') as file_object:
         line = file_object.readline()
         while len(dmatch) != 0:
-            if 'pressure' in line:
+            if 'temperature' in line:
+                data['temperature'] = float(line.split()[-1])
+                dmatch.remove('temperature')
+            elif 'pressure' in line:
                 data['pressure'] = float(line.split()[-1])
                 dmatch.remove('pressure')
             elif 'gas_specs_names' in line:
