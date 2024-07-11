@@ -1,36 +1,40 @@
 #  Writing input files
 
-In ZacrosTools, a KMC model is represented as a KMCModel object {py:func}`zacrostools.kmc_model.KMCModel`, which 
+In ZacrosTools, a KMC model is represented as a `KMCModel` object {py:func}`zacrostools.kmc_model.KMCModel`, which 
 contains information on the gas-phase species involved, the reaction model, the energetics model, and the lattice model.
-Below are listed all the steps to follow in order to create a KMCModel object. 
+Below are listed all the steps to follow in order to create a `KMCModel` object. 
 
 ## 1. Information on the gas-phase species 
 
-This information has to be contained in a Pandas DataFrame, where each row corresponds to a gas-phase molecule.
+This information has to be contained in a `pandas.DataFrame`, where each row corresponds to a gas-phase molecule.
 
 ```{important}
 The row index has to be the name of the species.
 ```
 
-The following columns are **mandatory**:
-- **type** (*str*): 'non_linear' or 'linear'
-- **gas_molec_weight** (*float*): molecular weights (in amu) of the gas species
-- **sym_number** (*int*): symmetry number of the molecule
+### Columns
+
+**Mandatory:**
+
+- **type** (*str*): `'non_linear'` or `'linear'`.
+- **gas_molec_weight** (*float*): molecular weights (in amu) of the gas species.
+- **sym_number** (*int*): symmetry number of the molecule.
 - **inertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å<sup>2</sup>).
   1 element for linear molecules, 3 elements for non-linear molecules.
-  Can be obtained from ase.Atoms.get_moments_of_inertia()
-- **gas_energy** (*float*): formation energy (in eV). Do not include the ZPE
+  Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
+- **gas_energy** (*float*): formation energy (in eV). Do not include the ZPE.
 
-The following columns are **optional**:
+
+**Optional:**
 
 - **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
-  function. Default value: 1
+  function. Default value: `1`.
 
 ```{caution}
 - The **gas_energy** must not include the ZPE (it is included in the pre-exponential factor)
 ```
 
-Example:
+### Example:
 
 | index | type   | gas_molec_weight | sym_number | degeneracy | inertia_moments      | gas_energy |
 |-------|--------|------------------|------------|------------|----------------------|------------|
@@ -38,13 +42,13 @@ Example:
 | O2    | linear | 32.0             | 2          | 3          | [12.178379354326061] | 2.6        |
 | CO2   | linear | 44.01            | 2.0        | 1.0        | [44.317229117708344] | 0.0        |
 
-This Pandas DataFrame can be created, for instance, by including all the information on a .csv file and reading it:
+This `pandas.DataFrame` can be created, for instance, by including all the information on a .csv file and reading it:
 
     import pandas as pd
 
     gas_data=pd.read_csv('gas_data.csv', index_col=0)
 
-Alternatively, it can be created from a Python Dictionary:
+Alternatively, it can be created from a `dict`:
 
     import pandas as pd
     
@@ -71,33 +75,36 @@ Alternatively, it can be created from a Python Dictionary:
 
 ## 2. Reaction model
 
-The information on the reaction model is also contained in a Pandas DataFrame, where each row corresponds to an 
+The information on the reaction model is also contained in a `pandas.DataFrame`, where each row corresponds to an 
 elementary step.
 
 ```{important}
 The row index has to be the name of the step.
 ```
 
-The following columns are **mandatory** for all step types:
-- **site_types** (*str*): the types of each site in the pattern
-- **initial** (*list*): initial configuration in Zacros format, e.g. ['1 CO* 1','2 * 1']
-- **final** (*list*): final configuration in Zacros format, e.g. ['1 C* 1','2 O* 1']
-- **activ_eng** (*float*): activation energy (in eV)
-- **vib_energies_is** (*list*): vibrational energies for the initial state (in meV). Do not include the ZPE
-- **vib_energies_fs** (*list*): vibrational energies for the final state (in meV). Do not include the ZPE
+### Columns
 
-The following columns are only **mandatory** for adsorption steps:
-- **molecule** (*str*): gas-phase molecule involved. Only required for adsorption steps. 
-- **area_site** (*float*): area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps
+**Mandatory:**
 
-The following columns is only **mandatory** for activated adsorption steps and surface reaction steps:
-- **vib_energies_ts** (*list*): vibrational energies for the transition state (in meV). For non-activated adsorption 
-steps, this value can be either undefined or an empty list i.e. []
+- **site_types** (*str*): The types of each site in the pattern.
+- **initial** (*list*): Initial configuration in Zacros format, e.g. `['1 CO* 1','2 * 1']`.
+- **final** (*list*): Final configuration in Zacros format, e.g. `['1 C* 1','2 O* 1']`.
+- **activ_eng** (*float*): Activation energy (in eV).
+- **vib_energies_is** (*list*): Vibrational energies for the initial state (in meV). Do not include the ZPE.
+- **vib_energies_fs** (*list*): Vibrational energies for the final state (in meV). Do not include the ZPE.
 
-The following columns are **optional**:
-- **neighboring** (*str*): connectivity between sites involved, e.g. 1-2. Default value: None
-- **prox_factor** (*float*): proximity factor. Default value: 0.5
-- **angles** (*str*): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
+Only **mandatory** for adsorption steps:
+- **molecule** (*str*): Gas-phase molecule involved. Only required for adsorption steps. 
+- **area_site** (*float*): Area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps.
+
+Only **mandatory** for activated adsorption steps and surface reaction steps:
+- **vib_energies_ts** (*list*): Vibrational energies for the transition state (in meV). For non-activated adsorption .
+steps, this value can be either undefined or an empty list i.e. `[]`.
+
+**Optional:**
+- **neighboring** (*str*): Connectivity between sites involved, e.g. 1-2. Default value: `None`.
+- **prox_factor** (*float*): Proximity factor. Default value: `0.5`.
+- **angles** (*str*): Angle between sites in Zacros format, e.g. `'1-2-3:180'`. Default value: `None`.
 
 ```{caution}
 - The **activ_eng** must not include the ZPE (it is included in the pre-exponential factor)
@@ -107,7 +114,7 @@ The following columns are **optional**:
 **infinite** separation
 ```
 
-Example:
+### Example:
 
 | index          | sites | site_types | neighboring | area_site | initial               | final                 | activ_eng | molecule | vib_energies_is                                                                                    | vib_energies_fs                                                                                      | vib_energies_ts                                                                           | prox_factor |
 |----------------|-------|------------|-------------|-----------|-----------------------|-----------------------|-----------|----------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|
@@ -118,13 +125,13 @@ Example:
 | CO_diffusion   | 2     | topC topC  | 1-2         |           | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  | 1.156     |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |             |
 | O_diffusion    | 2     | topC topC  | 1-2         |           | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   | 1.221     |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |             |
 
-This Pandas DataFrame can also be created by including all the information on a .csv file and reading it:
+This `pandas.DataFrame` can also be created by including all the information on a .csv file and reading it:
 
     import pandas as pd
 
     mechanism_data=pd.read_csv('mechanism.csv', index_col=0)
 
-or from a Python Dictionary:
+or from a `dict`:
 
     import pandas as pd
     
@@ -163,22 +170,26 @@ The information on the energetics model is contained in a third DataFrame, where
 The row index has to be the name of the cluster. 
 ```
 
-The following columns are **mandatory**:
-- **cluster_eng** (*float*): cluster formation energy (in eV)
-- **site_types** (*str*): the types of each site in the pattern
-- **lattice_state** (*list*): cluster configuration in Zacros format, e.g. ['1 CO* 1','2 CO* 1']
+### Columns
 
-The following columns are **optional**:
-- **neighboring** (*str*): connectivity between sites involved, e.g. 1-2. Default value: None
-- **angles** (*str*): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
-- **graph_multiplicity** (*int*): symmetry number of the cluster, e.g. 2. Default value: 1
+**Mandatory:**
+
+- **cluster_eng** (*float*): Cluster formation energy (in eV).
+- **site_types** (*str*): The types of each site in the pattern.
+- **lattice_state** (*list*): Cluster configuration in Zacros format, e.g. `['1 CO* 1','2 CO* 1']`.
+
+**Optional:**
+
+- **neighboring** (*str*): Connectivity between sites involved, e.g. `1-2`. Default value: `None`.
+- **angles** (*str*): Angle between sites in Zacros format, e.g. `'1-2-3:180'`. Default value: `None`.
+- **graph_multiplicity** (*int*): Symmetry number of the cluster, e.g. `2`. Default value: `1`.
 
 ```{caution}
 - The **cluster_eng** must not include the ZPE. For the single-body terms, the ZPE is included in the pre-exponential 
 factor. For the multi-body terms (lateral interactions), the ZPE should be ignored
 ```
 
-Example:
+### Example:
 
 | index        | cluster_eng | sites | site_types | lattice_state            | neighboring | graph_multiplicity |
 |--------------|-------------|-------|------------|--------------------------|-------------|--------------------|
@@ -193,13 +204,13 @@ Example:
 | O+O_pair     | 0.034       | 2     | tC tC      | ['1 O* 1', '2 O* 1']     | 1-2         | 2                  |
 
 This Pandas DataFrame can be created in the same way as the other ones. 
-From a .csv file:
+From a `.csv` file:
 
     import pandas as pd
 
     energetics_data=pd.read_csv('energetics.csv', index_col=0)
 
-or from a Python dictionary:
+or from a `dict`:
 
     import pandas as pd
     
@@ -221,15 +232,15 @@ or from a Python dictionary:
 
 ## 4. Lattice model
 
-Finally, a lattice model is needed to create a KMCModel. The lattice model is stored as a 
+Finally, a lattice model is needed to create a `KMCModel`. The lattice model is stored as a 
 {py:func}`zacrostools.lattice_input.LatticeModel` object. 
-Currently, the only way to create a lattice model is by reading a lattice_input.dat file:
+Currently, the only way to create a lattice model is by reading a `lattice_input.dat` file:
 
     from zacrostools.lattice_input import LatticeModel
 
     lattice_model = LatticeModel.from_file('lattice_inputs/lattice_input_for_HfC.dat')
 
-In future releases, the user will be able to create the lattice_input.dat file directly from ZacrosTools.
+In future releases, the user will be able to create the `lattice_input.dat` file directly from ZacrosTools.
 
 Example of a lattice input file for HfC(001):
 
@@ -282,31 +293,34 @@ Once the KMC model is created, the Zacros input files for the desired operating 
 {py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function. This function also contains parameters regarding 
 the reporting scheme, the stopping criteria, and the scaling of reaction rates for fast events:
 
-The following columns are **mandatory**:
-- **path** (*str*): the path for the new directory where the input files will be written. This directory will be created
- by ZacrosTools. 
-- **temperature** (*float*): reaction temperature (in K)
-- **pressure** (*dict*): partial pressures of all gas species (in bar), e.g. {'CO': 1.0, 'O2': 0.001}
+### Arguments
 
-The following columns are **optional**:
-- **reporting_scheme** (*dict*): reporting scheme in Zacros format. Must contain the following keys: 'snapshots', 
-'process_statistics' and 'species_numbers'. Default value: {'snapshots': 'on event 10000', 'process_statistics': 
-'on event 10000', 'species_numbers': 'on event 10000'}
-- **stopping_criteria** (*dict*): stopping criteria in Zacros format. Must contain the following keys: 'max_steps', 
-'max_time' and 'wall_time'. Default value: {'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}
-- **manual_scaling** (*list*): step names (keys) and their corresponding manual scaling factors (values) e.g. 
-{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default value: {}
-- **auto_scaling_steps** (*list*): steps that will be marked as 'stiffness_scalable' in mechanism_input.dat, e.g. 
-['CO_diffusion', 'O_diffusion']. Default value: []
-- **auto_scaling_tags** (*dict*): keywords controlling the dynamic scaling algorithm and their corresponding values, 
-e.g. {'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}. Default value: {}
-- **sig_figs_energies** (*int*): number of significant figures used when writing 'gas_energies' in the 
-simulation_input.dat, 'cluster_eng' in the energetics_input.dat, and 'activ_eng' in mechanism_input.dat. Default value: 
-16
-- **sig_figs_pe** (*int*): number of significant figures used when writing 'pre_expon' and 'pe_ratio' in 
-mechanism_input.dat. Default value: 16
-- **random_seed** (*int*): the integer seed of the random number generator. If not specified, ZacrosTools will generate 
-one. Default value: None
+**Mandatory:**
+
+- **path** (*str*): Path for the new directory where the input files will be written. This directory will be created
+ by ZacrosTools. 
+- **temperature** (*float*): Reaction temperature (in K).
+- **pressure** (*dict*): Partial pressures of all gas species (in bar), e.g. `{'CO': 1.0, 'O2': 0.001}`.
+
+**Optional:**
+- **reporting_scheme** (*dict*): Reporting scheme in Zacros format. Must contain the following keys: `'snapshots'`, 
+`'process_statistics'` and `'species_numbers'`. Default value: `{'snapshots': 'on event 10000', 'process_statistics': 
+'on event 10000', 'species_numbers': 'on event 10000'}`.
+- **stopping_criteria** (*dict*): Stopping criteria in Zacros format. Must contain the following keys: `'max_steps'`, 
+`'max_time'` and `'wall_time'`. Default value: `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
+- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
+`{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. Default value: `{}`.
+- **auto_scaling_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`, e.g. 
+`['CO_diffusion', 'O_diffusion']`. Default value: `[]`.
+- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values, 
+e.g. `{'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}`. Default value: `{}`.
+- **sig_figs_energies** (*int*): Number of significant figures used when writing `gas_energies` in the 
+`simulation_input.dat`, `cluster_eng` in the `energetics_input.dat`, and `activ_eng` in `mechanism_input.dat`. Default 
+value: `16`.
+- **sig_figs_pe** (*int*): Number of significant figures used when writing `pre_expon` and `pe_ratio` in 
+`mechanism_input.dat` Default value:`16`..
+- **random_seed** (*int*): Integer seed of the random number generator. If not specified, ZacrosTools will generate 
+one. Default value:`None`.
 
 For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
 create all input files:

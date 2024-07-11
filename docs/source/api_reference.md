@@ -19,3 +19,7 @@
 ```{eval-rst}
 .. autofunction:: zacrostools.kmc_output.KMCOutput.get_selectivity
 ```
+
+```{eval-rst}
+.. autofunction:: zacrostools.plot_functions.plot_contour
+```
