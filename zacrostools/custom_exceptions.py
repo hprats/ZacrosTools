@@ -33,6 +33,11 @@ class KMCOutputError(ZacrosToolsError):
     pass
 
 
+class PlotError(ZacrosToolsError):
+    """Exception raised for errors in the plot_functions module."""
+    pass
+
+
 class InconsistentDataError(ZacrosToolsError):
     """Exception raised for inconsistent data across models."""
     pass
@@ -52,7 +57,10 @@ def enforce_types(func):
                     allowed_types = (expected_type,)
                 if not any(isinstance(value, t) for t in allowed_types):
                     expected_types_str = ', '.join([t.__name__ for t in allowed_types])
-                    raise TypeError(f"Argument '{name}' must be one of types: {expected_types_str}")
+                    raise TypeError(
+                        f"Argument '{name}' must be one of types: {expected_types_str}; "
+                        f"got {type(value).__name__} instead."
+                    )
         return func(*args, **kwargs)
 
     return wrapper
