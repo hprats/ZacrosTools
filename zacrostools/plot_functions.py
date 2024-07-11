@@ -35,7 +35,7 @@ def plot_contour(
 
     Parameters
     ----------
-        ax: matplotlib.axes._axes.Axes
+        ax: matplotlib.axes.Axes
             Axis object where the contour plot should be created.
         scan_path: str
             Path of the directory containing all the scan jobs.
@@ -43,9 +43,10 @@ def plot_contour(
             Magnitude to plot in the x-axis. Possible values: 'pressure_X' (where X is a gas species) or 'temperature'.
         y: str
             Magnitude to plot in the y-axis. Possible values: 'pressure_Y' (where Y is a gas species) or 'temperature'.
-        z:
+        z: str
             Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'selectivity',
-            'coverage_Z' (where Z is a surface species), 'coverage_total' or 'phasediagram'.
+            'coverage_Z' (where Z is a surface species), 'coverage_total', 'phase_diagram', 'final_time' or
+            'final_energy'.
         levels: list, only for tof, selectivity and coverage plots (optional)
             Determines the number and positions of the contour lines / regions. Default: '[-3, -2.5, -2, -1.5, -1, -0.5,
              0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and '[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for
