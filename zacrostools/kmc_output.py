@@ -10,12 +10,10 @@ class KMCOutput:
     ----------
     path: str
         Path of the directory containing the output files.
-    ignore: float, optional
-        Ignore first % of simulated time, i.e., equilibration (in %).
-        Default value: 0.0
-    weights: str, optional
-        Select the weights for the averages. Possible options: 'none', 'time', 'events'
-        Default value: 'none'
+    ignore: float (optional)
+        Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
+    weights: str (optional)
+        Weights for the averages. Possible values: 'time', 'events'. Default value: None.
 
 
     Attributes
@@ -73,7 +71,7 @@ class KMCOutput:
     """
 
     @enforce_types
-    def __init__(self, path: str, ignore: Union[float, int] = 0.0, weights: str = 'none'):
+    def __init__(self, path: str, ignore: Union[float, int] = 0.0, weights: Union[str, None] = None):
 
         self.path = path
 
@@ -147,15 +145,15 @@ class KMCOutput:
 
     def get_average(self, array, weights):
 
-        if weights not in ['none', 'time', 'events']:
+        if weights not in [None, 'time', 'events']:
             raise KMCOutputError(f"'weights' must be one of the following: 'none' (default), 'time', or 'events'.")
 
-        if weights == 'time':
+        if weights is None:
+            return np.average(array)
+        elif weights == 'time':
             return np.average(array[1:], weights=np.diff(self.time))
         elif weights == 'events':
             return np.average(array[1:], weights=np.diff(self.nevents))
-        else:  # weights == 'none'
-            return np.average(array)
 
     @enforce_types
     def get_selectivity(self, main_product: str, side_products: list):
