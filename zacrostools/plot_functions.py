@@ -2,232 +2,257 @@ import numpy as np
 import pandas as pd
 from glob import glob
 from zacrostools.kmc_output import KMCOutput
-from zacrostools.read_functions import get_partial_pressures, parse_general_output
-from zacrostools.custom_exceptions import KMCOutputError
+from zacrostools.read_functions import get_partial_pressures, parse_general_output, parse_simulation_input
+from zacrostools.custom_exceptions import *
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
 
+# todo: add optional min_log_tof?
+@enforce_types
+def plot_contour(
+        # Mandatory arguments for all plots
+        ax, scan_path: str, x: str, y: str, z: str,
+        # Extra arguments for all plots except phase diagrams (optional)
+        levels: Union[list, None] = None,
+        # Extra arguments for tof and selectivity plots (optional)
+        min_molec: int = 0,
+        # Extra arguments for selectivity plots (required)
+        main_product: Union[str, None] = None, side_products: Union[list, None] = None,
+        # Extra arguments for coverage plots and phasediagram plots (optional)
+        site_type: Union[str, None] = 'default',
+        # Extra arguments for phasediagram plots (optional)
+        min_coverage: Union[float, int] = 20.0, surf_species_names: Union[list, None] = None,
+        ticks: Union[list, None] = None,
+        # Extra arguments for all plots except final time and final energy (optional)
+        ignore: Union[float, int] = 0.0, weights: Union[str, None] = None,
+        # Extra arguments for all plots (optional)
+        cmap: Union[str, None] = None):
 
-# todo: add weights? add default values
+    """
+    Pass a figure object and return an updated figure with a contour plot on it .
 
 
-def plot_tof_scan(ax, scan_path, reactants, product, ignore, min_molec, levels, cmap):
-    # Read data scan
-    log_px_list = []
-    log_py_list = []
+    Parameters
+    ----------
+        ax: matplotlib.axes._axes.Axes
+            Axis object where the contour plot should be created.
+        scan_path: str
+            Path of the directory containing all the scan jobs.
+        x: str
+            Magnitude to plot in the x-axis. Possible values: 'pressure_X' (where X is a gas species) or 'temperature'.
+        y: str
+            Magnitude to plot in the y-axis. Possible values: 'pressure_Y' (where Y is a gas species) or 'temperature'.
+        z:
+            Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'selectivity',
+            'coverage_Z' (where Z is a surface species), 'coverage_total' or 'phasediagram'.
+        levels: list, only for tof, selectivity and coverage plots (optional)
+            Determines the number and positions of the contour lines / regions. Default: '[-3, -2.5, -2, -1.5, -1, -0.5,
+             0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and '[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for
+             selectivity plots.
+        min_molec: int, only for tof and selectivity plots (optional)
+            Defines a minimum number of product (if z = 'tof_Z') or main_product + side_products (if z = 'selectivity'
+            molecules in order to calculate and plot either the tof or the selectivity. If the number of molecules is
+            lower, the value of tof or selectivity at that point will be NaN. Default: 0
+        main_product: str, only for selectivity plots (required)
+            Main product to calculate the selectivity.
+        side_products: list, only for selectivity plots (required)
+            List of side products to calculate the selectivity.
+        site_type: str, only for coverage and phase diagrams (optional)
+            Name of site type. For default lattice models or lattice models with only one site type site_type =
+            'default' can be used. Default: 'default'.
+        min_coverage: float, only for phase diagrams (optional)
+            Minimum total coverage to plot the dominant surface species on a phase diagram. Default: 20.0.
+        surf_species_names: list, only for phase diagrams (optional)
+            List of surface species to include in the phase diagram. If None, all surface species
+            will be included. Default: None.
+        ticks: list, only for phase diagrams (optional)
+            List of tick values for the colorbar in phase diagrams. If None, ticks are determined automatically from
+            the input. Default: None.
+        ignore: float (optional)
+            Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
+        weights: str (optional)
+            Weights for the averages. Possible values: 'time', 'events'. Default value: None.
+        cmap: str (optional)
+            The Colormap or instance or registered colormap name used to map scalar data to colors.
+    """
+
+    """ Check if extra required attributes are provided """
+    if "selectivity" in z:
+        if main_product is None:
+            raise PlotError("'main_product' is required for selectivity plots")
+        if side_products is None:
+            raise PlotError("'side_products' is required for selectivity plots")
+
+    log_x_list = []
+    log_y_list = []
     df = pd.DataFrame()
     for path in glob(f"{scan_path}/*"):
         folder_name = path.split('/')[-1]
-        kmc_output = KMCOutput(path=path, ignore=ignore)
+        kmc_output = KMCOutput(path=path, ignore=ignore, weights=weights)
+
+        """ Read values for x and y """
         partial_pressures = get_partial_pressures(f"{path}")
-        log_px = round(np.log10(partial_pressures[reactants[0]]), 8)
-        log_py = round(np.log10(partial_pressures[reactants[1]]), 8)
-        df.loc[folder_name, "log_pX"] = log_px
-        df.loc[folder_name, "log_pY"] = log_py
-        df.loc[folder_name, "total_production"] = kmc_output.total_production[product]
-        df.loc[folder_name, "tof"] = kmc_output.tof[product]
-        if log_px not in log_px_list:
-            log_px_list.append(log_px)
-        if log_py not in log_py_list:
-            log_py_list.append(log_py)
-
-    # Plot
-    log_px_list = np.sort(np.asarray(log_px_list))
-    log_py_list = np.sort(np.asarray(log_py_list))
-    px_list = 10.0 ** log_px_list
-    py_list = 10.0 ** log_py_list
-    z = np.zeros((len(px_list), len(py_list)))
-    x, y = np.meshgrid(px_list, py_list)
-
-    for i, log_px in enumerate(log_px_list):
-        for j, log_py in enumerate(log_py_list):
-            if len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) > 1:
-                raise KMCOutputError(
-                    f"several folders have the same values of log_p{reactants[0]} ({log_px}) and log_p{reactants[1]} "
-                    f"({log_py})")
-            elif len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) == 0:
-                print(f"Warning: folder for pX = {px_list[i]} and pY = {py_list[j]} missing, NaN assigned")
-                z[j, i] = float('NaN')
-            else:
-                folder_name = df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index[0]
-                if df.loc[folder_name, "total_production"] > min_molec:
-                    z[j, i] = np.log10(df.loc[folder_name, "tof"])
-                else:
-                    z[j, i] = float('NaN')
-    cp = ax.contourf(x, y, z, levels=levels, cmap=cmap)
-    plt.colorbar(cp, ax=ax)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_title(f"logTOF {product}", y=1.0, pad=-14, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    ax.set_facecolor("lightgray")
-    return ax
-
-
-def plot_selectivity_scan(ax, scan_path, reactants, main_product, side_products, ignore, min_molec, levels, cmap):
-    # Read data scan
-    log_px_list = []
-    log_py_list = []
-    df = pd.DataFrame()
-    for path in glob(f"{scan_path}/*"):
-        folder_name = path.split('/')[-1]
-        kmc_output = KMCOutput(path=path, ignore=ignore)
-        partial_pressures = get_partial_pressures(f"{path}")
-        log_px = round(np.log10(partial_pressures[reactants[0]]), 8)
-        log_py = round(np.log10(partial_pressures[reactants[1]]), 8)
-        df.loc[folder_name, "log_pX"] = log_px
-        df.loc[folder_name, "log_pY"] = log_py
-        df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
-                                                                        side_products=side_products)
-        df.loc[folder_name, "main_and_side_prod"] = kmc_output.total_production[main_product]
-        for side_product in side_products:
-            df.loc[folder_name, "main_and_side_prod"] += kmc_output.total_production[side_product]
-        if log_px not in log_px_list:
-            log_px_list.append(log_px)
-        if log_py not in log_py_list:
-            log_py_list.append(log_py)
-
-    # Plot
-    log_px_list = np.sort(np.asarray(log_px_list))
-    log_py_list = np.sort(np.asarray(log_py_list))
-    px_list = 10.0 ** log_px_list
-    py_list = 10.0 ** log_py_list
-    z = np.zeros((len(px_list), len(py_list)))
-    x, y = np.meshgrid(px_list, py_list)
-
-    for i, log_px in enumerate(log_px_list):
-        for j, log_py in enumerate(log_py_list):
-            if len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) > 1:
-                raise KMCOutputError(
-                    f"several folders have the same values of log_p{reactants[0]} ({log_px}) and log_p{reactants[1]} "
-                    f"({log_py})")
-            elif len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) == 0:
-                print(f"Warning: folder for pX = {px_list[i]} and pY = {py_list[j]} missing, NaN assigned")
-                z[j, i] = float('NaN')
-            else:
-                folder_name = df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index[0]
-                if df.loc[folder_name, "main_and_side_prod"] > min_molec:
-                    z[j, i] = df.loc[folder_name, "selectivity"]
-                else:
-                    z[j, i] = float('NaN')
-    cp = ax.contourf(x, y, z, levels=levels, cmap=cmap)
-    plt.colorbar(cp, ax=ax)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_title(f"{main_product} selectivity (%)", y=1.0, pad=-14, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    ax.set_facecolor("lightgray")
-    return ax
-
-
-def plot_coverage_scan(ax, scan_path, reactants, site_type, surf_spec, ignore, levels, cmap):
-    # Read data scan
-    log_px_list = []
-    log_py_list = []
-    df = pd.DataFrame()
-    for path in glob(f"{scan_path}/*"):
-        folder_name = path.split('/')[-1]
-        kmc_output = KMCOutput(path=path, ignore=ignore)
-        partial_pressures = get_partial_pressures(f"{path}")
-        log_px = round(np.log10(partial_pressures[reactants[0]]), 8)
-        log_py = round(np.log10(partial_pressures[reactants[1]]), 8)
-        df.loc[folder_name, "log_pX"] = log_px
-        df.loc[folder_name, "log_pY"] = log_py
-        if site_type == 'default':
-            site_type = list(parse_general_output(path)['site_types'].keys())[0]
-        if surf_spec == 'total':
-            df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+        if "pressure" in x:
+            log_x = round(np.log10(partial_pressures[x.split('_')[-1]]), 8)
+        elif x == 'temperature':
+            temperature = parse_simulation_input(path)["temperature"]
+            log_x = round(np.log10(temperature), 8)
         else:
-            df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][surf_spec]
-        if log_px not in log_px_list:
-            log_px_list.append(log_px)
-        if log_py not in log_py_list:
-            log_py_list.append(log_py)
+            raise PlotError("Incorrect value for x")
+        if "pressure" in y:
+            log_y = round(np.log10(partial_pressures[y.split('_')[-1]]), 8)
+        elif y == 'temperature':
+            temperature = parse_simulation_input(path)["temperature"]
+            log_y = round(np.log10(temperature), 8)
+        else:
+            raise PlotError("Incorrect value for y")
+        df.loc[folder_name, "log_x"] = log_x
+        df.loc[folder_name, "log_y"] = log_y
+        if log_x not in log_x_list:
+            log_x_list.append(log_x)
+        if log_y not in log_y_list:
+            log_y_list.append(log_y)
 
-    # Plot
-    log_px_list = np.sort(np.asarray(log_px_list))
-    log_py_list = np.sort(np.asarray(log_py_list))
-    px_list = 10.0 ** log_px_list
-    py_list = 10.0 ** log_py_list
-    z = np.zeros((len(px_list), len(py_list)))
-    x, y = np.meshgrid(px_list, py_list)
-
-    for i, log_px in enumerate(log_px_list):
-        for j, log_py in enumerate(log_py_list):
-            if len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) > 1:
-                raise KMCOutputError(
-                    f"several folders have the same values of log_p{reactants[0]} ({log_px}) and log_p{reactants[1]} "
-                    f"({log_py})")
-            elif len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) == 0:
-                print(f"Warning: folder for pX = {px_list[i]} and pY = {py_list[j]} missing, NaN assigned")
-                z[j, i] = float('NaN')
+        """ Read value for z """
+        if "tof" in z:
+            df.loc[folder_name, "total_production"] = kmc_output.total_production[z.split('_')[-1]]
+            df.loc[folder_name, "tof"] = kmc_output.tof[z.split('_')[-1]]
+        elif z == "selectivity":
+            df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
+                                                                            side_products=side_products)
+            df.loc[folder_name, "main_and_side_prod"] = kmc_output.total_production[main_product]
+            for side_product in side_products:
+                df.loc[folder_name, "main_and_side_prod"] += kmc_output.total_production[side_product]
+        elif "coverage" in z:
+            if site_type == 'default':
+                site_type = list(parse_general_output(path)['site_types'].keys())[0]
+            if z.split('_')[-1] == 'total':
+                df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
             else:
-                folder_name = df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index[0]
-                z[j, i] = df.loc[folder_name, "coverage"]
-    cp = ax.contourf(x, y, z, levels=levels, cmap=cmap)
-    plt.colorbar(cp, ax=ax)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_title(f"coverage_{site_type}", y=1.0, pad=-14, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    return ax
+                df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][z.split('_')[-1]]
+        elif z == "phasediagram":
+            if site_type == 'default':
+                site_type = list(parse_general_output(path)['site_types'].keys())[0]
+            df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
+            df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+        elif z == 'finaltime':
+            df.loc[folder_name, "final_time"] = kmc_output.final_time
+        elif z == 'finalenergy':
+            df.loc[folder_name, "final_energy"] = kmc_output.final_energy
+        else:
+            raise PlotError("Incorrect value for z")
 
+    """ Set default values depending on the type of plot """
+    if z == "phasediagram":
+        if surf_species_names is None:
+            surf_species_names = parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']
+        if ticks is None:
+            ticks = [n + 0.5 for n in range(len(surf_species_names))]
 
-def plot_phase_diagram(ax, scan_path, reactants, site_type, min_coverage, ignore, cmap):
-    # Read data scan
-    log_px_list = []
-    log_py_list = []
-    df = pd.DataFrame()
-    for path in glob(f"{scan_path}/*"):
-        folder_name = path.split('/')[-1]
-        kmc_output = KMCOutput(path=path, ignore=ignore)
-        partial_pressures = get_partial_pressures(f"{path}")
-        log_px = round(np.log10(partial_pressures[reactants[0]]), 8)
-        log_py = round(np.log10(partial_pressures[reactants[1]]), 8)
-        df.loc[folder_name, "log_pX"] = log_px
-        df.loc[folder_name, "log_pY"] = log_py
-        if site_type == 'default':
-            site_type = list(parse_general_output(path)['site_types'].keys())[0]
-        df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
-        df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
-        if log_px not in log_px_list:
-            log_px_list.append(log_px)
-        if log_py not in log_py_list:
-            log_py_list.append(log_py)
+    if cmap is None:
+        if "tof" in z or z == "finaltime" or z == "finalenergy":
+            cmap = "inferno"
+        elif z == "selectivity":
+            cmap = "Greens"
+        elif "coverage" in z:
+            cmap = "Oranges"
+        elif z == "phasediagram":
+            cmap = "bwr"
 
-    # Plot
+    if levels is None:
+        if "tof" in z:
+            levels = [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]
+        elif z == "selectivity" or "coverage" in z:
+            levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        elif z == "finaltime":
+            levels = [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
+        elif z == "finalenergy":
+            levels = [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2]
 
-    surf_species_names = parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']
-    ticks = [n + 0.5 for n in range(len(surf_species_names))]
-    log_px_list = np.sort(np.asarray(log_px_list))
-    log_py_list = np.sort(np.asarray(log_py_list))
-    px_list = 10.0 ** log_px_list
-    py_list = 10.0 ** log_py_list
-    z = np.zeros((len(px_list), len(py_list)))
-    x, y = np.meshgrid(px_list, py_list)
+    """ Prepare arrays for contourf or pcolormesh plots """
+    log_x_list = np.sort(np.asarray(log_x_list))
+    log_y_list = np.sort(np.asarray(log_y_list))
+    x_list = 10.0 ** log_x_list
+    y_list = 10.0 ** log_y_list
+    z_axis = np.zeros((len(x_list), len(y_list)))
+    x_axis, y_axis = np.meshgrid(x_list, y_list)
 
-    for i, log_px in enumerate(log_px_list):
-        for j, log_py in enumerate(log_py_list):
-            if len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) > 1:
-                raise KMCOutputError(
-                    f"several folders have the same values of log_p{reactants[0]} ({log_px}) and log_p{reactants[1]} "
-                    f"({log_py})")
-            elif len(df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index) == 0:
-                print(f"Warning: folder for pX = {px_list[i]} and pY = {py_list[j]} missing, NaN assigned")
-                z[j, i] = float('NaN')
+    """ Plot data """
+    for i, log_x in enumerate(log_x_list):
+        for j, log_y in enumerate(log_y_list):
+            if len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) > 1:
+                raise PlotError(
+                    f"several folders have the same values of log_{x} ({log_x}) and log_{y} ({log_y})")
+            elif len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) == 0:
+                print(f"Warning: folder for x = {x_list[i]} and y = {y_list[j]} missing, NaN assigned")
+                z_axis[j, i] = float('NaN')
             else:
-                folder_name = df[(df['log_pX'] == log_px) & (df['log_pY'] == log_py)].index[0]
-                if df.loc[folder_name, "coverage"] > min_coverage:
-                    index = surf_species_names.index(df.loc[folder_name, "dominant_ads"])
-                    z[j, i] = ticks[index]
-    cp = ax.pcolormesh(x, y, z, cmap=cmap, vmin=0, vmax=len(surf_species_names))
-    plt.colorbar(cp, ax=ax, ticks=[n + 0.5 for n in range(len(surf_species_names))], spacing='proportional',
-                 boundaries=[n for n in range(len(surf_species_names))],
-                 format=mticker.FixedFormatter(surf_species_names))
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_title(f"Phase diagram {site_type}", y=1.0, pad=-14, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    ax.set_facecolor("lightgray")
+                folder_name = df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index[0]
+                if "tof" in z:
+                    if df.loc[folder_name, "total_production"] > min_molec:
+                        z_axis[j, i] = np.log10(df.loc[folder_name, "tof"])
+                    else:
+                        z_axis[j, i] = float('NaN')
+                elif z == "selectivity":
+                    if df.loc[folder_name, "main_and_side_prod"] > min_molec:
+                        z_axis[j, i] = df.loc[folder_name, "selectivity"]
+                    else:
+                        z_axis[j, i] = float('NaN')
+                elif "coverage" in z:
+                    z_axis[j, i] = df.loc[folder_name, "coverage"]
+                elif z == "phasediagram":
+                    if df.loc[folder_name, "coverage"] > min_coverage:
+                        index = surf_species_names.index(df.loc[folder_name, "dominant_ads"])
+                        z_axis[j, i] = ticks[index]
+                elif z == 'finaltime':
+                    z_axis[j, i] = np.log10(df.loc[folder_name, "final_time"])
+                elif z == 'finalenergy':
+                    z_axis[j, i] = df.loc[folder_name, "final_energy"]
+
+    """ Choose type of plot """
+    if z == "phasediagram":
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(surf_species_names))
+        plt.colorbar(cp, ax=ax, ticks=ticks, spacing='proportional',
+                     boundaries=[n for n in range(len(surf_species_names))],
+                     format=mticker.FixedFormatter(surf_species_names))
+    else:
+        cp = ax.contourf(x_axis, y_axis, z_axis, levels=levels, cmap=cmap)
+        plt.colorbar(cp, ax=ax)
+
+    ax.set_xlim(np.min(x_list), np.max(x_list))
+    ax.set_ylim(np.min(y_list), np.max(y_list))
+
+    """ Update axis scales, titles and facecolor """
+    if "pressure" in x:
+        ax.set_xscale('log')
+        ax.set_xlabel('$p_{' + x.split('_')[-1] + '}$ (bar)')
+    else:
+        ax.set_xlabel('$T$ (K)')
+    if "pressure" in y:
+        ax.set_yscale('log')
+        ax.set_ylabel('$p_{' + y.split('_')[-1] + '}$ (bar)')
+    else:
+        ax.set_ylabel('$T$ (K)')
+    if "tof" in z:
+        ax.set_title(f"logTOF {z.split('_')[-1]}", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
+    elif z == "selectivity":
+        ax.set_title(f"{main_product} selectivity (%)", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
+    elif "coverage" in z:
+        ax.set_title(f"coverage_{site_type}", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+    elif z == "phasediagram":
+        ax.set_title(f"Phase diagram {site_type}", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+    elif z == "finaltime":
+        ax.set_title(f"Final time ($s$)", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+    elif z == "finalenergy":
+        ax.set_title("Final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+
     return ax
