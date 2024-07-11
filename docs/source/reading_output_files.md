@@ -101,54 +101,87 @@ Example:
 
     selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])  # in %
 
-### Plot contour plots (pX,pY) for TOF and selectivity
+### Create contour plots
+
+Contour plots from (p_A, p_B) or (p_A, T) scans can be created very easy with the 
+{py:func}`zacrostools.plot_functions.plot_contour` function. 
+
+The following parameters are **mandatory**:
+- **ax** (*matplotlib.axes.Axes*): Axis object where the contour plot should be created.
+- **scan_path** (*str*): Path of the directory containing all the scan jobs.
+- **x** (*str*): Magnitude to plot in the x-axis. Possible values: 'pressure_X' (where X is a gas species) or 
+'temperature'.
+- **y** (*str*): Magnitude to plot in the y-axis. Possible values: 'pressure_Y' (where Y is a gas species) or 
+'temperature'.
+- **z** (*str*): Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'selectivity', 
+'coverage_Z' (where Z is a surface species), 'coverage_total', 'phase_diagram', 'final_time' or 'final_energy'.
+
+
+Additional parameters:
+- **levels** (*list*), only for tof, selectivity and coverage plots (optional). Determines the number and positions of 
+the contour lines / regions. Default: '[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and 
+'[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for selectivity plots.
+- **min_molec** (*int*), only for tof and selectivity plots (optional). Defines a minimum number of product 
+(if z = 'tof_Z') or main_product + side_products (if z = 'selectivity' molecules in order to calculate and plot either 
+the tof or the selectivity. If the number of molecules is lower, the value of tof or selectivity at that point will be 
+NaN. If min_molec=0, no threshold will be applied and any value of tof lower than min(levels) will be set to that 
+value. Default: 0.
+- **main_product** (*str*), only for selectivity plots (required). Main product to calculate the selectivity.
+- **side_products** (*list*), only for selectivity plots (required). List of side products to calculate the selectivity.
+- **site_type** (*str*), only for coverage and phase diagrams (optional). Name of site type. For default lattice models 
+or lattice models with only one site type site_type = 'default' can be used. Default: 'default'.
+- **min_coverage** (*float*), only for phase diagrams (optional). Minimum total coverage to plot the dominant surface 
+species on a phase diagram. Default: 20.0.
+- **surf_species_names** (*list*), only for phase diagrams (optional). List of surface species to include in the phase 
+diagram. If None, all surface species will be included. Default: None.
+- **ticks** (*list*), only for phase diagrams (optional). List of tick values for the colorbar in phase diagrams. If 
+None, ticks are determined automatically from the input. Default: None.
+- **ignore** (*float*) (optional). Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
+- **weights** (*str*) (optional). Weights for the averages. Possible values: 'time', 'events'. Default value: None.
+- **cmap** (*str*) (optional). The Colormap or instance or registered colormap name used to map scalar data to colors.
 
 Example:
+
+    import matplotlib.pyplot as plt
+    from zacrostools.plot_functions import plot_contour
+    from zacrostools.read_functions import parse_general_output
+
+    # Parameters for the figures
+    products = ['CO2', 'H2', 'CH4', 'O2']
+    site_types = ['tM', 'tC']
+    ignore = 30
+    min_molec = 5
+    x = "pressure_CO"
+    y = "pressure_H2O"
     
-    list_pX_values = [0.001, 0.01, 0.1, 1.0, 10]
-    list_pY_values = [0.001, 0.01, 0.1, 1.0, 10]
-    tof = np.zeros((len(ylist), len(xlist)))
-    selectivity = np.zeros((len(ylist), len(xlist)))
+    fig, axs = plt.subplots(3, 4, figsize=(11, 6), sharey='row', sharex='col')
 
-    fig, axes = plt.subplots(2, figsize=(6, 3), sharey=True)
+    # TOF
+    for n, product in enumerate(products):
+        plot_contour(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z=f"tof_{product}", ignore=ignore, min_molec=min_molec)
 
-    for i, pX in list_pX_values:
-        for j, pY in list_pY_values:
-            kmc_output = KMCOutput(path=f"output_{pX}_{pY}", ignore=20)
-            tof[j, i] = np.log10(kmc_output.tof['CH4'])
-            selectivity[j, i] = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])
-
-    cp = axes[0].contourf(X, Y, tof, cmap='inferno')
-    plt.colorbar(cp, ax=axes[0])
-    cp = axes[1].contourf(X, Y, selectivity, cmap='Greens')
-    plt.colorbar(cp, ax=axes[1])
-
-    for i in range(2):
-        axes[i].set_xscale('log')
-        axes[i].set_yscale('log')
-
-### Plot kinetic phase diagram 
-
-Example:
+    # Total coverage
+    for n, site_type in enumerate(site_types):
+        plot_contour(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type)
     
-    spec_values = {'H': 0.5, 'CH3': 1.5, 'CH2': 2.5, 'CH': 3.5, 'C': 4.5, 'CO': 5.5, 'CO2': 6.5, 'O': 7.5}
+    # Phase diagrams
+    for n, site_type in enumerate(site_types):
+        plot_contour(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type)
+    
+    # Selectivity
+    plot_contour(ax=axs[2, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product='CO2',
+                 side_products=['CH4'], ignore=ignore, min_molec=min_molec)
+    
+    # Final simulation time
+    plot_contour(ax=axs[2, 1], scan_path=scan_path, x=x, y=y, z='final_time')
 
-    list_pX_values = [0.01, 0.1, 1.0, 10]
-    list_pY_values = [0.01, 0.1, 1.0, 10]
-    z = np.zeros((len(ylist), len(xlist)))
+    # Final simulation energy
+    plot_contour(ax=axs[2, 2], scan_path=scan_path, x=x, y=y, z='final_energy')
 
-    fig, axes = plt.subplots(1, figsize=(3, 3), sharey=True)
+    plt.tight_layout()
+    plt.show()
+    plt.savefig("/Results_scan.pdf", bbox_inches='tight', transparent=False)
 
-    for i, pX in list_pX_values:
-        for j, pY in list_pY_values:
-            kmc_output = KMCOutput(path=f"output_{pX}_{pY}", ignore=20)
-            z[j, i] = spec_values[kmc_output.dominant_ads]
-
-    cp = axes.contourf(X, Y, z, cmap='bwr')
-    plt.colorbar(cp, ax=axes)
-
-    axes.set_xscale('log')
-    axes.set_yscale('log')
 
 ```{warning}
 This section of the documentation is under development. 
