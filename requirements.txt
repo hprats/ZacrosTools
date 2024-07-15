@@ -1,9 +1,5 @@
-scipy~=1.13.0
-pandas~=2.2.2
 numpy~=1.26.4
-matplotlib~=3.9.0
-setuptools~=69.5.1
-zacrostools~=0.5b0
-ase~=3.22.1
-pymatgen~=2024.5.1
-seaborn~=0.13.2
+pandas~=2.2.2
+matplotlib~=3.8.4
+setuptools~=70.3.0
+scipy~=1.13.1
