@@ -22,4 +22,5 @@ Hector Prats
    installation.md
    writing_input_files.md
    reading_output_files.md
+   plotting_results.md
    api_reference.md

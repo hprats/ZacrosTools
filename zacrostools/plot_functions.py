@@ -74,9 +74,12 @@ def plot_contour(
         ignore: float (optional)
             Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
         weights: str (optional)
-            Weights for the averages. Possible values: 'time', 'events'. Default value: None.
+            Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
+            Default value: None.
         cmap: str (optional)
             The Colormap or instance or registered colormap name used to map scalar data to colors.
+        show_points: bool (optional)
+            If True, show the grid points as black dots. Default value: False.
     """
 
     """ Check if extra required attributes are provided """

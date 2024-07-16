@@ -13,7 +13,8 @@ class KMCOutput:
     ignore: float (optional)
         Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
     weights: str (optional)
-        Weights for the averages. Possible values: 'time', 'events'. Default value: None.
+        Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
+        Default value: None.
 
 
     Attributes
