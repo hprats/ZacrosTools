@@ -37,7 +37,7 @@ Example:
     plt.tight_layout()
     plt.show()
 
-![tof_and_coverage](https://github.com/hprats/ZacrosTools/blob/main/images/tof_and_coverage.png)
+![tof_and_coverage](https://github.com/hprats/ZacrosTools/blob/main/images/tof_and_coverage.png?raw=true)
 
 ## Contour plots from a set of KMC simulations at various operating conditions
 
