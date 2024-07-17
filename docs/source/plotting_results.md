@@ -123,7 +123,7 @@ Example:
     plt.show()
     plt.savefig("/Results_scan.pdf", bbox_inches='tight', transparent=False)
 
-![contour_plots](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png?raw=true)
+![contour_plots](https://github.com/hprats/ZacrosTools/blob/main/images/contour_plots.png?raw=true)
 
 ```{warning}
 This section of the documentation is under development. 
