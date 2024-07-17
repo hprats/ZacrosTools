@@ -244,7 +244,7 @@ In future releases, the user will be able to create the `lattice_input.dat` file
 
 Example of a lattice input file for HfC(001):
 
-![lattice](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png?raw=true)
+![lattice](https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice.png?raw=true)
 
 
     # lattice_input_for_HfC.dat file

@@ -1,8 +1,8 @@
 # Plotting results
 
-## Plots from a single KMC simulation
+## Simple plots from a single KMC simulation
 
-Example:
+Example
 
     import matplotlib.pyplot as plt
     from zacrostools.kmc_output import KMCOutput
@@ -37,14 +37,14 @@ Example:
     plt.tight_layout()
     plt.show()
 
-![tof_and_coverage](https://github.com/hprats/ZacrosTools/blob/main/images/tof_and_coverage.png?raw=true)
+![tof_and_coverage](https://github.com/hprats/ZacrosTools/blob/main/docs/images/tof_and_coverage.png?raw=true)
 
 ## Contour plots from a set of KMC simulations at various operating conditions
 
 Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be created very easy with the 
 {py:func}`zacrostools.plot_functions.plot_contour` function. 
 
-The following parameters are **mandatory**:
+Main parameters (**mandatory** for all plots):
 - **ax** (*matplotlib.axes.Axes*): Axis object where the contour plot should be created.
 - **scan_path** (*str*): Path of the directory containing all the scan jobs.
 - **x** (*str*): Magnitude to plot in the x-axis. Possible values: `'pressure_X'` (where `X` is a gas species) or 
@@ -85,7 +85,6 @@ Example:
 
     import matplotlib.pyplot as plt
     from zacrostools.plot_functions import plot_contour
-    from zacrostools.read_functions import parse_general_output
 
     # Parameters for the figures
     products = ['CO2', 'H2', 'CH4', 'O2']
@@ -123,7 +122,7 @@ Example:
     plt.show()
     plt.savefig("/Results_scan.pdf", bbox_inches='tight', transparent=False)
 
-![contour_plots](https://github.com/hprats/ZacrosTools/blob/main/images/contour_plots.png?raw=true)
+![contour_plots](https://github.com/hprats/ZacrosTools/blob/main/docs/images/contour_plots.png?raw=true)
 
 ```{warning}
 This section of the documentation is under development. 
