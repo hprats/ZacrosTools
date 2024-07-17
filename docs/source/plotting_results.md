@@ -2,7 +2,40 @@
 
 ## Plots from a single KMC simulation
 
-TODO
+Example:
+
+    import matplotlib.pyplot as plt
+    from zacrostools.kmc_output import KMCOutput
+
+    kmc_output = KMCOutput(path='.', ignore=0.0, weights='time')
+
+    fig, axes = plt.subplots(2, 1, figsize=(3, 6), sharex=True)
+    
+    # Plot surface coverage
+    print("\nSurface coverage (%, per site type): \n")
+    for site_type in kmc_output.site_types:
+        for surf_species in kmc_output.coverage_per_site_type[site_type]:
+            coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]
+            print(f"{surf_species}*: {coverage:.3f} % of {site_type} sites")
+            if coverage >= 1.0:
+                axes[0].plot(kmc_output.time, kmc_output.coverage_per_site_type[site_type][surf_species],
+                             label=f"{surf_species} ({site_type})")
+
+    # Plot TOF
+    print("\nTOF (molec·s-1·Å-2): \n")
+    for gas_species in kmc_output.gas_species_names:
+        print(f"{gas_species}: {kmc_output.tof[gas_species]:.3e}")
+        if kmc_output.tof[gas_species] > 0.0 and kmc_output.production[gas_species][-1] > 0:
+            axes[1].plot(kmc_output.time, kmc_output.production[gas_species],
+                         linewidth=2, label=gas_species + '$_{(g)}$')
+    
+    for ax in axes:
+        ax.legend()
+    axes[0].set_ylabel('Coverage (%)')
+    axes[1].set_ylabel('Molecules')
+    axes[1].set_xlabel('Time (s)')
+    plt.tight_layout()
+    plt.show()
 
 ## Contour plots from a set of KMC simulations at various operating conditions
 

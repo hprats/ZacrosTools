@@ -96,7 +96,7 @@ Example:
 
 #### Coverage per total number of sites of a given type
 
-    for site_type in site_types:
+    for site_type in kmc_output.site_types:
         for surf_species in kmc_output.coverage_per_site_type[site_type]:
             coverage = kmc_output.coverage_per_site_type[site_type][surf_species]
             print(f"Coverage {surf_species}: {coverage:.3f} % of {site_type} sites")
