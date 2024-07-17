@@ -1,107 +1,131 @@
-# Reading output files
+# Reading Output Files
 
-## 1. Store simulation data in a `KMCOutput` object
+## 1. Store Simulation Data in a `KMCOutput` Object
 
-All the information about a finished Zacros simulation can be extracted by creating a `KMCOutput` object 
-{py:func}`zacrostools.kmc_output.KMCOutput`.
+All the information about a finished Zacros simulation can be extracted by creating a `KMCOutput` object using {py:func}`zacrostools.kmc_output.KMCOutput`.
 
-Example:
+### Example
 
-    from zacrostools.kmc_output import KMCOutput
+```python
+from zacrostools.kmc_output import KMCOutput
 
-    kmc_output = KMCOutput(path='zacros_results', ignore=30.0)
+kmc_output = KMCOutput(path='zacros_results', ignore=30.0)
+```
 
 ### Arguments
 
 **Mandatory:**
-- **path** (*str*): Path of the directory containing the output files
+- **path** (*str*): Path of the directory containing the output files.
 
 **Optional:**
-- **ignore** (*float*): Ignore first % of the total simulated time (in %). This keyword is used to ignore the data from 
-the equilibration phase when computing the averages. Default value: `0.0` 
-- **weights** (*str*). Weights for the averages. Possible values: `'time'`, `'events'`, `None`. If `None`, 
-all weights are set to 1. Default value: `None`.
+- **ignore** (*float*): Ignore the first % of the total simulated time (in %). This is used to exclude the data from the equilibration phase when computing the averages.
+  - Default value: `0.0`.
+- **weights** (*str*): Weights for the averages. Possible values:
+  - `'time'`
+  - `'events'`
+  - `None`, all weights are set to 1.
+  - Default value: `None`.
 
-## 2. Read simulation data from a `KMCOutput` object
+## 2. Read Simulation Data from a `KMCOutput` Object
 
 All KMC results can be obtained from the different `KMCOutput` attributes.
 
-### General simulation data
+### General Simulation Data
 - **n_gas_species** (*int*): Number of gas species.
 - **gas_species_names** (*list of str*): Gas species names.
 - **n_surf_species** (*int*): Number of surface species.
 - **surf_species_names** (*list of str*): Surface species names.
 - **n_sites** (*int*): Total number of lattice sites.
-- **area** (*float*): Lattice surface area (in Å^2).
-- **site_types** (*dict*): Site type names and total number of sites of that type.
+- **area** (*float*): Lattice surface area (in Å²).
+- **site_types** (*dict*): Site type names and the total number of sites of each type.
 
-### Simulated time
-- **time** (*np.Array*): Simulated time (in s).
-- **final_time** (*float*): Final simulated time (in s).
+### Simulated Time
+- **time** (*np.Array*): Simulated time (in seconds).
+- **final_time** (*float*): Final simulated time (in seconds).
 
-### Lattice energy
-- **energy** (*np.Array*): Lattice energy (in eV·Å^-2).
-- **av_energy** (*float*): Average lattice energy (in eV·Å^-2).
-- **final_energy** (*float*): Final lattice energy (in eV·Å^-2).
+### Lattice Energy
+- **energy** (*np.Array*): Lattice energy (in eV·Å⁻²).
+- **av_energy** (*float*): Average lattice energy (in eV·Å⁻²).
+- **final_energy** (*float*): Final lattice energy (in eV·Å⁻²).
 
-### Molecules consumed/produced and TOF
-- **production** (*dict*): Gas species produced. Example: `KMCOutput.production['CO']`
-- **total_production** (*dict*): Total number of gas species produced. Example: `KMCOutput.total_production['CO']`
-- **tof** (*dict*): TOF of gas species (in molec·s^-1·Å^-2). Example: `KMCOutput.tof['CO2']`
+### Molecules Consumed/Produced and TOF
+- **production** (*dict*): Gas species produced. 
+  - Example: `KMCOutput.production['CO']`.
+- **total_production** (*dict*): Total number of gas species produced. 
+  - Example: `KMCOutput.total_production['CO']`.
+- **tof** (*dict*): TOF of gas species (in molec·s⁻¹·Å⁻²). 
+  - Example: `KMCOutput.tof['CO2']`.
 
 ### Coverage
-- **coverage** (*dict*): Coverage of surface species (in %). Example: `KMCOutput.coverage['CO']`
-- **av_coverage** (*dict*): Average coverage of surface species (in %). Example: `KMCOutput.av_coverage['CO']`
+- **coverage** (*dict*): Coverage of surface species (in %). 
+  - Example: `KMCOutput.coverage['CO']`.
+- **av_coverage** (*dict*): Average coverage of surface species (in %). 
+  - Example: `KMCOutput.av_coverage['CO']`.
 - **total_coverage** (*np.Array*): Total coverage of surface species (in %).
+  - Example: `KMCOutput.total_coverage`.
 - **av_total_coverage** (*float*): Average total coverage of surface species (in %).
+  - Example: `KMCOutput.av_total_coverage`.
 - **dominant_ads** (*str*): Most dominant surface species, used to plot the kinetic phase diagrams.
+  - Example: `KMCOutput.dominant_ads`.
 - **coverage_per_site_type** (*dict*): Coverage of surface species per site type (in %).
+  - Example: `KMCOutput.coverage_per_site_type['top']['CO']`.
 - **av_coverage_per_site_type** (*dict*): Average coverage of surface species per site type (in %).
-- **total_coverage_per_site_type** (*dict*): Total coverage of surface species per site type (in %). Example: 
-`KMCOutput.total_coverage_per_site_type['top']`
+  - Example: `KMCOutput.av_coverage_per_site_type['top']['CO']`.
+- **total_coverage_per_site_type** (*dict*): Total coverage of surface species per site type (in %). 
+  - Example: `KMCOutput.total_coverage_per_site_type['top']`.
 - **av_total_coverage_per_site_type** (*dict*): Average total coverage of surface species per site type (in %).
+  - Example: `KMCOutput.av_total_coverage_per_site_type['top']`.
 - **dominant_ads_per_site_type** (*dict*): Most dominant surface species per site type, used to plot the kinetic phase 
 diagrams.
+  - Example: `KMCOutput.dominant_ads_per_site_type['top']`.
 
 ### Selectivity
-The selectivity can be obtained by using the `get_selectivity()` method 
-{py:meth}`zacrostools.kmc_output.KMCOutput.get_selectivity()`, which requires to parameters:
+The selectivity can be obtained by using the `get_selectivity()` method {py:meth}`zacrostools.kmc_output.KMCOutput.get_selectivity()`, which requires two parameters:
 
-- **main_product** (*str*): Name of the main product
-- **side_products** (*list*): Names of the side products
+- **main_product** (*str*): Name of the main product.
+- **side_products** (*list*): Names of the side products.
 
-Example:
+### Example
 
-    selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])  # in %
+```python
+selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])  # in %
+```
 
-### 3. Print simulation data (examples)
+## 3. Print Simulation Data (Examples)
 
-#### TOF
+### TOF
 
-    for gas_species in kmc_output.gas_species_names
-        tof = kmc_output.tof[gas_species]
-        print(f"TOF {gas_species}: {tof:.3e} molec·s^-1·Å^-2")
+```python
+for gas_species in kmc_output.gas_species_names:
+    tof = kmc_output.tof[gas_species]
+    print(f"TOF {gas_species}: {tof:.3e} molec·s⁻¹·Å⁻²")
+```
 
-#### Selectivity
+### Selectivity
 
-    for gas_species in kmc_output.gas_species_names
-        tof = kmc_output.tof[gas_species]
-        print(f"TOF {gas_species}: {tof:.3e} molec·s^-1·Å^-2")
+```python
+for gas_species in kmc_output.gas_species_names:
+    selectivity = kmc_output.get_selectivity(main_product=gas_species, side_products=['CO2', 'CH3OH'])
+    print(f"Selectivity for {gas_species}: {selectivity:.2f} %")
+```
 
-#### Coverage per total number of sites
+### Coverage per Total Number of Sites
 
-    for surf_species in kmc_output.surf_species_names:
-        coverage = kmc_output.coverage[surf_species]
-        print(f"Coverage {surf_species}: {coverage:.3f} % of total sites")
+```python
+for surf_species in kmc_output.surf_species_names:
+    coverage = kmc_output.coverage[surf_species]
+    print(f"Coverage {surf_species}: {coverage:.3f} % of total sites")
+```
 
-#### Coverage per total number of sites of a given type
+### Coverage per Total Number of Sites of a Given Type
 
-    for site_type in kmc_output.site_types:
-        for surf_species in kmc_output.coverage_per_site_type[site_type]:
-            coverage = kmc_output.coverage_per_site_type[site_type][surf_species]
-            print(f"Coverage {surf_species}: {coverage:.3f} % of {site_type} sites")
-
+```python
+for site_type in kmc_output.site_types:
+    for surf_species in kmc_output.coverage_per_site_type[site_type]:
+        coverage = kmc_output.coverage_per_site_type[site_type][surf_species]
+        print(f"Coverage {surf_species}: {coverage:.3f} % of {site_type} sites")
+```
 
 ```{warning}
-This section of the documentation is under development. 
+This section of the documentation is under development.
 ```

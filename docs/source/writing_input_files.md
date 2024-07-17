@@ -1,15 +1,13 @@
-#  Writing input files
+# Writing Input Files
 
-In ZacrosTools, a KMC model is represented as a `KMCModel` object {py:func}`zacrostools.kmc_model.KMCModel`, which 
-contains information on the gas-phase species involved, the reaction model, the energetics model, and the lattice model.
-Below are listed all the steps to follow in order to create a `KMCModel` object. 
+In ZacrosTools, a Kinetic Monte Carlo (KMC) model is represented as a `KMCModel` object, which contains information on the gas-phase species involved, the reaction model, the energetics model, and the lattice model. Follow these steps to create a `KMCModel` object.
 
-## 1. Information on the gas-phase species 
+## 1. Information on the Gas-Phase Species
 
-This information has to be contained in a `pandas.DataFrame`, where each row corresponds to a gas-phase molecule.
+This information is contained in a `pandas.DataFrame`, where each row corresponds to a gas-phase molecule.
 
 ```{important}
-The row index has to be the name of the species.
+The row index must be the name of the species.
 ```
 
 ### Columns
@@ -17,24 +15,23 @@ The row index has to be the name of the species.
 **Mandatory:**
 
 - **type** (*str*): `'non_linear'` or `'linear'`.
-- **gas_molec_weight** (*float*): molecular weights (in amu) of the gas species.
-- **sym_number** (*int*): symmetry number of the molecule.
-- **inertia_moments** (*list*): moments of inertia for the gas-phase molecule (in amu·Å<sup>2</sup>).
-  1 element for linear molecules, 3 elements for non-linear molecules.
-  Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
-- **gas_energy** (*float*): formation energy (in eV). Do not include the ZPE.
-
+- **gas_molec_weight** (*float*): Molecular weights (in amu) of the gas species.
+- **sym_number** (*int*): Symmetry number of the molecule.
+- **inertia_moments** (*list*): Moments of inertia for the gas-phase molecule (in amu·Å²).
+  - 1 element for linear molecules, 3 elements for non-linear molecules.
+  - Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
+- **gas_energy** (*float*): Formation energy (in eV). Do not include the ZPE.
 
 **Optional:**
 
-- **degeneracy** (*int*): degeneracy of the ground state, for the calculation of the electronic partition
-  function. Default value: `1`.
+- **degeneracy** (*int*): Degeneracy of the ground state, for the calculation of the electronic partition function. 
+  - Default value: `1`.
 
 ```{caution}
-- The **gas_energy** must not include the ZPE (it is included in the pre-exponential factor)
+The **gas_energy** must not include the ZPE (it is included in the pre-exponential factor).
 ```
 
-### Example:
+### Example
 
 | index | type   | gas_molec_weight | sym_number | degeneracy | inertia_moments      | gas_energy |
 |-------|--------|------------------|------------|------------|----------------------|------------|
@@ -44,34 +41,34 @@ The row index has to be the name of the species.
 
 This `pandas.DataFrame` can be created, for instance, by including all the information on a .csv file and reading it:
 
-    import pandas as pd
+```python
+import pandas as pd
 
-    gas_data=pd.read_csv('gas_data.csv', index_col=0)
+gas_data = pd.read_csv('gas_data.csv', index_col=0)
+```
 
 Alternatively, it can be created from a `dict`:
 
-    import pandas as pd
-    
-    gas_molecules = {
-        'CO': {'type': 'linear',
-               'gas_molec_weight': 28.01,
-               'sym_number': 1,
-               'degeneracy': 1,
-               'inertia_moments': [8.973619026272551],
-               'gas_energy': 1.96},
-        'O2': {'type': 'linear',
-               'gas_molec_weight': 32.0,
-               'sym_number': 2,
-               'degeneracy': 3,
-               'inertia_moments': [12.178379354326061],
-               'gas_energy': 2.60}}
-    
-    gas_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for molecule in gas_molecules:
-        new_row = pd.Series(gas_molecules[molecule])
-        new_row.name = molecule
-        gas_data = pd.concat([gas_data, new_row.to_frame().T])
+```python
+import pandas as pd
+
+gas_molecules = {
+    'CO': {'type': 'linear',
+           'gas_molec_weight': 28.01,
+           'sym_number': 1,
+           'degeneracy': 1,
+           'inertia_moments': [8.973619026272551],
+           'gas_energy': 1.96},
+    'O2': {'type': 'linear',
+           'gas_molec_weight': 32.0,
+           'sym_number': 2,
+           'degeneracy': 3,
+           'inertia_moments': [12.178379354326061],
+           'gas_energy': 2.60}
+}
+
+gas_data = pd.DataFrame(gas_molecules).T
+```
 
 ## 2. Reaction model
 
@@ -79,7 +76,7 @@ The information on the reaction model is also contained in a `pandas.DataFrame`,
 elementary step.
 
 ```{important}
-The row index has to be the name of the step.
+The row index must be the name of the step.
 ```
 
 ### Columns
@@ -87,34 +84,44 @@ The row index has to be the name of the step.
 **Mandatory:**
 
 - **site_types** (*str*): The types of each site in the pattern.
-- **initial** (*list*): Initial configuration in Zacros format, e.g. `['1 CO* 1','2 * 1']`.
-- **final** (*list*): Final configuration in Zacros format, e.g. `['1 C* 1','2 O* 1']`.
+- **initial** (*list*): Initial configuration in Zacros format. 
+  - Example: `['1 CO* 1','2 * 1']`.
+- **final** (*list*): Final configuration in Zacros format.
+  - Example: `['1 C* 1','2 O* 1']`.
 - **activ_eng** (*float*): Activation energy (in eV).
 - **vib_energies_is** (*list*): Vibrational energies for the initial state (in meV). Do not include the ZPE.
 - **vib_energies_fs** (*list*): Vibrational energies for the final state (in meV). Do not include the ZPE.
 
-Only **mandatory** for adsorption steps:
-- **molecule** (*str*): Gas-phase molecule involved. Only required for adsorption steps. 
-- **area_site** (*float*): Area of adsorption site (in Å<sup>2</sup>). Only required for adsorption steps.
+**Mandatory for adsorption steps:**
 
-Only **mandatory** for activated adsorption steps and surface reaction steps:
-- **vib_energies_ts** (*list*): Vibrational energies for the transition state (in meV). For non-activated adsorption .
-steps, this value can be either undefined or an empty list i.e. `[]`.
+- **molecule** (*str*): Gas-phase molecule involved. Only required for adsorption steps.
+- **area_site** (*float*): Area of adsorption site (in Å²). Only required for adsorption steps.
+
+**Mandatory for activated adsorption steps and surface reaction steps:**
+
+- **vib_energies_ts** (*list*): Vibrational energies for the transition state (in meV). For non-activated adsorption 
+steps, this value can be either undefined or an empty list, i.e., `[]`.
 
 **Optional:**
-- **neighboring** (*str*): Connectivity between sites involved, e.g. 1-2. Default value: `None`.
-- **prox_factor** (*float*): Proximity factor. Default value: `0.5`.
-- **angles** (*str*): Angle between sites in Zacros format, e.g. `'1-2-3:180'`. Default value: `None`.
+
+- **neighboring** (*str*): Connectivity between sites involved.
+  - Example: `'1-2'` 
+  - Default value: `None`.
+- **prox_factor** (*float*): Proximity factor. 
+  - Default value: `0.5`.
+- **angles** (*str*): Angle between sites in Zacros format.
+  - Example: `'1-2-3:180'`. 
+  - Default value: `None`.
 
 ```{caution}
-- The **activ_eng** must not include the ZPE (it is included in the pre-exponential factor)
-- For elementary steps with more than one surface species in the initial and/or final states: 
-  - the **activ_eng** must be calculated from the **co-adsorbed** configuration of the reactants 
-  - **BUT** both **vib_energies_is** and **vib_energies_fs** must correspond to the reactants and/or products at 
-**infinite** separation
+- **activ_eng** must not include the ZPE (it is included in the pre-exponential factor).
+- For elementary steps with more than one surface species in the initial and/or final states:
+  - **activ_eng** must be calculated from the **co-adsorbed** configuration of the reactants.
+  - **vib_energies_is** and **vib_energies_fs** must correspond to the reactants and/or products at **infinite** 
+  separation.
 ```
 
-### Example:
+### Example
 
 | index          | sites | site_types | neighboring | area_site | initial               | final                 | activ_eng | molecule | vib_energies_is                                                                                    | vib_energies_fs                                                                                      | vib_energies_ts                                                                           | prox_factor |
 |----------------|-------|------------|-------------|-----------|-----------------------|-----------------------|-----------|----------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|
@@ -125,49 +132,57 @@ steps, this value can be either undefined or an empty list i.e. `[]`.
 | CO_diffusion   | 2     | topC topC  | 1-2         |           | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  | 1.156     |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |             |
 | O_diffusion    | 2     | topC topC  | 1-2         |           | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   | 1.221     |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |             |
 
-This `pandas.DataFrame` can also be created by including all the information on a .csv file and reading it:
+This `pandas.DataFrame` can be created, for instance, by including all the information in a .csv file and reading it:
 
-    import pandas as pd
+```python
+import pandas as pd
 
-    mechanism_data=pd.read_csv('mechanism.csv', index_col=0)
+mechanism_data=pd.read_csv('mechanism_data.csv', index_col=0)
+```
 
-or from a `dict`:
+Alternatively, it can be created from a `dict`:
 
-    import pandas as pd
-    
-    steps = {
-        'CO_adsorption': {'site_types': 'tC',
-                          'initial': ['1 * 1'],
-                          'final': ['1 CO* 1'],
-                          'activ_eng': 0.0,
-                          'vib_energies_is': [264.16],
-                          'vib_energies_ts': [],
-                          'vib_energies_fs': [240.50, 82.74, 60.13, 60.08, 7.27, 6.55],
-                          'molecule': 'CO',
-                          'area_site': 5.34,
-                          'prox_factor': 0.0},
-        'CO+O_reaction': {'site_types': 'tC tC',
-                          'initial': ['1 CO* 1', '2 O* 1'],
-                          'final': ['1 CO2* 1', '2 * 1'],
-                          'activ_eng': 1.249,
-                          'vib_energies_is': [240.45, 83.19, 80.04, 61.66, 59.84, 38.27, 36.14, 12.37, 10.12],
-                          'vib_energies_ts': [217.94, 81.36, 66.83, 56.91, 50.34, 37.43, 19.07, 12.35],
-                          'vib_energies_fs': [171.18, 145.66, 96.96, 86.25, 56.20, 52.37, 35.93, 24.34, 21.02],
-                          'neighboring': '1-2'}}
-    
-    mechanism_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for step in steps:
-        new_row = pd.Series(steps[step])
-        new_row.name = step
-        mechanism_data = pd.concat([mechanism_data, new_row.to_frame().T])
+```python
+import pandas as pd
 
-## 3. Energetics model
+steps = {
+    'CO_adsorption': {
+        'sites': 1,
+        'site_types': 'topC',
+        'neighboring': '',
+        'area_site': 5.34,
+        'initial': ['1 * 1'],
+        'final': ['1 CO* 1'],
+        'activ_eng': 0.0,
+        'molecule': 'CO',
+        'vib_energies_is': [264.160873],
+        'vib_energies_fs': [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359],
+        'vib_energies_ts': [],
+        'prox_factor': 0.0},
+    'O2_adsorption': {
+        'sites': 2,
+        'site_types': 'topC topC',
+        'neighboring': '1-2',
+        'area_site': 5.34,
+        'initial': ['1 * 1', '2 * 1'],
+        'final': ['1 O* 1', '2 O* 1'],
+        'activ_eng': 0.0,
+        'molecule': 'O2',
+        'vib_energies_is': [194.973022],
+        'vib_energies_fs': [79.738187, 77.981497, 40.487926, 39.798116, 38.056578, 37.441762],
+        'vib_energies_ts': [],
+        'prox_factor': 0.0}
+}
 
-The information on the energetics model is contained in a third DataFrame, where each row corresponds to a cluster.
+mechanism_data = pd.DataFrame(steps).T
+```
+
+## 3. Energetics Model
+
+The information on the energetics model is contained in a `pandas.DataFrame`, where each row corresponds to a cluster.
 
 ```{important}
-The row index has to be the name of the cluster. 
+The row index has to be the name of the cluster.
 ```
 
 ### Columns
@@ -176,20 +191,26 @@ The row index has to be the name of the cluster.
 
 - **cluster_eng** (*float*): Cluster formation energy (in eV).
 - **site_types** (*str*): The types of each site in the pattern.
-- **lattice_state** (*list*): Cluster configuration in Zacros format, e.g. `['1 CO* 1','2 CO* 1']`.
+- **lattice_state** (*list*): Cluster configuration in Zacros format.
+  - Example: `['1 CO* 1','2 CO* 1']`.
 
 **Optional:**
 
-- **neighboring** (*str*): Connectivity between sites involved, e.g. `1-2`. Default value: `None`.
-- **angles** (*str*): Angle between sites in Zacros format, e.g. `'1-2-3:180'`. Default value: `None`.
-- **graph_multiplicity** (*int*): Symmetry number of the cluster, e.g. `2`. Default value: `1`.
+- **neighboring** (*str*): Connectivity between sites involved.
+  - Example: `1-2`. 
+  - Default value: `None`.
+- **angles** (*str*): Angle between sites in Zacros format.
+  - Example: `'1-2-3:180'`. 
+  - Default value: `None`.
+- **graph_multiplicity** (*int*): Symmetry number of the cluster. 
+  - Default value: `1`.
 
 ```{caution}
-- The **cluster_eng** must not include the ZPE. For the single-body terms, the ZPE is included in the pre-exponential 
-factor. For the multi-body terms (lateral interactions), the ZPE should be ignored
+The **cluster_eng** must not include the ZPE. For the single-body terms, the ZPE is included in the pre-exponential 
+factor. For the multi-body terms (lateral interactions), the ZPE should be ignored.
 ```
 
-### Example:
+### Example
 
 | index        | cluster_eng | sites | site_types | lattice_state            | neighboring | graph_multiplicity |
 |--------------|-------------|-------|------------|--------------------------|-------------|--------------------|
@@ -203,44 +224,46 @@ factor. For the multi-body terms (lateral interactions), the ZPE should be ignor
 | CO+O_pair    | -0.032      | 2     | tC tC      | ['1 CO* 1', '2 O* 1']    | 1-2         |                    |
 | O+O_pair     | 0.034       | 2     | tC tC      | ['1 O* 1', '2 O* 1']     | 1-2         | 2                  |
 
-This Pandas DataFrame can be created in the same way as the other ones. 
-From a `.csv` file:
+This `pandas.DataFrame` can be created, for instance, by including all the information in a .csv file and reading it:
 
-    import pandas as pd
+```python
+import pandas as pd
 
-    energetics_data=pd.read_csv('energetics.csv', index_col=0)
+energetics_data = pd.read_csv('energetics.csv', index_col=0)
+```
 
-or from a `dict`:
+Alternatively, it can be created from a `dict`:
 
-    import pandas as pd
-    
-    clusters = {
-        'CO_point': {'site_types': 'tC',
-                     'lattice_state': ['1 CO* 1'],
-                     'cluster_eng': 0.233},
-        'CO+CO_pair': {'site_types': 'tC tC',
-                       'neighboring': '1-2',
-                       'lattice_state': ['1 CO* 1', '2 CO* 1'],
-                       'cluster_eng': 0.177}}
-    
-    energetics_data = pd.DataFrame()
-    new_row = pd.Series([], dtype='object')
-    for cluster in clusters:
-        new_row = pd.Series(clusters[cluster])
-        new_row.name = cluster
-        energetics_data = pd.concat([energetics_data, new_row.to_frame().T])
+```python
+import pandas as pd
+
+clusters = {
+    'CO_point': {
+        'site_types': 'tC',
+        'lattice_state': ['1 CO* 1'],
+        'cluster_eng': 0.233},
+    'CO+CO_pair': {
+        'site_types': 'tC tC',
+        'neighboring': '1-2',
+        'lattice_state': ['1 CO* 1', '2 CO* 1'],
+        'cluster_eng': 0.177}
+}
+
+energetics_data = pd.DataFrame(clusters).T
+```
 
 ## 4. Lattice model
 
-Finally, a lattice model is needed to create a `KMCModel`. The lattice model is stored as a 
-{py:func}`zacrostools.lattice_input.LatticeModel` object. 
-Currently, the only way to create a lattice model is by reading a `lattice_input.dat` file:
+Finally, a `LatticeModel` object ({py:func}`zacrostools.lattice_input.LatticeModel`) is needed to create a `KMCModel`.
+Currently, the only way to create a `LatticeModel` is by reading a `lattice_input.dat` file:
 
-    from zacrostools.lattice_input import LatticeModel
+```python
+from zacrostools.lattice_input import LatticeModel
 
-    lattice_model = LatticeModel.from_file('lattice_inputs/lattice_input_for_HfC.dat')
+lattice_model = LatticeModel.from_file('lattice_inputs/lattice_input_for_HfC.dat')
+```
 
-In future releases, the user will be able to create the `lattice_input.dat` file directly from ZacrosTools.
+In future releases, the user will be able to create a `LatticeModel` file directly from `ZacrosTools`.
 
 Example of a lattice input file for HfC(001):
 
@@ -277,65 +300,80 @@ Example of a lattice input file for HfC(001):
 
 ## 5. Create a KMC model
 
-Finally, a KMC model can be created as follows:
+With all the required information, the `KMCModel` object can be created:
 
-    from zacrostools.kmc_model import KMCModel
-    from zacrostools.lattice_input import LatticeModel
-    
-    kmc_model = KMCModel(gas_data=gas_data,
-                         mechanism_data=mechanism_data,
-                         energetics_data=energetics_data,
-                         lattice_model=lattice_model)
+```python
+from zacrostools.kmc_model import KMCModel
 
-## 6. Write Zacros input files
+kmc_model = KMCModel(gas_data=gas_data,
+                     mechanism_data=mechanism_data,
+                     energetics_data=energetics_data,
+                     lattice_model=lattice_model)
+```
 
-Once the KMC model is created, the Zacros input files for the desired operating conditions can be generated using the 
-{py:func}`zacrostools.kmc_model.KMCModel.create_job_dir` function. This function also contains parameters regarding 
-the reporting scheme, the stopping criteria, and the scaling of reaction rates for fast events:
+## 6. Write Zacros Input Files
+
+Once the `KMCModel` is created, the Zacros input files for the desired operating conditions can be generated using the 
+`zacrostools.kmc_model.KMCModel.create_job_dir` function. This function also includes parameters for the reporting 
+scheme, stopping criteria, and scaling of reaction rates for fast events.
 
 ### Arguments
 
 **Mandatory:**
 
-- **path** (*str*): Path for the new directory where the input files will be written. This directory will be created
- by ZacrosTools. 
+- **path** (*str*): Path for the new directory where the input files will be written. This directory will be created by 
+ZacrosTools.
 - **temperature** (*float*): Reaction temperature (in K).
-- **pressure** (*dict*): Partial pressures of all gas species (in bar), e.g. `{'CO': 1.0, 'O2': 0.001}`.
+- **pressure** (*dict*): Partial pressures of all gas species (in bar).
+  - Example: `{'CO': 1.0, 'O2': 0.001}`.
 
 **Optional:**
-- **reporting_scheme** (*dict*): Reporting scheme in Zacros format. Must contain the following keys: `'snapshots'`, 
-`'process_statistics'` and `'species_numbers'`. Default value: `{'snapshots': 'on event 10000', 'process_statistics': 
-'on event 10000', 'species_numbers': 'on event 10000'}`.
-- **stopping_criteria** (*dict*): Stopping criteria in Zacros format. Must contain the following keys: `'max_steps'`, 
-`'max_time'` and `'wall_time'`. Default value: `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
-- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values) e.g. 
-`{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. Default value: `{}`.
-- **auto_scaling_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`, e.g. 
-`['CO_diffusion', 'O_diffusion']`. Default value: `[]`.
-- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values, 
-e.g. `{'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}`. Default value: `{}`.
+
+- **reporting_scheme** (*dict*): Reporting scheme in Zacros format. 
+  - Must contain the following keys: `'snapshots'`, `'process_statistics'`, and `'species_numbers'`. 
+  - Default value: `{'snapshots': 'on event 10000', 'process_statistics': 'on event 10000', 'species_numbers': 'on event 10000'}`.
+- **stopping_criteria** (*dict*): Stopping criteria in Zacros format. 
+  - Must contain the following keys: `'max_steps'`, `'max_time'`, and `'wall_time'`. 
+  - Default value: `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
+- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values). 
+  - Example: `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. 
+  - Default value: `{}`.
+- **auto_scaling_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`. 
+  - Example: `['CO_diffusion', 'O_diffusion']`. 
+  - Default value: `[]`.
+- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values. 
+  - Example: `{'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}`. 
+  - Default value: `{}` (Zacros default values).
 - **sig_figs_energies** (*int*): Number of significant figures used when writing `gas_energies` in the 
-`simulation_input.dat`, `cluster_eng` in the `energetics_input.dat`, and `activ_eng` in `mechanism_input.dat`. Default 
-value: `16`.
-- **sig_figs_pe** (*int*): Number of significant figures used when writing `pre_expon` and `pe_ratio` in 
-`mechanism_input.dat` Default value:`16`..
-- **random_seed** (*int*): Integer seed of the random number generator. If not specified, ZacrosTools will generate 
-one. Default value:`None`.
+`simulation_input.dat`, `cluster_eng` in the `energetics_input.dat`, and `activ_eng` in `mechanism_input.dat`. 
+  - Default value: `16`.
+- **sig_figs_pe** (*int*): Number of significant figures used when writing `pre_expon` and `pe_ratio` in `mechanism_input.dat`. 
+  - Default value: `16`.
+- **random_seed** (*int*): Integer seed of the random number generator. If not specified, ZacrosTools will generate one. 
+  - Default value: `None`.
 
-For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to 
-create all input files:
+For instance, to run a scan over a range of temperatures and partial pressures, the following loop can be used to create
+ all input files:
 
-    for pCO in np.logspace(-3, 1, 10):
-        for pO in np.logspace(-6, -2, 10):
-            for temperature in np.linspace(500, 800, 10):
-                kmc_model.create_job_dir(path=f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}",
-                                         temperature=temperature,
-                                         pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
-                                         reporting_scheme='on event 10000',
-                                         stopping_criteria={'max_steps': 'infinity', 'max_time': 'infinity', 
-                                                            'wall_time': 43200})
+```python
+import numpy as np
 
+reporting_scheme={'snapshots': 'on event 10000', 
+                  'process_statistics': 'on event 10000', 
+                  'species_numbers': 'on event 10000'}
+
+stopping_criteria={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 43200}
+
+for pCO in np.logspace(-3, 1, 10):
+    for pO in np.logspace(-6, -2, 10):
+        for temperature in np.linspace(500, 800, 10):
+            kmc_model.create_job_dir(path=f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}",
+                                     temperature=temperature,
+                                     pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
+                                     reporting_scheme=reporting_scheme,
+                                     stopping_criteria=stopping_criteria)
+```
 
 ```{warning}
-This section of the documentation is under development. 
+This section of the documentation is under development.
 ```
