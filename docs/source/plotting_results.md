@@ -37,6 +37,8 @@ Example:
     plt.tight_layout()
     plt.show()
 
+![tof_and_coverage](https://github.com/hprats/ZacrosTools/blob/main/images/tof_and_coverage.png)
+
 ## Contour plots from a set of KMC simulations at various operating conditions
 
 Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be created very easy with the 
@@ -121,6 +123,7 @@ Example:
     plt.show()
     plt.savefig("/Results_scan.pdf", bbox_inches='tight', transparent=False)
 
+![contour_plots](https://github.com/hprats/ZacrosTools/blob/main/images/lattice.png?raw=true)
 
 ```{warning}
 This section of the documentation is under development. 
