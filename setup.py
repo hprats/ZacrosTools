@@ -17,4 +17,3 @@ setup(
     keywords=['python', 'chemistry', 'KMC', 'ZACROS'],
     install_requires=['pandas', 'scipy']
 )
-x
