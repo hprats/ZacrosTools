@@ -23,12 +23,12 @@ def plot_contour(
         # Extra arguments for coverage plots and phasediagram plots (optional)
         site_type: Union[str, None] = 'default',
         # Extra arguments for phasediagram plots (optional)
-        min_coverage: Union[float, int] = 20.0, surf_species_names: Union[list, None] = None,
-        ticks: Union[list, None] = None,
+        min_coverage: Union[float, int] = 20.0, surf_spec_values: Union[dict, None] = None,
+        tick_values: Union[list, None] = None, tick_labels: Union[list, None] = None,
         # Extra arguments for all plots except final time and final energy (optional)
         ignore: Union[float, int] = 0.0, weights: Union[str, None] = None,
         # Extra arguments for all plots (optional)
-        cmap: Union[str, None] = None, show_points: bool = False):
+        cmap: Union[str, None] = None, show_points: bool = False, show_colorbar: bool = True):
     """
     Pass a figure object and return an updated figure with a contour plot on it .
 
@@ -65,12 +65,13 @@ def plot_contour(
             'default' can be used. Default: 'default'.
         min_coverage: float, only for phase diagrams (optional)
             Minimum total coverage to plot the dominant surface species on a phase diagram. Default: 20.0.
-        surf_species_names: list, only for phase diagrams (optional)
+        surf_spec_values: list, only for phase diagrams (optional)
             List of surface species to include in the phase diagram. If None, all surface species
             will be included. Default: None.
-        ticks: list, only for phase diagrams (optional)
+        tick_values: list, only for phase diagrams (optional)
             List of tick values for the colorbar in phase diagrams. If None, ticks are determined automatically from
             the input. Default: None.
+        tick_labels: list, only for phase diagrams (optional)
         ignore: float (optional)
             Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
         weights: str (optional)
@@ -80,6 +81,8 @@ def plot_contour(
             The Colormap or instance or registered colormap name used to map scalar data to colors.
         show_points: bool (optional)
             If True, show the grid points as black dots. Default value: False.
+        show_colorbar: bool (optional)
+            If True, show the colorbar. Default value: True.
     """
 
     """ Check if extra required attributes are provided """
@@ -172,10 +175,13 @@ def plot_contour(
 
     """ Set default values depending on the type of plot """
     if z == "phase_diagram":
-        if surf_species_names is None:
-            surf_species_names = parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']
-        if ticks is None:
-            ticks = [n + 0.5 for n in range(len(surf_species_names))]
+        if surf_spec_values is None:
+            surf_spec_names = sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names'])
+            surf_spec_values = {species: i + 0.5 for i, species in enumerate(surf_spec_names)}
+        if tick_values is None:
+            tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
+        if tick_labels is None:
+            tick_labels = surf_spec_names
 
     if cmap is None:
         if "tof" in z or z == "final_time" or z == "final_energy":
@@ -233,8 +239,7 @@ def plot_contour(
                     z_axis[j, i] = df.loc[folder_name, "coverage"]
                 elif z == "phase_diagram":
                     if df.loc[folder_name, "coverage"] > min_coverage:
-                        index = surf_species_names.index(df.loc[folder_name, "dominant_ads"])
-                        z_axis[j, i] = ticks[index]
+                        z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
                 elif z == 'final_time':
                     z_axis[j, i] = np.log10(df.loc[folder_name, "final_time"])
                 elif z == 'final_energy':
@@ -242,17 +247,19 @@ def plot_contour(
 
     """ Choose type of plot """
     if z == "phase_diagram":
-        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(surf_species_names))
-        cbar = plt.colorbar(cp, ax=ax, ticks=ticks, spacing='proportional',
-                            boundaries=[n for n in range(len(surf_species_names))],
-                            format=mticker.FixedFormatter(surf_species_names))
-        for t in cbar.ax.get_yticklabels():
-            t.set_fontsize(8)
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
+                                boundaries=[n for n in range(len(tick_labels))],
+                                format=mticker.FixedFormatter(tick_labels))
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
     else:
         cp = ax.contourf(x_axis, y_axis, z_axis, levels=levels, cmap=cmap)
-        cbar = plt.colorbar(cp, ax=ax)
-        for t in cbar.ax.get_yticklabels():
-            t.set_fontsize(10)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax)
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(10)
 
     ax.set_xlim(np.min(x_list), np.max(x_list))
     ax.set_ylim(np.min(y_list), np.max(y_list))
