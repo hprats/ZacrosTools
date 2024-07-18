@@ -142,7 +142,7 @@ plot_contour(ax=axs[2, 2], scan_path=scan_path, x=x, y=y, z='final_energy')
 
 plt.tight_layout()
 plt.show()
-plt.savefig("/Results_scan.pdf", bbox_inches='tight', transparent=False)
+plt.savefig("results_scan.pdf", bbox_inches='tight', transparent=False)
 ```
 
 ![Contour Plots](https://github.com/hprats/ZacrosTools/blob/main/docs/images/contour_plots.png?raw=true)
