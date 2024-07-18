@@ -1,4 +1,3 @@
-import ast
 import pandas as pd
 from zacrostools.write_functions import write_header
 from zacrostools.custom_exceptions import EnergeticModelError, enforce_types
@@ -40,7 +39,7 @@ class EnergeticModel:
             infile.write('############################################################################\n\n')
             for cluster in self.df.index:
                 infile.write(f"cluster {cluster}\n\n")
-                lattice_state = ast.literal_eval(self.df.loc[cluster, 'lattice_state'])
+                lattice_state = self.df.loc[cluster, 'lattice_state']
                 infile.write(f"  sites {len(lattice_state)}\n")
                 if not pd.isnull(self.df.loc[cluster, 'neighboring']):
                     infile.write(f"  neighboring {self.df.loc[cluster, 'neighboring']}\n")

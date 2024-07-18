@@ -1,4 +1,3 @@
-import ast
 import pandas as pd
 from zacrostools.write_functions import write_header
 from zacrostools.calc_functions import calc_ads, calc_surf_proc
@@ -36,11 +35,6 @@ class ReactionModel:
     def __init__(self, mechanism_data: pd.DataFrame = None):
         self.df = mechanism_data
 
-    @classmethod
-    def from_dictionary(cls, path):
-        """Not implemented yet"""
-        pass
-
     def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, auto_scaling_steps, sig_figs_energies,
                               sig_figs_pe):
         """Writes the mechanism_input.dat file"""
@@ -49,11 +43,11 @@ class ReactionModel:
             infile.write('mechanism\n\n')
             infile.write('############################################################################\n\n')
             for step in self.df.index:
-                initial_state = ast.literal_eval(self.df.loc[step, 'initial'])
-                final_state = ast.literal_eval(self.df.loc[step, 'final'])
+                initial_state = self.df.loc[step, 'initial']
+                final_state = self.df.loc[step, 'final']
                 if len(initial_state) != len(final_state):
-                    raise ReactionModelError("Error in {step}: len IS is {len(initial_state)} but len FS is {len("
-                                             "final_state)}.")
+                    raise ReactionModelError(
+                        f"Error in {step}: len IS is {len(initial_state)} but len FS is {len(final_state)}.")
                 infile.write(f"reversible_step {step}\n\n")
                 if not pd.isna(self.df.loc[step, 'molecule']):
                     infile.write(f"  gas_reacs_prods {self.df.loc[step, 'molecule']} -1\n")
@@ -95,7 +89,7 @@ class ReactionModel:
             return 'surface_reaction'
         if 'vib_energies_ts' not in self.df.columns:
             return 'non_activated_adsorption'
-        if pd.isna(self.df.loc[step, 'vib_energies_ts']) or self.df.loc[step, 'vib_energies_ts'] == '[]':
+        if not self.df.loc[step, 'vib_energies_ts']:
             return 'non_activated_adsorption'
         else:
             return 'activated_adsorption'
@@ -103,14 +97,14 @@ class ReactionModel:
     def get_pre_expon(self, step, temperature, gas_data, manual_scaling):
         """Calculates the forward pre-exponential and the pre-exponential ratio, required for the mechanism_input.dat
         file """
-        vib_energies_is = ast.literal_eval(self.df.loc[step, 'vib_energies_is'])
-        vib_energies_ts = ast.literal_eval(self.df.loc[step, 'vib_energies_ts'])
-        vib_energies_fs = ast.literal_eval(self.df.loc[step, 'vib_energies_fs'])
+        vib_energies_is = self.df.loc[step, 'vib_energies_is']
+        vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
+        vib_energies_fs = self.df.loc[step, 'vib_energies_fs']
         step_type = self.get_step_type(step)
         if 'adsorption' in step_type:
             molecule = self.df.loc[step, 'molecule']
             molec_mass = gas_data.loc[molecule, 'gas_molec_weight']
-            inertia_moments = ast.literal_eval(gas_data.loc[molecule, 'inertia_moments'])
+            inertia_moments = gas_data.loc[molecule, 'inertia_moments']
             if 'degeneracy' not in self.df.columns:
                 degeneracy = 1.0
             else:

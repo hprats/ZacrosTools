@@ -10,6 +10,25 @@ from zacrostools.energetics_input import EnergeticModel
 from zacrostools.custom_exceptions import *
 
 
+def process_cell(cell):
+    print(cell)
+    if isinstance(cell, list):
+        return cell
+    elif isinstance(cell, str):
+        try:
+            # Attempt to parse the string as a list
+            parsed_cell = ast.literal_eval(cell)
+            # Ensure the parsed cell is actually a list
+            if isinstance(parsed_cell, list):
+                return parsed_cell
+        except (ValueError, SyntaxError):
+            pass
+    elif pd.isna(cell) or cell == '':
+        return []
+    # Return an empty list if parsing fails or if the cell is of an unexpected type
+    return []
+
+
 class KMCModel:
     """A class that represents a KMC model.
 
@@ -29,9 +48,23 @@ class KMCModel:
     def __init__(self, gas_data: pd.DataFrame, mechanism_data: pd.DataFrame, energetics_data: pd.DataFrame,
                  lattice_model: zacrostools.lattice_input.LatticeModel):
         self.path = None
+
+        """ If dataframes are read from a .csv file, some column types have to be converted from str back to list"""
+        for column_name in ['inertia_moments', 'vib_energies']:
+            if column_name in gas_data.columns:
+                gas_data[column_name] = gas_data[column_name].apply(process_cell)
         self.gas_data = gas_data
+
+        for column_name in ['initial', 'final', 'vib_energies_is', 'vib_energies_ts', 'vib_energies_fs']:
+            if column_name in mechanism_data.columns:
+                mechanism_data[column_name] = mechanism_data[column_name].apply(process_cell)
         self.reaction_model = ReactionModel(mechanism_data=mechanism_data)
+
+        for column_name in ['lattice_state']:
+            if column_name in energetics_data.columns:
+                energetics_data[column_name] = energetics_data[column_name].apply(process_cell)
         self.energetic_model = EnergeticModel(energetics_data=energetics_data)
+
         self.lattice_model = lattice_model
 
         self.check_errors()
@@ -180,7 +213,7 @@ class KMCModel:
         # Used to write 'surf_specs_names' and 'surf_specs_dent' in the simulation_input.dat file
         surf_specs = {}
         for cluster in self.energetic_model.df.index:
-            lattice_state = ast.literal_eval(self.energetic_model.df.loc[cluster, 'lattice_state'])
+            lattice_state = self.energetic_model.df.loc[cluster, 'lattice_state']
             for site in lattice_state:
                 if '&' not in site:
                     surf_specs_name = site.split()[1]
