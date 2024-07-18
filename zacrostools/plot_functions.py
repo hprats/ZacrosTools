@@ -303,7 +303,7 @@ def plot_contour(
     if show_points:
         for i in x_list:
             for j in y_list:
-                ax.plot(i, j, marker='.', color='k')
+                ax.plot(i, j, marker='.', color='w')
 
     return ax
 

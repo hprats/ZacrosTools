@@ -356,6 +356,7 @@ For instance, to run a scan over a range of temperatures and partial pressures, 
  all input files:
 
 ```python
+import os
 import numpy as np
 
 reporting_scheme={'snapshots': 'on event 10000', 
@@ -364,14 +365,18 @@ reporting_scheme={'snapshots': 'on event 10000',
 
 stopping_criteria={'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 43200}
 
-for pCO in np.logspace(-3, 1, 10):
-    for pO in np.logspace(-6, -2, 10):
-        for temperature in np.linspace(500, 800, 10):
-            kmc_model.create_job_dir(path=f"pCO_{pCO:.3e}_pO_{pO:.3e}_T_{temperature:.3f}",
+for temperature in np.linspace(500, 800, 4):
+    scan_folder_name = f'scan_{int(temperature)}K'
+    os.makedirs(scan_folder_name, exist_ok=True)
+    for pCO in np.logspace(-3, 1, 10):
+        for pO in np.logspace(-6, -2, 10):
+            kmc_model.create_job_dir(path=f"{scan_folder_name}/pCO_{pCO:.3e}_pO_{pO:.3e}",
                                      temperature=temperature,
                                      pressure={'CO': pCO, 'O': pO, 'CO2': 0.0},
                                      reporting_scheme=reporting_scheme,
-                                     stopping_criteria=stopping_criteria)
+                                     stopping_criteria=stopping_criteria,
+                                     sig_figs_energies=3,
+                                     sig_figs_pe=3)
 ```
 
 ```{warning}
