@@ -178,10 +178,10 @@ def plot_contour(
         if surf_spec_values is None:
             surf_spec_names = sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names'])
             surf_spec_values = {species: i + 0.5 for i, species in enumerate(surf_spec_names)}
+            if tick_labels is None:
+                tick_labels = surf_spec_names
         if tick_values is None:
             tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
-        if tick_labels is None:
-            tick_labels = surf_spec_names
 
     if cmap is None:
         if "tof" in z or z == "final_time" or z == "final_energy":
@@ -240,6 +240,8 @@ def plot_contour(
                 elif z == "phase_diagram":
                     if df.loc[folder_name, "coverage"] > min_coverage:
                         z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
+                    else:
+                        z_axis[j, i] = float('NaN')
                 elif z == 'final_time':
                     z_axis[j, i] = np.log10(df.loc[folder_name, "final_time"])
                 elif z == 'final_energy':
@@ -250,7 +252,7 @@ def plot_contour(
         cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
         if show_colorbar:
             cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
-                                boundaries=[n for n in range(len(tick_labels))],
+                                boundaries=[n for n in range(len(tick_labels) + 1)],
                                 format=mticker.FixedFormatter(tick_labels))
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
@@ -276,7 +278,8 @@ def plot_contour(
     else:
         ax.set_ylabel('$T$ (K)')
     if "tof" in z:
-        ax.set_title(f"logTOF {z.split('_')[-1]}", y=1.0, pad=-14, color="w",
+        formated_gas_species = convert_to_subscript(chemical_formula=z.split('_')[-1])
+        ax.set_title(f"logTOF ${formated_gas_species}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
     elif z == "selectivity":
@@ -284,16 +287,17 @@ def plot_contour(
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
     elif "coverage" in z:
-        ax.set_title(f"coverage_{site_type}", y=1.0, pad=-14, color="w",
+        ax.set_title(f"coverage ${site_type}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
     elif z == "phase_diagram":
-        ax.set_title(f"Phase diagram {site_type}", y=1.0, pad=-14, color="w",
+        ax.set_title(f"phase diagram ${site_type}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
     elif z == "final_time":
-        ax.set_title(f"Final time ($s$)", y=1.0, pad=-14, color="w",
+        ax.set_title(f"final time ($s$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
     elif z == "final_energy":
-        ax.set_title("Final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
+        ax.set_title("final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
 
     if show_points:
@@ -302,3 +306,13 @@ def plot_contour(
                 ax.plot(i, j, marker='.', color='k')
 
     return ax
+
+
+def convert_to_subscript(chemical_formula):
+    result = ''
+    for char in chemical_formula:
+        if char.isnumeric():
+            result += f"_{char}"
+        else:
+            result += char
+    return result
