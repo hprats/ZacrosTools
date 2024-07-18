@@ -77,9 +77,15 @@ Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scan
   - Default: `'default'`.
 - **min_coverage** (*float*): Minimum total coverage to plot the dominant surface species on a phase diagram.
   - Default: `20.0`.
-- **surf_species_names** (*list*): List of surface species to include in the phase diagram.
+- **surf_species_values** (*dict*): Surface species with their corresponding values for phase diagrams. If `None`, 
+surf_species_values are determined automatically from the output data.
+  - Example: `{'C': 0.5, 'CO': 1.5, 'CO2': 2.5, 'O': 3.5}`.
   - Default: `None`.
-- **ticks** (*list*): List of tick values for the colorbar in phase diagrams.
+- **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
+automatically from the output data.
+  - Default: `None`.
+- **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
+automatically from the output data.
   - Default: `None`.
 - **ignore** (*float*): Ignore first % of simulated time, i.e., equilibration.
   - Default value: `0.0`.
@@ -91,6 +97,8 @@ Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scan
 - **cmap** (*str*): The colormap or instance or registered colormap name used to map scalar data to colors.
 - **show_points** (*bool*): If `True`, show the grid points as black dots.
   - Default value: `False`.
+- **show_colorbar** (*bool*): If `True`, show the colorbar.
+  - Default value: `True`.
 
 ### Example
 
@@ -114,11 +122,13 @@ for n, product in enumerate(products):
 
 # Total coverage
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type)
+    plot_contour(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type,
+                 weights='time')
 
 # Phase diagrams
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type)
+    plot_contour(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type,
+                 weights='time')
 
 # Selectivity
 plot_contour(ax=axs[2, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product='CO2',
