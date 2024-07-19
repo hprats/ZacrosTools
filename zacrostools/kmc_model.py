@@ -11,7 +11,8 @@ from zacrostools.custom_exceptions import *
 
 
 def process_cell(cell):
-    print(cell)
+    """ If the DataFrame is created from a CSV file, transform the cells that are read as str to list. Moreover, if a
+    cell is empty (e.g. vib_energies_ts), set it to []"""
     if isinstance(cell, list):
         return cell
     elif isinstance(cell, str):
@@ -49,7 +50,9 @@ class KMCModel:
                  lattice_model: zacrostools.lattice_input.LatticeModel):
         self.path = None
 
-        """ If dataframes are read from a .csv file, some column types have to be converted from str back to list"""
+        """ If the DataFrame is created from a CSV file, transform the cells that are read as str to list and set empty 
+        sells to []"""
+
         for column_name in ['inertia_moments', 'vib_energies']:
             if column_name in gas_data.columns:
                 gas_data[column_name] = gas_data[column_name].apply(process_cell)
