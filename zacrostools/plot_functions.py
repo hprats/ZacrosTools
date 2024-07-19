@@ -283,7 +283,8 @@ def plot_contour(
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
     elif z == "selectivity":
-        ax.set_title(f"{main_product} selectivity (%)", y=1.0, pad=-14, color="w",
+        formated_main_product= convert_to_subscript(chemical_formula=main_product)
+        ax.set_title(f"${formated_main_product}$ selectivity (%)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
     elif "coverage" in z:
