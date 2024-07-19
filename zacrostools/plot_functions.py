@@ -18,6 +18,8 @@ def plot_contour(
         levels: Union[list, None] = None,
         # Extra arguments for tof and selectivity plots (optional)
         min_molec: int = 0,
+        # Extra arguments for tof difference plots (required)
+        scan_path_ref: Union[str, None] = None,
         # Extra arguments for selectivity plots (required)
         main_product: Union[str, None] = None, side_products: Union[list, None] = None,
         # Extra arguments for coverage plots and phasediagram plots (optional)
@@ -44,9 +46,9 @@ def plot_contour(
         y: str
             Magnitude to plot in the y-axis. Possible values: 'pressure_Y' (where Y is a gas species) or 'temperature'.
         z: str
-            Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'selectivity',
-            'coverage_Z' (where Z is a surface species), 'coverage_total', 'phase_diagram', 'final_time' or
-            'final_energy'.
+            Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'tof_difference_Z'
+            (where Z is a gas species),'selectivity', 'coverage_Z' (where Z is a surface species), 'coverage_total',
+            'phase_diagram', 'final_time' or 'final_energy'.
         levels: list, only for tof, selectivity and coverage plots (optional)
             Determines the number and positions of the contour lines / regions. Default: '[-3, -2.5, -2, -1.5, -1, -0.5,
              0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and '[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for
@@ -56,6 +58,8 @@ def plot_contour(
             molecules in order to calculate and plot either the tof or the selectivity. If the number of molecules is
             lower, the value of tof or selectivity at that point will be NaN. If min_molec=0, no threshold will be
             applied and any value of tof lower than min(levels) will be set to that value. Default: 0
+        scan_path_ref: str, required for tof difference plots
+            Path of the directory containing all the reference scan jobs.
         main_product: str, only for selectivity plots (required)
             Main product to calculate the selectivity.
         side_products: list, only for selectivity plots (required)
@@ -86,20 +90,33 @@ def plot_contour(
     """
 
     """ Check if extra required attributes are provided """
+
     if "selectivity" in z:
         if main_product is None:
             raise PlotError("'main_product' is required for selectivity plots")
         if side_products is None:
             raise PlotError("'side_products' is required for selectivity plots")
 
+    if "tof_difference" in z:
+        if scan_path_ref is None:
+            raise PlotError("'scan_path_ref' is required for tof difference plots")
+
     log_x_list = []
     log_y_list = []
     df = pd.DataFrame()
+
     for path in glob(f"{scan_path}/*"):
         folder_name = path.split('/')[-1]
+
         if os.path.isfile(f"{path}/general_output.txt"):
             kmc_output = KMCOutput(path=path, ignore=ignore, weights=weights)
-            """ Read values for x and y """
+
+            kmc_output_ref = None
+            if "tof_difference" in z:
+                kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", ignore=ignore, weights=weights)
+
+            """ Read value for x"""
+
             partial_pressures = get_partial_pressures(f"{path}")
             if partial_pressures[x.split('_')[-1]] == 0:
                 raise PlotError(f"partial pressure of {x.split('_')[-1]} is zero in {path}")
@@ -112,6 +129,9 @@ def plot_contour(
                 log_x = round(np.log10(temperature), 8)
             else:
                 raise PlotError("Incorrect value for x")
+
+            """ Read value for y"""
+
             if "pressure" in y:
                 log_y = round(np.log10(partial_pressures[y.split('_')[-1]]), 8)
             elif y == 'temperature':
@@ -127,15 +147,21 @@ def plot_contour(
                 log_y_list.append(log_y)
 
             """ Read value for z """
+
             if "tof" in z:
-                df.loc[folder_name, "total_production"] = kmc_output.total_production[z.split('_')[-1]]
                 df.loc[folder_name, "tof"] = kmc_output.tof[z.split('_')[-1]]
+                if "tof_difference" in z:
+                    df.loc[folder_name, "tof_ref"] = kmc_output_ref.tof[z.split('_')[-1]]
+                else:
+                    df.loc[folder_name, "total_production"] = kmc_output.total_production[z.split('_')[-1]]
+
             elif z == "selectivity":
                 df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
                                                                                 side_products=side_products)
                 df.loc[folder_name, "main_and_side_prod"] = kmc_output.total_production[main_product]
                 for side_product in side_products:
                     df.loc[folder_name, "main_and_side_prod"] += kmc_output.total_production[side_product]
+
             elif "coverage" in z:
                 if site_type == 'default':
                     site_type = list(parse_general_output(path)['site_types'].keys())[0]
@@ -143,13 +169,16 @@ def plot_contour(
                     df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
                 else:
                     df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][z.split('_')[-1]]
+
             elif z == "phase_diagram":
                 if site_type == 'default':
                     site_type = list(parse_general_output(path)['site_types'].keys())[0]
                 df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
                 df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+
             elif z == 'final_time':
                 df.loc[folder_name, "final_time"] = kmc_output.final_time
+
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = kmc_output.final_energy
             else:
@@ -157,23 +186,33 @@ def plot_contour(
 
         else:
             print(f"Files not found: {path}/general_output.txt")
+
             if "tof" in z:
-                df.loc[folder_name, "total_production"] = 0
                 df.loc[folder_name, "tof"] = float('NaN')
+                if "tof_difference" in z:
+                    df.loc[folder_name, "tof_ref"] = float('NaN')
+                else:
+                    df.loc[folder_name, "total_production"] = 0
+
             elif z == "selectivity":
                 df.loc[folder_name, "selectivity"] = float('NaN')
                 df.loc[folder_name, "main_and_side_prod"] = 0
+
             elif "coverage" in z:
                 df.loc[folder_name, "coverage"] = float('NaN')
+
             elif z == "phase_diagram":
                 df.loc[folder_name, "dominant_ads"] = float('NaN')
                 df.loc[folder_name, "coverage"] = 0
+
             elif z == 'final_time':
                 df.loc[folder_name, "final_time"] = float('NaN')
+
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = float('NaN')
 
     """ Set default values depending on the type of plot """
+
     if z == "phase_diagram":
         if surf_spec_values is None:
             surf_spec_names = sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names'])
@@ -184,7 +223,9 @@ def plot_contour(
             tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
 
     if cmap is None:
-        if "tof" in z or z == "final_time" or z == "final_energy":
+        if "tof_difference" in z:
+            cmap = "RdYlGn"
+        elif "tof" in z or z == "final_time" or z == "final_energy":
             cmap = "inferno"
         elif z == "selectivity":
             cmap = "Greens"
@@ -194,7 +235,9 @@ def plot_contour(
             cmap = "bwr"
 
     if levels is None:
-        if "tof" in z:
+        if "tof_difference" in z:
+            levels = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2]
+        elif "tof" in z:
             levels = [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]
         elif z == "selectivity" or "coverage" in z:
             levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -204,6 +247,7 @@ def plot_contour(
             levels = [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2]
 
     """ Prepare arrays for contourf or pcolormesh plots """
+
     log_x_list = np.sort(np.asarray(log_x_list))
     log_y_list = np.sort(np.asarray(log_y_list))
     x_list = 10.0 ** log_x_list
@@ -212,17 +256,29 @@ def plot_contour(
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     """ Plot data """
+
     for i, log_x in enumerate(log_x_list):
         for j, log_y in enumerate(log_y_list):
+
             if len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) > 1:
                 raise PlotError(
                     f"several folders have the same values of log_{x} ({log_x}) and log_{y} ({log_y})")
+
             elif len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) == 0:
                 print(f"Warning: folder for x = {x_list[i]} and y = {y_list[j]} missing, NaN assigned")
                 z_axis[j, i] = float('NaN')
+
             else:
                 folder_name = df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index[0]
-                if "tof" in z:
+
+                if "tof_difference" in z:
+                    tof_difference = abs(df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"])
+                    if df.loc[folder_name, "tof"] > df.loc[folder_name, "tof_ref"]:
+                        z_axis[j, i] = np.log10(tof_difference)
+                    else:
+                        z_axis[j, i] = - np.log10(tof_difference)
+
+                elif "tof" in z:
                     if min_molec != 0:
                         if df.loc[folder_name, "total_production"] > min_molec:
                             z_axis[j, i] = np.log10(df.loc[folder_name, "tof"])
@@ -230,24 +286,30 @@ def plot_contour(
                             z_axis[j, i] = float('NaN')
                     else:
                         z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10**min(levels)))
+
                 elif z == "selectivity":
                     if df.loc[folder_name, "main_and_side_prod"] > min_molec:
                         z_axis[j, i] = df.loc[folder_name, "selectivity"]
                     else:
                         z_axis[j, i] = float('NaN')
+
                 elif "coverage" in z:
                     z_axis[j, i] = df.loc[folder_name, "coverage"]
+
                 elif z == "phase_diagram":
                     if df.loc[folder_name, "coverage"] > min_coverage:
                         z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
                     else:
                         z_axis[j, i] = float('NaN')
+
                 elif z == 'final_time':
                     z_axis[j, i] = np.log10(df.loc[folder_name, "final_time"])
+
                 elif z == 'final_energy':
                     z_axis[j, i] = df.loc[folder_name, "final_energy"]
 
     """ Choose type of plot """
+
     if z == "phase_diagram":
         cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
         if show_colorbar:
@@ -267,36 +329,50 @@ def plot_contour(
     ax.set_ylim(np.min(y_list), np.max(y_list))
 
     """ Update axis scales, titles and facecolor """
+
     if "pressure" in x:
         ax.set_xscale('log')
         ax.set_xlabel('$p_{' + x.split('_')[-1] + '}$ (bar)')
     else:
         ax.set_xlabel('$T$ (K)')
+
     if "pressure" in y:
         ax.set_yscale('log')
         ax.set_ylabel('$p_{' + y.split('_')[-1] + '}$ (bar)')
     else:
         ax.set_ylabel('$T$ (K)')
-    if "tof" in z:
+
+    if "tof_difference" in z:
+        formated_gas_species = convert_to_subscript(chemical_formula=z.split('_')[-1])
+        ax.set_title(f"log∆TOF ${formated_gas_species}$", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
+
+    elif "tof" in z:
         formated_gas_species = convert_to_subscript(chemical_formula=z.split('_')[-1])
         ax.set_title(f"logTOF ${formated_gas_species}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
+
     elif z == "selectivity":
         formated_main_product= convert_to_subscript(chemical_formula=main_product)
         ax.set_title(f"${formated_main_product}$ selectivity (%)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
+
     elif "coverage" in z:
         ax.set_title(f"coverage ${site_type}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+
     elif z == "phase_diagram":
         ax.set_title(f"phase diagram ${site_type}$", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
+
     elif z == "final_time":
         ax.set_title(f"final time ($s$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+
     elif z == "final_energy":
         ax.set_title("final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
@@ -304,7 +380,7 @@ def plot_contour(
     if show_points:
         for i in x_list:
             for j in y_list:
-                ax.plot(i, j, marker='.', color='w')
+                ax.plot(i, j, marker='.', color='w', markersize=3)
 
     return ax
 
