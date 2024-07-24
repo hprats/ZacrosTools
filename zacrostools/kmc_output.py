@@ -4,34 +4,59 @@ from zacrostools.read_functions import parse_general_output, get_data_specnum, g
 from zacrostools.custom_exceptions import *
 
 
-def reduce_size(arr, factor=4):
-    return arr[::factor]
+def detect_issues(path, plot=False):
 
+    energy_slope_threshold = 5.0e-10  # eV/Å²/step
+    time_linear_fit_threshold = 0.95
 
-def detect_issues(path, reduce_factor=4, plot=False):
+    def reduce_size(time, energy, nevents, size=100):
+        if len(nevents) <= size:
+            return time, energy, nevents
+        else:
+            indices = np.round(np.linspace(0, len(nevents) - 1, size)).astype(int)
+            return time[indices], energy[indices], nevents[indices]
 
     kmc_output = KMCOutput(path=path, window_type='nevents', window_limits=[40.0, 100.0], weights='events')
 
-    # Reduce the size of the arrays by a factor of 4
-    nevents = reduce_size(arr=kmc_output.nevents, factor=reduce_factor)
-    time = reduce_size(arr=kmc_output.time, factor=reduce_factor)
-    energy = reduce_size(arr=kmc_output.energy, factor=reduce_factor)
+    # Reduce arrays to 100 elements if necessary
+    time_reduced, energy_reduced, nevents_reduced = reduce_size(time=kmc_output.time,
+                                                                energy=kmc_output.energy,
+                                                                nevents=kmc_output.nevents)
 
     # Calculate differences
-    energy_diff = np.diff(energy)
-    time_diff = np.diff(time)
+    energy_diff = np.diff(energy_reduced)  # First differences for energy
+    time_diff = np.diff(time_reduced)  # First differences for time
 
     # Calculate second differences for time to detect changes in the slope
     time_diff2 = np.diff(time_diff)
 
     # Define thresholds for detecting issues
-    energy_threshold = np.std(energy_diff) * 5  # Arbitrary threshold
-    time_threshold = np.std(time_diff2) * 5  # Arbitrary threshold
+    energy_threshold = np.std(energy_diff) * 10  # Arbitrary threshold
+    time_threshold = np.std(time_diff2) * 10  # Arbitrary threshold
 
     energy_issues = np.abs(energy_diff) > energy_threshold
     time_issues = np.abs(time_diff2) > time_threshold
 
-    has_issues = np.any(energy_issues) or np.any(time_issues)
+    # Check for a positive trend in energy using linear regression
+    coeffs_energy = np.polyfit(nevents_reduced, energy_reduced, 1)
+    slope_energy = coeffs_energy[0]
+    energy_positive_trend = slope_energy > energy_slope_threshold
+
+    # Perform linear regression on time vs. nevents
+    coeffs_time = np.polyfit(nevents_reduced, time_reduced, 1)
+    slope_time = coeffs_time[0]
+    intercept_time = coeffs_time[1]
+    time_predicted = slope_time * nevents_reduced + intercept_time
+    r_squared_time = np.corrcoef(time_reduced, time_predicted)[0, 1] ** 2
+    time_not_linear = r_squared_time < time_linear_fit_threshold
+
+    # Detect issues
+    has_issues = (np.any(energy_issues) or np.any(time_issues) or
+                  energy_positive_trend or time_not_linear)
+
+    # Sometimes a simulation with no issues have very low std and leads to a false positive.
+    if abs(np.max(kmc_output.energy) - np.min(kmc_output.energy)) < 0.05:
+        has_issues = False
 
     if plot:
         # Plot energy_diff and time_diff2
@@ -39,7 +64,7 @@ def detect_issues(path, reduce_factor=4, plot=False):
 
         # Plot energy_diff
         plt.subplot(2, 1, 1)
-        plt.plot(nevents[:-1], energy_diff, label='Energy Differences (eV/Å²)')
+        plt.plot(nevents_reduced[:-1], energy_diff, label='Energy Differences (eV/Å²)')
         plt.axhline(y=energy_threshold, color='black', linestyle='--', label='Threshold')
         plt.axhline(y=-energy_threshold, color='black', linestyle='--')
         plt.xlabel('Number of Events')
@@ -49,7 +74,7 @@ def detect_issues(path, reduce_factor=4, plot=False):
 
         # Plot time_diff2
         plt.subplot(2, 1, 2)
-        plt.plot(nevents[:-2], time_diff2, label='Second Differences of Time (s)', color='orange')
+        plt.plot(nevents_reduced[:-2], time_diff2, label='Second Differences of Time (s)', color='orange')
         plt.axhline(y=time_threshold, color='black', linestyle='--', label='Threshold')
         plt.axhline(y=-time_threshold, color='black', linestyle='--')
         plt.xlabel('Number of Events')

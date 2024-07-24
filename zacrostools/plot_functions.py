@@ -112,7 +112,7 @@ def plot_contour(
 
         if os.path.isfile(f"{path}/general_output.txt"):
 
-            if z == 'blowup':
+            if z == 'has_issues':
                 kmc_output = None
             else:
                 kmc_output = KMCOutput(path=path, window_type=window_type, window_limits=window_limits, weights=weights)
@@ -189,10 +189,10 @@ def plot_contour(
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = kmc_output.final_energy
 
-            elif z == 'blowup':
-                df.loc[folder_name, "blowup"] = detect_issues(path, reduce_factor=4, plot=False)
-                if verbose:
-                    print(f"Blowup: {path}")
+            elif z == 'has_issues':
+                df.loc[folder_name, "has_issues"] = detect_issues(path, plot=False)
+                if df.loc[folder_name, "has_issues"]:
+                    print(f"issue_detected: {path}")
 
 
             else:
@@ -227,8 +227,8 @@ def plot_contour(
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = float('NaN')
 
-            elif z == 'blowup':
-                df.loc[folder_name, "blowup"] = float('NaN')
+            elif z == 'has_issues':
+                df.loc[folder_name, "has_issues"] = float('NaN')
 
     """ Set default values depending on the type of plot """
 
@@ -242,7 +242,7 @@ def plot_contour(
             tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
 
     if cmap is None:
-        if "tof_difference" in z or z == "blowup":
+        if "tof_difference" in z or z == "has_issues":
             cmap = "RdYlGn"
         elif "tof" in z or z == "final_time" or z == "final_energy":
             cmap = "inferno"
@@ -327,8 +327,8 @@ def plot_contour(
                 elif z == 'final_energy':
                     z_axis[j, i] = df.loc[folder_name, "final_energy"]
 
-                elif z == 'blowup':
-                    if df.loc[folder_name, "blowup"]:
+                elif z == 'has_issues':
+                    if df.loc[folder_name, "has_issues"]:
                         z_axis[j, i] = -0.5
                     else:
                         z_axis[j, i] = 0.5
@@ -343,12 +343,12 @@ def plot_contour(
                                 format=mticker.FixedFormatter(tick_labels))
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
-    elif z == "blowup":
+    elif z == "has_issues":
         cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
         if show_colorbar:
             cbar = plt.colorbar(cp, ax=ax, ticks=[-0.5, 0.5], spacing='proportional',
                                 boundaries=[-1, 0, 1],
-                                format=mticker.FixedFormatter(['blowup', 'OK']))
+                                format=mticker.FixedFormatter(['Yes', 'No']))
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
     else:
@@ -410,8 +410,8 @@ def plot_contour(
         ax.set_title("final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
 
-    elif z == "blowup":
-        ax.set_title("blowups", y=1.0, pad=-14, color="w",
+    elif z == "has_issues":
+        ax.set_title("has_issues", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
 
