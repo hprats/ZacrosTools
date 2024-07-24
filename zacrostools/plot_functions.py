@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from glob import glob
-from zacrostools.kmc_output import KMCOutput
+from zacrostools.kmc_output import KMCOutput, detect_issues
 from zacrostools.read_functions import get_partial_pressures, parse_general_output, parse_simulation_input
 from zacrostools.custom_exceptions import *
 import matplotlib.pyplot as plt
@@ -28,7 +28,8 @@ def plot_contour(
         min_coverage: Union[float, int] = 20.0, surf_spec_values: Union[dict, None] = None,
         tick_values: Union[list, None] = None, tick_labels: Union[list, None] = None,
         # Extra arguments for all plots except final time and final energy (optional)
-        ignore: Union[float, int] = 0.0, weights: Union[str, None] = None,
+        window_type: str = 'time',  window_limits: Union[list, None] = None, verbose: bool = False,
+        weights: Union[str, None] = None,
         # Extra arguments for all plots (optional)
         cmap: Union[str, None] = None, show_points: bool = False, show_colorbar: bool = True):
     """
@@ -54,7 +55,7 @@ def plot_contour(
              0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and '[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for
              selectivity plots.
         min_molec: int, only for tof and selectivity plots (optional)
-            Defines a minimum number of product (if z = 'tof_Z') or main_product + side_products (if z = 'selectivity'
+            Defines a minimum number of product (if z = 'tof_Z') or main_product + side_products (if z = 'selectivity')
             molecules in order to calculate and plot either the tof or the selectivity. If the number of molecules is
             lower, the value of tof or selectivity at that point will be NaN. If min_molec=0, no threshold will be
             applied and any value of tof lower than min(levels) will be set to that value. Default: 0
@@ -76,8 +77,9 @@ def plot_contour(
             List of tick values for the colorbar in phase diagrams. If None, ticks are determined automatically from
             the input. Default: None.
         tick_labels: list, only for phase diagrams (optional)
-        ignore: float (optional)
-            Ignore first % of simulated time, i.e., equilibration (in %). Default value: 0.0.
+        time_window: list (optional)
+            Time window (in % of simulated time) to compute averages and TOF. If None, all the simulated time is
+            considered. Default value: None.
         weights: str (optional)
             Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
             Default value: None.
@@ -109,11 +111,16 @@ def plot_contour(
         folder_name = path.split('/')[-1]
 
         if os.path.isfile(f"{path}/general_output.txt"):
-            kmc_output = KMCOutput(path=path, ignore=ignore, weights=weights)
+
+            if z == 'blowup':
+                kmc_output = None
+            else:
+                kmc_output = KMCOutput(path=path, window_type=window_type, window_limits=window_limits, weights=weights)
 
             kmc_output_ref = None
             if "tof_difference" in z:
-                kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", ignore=ignore, weights=weights)
+                kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_type=window_type,
+                                           window_limits=window_limits, weights=weights)
 
             """ Read value for x"""
 
@@ -181,11 +188,20 @@ def plot_contour(
 
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = kmc_output.final_energy
+
+            elif z == 'blowup':
+                df.loc[folder_name, "blowup"] = detect_issues(path, reduce_factor=4, plot=False)
+                if verbose:
+                    print(f"Blowup: {path}")
+
+
             else:
                 raise PlotError("Incorrect value for z")
 
         else:
             print(f"Files not found: {path}/general_output.txt")
+
+            # todo: I think this is ignored ...
 
             if "tof" in z:
                 df.loc[folder_name, "tof"] = float('NaN')
@@ -211,6 +227,9 @@ def plot_contour(
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = float('NaN')
 
+            elif z == 'blowup':
+                df.loc[folder_name, "blowup"] = float('NaN')
+
     """ Set default values depending on the type of plot """
 
     if z == "phase_diagram":
@@ -223,7 +242,7 @@ def plot_contour(
             tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
 
     if cmap is None:
-        if "tof_difference" in z:
+        if "tof_difference" in z or z == "blowup":
             cmap = "RdYlGn"
         elif "tof" in z or z == "final_time" or z == "final_energy":
             cmap = "inferno"
@@ -308,6 +327,12 @@ def plot_contour(
                 elif z == 'final_energy':
                     z_axis[j, i] = df.loc[folder_name, "final_energy"]
 
+                elif z == 'blowup':
+                    if df.loc[folder_name, "blowup"]:
+                        z_axis[j, i] = -0.5
+                    else:
+                        z_axis[j, i] = 0.5
+
     """ Choose type of plot """
 
     if z == "phase_diagram":
@@ -316,6 +341,14 @@ def plot_contour(
             cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
                                 boundaries=[n for n in range(len(tick_labels) + 1)],
                                 format=mticker.FixedFormatter(tick_labels))
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
+    elif z == "blowup":
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax, ticks=[-0.5, 0.5], spacing='proportional',
+                                boundaries=[-1, 0, 1],
+                                format=mticker.FixedFormatter(['blowup', 'OK']))
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
     else:
@@ -355,7 +388,7 @@ def plot_contour(
         ax.set_facecolor("lightgray")
 
     elif z == "selectivity":
-        formated_main_product= convert_to_subscript(chemical_formula=main_product)
+        formated_main_product = convert_to_subscript(chemical_formula=main_product)
         ax.set_title(f"${formated_main_product}$ selectivity (%)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
@@ -376,6 +409,11 @@ def plot_contour(
     elif z == "final_energy":
         ax.set_title("final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+
+    elif z == "blowup":
+        ax.set_title("blowups", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
 
     if show_points:
         for i in x_list:

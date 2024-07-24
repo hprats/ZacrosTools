@@ -39,6 +39,9 @@ All KMC results can be obtained from the different `KMCOutput` attributes.
 - **area** (*float*): Lattice surface area (in Å²).
 - **site_types** (*dict*): Site type names and the total number of sites of each type.
 
+### Events
+- **nevents** (*np.Array*): Number of KMC events occurred.
+
 ### Simulated Time
 - **time** (*np.Array*): Simulated time (in seconds).
 - **final_time** (*float*): Final simulated time (in seconds).

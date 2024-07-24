@@ -57,6 +57,7 @@ Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scan
   - `'temperature'`
 - **z** (*str*): Magnitude to plot on the z-axis. Possible values:
   - `'tof_Z'`, where `Z` is a gas species
+  - `'tof_difference_Z'`, where `Z` is a gas species
   - `'selectivity'`
   - `'coverage_Z'`, where `Z` is a surface species
   - `'coverage_total'`
@@ -71,6 +72,9 @@ Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scan
   - Default: `'[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]'` for selectivity plots.
 - **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
   - Default: `0`.
+- **scan_path_ref** (*str*): Path of the directory containing all reference scan jobs (only required for toff 
+difference plots).
+  - Default: `None`.
 - **main_product** (*str*, required for selectivity plots): Main product to calculate the selectivity.
 - **side_products** (*list*, required for selectivity plots): List of side products to calculate the selectivity.
 - **site_type** (*str*): Name of site type for coverage and phase diagrams.
@@ -113,6 +117,7 @@ ignore = 30
 min_molec = 5
 x = "pressure_CO"
 y = "pressure_H2O"
+scan_path = '/scan_WGS_1000K'
 
 fig, axs = plt.subplots(3, 4, figsize=(11, 6), sharey='row', sharex='col')
 

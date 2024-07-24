@@ -1,6 +1,6 @@
 import numpy as np
-from zacrostools.calc_functions import find_nearest
 from zacrostools.custom_exceptions import EnergeticModelError
+from zacrostools.custom_exceptions import KMCOutputError
 
 
 def parse_general_output(path):
@@ -74,13 +74,23 @@ def get_partial_pressures(path):
     return partial_pressures
 
 
-def get_data_specnum(path, ignore=0.0):
+def get_data_specnum(path, window_type, window_limits):
+    if window_type == 'time':
+        column_index = 2
+    elif window_type == 'nevents':
+        column_index = 1
+    else:
+        raise KMCOutputError("'window_type' must be either 'time' or 'nevents'")
+
     with open(f"{path}/specnum_output.txt", "r") as infile:
         header = infile.readline().split()
-    full_data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
-    index = np.where(full_data[:, 2] == find_nearest(full_data[:, 2], float(full_data[-1, 2] * ignore / 100)))[0][0]
-    data = np.delete(full_data, slice(0, index), 0)
-    return data, header
+    data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
+    column = data[:, column_index]
+    final_value = column[-1]
+    value_initial_percent = window_limits[0] / 100.0 * final_value
+    value_final_percent = window_limits[1] / 100.0 * final_value
+    data_slice = data[(column >= value_initial_percent) & (column <= value_final_percent)]
+    return data_slice, header
 
 
 def get_step_names(path):
@@ -191,4 +201,3 @@ def get_species_sites_dict(path):
                 inside_block = False
 
     return species_sites_dict
-
