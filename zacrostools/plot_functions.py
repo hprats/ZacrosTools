@@ -192,7 +192,7 @@ def plot_contour(
             elif z == 'has_issues':
                 df.loc[folder_name, "has_issues"] = detect_issues(path, plot=False)
                 if df.loc[folder_name, "has_issues"]:
-                    print(f"issue_detected: {path}")
+                    print(f"Issue detected: {path}")
 
 
             else:
@@ -411,7 +411,7 @@ def plot_contour(
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
 
     elif z == "has_issues":
-        ax.set_title("has_issues", y=1.0, pad=-14, color="w",
+        ax.set_title("issues", y=1.0, pad=-14, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
         ax.set_facecolor("lightgray")
 
