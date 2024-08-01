@@ -28,7 +28,7 @@ def plot_contour(
         min_coverage: Union[float, int] = 20.0, surf_spec_values: Union[dict, None] = None,
         tick_values: Union[list, None] = None, tick_labels: Union[list, None] = None,
         # Extra arguments for all plots except final time and final energy (optional)
-        window_type: str = 'time',  window_limits: Union[list, None] = None, verbose: bool = False,
+        window_percent: Union[list, None] = None, window_type: str = 'time',  verbose: bool = False,
         weights: Union[str, None] = None,
         # Extra arguments for all plots (optional)
         cmap: Union[str, None] = None, show_points: bool = False, show_colorbar: bool = True):
@@ -77,18 +77,26 @@ def plot_contour(
             List of tick values for the colorbar in phase diagrams. If None, ticks are determined automatically from
             the input. Default: None.
         tick_labels: list, only for phase diagrams (optional)
-        time_window: list (optional)
-            Time window (in % of simulated time) to compute averages and TOF. If None, all the simulated time is
-            considered. Default value: None.
+        window_percent: list
+            A list of two elements [initial_percent, final_percent] specifying the window of the total simulation. The
+            values should be between 0 and 100, representing the percentage of the total simulated time or the total
+            number of events to be considered. Default: [0, 100]
+        window_type: str
+            The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Can be 'time' or 'nevents'.
+            - 'time': Apply a window over the simulated time.
+            - 'nevents': Apply a window over the number of simulated events.
         weights: str (optional)
             Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
-            Default value: None.
+            Default: None.
+        verbose: bool (optional)
+            If True, print path of simulation files when issues are detected. Default: False.
         cmap: str (optional)
             The Colormap or instance or registered colormap name used to map scalar data to colors.
         show_points: bool (optional)
-            If True, show the grid points as black dots. Default value: False.
+            If True, show the grid points as black dots. Default: False.
         show_colorbar: bool (optional)
-            If True, show the colorbar. Default value: True.
+            If True, show the colorbar. Default: True.
+
     """
 
     """ Check if extra required attributes are provided """
@@ -107,6 +115,7 @@ def plot_contour(
     log_y_list = []
     df = pd.DataFrame()
 
+    num_issues_detected = 0
     for path in glob(f"{scan_path}/*"):
         folder_name = path.split('/')[-1]
 
@@ -115,12 +124,13 @@ def plot_contour(
             if z == 'has_issues':
                 kmc_output = None
             else:
-                kmc_output = KMCOutput(path=path, window_type=window_type, window_limits=window_limits, weights=weights)
+                kmc_output = KMCOutput(path=path, window_percent=window_percent, window_type=window_type,
+                                       weights=weights)
 
             kmc_output_ref = None
             if "tof_difference" in z:
-                kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_type=window_type,
-                                           window_limits=window_limits, weights=weights)
+                kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
+                                           window_type=window_type, weights=weights)
 
             """ Read value for x"""
 
@@ -190,18 +200,16 @@ def plot_contour(
                 df.loc[folder_name, "final_energy"] = kmc_output.final_energy
 
             elif z == 'has_issues':
-                df.loc[folder_name, "has_issues"] = detect_issues(path, plot=False)
-                if df.loc[folder_name, "has_issues"]:
-                    print(f"Issue detected: {path}")
-
+                df.loc[folder_name, "has_issues"] = detect_issues(path)
+                if df.loc[folder_name, "has_issues"] and verbose:
+                    num_issues_detected += 1
+                    print(f"Issue {num_issues_detected} detected: {path}")
 
             else:
                 raise PlotError("Incorrect value for z")
 
         else:
             print(f"Files not found: {path}/general_output.txt")
-
-            # todo: I think this is ignored ...
 
             if "tof" in z:
                 df.loc[folder_name, "tof"] = float('NaN')
@@ -328,7 +336,9 @@ def plot_contour(
                     z_axis[j, i] = df.loc[folder_name, "final_energy"]
 
                 elif z == 'has_issues':
-                    if df.loc[folder_name, "has_issues"]:
+                    if np.isnan(df.loc[folder_name, "has_issues"]):
+                        z_axis[j, i] = float('NaN')
+                    elif df.loc[folder_name, "has_issues"]:
                         z_axis[j, i] = -0.5
                     else:
                         z_axis[j, i] = 0.5

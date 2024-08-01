@@ -74,7 +74,7 @@ def get_partial_pressures(path):
     return partial_pressures
 
 
-def get_data_specnum(path, window_type, window_limits):
+def get_data_specnum(path, window_percent, window_type):
     if window_type == 'time':
         column_index = 2
     elif window_type == 'nevents':
@@ -87,8 +87,8 @@ def get_data_specnum(path, window_type, window_limits):
     data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
     column = data[:, column_index]
     final_value = column[-1]
-    value_initial_percent = window_limits[0] / 100.0 * final_value
-    value_final_percent = window_limits[1] / 100.0 * final_value
+    value_initial_percent = window_percent[0] / 100.0 * final_value
+    value_final_percent = window_percent[1] / 100.0 * final_value
     data_slice = data[(column >= value_initial_percent) & (column <= value_final_percent)]
     return data_slice, header
 

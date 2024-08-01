@@ -41,8 +41,9 @@ class EnergeticModel:
                 infile.write(f"cluster {cluster}\n\n")
                 lattice_state = self.df.loc[cluster, 'lattice_state']
                 infile.write(f"  sites {len(lattice_state)}\n")
-                if not pd.isnull(self.df.loc[cluster, 'neighboring']):
-                    infile.write(f"  neighboring {self.df.loc[cluster, 'neighboring']}\n")
+                if 'neighboring' in self.df.columns:
+                    if not pd.isnull(self.df.loc[cluster, 'neighboring']):
+                        infile.write(f"  neighboring {self.df.loc[cluster, 'neighboring']}\n")
                 infile.write(f"  lattice_state\n")
                 for element in lattice_state:
                     infile.write(f"    {' '.join(element.split())}\n")

@@ -1,13 +1,14 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from zacrostools.read_functions import parse_general_output, get_data_specnum, get_species_sites_dict
 from zacrostools.custom_exceptions import *
 
 
-def detect_issues(path, plot=False):
+def detect_issues(path):
 
+    min_window_percent = 30.0
     energy_slope_threshold = 5.0e-10  # eV/Å²/step
     time_linear_fit_threshold = 0.95
+    num_std_energy = 8
 
     def reduce_size(time, energy, nevents, size=100):
         if len(nevents) <= size:
@@ -16,31 +17,18 @@ def detect_issues(path, plot=False):
             indices = np.round(np.linspace(0, len(nevents) - 1, size)).astype(int)
             return time[indices], energy[indices], nevents[indices]
 
-    kmc_output = KMCOutput(path=path, window_type='nevents', window_limits=[40.0, 100.0], weights='events')
+    kmc_output = KMCOutput(path=path, window_percent=[min_window_percent, 100.0],
+                           window_type='nevents', weights='events')
 
     # Reduce arrays to 100 elements if necessary
     time_reduced, energy_reduced, nevents_reduced = reduce_size(time=kmc_output.time,
                                                                 energy=kmc_output.energy,
                                                                 nevents=kmc_output.nevents)
 
-    # Calculate differences
-    energy_diff = np.diff(energy_reduced)  # First differences for energy
-    time_diff = np.diff(time_reduced)  # First differences for time
-
-    # Calculate second differences for time to detect changes in the slope
-    time_diff2 = np.diff(time_diff)
-
-    # Define thresholds for detecting issues
-    energy_threshold = np.std(energy_diff) * 10  # Arbitrary threshold
-    time_threshold = np.std(time_diff2) * 10  # Arbitrary threshold
-
-    energy_issues = np.abs(energy_diff) > energy_threshold
-    time_issues = np.abs(time_diff2) > time_threshold
-
-    # Check for a positive trend in energy using linear regression
+    # Check for a positive or negative trend in energy using linear regression
     coeffs_energy = np.polyfit(nevents_reduced, energy_reduced, 1)
     slope_energy = coeffs_energy[0]
-    energy_positive_trend = slope_energy > energy_slope_threshold
+    energy_trend = abs(slope_energy) > energy_slope_threshold
 
     # Perform linear regression on time vs. nevents
     coeffs_time = np.polyfit(nevents_reduced, time_reduced, 1)
@@ -50,58 +38,30 @@ def detect_issues(path, plot=False):
     r_squared_time = np.corrcoef(time_reduced, time_predicted)[0, 1] ** 2
     time_not_linear = r_squared_time < time_linear_fit_threshold
 
+    # Detect patterns with U shape in the energy plot at the beginning of the simulation
+    kmc_output_full = KMCOutput(path=path, window_percent=[0.0, 100.0], window_type='nevents', weights='events')
+    min_energy = np.min(kmc_output_full.energy)
+    max_energy = np.max(kmc_output_full.energy)
+    energy_diff = np.diff(energy_reduced)  # First differences for energy
+    if kmc_output.av_energy > 0:
+        initial_energy_issues = ((max_energy - kmc_output.av_energy) > num_std_energy * np.std(energy_diff) or
+                                 min_energy < -1.0 * num_std_energy * np.std(energy_diff))
+    else:
+        initial_energy_issues = (abs(min_energy - kmc_output.av_energy) > num_std_energy * np.std(energy_diff) or
+                                 max_energy > num_std_energy * np.std(energy_diff))
+
     # Detect issues
-    has_issues = (np.any(energy_issues) or np.any(time_issues) or
-                  energy_positive_trend or time_not_linear)
+    has_issues = energy_trend or time_not_linear or initial_energy_issues
 
     # Sometimes a simulation with no issues have very low std and leads to a false positive.
-    if abs(np.max(kmc_output.energy) - np.min(kmc_output.energy)) < 0.05:
-        has_issues = False
-
-    if plot:
-        # Plot energy_diff and time_diff2
-        plt.figure(figsize=(12, 6))
-
-        # Plot energy_diff
-        plt.subplot(2, 1, 1)
-        plt.plot(nevents_reduced[:-1], energy_diff, label='Energy Differences (eV/Å²)')
-        plt.axhline(y=energy_threshold, color='black', linestyle='--', label='Threshold')
-        plt.axhline(y=-energy_threshold, color='black', linestyle='--')
-        plt.xlabel('Number of Events')
-        plt.ylabel('Energy Differences (eV/Å²)')
-        plt.title('Energy Differences vs. Number of Events')
-        plt.legend()
-
-        # Plot time_diff2
-        plt.subplot(2, 1, 2)
-        plt.plot(nevents_reduced[:-2], time_diff2, label='Second Differences of Time (s)', color='orange')
-        plt.axhline(y=time_threshold, color='black', linestyle='--', label='Threshold')
-        plt.axhline(y=-time_threshold, color='black', linestyle='--')
-        plt.xlabel('Number of Events')
-        plt.ylabel('Second Differences of Time (s)')
-        plt.title('Second Differences of Time vs. Number of Events')
-        plt.legend()
-
-        plt.tight_layout()
-        plt.show()
+    # if abs(np.max(kmc_output.energy) - np.min(kmc_output.energy)) < 0.05:
+    #    has_issues = False
 
     return has_issues
 
 
 class KMCOutput:
     """A class that represents a KMC output
-
-    Parameters
-    ----------
-    path: str
-        Path of the directory containing the output files.
-    time_window: list (optional)
-        Time window (in % of simulated time) to compute averages and TOF. If None, all the simulated time is considered.
-        Default value: None.
-    weights: str (optional)
-        Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
-        Default value: None.
-
 
     Attributes
     ----------
@@ -160,12 +120,30 @@ class KMCOutput:
     """
 
     @enforce_types
-    def __init__(self, path: str, window_type: str = 'time',  window_limits: Union[list, None] = None,
+    def __init__(self, path: str, window_percent: Union[list, None] = None, window_type: str = 'time',
                  weights: Union[str, None] = None):
 
+        """
+        Parameters
+        ----------
+        path: str
+            The path where the output files are located.
+        window_percent: list
+            A list of two elements [initial_percent, final_percent] specifying the window of the total simulation. The
+            values should be between 0 and 100, representing the percentage of the total simulated time or the total
+            number of events to be considered. Default: [0, 100]
+        window_type: str
+            The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Can be 'time' or 'nevents'.
+            - 'time': Apply a window over the simulated time.
+            - 'nevents': Apply a window over the number of simulated events.
+        weights: str (optional)
+            Weights for calculating the weighted average. Possible values: 'time', 'events', None. If None, all weights
+            are set to 1. Default value: None.
+        """
+
         self.path = path
-        if window_limits is None:
-            window_limits = [0.0, 100.0]
+        if window_percent is None:
+            window_percent = [0.0, 100.0]
 
         # Get data from general_output.txt file
         data_general = parse_general_output(path)
@@ -178,7 +156,7 @@ class KMCOutput:
         self.site_types = data_general['site_types']
 
         # Get data from specnum_output.txt file
-        data_specnum, header = get_data_specnum(path=path, window_type=window_type, window_limits=window_limits)
+        data_specnum, header = get_data_specnum(path=path, window_percent=window_percent, window_type=window_type)
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
         self.final_time = data_specnum[-1, 2]
