@@ -52,8 +52,9 @@ class ReactionModel:
                 if not pd.isna(self.df.loc[step, 'molecule']):
                     infile.write(f"  gas_reacs_prods {self.df.loc[step, 'molecule']} -1\n")
                 infile.write(f"  sites {len(initial_state)}\n")
-                if not pd.isna(self.df.loc[step, 'neighboring']):
-                    infile.write(f"  neighboring {self.df.loc[step, 'neighboring']}\n")
+                if 'neighboring' in self.df.columns:
+                    if not pd.isna(self.df.loc[step, 'neighboring']):
+                        infile.write(f"  neighboring {self.df.loc[step, 'neighboring']}\n")
                 infile.write(f"  initial\n")
                 for element in initial_state:
                     infile.write(f"    {' '.join(element.split())}\n")   # remove additional white spaces
