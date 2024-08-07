@@ -81,18 +81,26 @@ difference plots).
   - Default: `'default'`.
 - **min_coverage** (*float*): Minimum total coverage to plot the dominant surface species on a phase diagram.
   - Default: `20.0`.
-- **surf_species_values** (*dict*): Surface species with their corresponding values for phase diagrams. If `None`, 
-surf_species_values are determined automatically from the output data.
-  - Example: `{'C': 0.5, 'CO': 1.5, 'CO2': 2.5, 'O': 3.5}`.
+- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all surface species 
+will be included. Default: `None`.
   - Default: `None`.
 - **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
 automatically from the output data.
   - Default: `None`.
+- **tick_values** (*list*): List of tick values for the colorbar in phase diagrams. If `None`, ticks are determined 
+automatically from the input. 
+  - Default: `None`.
 - **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
 automatically from the output data.
   - Default: `None`.
-- **ignore** (*float*): Ignore first % of simulated time, i.e., equilibration.
-  - Default value: `0.0`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
 - **weights** (*str*): Weights for the averages. Possible values:
   - `'time'`
   - `'events'`
