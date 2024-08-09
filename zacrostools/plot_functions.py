@@ -11,95 +11,67 @@ import matplotlib.ticker as mticker
 
 
 @enforce_types
-def plot_contour(
-        # Mandatory arguments for all plots
-        ax, scan_path: str, x: str, y: str, z: str,
-        # Extra arguments for all plots except phase diagrams (optional)
-        levels: Union[list, None] = None,
-        # Extra arguments for tof and selectivity plots (optional)
-        min_molec: int = 0,
-        # Extra arguments for tof difference plots (required)
-        scan_path_ref: Union[str, None] = None,
-        # Extra arguments for selectivity plots (required)
-        main_product: Union[str, None] = None, side_products: Union[list, None] = None,
-        # Extra arguments for coverage plots and phasediagram plots (optional)
-        site_type: Union[str, None] = 'default',
-        # Extra arguments for phasediagram plots (optional)
-        min_coverage: Union[float, int] = 20.0, surf_spec_values: Union[dict, None] = None,
-        tick_values: Union[list, None] = None, tick_labels: Union[list, None] = None,
-        # Extra arguments for all plots except final time and final energy (optional)
-        window_percent: Union[list, None] = None, window_type: str = 'time',  verbose: bool = False,
-        weights: Union[str, None] = None,
-        # Extra arguments for all plots (optional)
-        cmap: Union[str, None] = None, show_points: bool = False, show_colorbar: bool = True):
-    """
-    Pass a figure object and return an updated figure with a contour plot on it .
+def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
+                 levels: list = None, min_molec: int = 0,
+                 scan_path_ref: str = None, main_product: str = None, side_products: list = None,
+                 site_type: str = 'default', min_coverage: float = 20.0,
+                 surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
+                 window_percent=None, window_type: str = 'time', verbose: bool = False,
+                 weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True):
 
+    """
+    Creates a contour or pcolormesh plot based on KMC simulation data.
 
     Parameters
     ----------
-        ax: matplotlib.axes.Axes
-            Axis object where the contour plot should be created.
-        scan_path: str
-            Path of the directory containing all the scan jobs.
-        x: str
-            Magnitude to plot in the x-axis. Possible values: 'pressure_X' (where X is a gas species) or 'temperature'.
-        y: str
-            Magnitude to plot in the y-axis. Possible values: 'pressure_Y' (where Y is a gas species) or 'temperature'.
-        z: str
-            Magnitude to plot in the z-axis. Possible values: 'tof_Z' (where Z is a gas species), 'tof_difference_Z'
-            (where Z is a gas species),'selectivity', 'coverage_Z' (where Z is a surface species), 'coverage_total',
-            'phase_diagram', 'final_time' or 'final_energy'.
-        levels: list, only for tof, selectivity and coverage plots (optional)
-            Determines the number and positions of the contour lines / regions. Default: '[-3, -2.5, -2, -1.5, -1, -0.5,
-             0, 0.5, 1, 1.5, 2, 2.5, 3]' for tof plots and '[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]' for
-             selectivity plots.
-        min_molec: int, only for tof and selectivity plots (optional)
-            Defines a minimum number of product (if z = 'tof_Z') or main_product + side_products (if z = 'selectivity')
-            molecules in order to calculate and plot either the tof or the selectivity. If the number of molecules is
-            lower, the value of tof or selectivity at that point will be NaN. If min_molec=0, no threshold will be
-            applied and any value of tof lower than min(levels) will be set to that value. Default: 0
-        scan_path_ref: str, required for tof difference plots
-            Path of the directory containing all the reference scan jobs.
-        main_product: str, only for selectivity plots (required)
-            Main product to calculate the selectivity.
-        side_products: list, only for selectivity plots (required)
-            List of side products to calculate the selectivity.
-        site_type: str, only for coverage and phase diagrams (optional)
-            Name of site type. For default lattice models or lattice models with only one site type site_type =
-            'default' can be used. Default: 'default'.
-        min_coverage: float, only for phase diagrams (optional)
-            Minimum total coverage to plot the dominant surface species on a phase diagram. Default: 20.0.
-        surf_spec_values: list, only for phase diagrams (optional)
-            List of surface species to include in the phase diagram. If None, all surface species
-            will be included. Default: None.
-        tick_values: list, only for phase diagrams (optional)
-            List of tick values for the colorbar in phase diagrams. If None, ticks are determined automatically from
-            the input. Default: None.
-        tick_labels: list, only for phase diagrams (optional)
-        window_percent: list
-            A list of two elements [initial_percent, final_percent] specifying the window of the total simulation. The
-            values should be between 0 and 100, representing the percentage of the total simulated time or the total
-            number of events to be considered. Default: [0, 100]
-        window_type: str
-            The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Can be 'time' or 'nevents'.
-            - 'time': Apply a window over the simulated time.
-            - 'nevents': Apply a window over the number of simulated events.
-        weights: str (optional)
-            Weights for the averages. Possible values: 'time', 'events', None. If None, all weights are set to 1.
-            Default: None.
-        verbose: bool (optional)
-            If True, print path of simulation files when issues are detected. Default: False.
-        cmap: str (optional)
-            The Colormap or instance or registered colormap name used to map scalar data to colors.
-        show_points: bool (optional)
-            If True, show the grid points as black dots. Default: False.
-        show_colorbar: bool (optional)
-            If True, show the colorbar. Default: True.
-
+    ax : matplotlib.axes.Axes
+        Axis object where the contour plot should be created.
+    scan_path : str
+        Path of the directory containing all the scan jobs.
+    x : str
+        Magnitude to plot on the x-axis ('pressure_X' or 'temperature').
+    y : str
+        Magnitude to plot on the y-axis ('pressure_Y' or 'temperature').
+    z : str
+        Magnitude to plot on the z-axis ('tof_Z', 'tof_difference_Z', 'selectivity', 'coverage_Z', etc.).
+    levels : list, optional
+        Contour levels.
+    min_molec : int, optional
+        Minimum number of molecules required for TOF/selectivity plots.
+    scan_path_ref : str, optional
+        Path for reference scan jobs, required for 'tof_difference' plots.
+    main_product : str, optional
+        Main product for selectivity plots.
+    side_products : list, optional
+        Side products for selectivity plots.
+    site_type : str, optional
+        Site type for coverage/phase diagrams. Default is 'default'.
+    min_coverage : float, optional
+        Minimum total coverage (%) to plot the dominant surface species on a phase diagram. Default is 20.0.
+    surf_spec_values : dict, optional
+        Surface species values for phase diagrams.
+    tick_values : list, optional
+        Tick values for phase diagram colorbar.
+    tick_labels : list, optional
+        Tick labels for phase diagram colorbar.
+    window_percent : list, optional
+        Window of the simulation to consider (percent). Default is [0, 100].
+    window_type : str, optional
+        Type of window to apply ('time' or 'nevents'). Default is 'time'.
+    verbose : bool, optional
+        If True, print paths of simulations with issues. Default is False.
+    weights : str, optional
+        Weights for averaging ('time', 'events', or None). Default is None.
+    cmap : str, optional
+        Colormap for the plot.
+    show_points : bool, optional
+        If True, show grid points as black dots. Default is False.
+    show_colorbar : bool, optional
+        If True, show the colorbar. Default is True.
     """
 
-    """ Check if extra required attributes are provided """
+    if window_percent is None:
+        window_percent = [0, 100]
 
     if "selectivity" in z:
         if main_product is None:
@@ -199,6 +171,9 @@ def plot_contour(
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = kmc_output.final_energy
 
+            elif z == 'energy_slope':
+                df.loc[folder_name, "energy_slope"] = kmc_output.energy_slope
+
             elif z == 'has_issues':
                 df.loc[folder_name, "has_issues"] = detect_issues(path)
                 if df.loc[folder_name, "has_issues"] and verbose:
@@ -235,6 +210,9 @@ def plot_contour(
             elif z == 'final_energy':
                 df.loc[folder_name, "final_energy"] = float('NaN')
 
+            elif z == 'energy_slope':
+                df.loc[folder_name, "energy_slope"] = float('NaN')
+
             elif z == 'has_issues':
                 df.loc[folder_name, "has_issues"] = float('NaN')
 
@@ -252,7 +230,7 @@ def plot_contour(
     if cmap is None:
         if "tof_difference" in z or z == "has_issues":
             cmap = "RdYlGn"
-        elif "tof" in z or z == "final_time" or z == "final_energy":
+        elif "tof" in z or z == "final_time" or z == "final_energy" or z == "energy_slope":
             cmap = "inferno"
         elif z == "selectivity":
             cmap = "Greens"
@@ -270,6 +248,8 @@ def plot_contour(
             levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         elif z == "final_time":
             levels = [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
+        elif z == "energy_slope":
+            levels = [-12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8]
         elif z == "final_energy":
             levels = [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2]
 
@@ -312,7 +292,7 @@ def plot_contour(
                         else:
                             z_axis[j, i] = float('NaN')
                     else:
-                        z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10**min(levels)))
+                        z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10 ** min(levels)))
 
                 elif z == "selectivity":
                     if df.loc[folder_name, "main_and_side_prod"] > min_molec:
@@ -334,6 +314,9 @@ def plot_contour(
 
                 elif z == 'final_energy':
                     z_axis[j, i] = df.loc[folder_name, "final_energy"]
+
+                elif z == 'energy_slope':
+                    z_axis[j, i] = np.log10(df.loc[folder_name, "energy_slope"])
 
                 elif z == 'has_issues':
                     if np.isnan(df.loc[folder_name, "has_issues"]):
@@ -359,6 +342,12 @@ def plot_contour(
             cbar = plt.colorbar(cp, ax=ax, ticks=[-0.5, 0.5], spacing='proportional',
                                 boundaries=[-1, 0, 1],
                                 format=mticker.FixedFormatter(['Yes', 'No']))
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
+    elif z == "energy_slope":
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-11, vmax=-8)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax)
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
     else:
@@ -418,6 +407,10 @@ def plot_contour(
 
     elif z == "final_energy":
         ax.set_title("final energy ($eV·Å^{-2}$)", y=1.0, pad=-14, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+
+    elif z == "energy_slope":
+        ax.set_title("energy slope \n($eV·Å^{-2}·step^{-1}$)", y=1.0, pad=-28, color="w",
                      path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
 
     elif z == "has_issues":

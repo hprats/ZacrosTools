@@ -18,8 +18,14 @@ kmc_output = KMCOutput(path='zacros_results', ignore=30.0)
 - **path** (*str*): Path of the directory containing the output files.
 
 **Optional:**
-- **ignore** (*float*): Ignore the first % of the total simulated time (in %). This is used to exclude the data from the equilibration phase when computing the averages.
-  - Default value: `0.0`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
 - **weights** (*str*): Weights for the averages. Possible values:
   - `'time'`
   - `'events'`
