@@ -41,45 +41,6 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
         Magnitude to plot on the y-axis ('pressure_Y' or 'temperature').
     z : str
         Magnitude to plot on the z-axis ('tof', 'tof_dif', 'selectivity', 'coverage', etc.).
-    levels : list, optional
-        Contour levels.
-    min_molec : int, optional
-        Minimum number of molecules required for TOF/selectivity plots.
-    scan_path_ref : str, optional
-        Path for reference scan jobs, required for 'tof_dif' plots.
-    gas_spec : str, optional
-        Gas species product for tof plots.
-    surf_spec : str, optional
-        Surface species for coverage plots.
-    main_product : str, optional
-        Main product for selectivity plots.
-    side_products : list, optional
-        Side products for selectivity plots.
-    site_type : str, optional
-        Site type for coverage/phase diagrams. Default is 'default'.
-    min_coverage : float, optional
-        Minimum total coverage (%) to plot the dominant surface species on a phase diagram. Default is 20.0.
-    surf_spec_values : dict, optional
-        Surface species values for phase diagrams.
-    tick_values : list, optional
-        Tick values for phase diagram colorbar.
-    tick_labels : list, optional
-        Tick labels for phase diagram colorbar.
-    window_percent : list, optional
-        Window of the simulation to consider (percent). Default is [0, 100].
-    window_type : str, optional
-        Type of window to apply ('time' or 'nevents'). Default is 'time'.
-    verbose : bool, optional
-        If True, print paths of simulations with issues. Default is False.
-    weights : str, optional
-        Weights for averaging ('time', 'events', or None). Default is None.
-    cmap : str, optional
-        Colormap for the plot.
-    show_points : bool, optional
-        If True, show grid points as black dots. Default is False.
-    show_colorbar : bool, optional
-        If True, show the colorbar. Default is True.
-
     """
 
     if window_percent is None:
@@ -140,15 +101,6 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
             df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
             df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
 
-        elif z == 'final_time':
-            df.loc[folder_name, "final_time"] = kmc_output.final_time
-
-        elif z == 'final_energy':
-            df.loc[folder_name, "final_energy"] = kmc_output.final_energy
-
-        elif z == 'energy_slope':
-            df.loc[folder_name, "energy_slope"] = kmc_output.energy_slope
-
         elif z == 'has_issues':
             df.loc[folder_name, "has_issues"] = detect_issues(path)
             if df.loc[folder_name, "has_issues"] and verbose:
@@ -159,30 +111,35 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
 
     # Handle phase diagram defaults
     if z == "phase_diagram":
-        surf_spec_values = surf_spec_values or {species: i + 0.5 for i, species in enumerate(
-            sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']))}
-        tick_labels = tick_labels or sorted(surf_spec_values.keys())
-        tick_values = tick_values or [n + 0.5 for n in range(len(surf_spec_values))]
-
-    if z == "has_issues":
-        tick_labels = ['Yes', 'No']
-        tick_values = [-0.5, 0.5]
+        if surf_spec_values is None:
+            surf_spec_names = sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names'])
+            surf_spec_values = {species: i + 0.5 for i, species in enumerate(surf_spec_names)}
+            if tick_labels is None:
+                tick_labels = surf_spec_names
+        if tick_values is None:
+            tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
 
     # Set default colormap
     if cmap is None:
-        cmap = {"tof": "inferno", "tof_dif": "RdYlGn", "selectivity": "Greens", "coverage": "Oranges",
-                "phase_diagram": "bwr", "final_time": "inferno", "final_energy": "inferno", "energy_slope": None,
-                "has_issues": "RdYlGn"}.get(z)
+        if z in ["tof_dif", "has_issues"]:
+            cmap = "RdYlGn"
+        elif z == "tof":
+            cmap = "inferno"
+        elif z == "selectivity":
+            cmap = "Greens"
+        elif z == "coverage":
+            cmap = "Oranges"
+        elif z == "phase_diagram":
+            cmap = "bwr"
 
     # Set default levels
-    if z not in ["phase_diagram", "has_issues"] and levels is None:
-        levels = {"tof": [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3],
-                  "tof_dif": [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2],
-                  "selectivity": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-                  "coverage": [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-                  "final_time": [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
-                  "final_energy": [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2],
-                  "energy_slope": [-12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8]}.get(z)
+    if levels is None:
+        if "tof" == z:
+            levels = [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]
+        elif z == "tof_dif":
+            levels = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2]
+        elif z in ["selectivity", "coverage"]:
+            levels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     # Prepare data for plotting
     log_x_list = np.sort(np.asarray(log_x_list))
@@ -232,15 +189,6 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
                     if df.loc[folder_name, "coverage"] > min_coverage:
                         z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
 
-                elif z == 'final_time':
-                    z_axis[j, i] = np.log10(df.loc[folder_name, "final_time"])
-
-                elif z == 'final_energy':
-                    z_axis[j, i] = df.loc[folder_name, "final_energy"]
-
-                elif z == 'energy_slope':
-                    z_axis[j, i] = np.log10(df.loc[folder_name, "energy_slope"])
-
                 elif z == 'has_issues':
                     if not np.isnan(df.loc[folder_name, "has_issues"]):
                         if df.loc[folder_name, "has_issues"]:
@@ -249,7 +197,7 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
                             z_axis[j, i] = 0.5
 
     # Plot using contour or pcolormesh
-    if z in ["phase_diagram"]:
+    if z == "phase_diagram":
         cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
         if show_colorbar:
             cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
@@ -260,15 +208,9 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
     elif z == "has_issues":
         cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
         if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
+            cbar = plt.colorbar(cp, ax=ax, ticks=[-0.5, 0.5], spacing='proportional',
                                 boundaries=[-1, 0, 1],
-                                format=mticker.FixedFormatter(tick_labels))
-            for t in cbar.ax.get_yticklabels():
-                t.set_fontsize(8)
-    elif z == "energy_slope":
-        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-11, vmax=-8)
-        if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax)
+                                format=mticker.FixedFormatter(['Yes', 'No']))
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
     else:
@@ -312,16 +254,6 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
 
     elif z == "phase_diagram":
         title = f"phase diagram ${site_type}$"
-
-    elif z == "final_time":
-        title = f"final time ($s$)"
-
-    elif z == "final_energy":
-        title = "final energy ($eV·Å^{-2}$)"
-
-    elif z == "energy_slope":
-        pad = -28
-        title = "$log_{10}$ energy slope \n($eV·Å^{-2}·step^{-1}$)"
 
     elif z == "has_issues":
         title = "issues"
