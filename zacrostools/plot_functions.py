@@ -85,104 +85,271 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
     if window_percent is None:
         window_percent = [0, 100]
 
+    """Validate parameters"""
     validate_params(z, gas_spec, scan_path_ref, main_product, side_products, surf_spec)
 
+    """Read and store results"""
     # Initialize lists and DataFrame to store data
     log_x_list, log_y_list = [], []
     df = pd.DataFrame()
 
     # Parse all directories in scan_path and read x, y, and z values
-    for path in glob(f"{scan_path}/*"):
-        folder_name = path.split('/')[-1]
-
-        if not os.path.isfile(f"{path}/general_output.txt"):
+    for simulation_path in glob(f"{scan_path}/*"):
+        folder_name = simulation_path.split('/')[-1]
+        if not os.path.isfile(f"{simulation_path}/general_output.txt"):
             handle_missing_files(df, folder_name, z)
             continue
 
-        kmc_output, kmc_output_ref = initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent,
-                                                            window_type, weights)
+        # Read simulation output
+        kmc_output, kmc_output_ref = initialize_kmc_outputs(simulation_path, z, scan_path_ref, folder_name,
+                                                            window_percent, window_type, weights)
 
-        log_x = extract_log_value(x, path)
-        log_y = extract_log_value(y, path)
-
+        # Read and store x and y values
+        log_x = extract_log_value(x, simulation_path)
+        log_y = extract_log_value(y, simulation_path)
         df.loc[folder_name, "log_x"] = log_x
         df.loc[folder_name, "log_y"] = log_y
-
         update_unique_values(log_x, log_y, log_x_list, log_y_list)
 
-        # Extract z values based on the selected magnitude
-        if z == 'tof':
-            df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
-            df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
+        # Read and store z values
+        if site_type == 'default':
+            site_type = list(parse_general_output(simulation_path)['site_types'].keys())[0]
+        df = process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product,
+                             side_products, site_type, simulation_path, verbose)
 
-        elif z == "tof_dif":
-            df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
-            df.loc[folder_name, "tof_ref"] = kmc_output_ref.tof[gas_spec]
+    """Plot results"""
+    # Handle plot default values
+    surf_spec_values, tick_labels, tick_values, levels, cmap = (
+        handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_values, levels, cmap))
 
-        elif z == "selectivity":
-            df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
-                                                                            side_products=side_products)
+    x_list, y_list, z_axis = prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_coverage,
+                                               surf_spec_values, levels)
+    x_axis, y_axis = np.meshgrid(x_list, y_list)
 
-            df.loc[folder_name, "main_and_side_prod"] = sum(kmc_output.total_production[prod]
-                                                            for prod in [main_product] + side_products)
+    # Plot using contour or pcolormesh
+    if z in ["phase_diagram"]:
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
+                                boundaries=[n for n in range(len(tick_labels) + 1)],
+                                format=mticker.FixedFormatter(tick_labels))
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
+    elif z == "has_issues":
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
+                                boundaries=[-1, 0, 1],
+                                format=mticker.FixedFormatter(tick_labels))
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
+    elif z == "energy_slope":
+        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-11, vmax=-8)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax)
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(8)
+    else:
+        cp = ax.contourf(x_axis, y_axis, z_axis, levels=levels, cmap=cmap)
+        if show_colorbar:
+            cbar = plt.colorbar(cp, ax=ax)
+            for t in cbar.ax.get_yticklabels():
+                t.set_fontsize(10)
 
-        elif z == "coverage":
-            if site_type == 'default':
-                site_type = list(parse_general_output(path)['site_types'].keys())[0]
-            if surf_spec == 'total':
-                df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
-            else:
-                df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][surf_spec]
+    ax.set_xlim(np.min(x_list), np.max(x_list))
+    ax.set_ylim(np.min(y_list), np.max(y_list))
 
-        elif z == "phase_diagram":
-            if site_type == 'default':
-                site_type = list(parse_general_output(path)['site_types'].keys())[0]
-            df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
-            df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+    # Set axis scales
+    if "pressure" in x:
+        ax.set_xscale('log')
+        ax.set_xlabel('$p_{' + x.split('_')[-1] + '}$ (bar)')
+    else:
+        ax.set_xlabel('$T$ (K)')
+    if "pressure" in y:
+        ax.set_yscale('log')
+        ax.set_ylabel('$p_{' + y.split('_')[-1] + '}$ (bar)')
+    else:
+        ax.set_ylabel('$T$ (K)')
 
-        elif z == 'final_time':
-            df.loc[folder_name, "final_time"] = kmc_output.final_time
+    title, pad = get_plot_title(z, gas_spec, main_product, site_type)
 
-        elif z == 'final_energy':
-            df.loc[folder_name, "final_energy"] = kmc_output.final_energy
+    ax.set_title(title, y=1.0, pad=pad, color="w",
+                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+    ax.set_facecolor("lightgray")
 
-        elif z == 'energy_slope':
-            df.loc[folder_name, "energy_slope"] = kmc_output.energy_slope
+    if show_points:
+        for i in x_list:
+            for j in y_list:
+                ax.plot(i, j, marker='.', color='w', markersize=3)
 
-        elif z == 'has_issues':
-            df.loc[folder_name, "has_issues"] = detect_issues(path)
-            if df.loc[folder_name, "has_issues"] and verbose:
-                print(f"Issue detected: {path}")
+    return ax
 
-        else:
-            raise PlotError("Incorrect value for z")
 
-    # Handle phase diagram defaults
+def validate_params(z, gas_spec, scan_path_ref, main_product, side_products, surf_spec):
+    """ Validates the input parameters based on the z value. """
+
+    allowed_z_values = ["tof", "tof_dif", "selectivity", "coverage", "phase_diagram", "final_time", "final_energy",
+                        "energy_slope", "has_issues"]
+
+    if z not in allowed_z_values:
+        raise PlotError(f"Incorrect value for z: '{z}'. \nAllowed values are: {allowed_z_values}")
+
+    if z == "tof" and not gas_spec:
+        raise PlotError("'gas_spec' is required for 'tof' plots")
+
+    elif z == "tof_dif" and (not gas_spec or not scan_path_ref):
+        raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'tof_dif' plots")
+
+    elif z == "selectivity" and (not main_product or not side_products):
+        raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
+
+    elif z == "coverage" and not surf_spec:
+        raise PlotError("'scan_path_ref' is required for 'tof_dif' plots")
+
+
+def handle_missing_files(df, folder_name, z):
+    """ Handles the case where required files are missing in a path. """
+    print(f"Files not found: {folder_name}/general_output.txt")
+    df.loc[folder_name, z] = float('NaN')
+    if z == "tof":
+        df.loc[folder_name, "total_production"] = 0
+    if z == "selectivity":
+        df.loc[folder_name, "main_and_side_prod"] = 0
     if z == "phase_diagram":
+        df.loc[folder_name, "coverage"] = 0
+
+
+def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
+    """ Initializes the KMCOutput objects for the main and reference paths. """
+    kmc_output = None if z == 'has_issues' else KMCOutput(path=path, window_percent=window_percent,
+                                                          window_type=window_type, weights=weights)
+    kmc_output_ref = None
+    if z == "tof_dif":
+        kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
+                                   window_type=window_type, weights=weights)
+    return kmc_output, kmc_output_ref
+
+
+def extract_log_value(magnitude, path):
+    """ Extracts the log10 value for a given magnitude from the simulation input. """
+    if magnitude == 'temperature':
+        temperature = parse_simulation_input(path)["temperature"]
+        return round(np.log10(temperature), 8)
+    elif "pressure" in magnitude:
+        gas_species = magnitude.split('_')[-1]
+        partial_pressures = get_partial_pressures(path)
+        pressure = partial_pressures[gas_species]
+        if pressure == 0:
+            raise PlotError(f"Partial pressure of {gas_species} is zero in {path}")
+        return round(np.log10(pressure), 8)
+    else:
+        raise PlotError(f"Incorrect value for {magnitude}")
+
+
+def update_unique_values(log_x, log_y, log_x_list, log_y_list):
+    """ Updates the unique x and y values lists. """
+    if log_x not in log_x_list:
+        log_x_list.append(log_x)
+    if log_y not in log_y_list:
+        log_y_list.append(log_y)
+
+
+def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product, side_products,
+                    site_type, simulation_path, verbose):
+
+    if z == 'tof':
+        df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
+        df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
+
+    elif z == "tof_dif":
+        df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
+        df.loc[folder_name, "tof_ref"] = kmc_output_ref.tof[gas_spec]
+
+    elif z == "selectivity":
+        df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
+                                                                        side_products=side_products)
+        df.loc[folder_name, "main_and_side_prod"] = sum(kmc_output.total_production[prod]
+                                                        for prod in [main_product] + side_products)
+
+    elif z == "coverage":
+        if surf_spec == 'total':
+            df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+        else:
+            df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][surf_spec]
+
+    elif z == "phase_diagram":
+        df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
+        df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+
+    elif z == 'final_time':
+        df.loc[folder_name, "final_time"] = kmc_output.final_time
+
+    elif z == 'final_energy':
+        df.loc[folder_name, "final_energy"] = kmc_output.final_energy
+
+    elif z == 'energy_slope':
+        df.loc[folder_name, "energy_slope"] = kmc_output.energy_slope
+
+    elif z == 'has_issues':
+        df.loc[folder_name, "has_issues"] = detect_issues(simulation_path)
+        if df.loc[folder_name, "has_issues"] and verbose:
+            print(f"Issue detected: {simulation_path}")
+
+    return df
+
+
+def handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_values, levels, cmap):
+    # Handle plot-type specific default values:
+    if z in ["phase_diagram", "has_issues"]:
         surf_spec_values = surf_spec_values or {species: i + 0.5 for i, species in enumerate(
             sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']))}
-        tick_labels = tick_labels or sorted(surf_spec_values.keys())
-        tick_values = tick_values or [n + 0.5 for n in range(len(surf_spec_values))]
 
-    if z == "has_issues":
-        tick_labels = ['Yes', 'No']
-        tick_values = [-0.5, 0.5]
+        tick_labels = {"phase_diagram": tick_labels or sorted(surf_spec_values.keys()),
+                       "has_issues": tick_labels or ['Yes', 'No']}.get(z)
 
-    # Set default colormap
+        tick_values = {"phase_diagram": tick_values or [n + 0.5 for n in range(len(surf_spec_values))],
+                       "has_issues": tick_values or [-0.5, 0.5]}.get(z)
+
+    else:
+        levels = {"tof": levels or [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3],
+                  "tof_dif": levels or [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2],
+                  "selectivity": levels or [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+                  "coverage": levels or [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+                  "final_time": levels or [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
+                  "final_energy": levels or [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15,
+                                             0.2],
+                  "energy_slope": levels or [-12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8]}.get(z)
+
+    # Handle general default values:
     if cmap is None:
         cmap = {"tof": "inferno", "tof_dif": "RdYlGn", "selectivity": "Greens", "coverage": "Oranges",
                 "phase_diagram": "bwr", "final_time": "inferno", "final_energy": "inferno", "energy_slope": None,
                 "has_issues": "RdYlGn"}.get(z)
 
-    # Set default levels
-    if z not in ["phase_diagram", "has_issues"] and levels is None:
-        levels = {"tof": [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3],
-                  "tof_dif": [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2],
-                  "selectivity": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-                  "coverage": [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-                  "final_time": [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
-                  "final_energy": [-0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2],
-                  "energy_slope": [-12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8]}.get(z)
+    return surf_spec_values, tick_labels, tick_values, levels, cmap
+
+
+def get_plot_title(z, gas_spec, main_product, site_type):
+    formated_gas_species = convert_to_subscript(chemical_formula=gas_spec) if z in ["tof", "tof_dif"] else ""
+    formated_main_product = convert_to_subscript(chemical_formula=main_product) if z == "selectivity" else ""
+
+    title = {"tof": "$log_{10}$TOF " + f"${formated_gas_species}$",
+             "tof_dif": "$log_{10}$∆TOF " + f"${formated_gas_species}$",
+             "selectivity": f"${formated_main_product}$ selectivity (%)",
+             "coverage": f"coverage ${site_type}$",
+             "phase_diagram": f"phase diagram ${site_type}$",
+             "final_time": "$log_{10}$ final time ($s$)",
+             "final_energy": "final energy ($eV·Å^{-2}$)",
+             "energy_slope": "$log_{10}$ energy slope \n($eV·Å^{-2}·step^{-1}$)",
+             "has_issues": "issues"}.get(z)
+
+    pad = -28 if z == "energy_slope" else -14
+
+    return title, pad
+
+
+def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_coverage, surf_spec_values, levels):
+    # todo: optimise
 
     # Prepare data for plotting
     log_x_list = np.sort(np.asarray(log_x_list))
@@ -190,7 +357,6 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
     x_list = 10.0 ** log_x_list
     y_list = 10.0 ** log_y_list
     z_axis = np.zeros((len(x_list), len(y_list)))
-    x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     for i, log_x in enumerate(log_x_list):
         for j, log_y in enumerate(log_y_list):
@@ -248,159 +414,7 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
                         else:
                             z_axis[j, i] = 0.5
 
-    # Plot using contour or pcolormesh
-    if z in ["phase_diagram"]:
-        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
-        if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
-                                boundaries=[n for n in range(len(tick_labels) + 1)],
-                                format=mticker.FixedFormatter(tick_labels))
-            for t in cbar.ax.get_yticklabels():
-                t.set_fontsize(8)
-    elif z == "has_issues":
-        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
-        if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
-                                boundaries=[-1, 0, 1],
-                                format=mticker.FixedFormatter(tick_labels))
-            for t in cbar.ax.get_yticklabels():
-                t.set_fontsize(8)
-    elif z == "energy_slope":
-        cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-11, vmax=-8)
-        if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax)
-            for t in cbar.ax.get_yticklabels():
-                t.set_fontsize(8)
-    else:
-        cp = ax.contourf(x_axis, y_axis, z_axis, levels=levels, cmap=cmap)
-        if show_colorbar:
-            cbar = plt.colorbar(cp, ax=ax)
-            for t in cbar.ax.get_yticklabels():
-                t.set_fontsize(10)
-
-    ax.set_xlim(np.min(x_list), np.max(x_list))
-    ax.set_ylim(np.min(y_list), np.max(y_list))
-
-    # Set axis scales
-    if "pressure" in x:
-        ax.set_xscale('log')
-        ax.set_xlabel('$p_{' + x.split('_')[-1] + '}$ (bar)')
-    else:
-        ax.set_xlabel('$T$ (K)')
-    if "pressure" in y:
-        ax.set_yscale('log')
-        ax.set_ylabel('$p_{' + y.split('_')[-1] + '}$ (bar)')
-    else:
-        ax.set_ylabel('$T$ (K)')
-
-    # Set title
-    pad = -14
-    if z == "tof":
-        formated_gas_species = convert_to_subscript(chemical_formula=z.split('_')[-1])
-        title = "$log_{10}$TOF " + f"${formated_gas_species}$"
-
-    if z == "tof_dif":
-        formated_gas_species = convert_to_subscript(chemical_formula=z.split('_')[-1])
-        title = "$log_{10}$∆TOF " + f"${formated_gas_species}$"
-
-    elif z == "selectivity":
-        formated_main_product = convert_to_subscript(chemical_formula=main_product)
-        title = f"${formated_main_product}$ selectivity (%)"
-
-    elif z == "coverage":
-        title = f"coverage ${site_type}$"
-
-    elif z == "phase_diagram":
-        title = f"phase diagram ${site_type}$"
-
-    elif z == "final_time":
-        title = f"final time ($s$)"
-
-    elif z == "final_energy":
-        title = "final energy ($eV·Å^{-2}$)"
-
-    elif z == "energy_slope":
-        pad = -28
-        title = "$log_{10}$ energy slope \n($eV·Å^{-2}·step^{-1}$)"
-
-    elif z == "has_issues":
-        title = "issues"
-
-    else:
-        title = ""
-
-    ax.set_title(title, y=1.0, pad=pad, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    ax.set_facecolor("lightgray")
-
-    if show_points:
-        for i in x_list:
-            for j in y_list:
-                ax.plot(i, j, marker='.', color='w', markersize=3)
-
-    return ax
-
-
-def validate_params(z, product, scan_path_ref, main_product, side_products, surf_spec):
-    """ Validates the input parameters based on the z value. """
-    if z == 'tof' and not product:
-        raise PlotError("'product' is required for 'tof' plots")
-
-    elif z == 'tof_dif' and not product and not scan_path_ref:
-        raise PlotError("'scan_path_ref' is required for 'tof_dif' plots")
-
-    elif z == "selectivity" and (not main_product or not side_products):
-        raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
-
-    elif z == "coverage" and not surf_spec:
-        raise PlotError("'scan_path_ref' is required for 'tof_dif' plots")
-
-
-def handle_missing_files(df, folder_name, z):
-    """ Handles the case where required files are missing in a path. """
-    print(f"Files not found: {folder_name}/general_output.txt")
-    df.loc[folder_name, z] = float('NaN')
-    if z == "tof":
-        df.loc[folder_name, "total_production"] = 0
-    if z == "selectivity":
-        df.loc[folder_name, "main_and_side_prod"] = 0
-    if z == "phase_diagram":
-        df.loc[folder_name, "coverage"] = 0
-
-
-def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
-    """ Initializes the KMCOutput objects for the main and reference paths. """
-    kmc_output = None if z == 'has_issues' else KMCOutput(path=path, window_percent=window_percent,
-                                                          window_type=window_type, weights=weights)
-    kmc_output_ref = None
-    if z == "tof_dif":
-        kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
-                                   window_type=window_type, weights=weights)
-    return kmc_output, kmc_output_ref
-
-
-def extract_log_value(magnitude, path):
-    """ Extracts the log10 value for a given magnitude from the simulation input. """
-    if magnitude == 'temperature':
-        temperature = parse_simulation_input(path)["temperature"]
-        return round(np.log10(temperature), 8)
-    elif "pressure" in magnitude:
-        gas_species = magnitude.split('_')[-1]
-        partial_pressures = get_partial_pressures(path)
-        pressure = partial_pressures[gas_species]
-        if pressure == 0:
-            raise PlotError(f"Partial pressure of {gas_species} is zero in {path}")
-        return round(np.log10(pressure), 8)
-    else:
-        raise PlotError(f"Incorrect value for {magnitude}")
-
-
-def update_unique_values(log_x, log_y, log_x_list, log_y_list):
-    """ Updates the unique x and y values lists. """
-    if log_x not in log_x_list:
-        log_x_list.append(log_x)
-    if log_y not in log_y_list:
-        log_y_list.append(log_y)
+    return x_list, y_list, z_axis
 
 
 def convert_to_subscript(chemical_formula):
