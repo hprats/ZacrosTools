@@ -5,6 +5,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore everything in ZacrosTools/tests/plot_multiple_runs/scan_results_POM_1000K_PtHfC
+tests/plot_multiple_runs/scan_results_POM_1000K_PtHfC/
+
 # C extensions
 *.so
 
