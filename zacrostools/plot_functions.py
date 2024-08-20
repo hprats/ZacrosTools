@@ -97,7 +97,8 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
     for simulation_path in glob(f"{scan_path}/*"):
         folder_name = simulation_path.split('/')[-1]
         if not os.path.isfile(f"{simulation_path}/general_output.txt"):
-            handle_missing_files(df, folder_name, z)
+            print(f"Files not found: {folder_name}/general_output.txt")
+            df.loc[folder_name, z] = float('NaN')
             continue
 
         # Read simulation output
@@ -205,18 +206,6 @@ def validate_params(z, gas_spec, scan_path_ref, main_product, side_products, sur
 
     elif z == "coverage" and not surf_spec:
         raise PlotError("'scan_path_ref' is required for 'tof_dif' plots")
-
-
-def handle_missing_files(df, folder_name, z):
-    """ Handles the case where required files are missing in a path. """
-    print(f"Files not found: {folder_name}/general_output.txt")
-    df.loc[folder_name, z] = float('NaN')
-    if z == "tof":
-        df.loc[folder_name, "total_production"] = 0
-    if z == "selectivity":
-        df.loc[folder_name, "main_and_side_prod"] = 0
-    if z == "phase_diagram":
-        df.loc[folder_name, "coverage"] = 0
 
 
 def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
@@ -349,7 +338,6 @@ def get_plot_title(z, gas_spec, main_product, site_type):
 
 
 def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_coverage, surf_spec_values, levels):
-    # todo: optimise
 
     # Prepare data for plotting
     log_x_list = np.sort(np.asarray(log_x_list))
