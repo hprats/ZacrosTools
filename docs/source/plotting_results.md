@@ -1,40 +1,46 @@
 # Plotting Results
 
-## Simple Plots from a Single KMC Simulation
+## Plots from a Single KMC Simulation
 
-### Example
+The first step is to import matplotlib and read the simulation results:
 
 ```python
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='.', ignore=0.0, weights='time')
+kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
+```
 
-fig, axes = plt.subplots(2, 1, figsize=(3, 6), sharex=True)
+#### Surface coverage as a function of simulated time
 
-# Plot surface coverage
-print("\nSurface coverage (%, per site type): \n")
+```python
+plt.figure(figsize=(6, 4.5))
 for site_type in kmc_output.site_types:
     for surf_species in kmc_output.coverage_per_site_type[site_type]:
         coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]
-        print(f"{surf_species}*: {coverage:.3f} % of {site_type} sites")
         if coverage >= 1.0:
-            axes[0].plot(kmc_output.time, kmc_output.coverage_per_site_type[site_type][surf_species],
-                         label=f"{surf_species} ({site_type})")
+            plt.plot(kmc_output.time, kmc_output.coverage_per_site_type[site_type][surf_species],
+                     label=f"{surf_species} ({site_type})")
 
-# Plot TOF
-print("\nTOF (molec·s⁻¹·Å⁻²): \n")
+plt.xlabel('Simulated time (s)')
+plt.ylabel('Surface coverage (%)')
+plt.legend()
+plt.tight_layout()
+plt.show()
+```
+
+#### Molecules produced as a function of simulated time
+
+```python
+plt.figure(figsize=(8, 6))
+
 for gas_species in kmc_output.gas_species_names:
-    print(f"{gas_species}: {kmc_output.tof[gas_species]:.3e}")
     if kmc_output.tof[gas_species] > 0.0 and kmc_output.production[gas_species][-1] > 0:
-        axes[1].plot(kmc_output.time, kmc_output.production[gas_species],
-                     linewidth=2, label=gas_species + '$_{(g)}$')
+        plt.plot(kmc_output.time, kmc_output.production[gas_species], linewidth=2, label=gas_species + '$_{(g)}$')
 
-for ax in axes:
-    ax.legend()
-axes[0].set_ylabel('Coverage (%)')
-axes[1].set_ylabel('Molecules')
-axes[1].set_xlabel('Time (s)')
+plx.xlabel('Time (s)')
+plt.ylabel('Molecules produced')
+plt.title('Molecules produced as a function of simulated time', fontsize=16)
 plt.tight_layout()
 plt.show()
 ```
@@ -43,7 +49,10 @@ plt.show()
 
 ## Contour Plots from a Set of KMC Simulations at Various Operating Conditions
 
-Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the {py:func}`zacrostools.plot_functions.plot_contour` function.
+Alternatively, when running a set of KMC simulations at various operating conditions, contour plots for (*p<sub>A</sub>,
+p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
+{py:func}`zacrostools.plot_functions.plot_contour` function.
+
 
 ### Main Parameters (**mandatory** for all plots)
 
@@ -56,43 +65,23 @@ Contour plots from (*p<sub>A</sub>, p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scan
   - `'pressure_Y'`, where `Y` is a gas species
   - `'temperature'`
 - **z** (*str*): Magnitude to plot on the z-axis. Possible values:
-  - `'tof_Z'`, where `Z` is a gas species
-  - `'tof_difference_Z'`, where `Z` is a gas species
-  - `'selectivity'`
-  - `'coverage_Z'`, where `Z` is a surface species
-  - `'coverage_total'`
-  - `'phase_diagram'`
-  - `'final_time'`
-  - `'final_energy'`
+  - `'tof'`, TOF (in log10)
+  - `'tof_dif'`, difference in TOF between two systems (in log10) 
+  - `'selectivity'`, selectivity (in %)
+  - `'coverage'`, coverage (in %)
+  - `'phase_diagram'`, most dominant surface species
+  - `'final_time'`, final time (in log10)
+  - `'final_energy'`, final energy
+  - `'energy_slope'`, energy slope
+  - `'has_issues'`, to check for issues
 
-### Additional Parameters
+Depending on the type of plot (**z**), some additional parameters might be needed (see bellow).
+
+### Optional Parameters
 
 - **levels** (*list*): Determines the number and positions of the contour lines/regions.
   - Default: `'[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]'` for TOF plots.
   - Default: `'[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]'` for selectivity plots.
-- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
-  - Default: `0`.
-- **scan_path_ref** (*str*): Path of the directory containing all reference scan jobs (only required for toff 
-difference plots).
-  - Default: `None`.
-- **main_product** (*str*, required for selectivity plots): Main product to calculate the selectivity.
-- **side_products** (*list*, required for selectivity plots): List of side products to calculate the selectivity.
-- **site_type** (*str*): Name of site type for coverage and phase diagrams.
-  - Default: `'default'`.
-- **min_coverage** (*float*): Minimum total coverage to plot the dominant surface species on a phase diagram.
-  - Default: `20.0`.
-- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all surface species 
-will be included. Default: `None`.
-  - Default: `None`.
-- **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
-automatically from the output data.
-  - Default: `None`.
-- **tick_values** (*list*): List of tick values for the colorbar in phase diagrams. If `None`, ticks are determined 
-automatically from the input. 
-  - Default: `None`.
-- **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
-automatically from the output data.
-  - Default: `None`.
 - **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
 total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
 the total number of events to be considered. 
@@ -112,7 +101,96 @@ values:
 - **show_colorbar** (*bool*): If `True`, show the colorbar.
   - Default value: `True`.
 
-### Example
+### Contour plot types
+
+#### TOF
+
+##### Additional required parameters
+
+- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
+  - Default: `0`.
+
+##### Example
+
+#### TOF difference
+
+##### Additional required parameters
+
+- **scan_path_ref** (*str*): Path of the directory containing all reference scan jobs.
+  - Default: `None`.
+- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
+  - Default: `0`.
+
+##### Example
+
+#### Selectivity
+
+##### Additional required parameters
+
+- **main_product** (*str*): Main product to calculate the selectivity.
+- **side_products** (*list*): List of side products to calculate the selectivity.
+- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
+  - Default: `0`.
+
+##### Example
+
+#### Coverage
+
+- **site_type** (*str*): Name of site type.
+  - Default: `'default'`.
+
+##### Additional required parameters
+
+##### Example
+
+#### Phase diagram
+
+##### Additional required parameters
+
+- **site_type** (*str*): Name of site type.
+  - Default: `'default'`.
+- **min_coverage** (*float*): Minimum total coverage to plot the dominant surface species.
+  - Default: `20.0`.
+- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all surface species 
+will be included. Default: `None`.
+  - Default: `None`.
+- **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
+automatically from the output data.
+  - Default: `None`.
+- **tick_values** (*list*): List of tick values for the colorbar in phase diagrams. If `None`, ticks are determined 
+automatically from the input. 
+  - Default: `None`.
+- **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
+automatically from the output data.
+  - Default: `None`.
+
+##### Example
+
+#### Final time
+
+##### Additional required parameters
+
+##### Example
+
+#### Final energy
+
+##### Additional required parameters
+
+##### Example
+
+#### Energy slope
+
+##### Additional required parameters
+
+##### Example
+
+#### Issues
+
+##### Additional required parameters
+
+##### Example
+
+### Example with multiple contour plots
 
 ```python
 import matplotlib.pyplot as plt

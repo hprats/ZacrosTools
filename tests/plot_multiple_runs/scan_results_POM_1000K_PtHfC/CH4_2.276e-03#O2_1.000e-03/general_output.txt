@@ -1,0 +1,1508 @@
++---------------------------------------------------+
+|  ZACROS 4.0                                       |
+|  GRAPH-THEORETICAL KMC SIMULATION CODE            |
+|                                                   |
+|  Multiscale Computational Catalysis and           |
+|  Materials Science Research Group                 |
+|                                                   |
+|  Michail Stamatakis, Ph.D.                        |
+|  Department of Chemistry                          |
+|  University of Oxford                             |
++---------------------------------------------------+
+
+Compiler information:
+~~~~~~~~~~~~~~~~~~~~~~
+ /shared/ucl/apps/intel/2018.Update3/compilers_and_libraries_2018.3.222/linux/bin/intel64/ifort
+ Intel(R) Fortran Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 18.0.3.222 Build 20180410
+ -DCOMPILER_SUPPORTS_COMPILER2008 -DUSING_CMAKE -diag-disable=5462,6536 -O3 -c -o CMakeFiles/zacros_lib.dir/info_module_processed.F90.o
+ Zacros 4.0
+ Configured at git: 55752f14499e0c4153673c99184883fa7b059a09
+
+Threading/multiprocessing information:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Serial run (no parallelism).
+
+Simulation setup:
+~~~~~~~~~~~~~~~~~
+
+    Random sequence with seed: 570162
+
+    Temperature: 1000.00000000000
+
+    Pressure: 3.275845926074789E-003
+
+    Number of gas species: 6
+
+
+    Gas species names: CH4 O2 CO H2 CO2 H2O 
+
+
+    Gas species energies: 0.000000000000000E+000 2.61300000000000 1.95400000000000 0.000000000000000E+000 0.000000000000000E+000 -1.22400000000000 
+
+
+    Gas species molecular weights: 16.0400000000000 32.0000000000000 28.0100000000000 2.02000000000000 44.0100000000000 18.0200000000000 
+
+
+    Gas species molar fractions: 0.694735337812963 0.305264662187036 0.000000000000000E+000 0.000000000000000E+000 0.000000000000000E+000 0.000000000000000E+000 
+
+    Number of surface species: 23
+
+
+    Surface species names: CH3* H* CH3_Pt* O* O_Pt* CO* CO_Pt* CH2_Pt* CH_Pt* C_Pt* OH_Pt* H2O_Pt* CO2_Pt* COOH_Pt* CHO_Pt* CO2* H2O* CH2* CH* C* CHO* OH* COOH* 
+
+
+    Surface species dentation:  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+    Snapshots will be reported in file history_output.txt at every 100000 events
+
+    Process statistics will be reported in file procstat_output.txt at every 100000 events
+
+    Species numbers will be reported in file specnum_output.txt at every 100000 events
+
+    Maximum number of steps: 9223372036854775807 (maximum allowed value)
+
+    Max simulated time: 50000.0000000000                
+
+    Allowed walltime in seconds: 86400
+
+    Keyword enable_stiffness_scaling parsed. Dynamic scaling of rate constants will be enabled to treat time-scale separation (stiffness).
+
+    [Stiffness scaling] Frequency of stiffness checks: 10000                           
+
+    [Stiffness scaling] Minimum allowed separation of time-scales between fastest non-quasi-equilibrated step and slowest quasi-equilibrated one: 100.000000000000                
+
+    [Stiffness scaling] Maximum allowed separation of time-scales between fastest non-quasi-equilibrated step and slowest quasi-equilibrated one: 200.000000000000                
+
+    [Stiffness scaling] Tolerance on partial-equilibrium ratio for detecting quasi-equilibrated steps: 2.000000000000000E-003          
+
+    [Stiffness scaling] Threshold on stiffness coefficient for applying scaling: 1.00000000000000                
+
+    [Stiffness scaling] Factor for scaling up/down the rate constants: 5.00000000000000                
+
+    The default Mersenne Twister 19937 random number generator will be used for this simulation.
+
+    Initializing the random number generator took 3.100000000000000E-005 seconds
+
+    The default first reaction method will be used for propagating the KMC state, with a binary heap for the event-queue
+
+    The default legacy-Zacros module will be used as a subgraph isomorphism solver for elementary events
+
+    The default legacy-Zacros module will be used as a subgraph isomorphism solver for energetic clusters
+
+    [Memory Management] Dynamic array sizes will be used during the simulation as per the default behavior.
+
+    [Stiffness scaling] Default maximum allowed separation of time-scales between fastest and slowest quasi-equilibrated steps: 5.00000000000000                
+
+Finished reading simulation input.
+
+Lattice setup:
+~~~~~~~~~~~~~~
+
+    Parsing unit cell data for a periodic lattice.
+
+    Unit cell area: 171.086400000000
+
+    Unit cell tiling: 3 x 3
+
+    Lattice surface area: 1539.77760000000
+
+    Number of lattice sites per cell: 28
+
+    Total number of lattice sites: 252
+
+    Number of site types: 3
+
+    Site type names and total number of sites of that type:
+      tC (108)
+      tM (135)
+      Pt (9)
+
+    Maximum coordination number: 12
+
+Finished reading lattice input.
+
+Energetics setup:
+~~~~~~~~~~~~~~~~~
+
+    Number of clusters: 136
+
+    Maximum number of sites involved in a cluster: 3
+
+    Clusters:
+
+        1. CH3_point:         Mult = 1      ECI = 0.292000000000000         Entities:  CH3* 
+        2. H_point:           Mult = 1      ECI = -0.576000000000000        Entities:  H* 
+        3. CH3+H_pair:        Mult = 1      ECI = -1.400000000000000E-002   Entities:  CH3* H* 
+        4. CH3_Pt_point:      Mult = 1      ECI = -0.250000000000000        Entities:  CH3_Pt* 
+        5. CH3_Pt+H_pair:     Mult = 1      ECI = 1.400000000000000E-002    Entities:  CH3_Pt* H* 
+        6. O_point:           Mult = 1      ECI = -1.32600000000000         Entities:  O* 
+        7. O+O_pair:          Mult = 2      ECI = 3.300000000000000E-002    Entities:  O* O* 
+        8. O_Pt_point:        Mult = 1      ECI = -0.906000000000000        Entities:  O_Pt* 
+        9. O_Pt+O_pair:       Mult = 1      ECI = 7.800000000000000E-002    Entities:  O_Pt* O* 
+       10. CO_point:          Mult = 1      ECI = 0.231000000000000         Entities:  CO* 
+       11. CO_Pt_point:       Mult = 1      ECI = -0.523000000000000        Entities:  CO_Pt* 
+       12. H+H_pair:          Mult = 2      ECI = 3.800000000000000E-002    Entities:  H* H* 
+       13. CH2_Pt_point:      Mult = 1      ECI = 0.710000000000000         Entities:  CH2_Pt* 
+       14. CH_Pt_point:       Mult = 1      ECI = 1.36200000000000          Entities:  CH_Pt* 
+       15. C_Pt_point:        Mult = 1      ECI = 1.99000000000000          Entities:  C_Pt* 
+       16. OH_Pt_point:       Mult = 1      ECI = -2.12100000000000         Entities:  OH_Pt* 
+       17. H2O_Pt_point:      Mult = 1      ECI = -2.01300000000000         Entities:  H2O_Pt* 
+       18. CO2_Pt_point:      Mult = 1      ECI = -1.35500000000000         Entities:  CO2_Pt* 
+       19. COOH_Pt_point:     Mult = 1      ECI = -1.85000000000000         Entities:  COOH_Pt* 
+       20. CHO_Pt_point:      Mult = 1      ECI = -0.384000000000000        Entities:  CHO_Pt* 
+       21. CO2_point:         Mult = 1      ECI = -1.57200000000000         Entities:  CO2* 
+       22. H2O_point:         Mult = 1      ECI = -2.01300000000000         Entities:  H2O* 
+       23. CH2_point:         Mult = 1      ECI = 0.913000000000000         Entities:  CH2* 
+       24. CH2+H_pair:        Mult = 1      ECI = 6.000000000000000E-003    Entities:  CH2* H* 
+       25. CH2_Pt+H_pair:     Mult = 1      ECI = -3.800000000000000E-002   Entities:  CH2_Pt* H* 
+       26. CH_point:          Mult = 1      ECI = 1.55500000000000          Entities:  CH* 
+       27. CH+H_pair:         Mult = 1      ECI = -4.000000000000000E-003   Entities:  CH* H* 
+       28. CH_Pt+H_pair:      Mult = 1      ECI = -5.900000000000000E-002   Entities:  CH_Pt* H* 
+       29. C_point:           Mult = 1      ECI = 2.44300000000000          Entities:  C* 
+       30. C+H_pair:          Mult = 1      ECI = 4.400000000000000E-002    Entities:  C* H* 
+       31. C_Pt+H_pair:       Mult = 1      ECI = -9.600000000000000E-002   Entities:  C_Pt* H* 
+       32. C+O_pair:          Mult = 1      ECI = -3.600000000000000E-002   Entities:  C* O* 
+       33. C_Pt+O_pair:       Mult = 1      ECI = 4.100000000000000E-002    Entities:  C_Pt* O* 
+       34. CH+O_pair:         Mult = 1      ECI = -4.100000000000000E-002   Entities:  CH* O* 
+       35. CHO_point:         Mult = 1      ECI = -0.177000000000000        Entities:  CHO* 
+       36. CH_Pt+O_pair:      Mult = 1      ECI = 0.317000000000000         Entities:  CH_Pt* O* 
+       37. CO+H_pair:         Mult = 1      ECI = 6.900000000000001E-002    Entities:  CO* H* 
+       38. CO_Pt+H_pair:      Mult = 1      ECI = -1.000000000000000E-003   Entities:  CO_Pt* H* 
+       39. CO+O_pair:         Mult = 1      ECI = -3.300000000000000E-002   Entities:  CO* O* 
+       40. CO_Pt+O_pair:      Mult = 1      ECI = 4.200000000000000E-002    Entities:  CO_Pt* O* 
+       41. O+H_pair:          Mult = 1      ECI = -8.300000000000000E-002   Entities:  O* H* 
+       42. OH_point:          Mult = 1      ECI = -1.48800000000000         Entities:  OH* 
+       43. O_Pt+H_pair:       Mult = 1      ECI = -3.100000000000000E-002   Entities:  O_Pt* H* 
+       44. OH+H_pair:         Mult = 1      ECI = -0.272000000000000        Entities:  OH* H* 
+       45. OH_Pt+H_pair:      Mult = 1      ECI = 1.200000000000000E-002    Entities:  OH_Pt* H* 
+       46. CO2+H_pair:        Mult = 1      ECI = -0.266000000000000        Entities:  CO2* H* 
+       47. COOH_point:        Mult = 1      ECI = -1.51300000000000         Entities:  COOH* 
+       48. CO2_Pt+H_pair:     Mult = 1      ECI = -4.100000000000000E-002   Entities:  CO2_Pt* H* 
+       49. CO+OH_pair:        Mult = 1      ECI = -0.239000000000000        Entities:  CO* OH* 
+       50. CO_Pt+OH_pair:     Mult = 1      ECI = 0.118000000000000         Entities:  CO_Pt* OH* 
+       51. H+H_Pt_pair:       Mult = 1      ECI = 0.000000000000000E+000    Entities:  H* H* 
+       52. COOH+CH2_pair:     Mult = 1      ECI = -2.300000000000000E-002   Entities:  COOH* CH2* 
+       53. CO2+H2O_pair:      Mult = 1      ECI = -3.000000000000000E-002   Entities:  CO2* H2O* 
+       54. CHO+CH3_pair:      Mult = 1      ECI = 1.400000000000000E-002    Entities:  CHO* CH3* 
+       55. CH2+C_pair:        Mult = 1      ECI = -0.139000000000000        Entities:  CH2* C* 
+       56. CH3+CH_pair:       Mult = 1      ECI = 1.400000000000000E-002    Entities:  CH3* CH* 
+       57. COOH+CO_pair:      Mult = 1      ECI = 5.300000000000000E-002    Entities:  COOH* CO* 
+       58. OH+CH2_pair:       Mult = 1      ECI = -0.220000000000000        Entities:  OH* CH2* 
+       59. CHO+OH_pair:       Mult = 1      ECI = -0.141000000000000        Entities:  CHO* OH* 
+       60. CH+CH_pair:        Mult = 2      ECI = -5.800000000000000E-002   Entities:  CH* CH* 
+       61. CO+CH3_pair:       Mult = 1      ECI = 5.700000000000000E-002    Entities:  CO* CH3* 
+       62. H2O+CH_pair:       Mult = 1      ECI = -2.300000000000000E-002   Entities:  H2O* CH* 
+       63. COOH_Pt+OH_pair:   Mult = 1      ECI = 0.163000000000000         Entities:  COOH_Pt* OH* 
+       64. CO+CH2_pair:       Mult = 1      ECI = -5.500000000000000E-002   Entities:  CO* CH2* 
+       65. H2O+H2O_pair:      Mult = 2      ECI = -3.500000000000000E-002   Entities:  H2O* H2O* 
+       66. OH+CH3_pair:       Mult = 1      ECI = -0.265000000000000        Entities:  OH* CH3* 
+       67. O_Pt+OH_pair:      Mult = 1      ECI = 0.216000000000000         Entities:  O_Pt* OH* 
+       68. CO2+CO_pair:       Mult = 1      ECI = -0.183000000000000        Entities:  CO2* CO* 
+       69. CH3_Pt+OH_pair:    Mult = 1      ECI = 0.136000000000000         Entities:  CH3_Pt* OH* 
+       70. OH_Pt+H2O_pair:    Mult = 1      ECI = 0.139000000000000         Entities:  OH_Pt* H2O* 
+       71. COOH_Pt+H2O_pair:  Mult = 1      ECI = 0.145000000000000         Entities:  COOH_Pt* H2O* 
+       72. CHO+CH2_pair:      Mult = 1      ECI = -5.000000000000000E-002   Entities:  CHO* CH2* 
+       73. CH+C_pair:         Mult = 1      ECI = -2.200000000000000E-002   Entities:  CH* C* 
+       74. COOH+CH3_pair:     Mult = 1      ECI = 1.600000000000000E-002    Entities:  COOH* CH3* 
+       75. CH2+CH_pair:       Mult = 1      ECI = -0.104000000000000        Entities:  CH2* CH* 
+       76. CO2_Pt+H2O_pair:   Mult = 1      ECI = 9.900000000000000E-002    Entities:  CO2_Pt* H2O* 
+       77. CH2_Pt+H2O_pair:   Mult = 1      ECI = 0.120000000000000         Entities:  CH2_Pt* H2O* 
+       78. CHO+CO2_pair:      Mult = 1      ECI = 5.200000000000000E-002    Entities:  CHO* CO2* 
+       79. COOH+CHO_pair:     Mult = 1      ECI = 3.700000000000000E-002    Entities:  COOH* CHO* 
+       80. O+CH2_pair:        Mult = 1      ECI = -7.900000000000000E-002   Entities:  O* CH2* 
+       81. COOH+COOH_pair:    Mult = 2      ECI = -7.000000000000001E-002   Entities:  COOH* COOH* 
+       82. CO2+CH_pair:       Mult = 1      ECI = -0.240000000000000        Entities:  CO2* CH* 
+       83. COOH+CH_pair:      Mult = 1      ECI = 2.900000000000000E-002    Entities:  COOH* CH* 
+       84. CO2_Pt+OH_pair:    Mult = 1      ECI = 5.000000000000000E-003    Entities:  CO2_Pt* OH* 
+       85. OH+CH_pair:        Mult = 1      ECI = -0.118000000000000        Entities:  OH* CH* 
+       86. CH_Pt+H2O_pair:    Mult = 1      ECI = 0.161000000000000         Entities:  CH_Pt* H2O* 
+       87. CHO+CHO_pair:      Mult = 2      ECI = -6.300000000000000E-002   Entities:  CHO* CHO* 
+       88. O+CH3_pair:        Mult = 1      ECI = 3.400000000000000E-002    Entities:  O* CH3* 
+       89. COOH+CO2_pair:     Mult = 1      ECI = -0.135000000000000        Entities:  COOH* CO2* 
+       90. CHO_Pt+OH_pair:    Mult = 1      ECI = 0.264000000000000         Entities:  CHO_Pt* OH* 
+       91. C+C_pair:          Mult = 2      ECI = 9.300000000000000E-002    Entities:  C* C* 
+       92. CHO_Pt+H2O_pair:   Mult = 1      ECI = 0.181000000000000         Entities:  CHO_Pt* H2O* 
+       93. CHO+CO_pair:       Mult = 1      ECI = 7.900000000000000E-002    Entities:  CHO* CO* 
+       94. C_Pt+OH_pair:      Mult = 1      ECI = 0.255000000000000         Entities:  C_Pt* OH* 
+       95. CO2+CO2_pair:      Mult = 2      ECI = 0.144000000000000         Entities:  CO2* CO2* 
+       96. CO2+O_pair:        Mult = 1      ECI = -0.161000000000000        Entities:  CO2* O* 
+       97. CO+CH_pair:        Mult = 1      ECI = 2.000000000000000E-003    Entities:  CO* CH* 
+       98. O_Pt+H2O_pair:     Mult = 1      ECI = 0.117000000000000         Entities:  O_Pt* H2O* 
+       99. CH2_Pt+OH_pair:    Mult = 1      ECI = 7.000000000000000E-003    Entities:  CH2_Pt* OH* 
+      100. COOH+H_pair:       Mult = 1      ECI = -7.800000000000000E-002   Entities:  COOH* H* 
+      101. H2O+H_pair:        Mult = 1      ECI = -7.700000000000000E-002   Entities:  H2O* H* 
+      102. CO_Pt+H2O_pair:    Mult = 1      ECI = 0.186000000000000         Entities:  CO_Pt* H2O* 
+      103. CH2+CH2_pair:      Mult = 2      ECI = -0.120000000000000        Entities:  CH2* CH2* 
+      104. CH3+CH2_pair:      Mult = 1      ECI = 4.100000000000000E-002    Entities:  CH3* CH2* 
+      105. CO2+C_pair:        Mult = 1      ECI = -0.167000000000000        Entities:  CO2* C* 
+      106. CH3+C_pair:        Mult = 1      ECI = 2.200000000000000E-002    Entities:  CH3* C* 
+      107. COOH+OH_pair:      Mult = 1      ECI = -0.124000000000000        Entities:  COOH* OH* 
+      108. OH+OH_pair:        Mult = 2      ECI = -8.699999999999999E-002   Entities:  OH* OH* 
+      109. CO2+OH_pair:       Mult = 1      ECI = -0.106000000000000        Entities:  CO2* OH* 
+      110. CHO+O_pair:        Mult = 1      ECI = -3.100000000000000E-002   Entities:  CHO* O* 
+      111. CH3+CH3_pair:      Mult = 2      ECI = 0.212000000000000         Entities:  CH3* CH3* 
+      112. C_Pt+H2O_pair:     Mult = 1      ECI = 0.209000000000000         Entities:  C_Pt* H2O* 
+      113. CHO+C_pair:        Mult = 1      ECI = 4.300000000000000E-002    Entities:  CHO* C* 
+      114. OH+O_pair:         Mult = 1      ECI = -0.204000000000000        Entities:  OH* O* 
+      115. CHO+H2O_pair:      Mult = 1      ECI = -3.300000000000000E-002   Entities:  CHO* H2O* 
+      116. CO2+CH3_pair:      Mult = 1      ECI = -0.362000000000000        Entities:  CO2* CH3* 
+      117. CHO+H_pair:        Mult = 1      ECI = 2.400000000000000E-002    Entities:  CHO* H* 
+      118. CH_Pt+OH_pair:     Mult = 1      ECI = 0.319000000000000         Entities:  CH_Pt* OH* 
+      119. OH+C_pair:         Mult = 1      ECI = -0.186000000000000        Entities:  OH* C* 
+      120. H2O+CH2_pair:      Mult = 1      ECI = 3.000000000000000E-003    Entities:  H2O* CH2* 
+      121. CO+H2O_pair:       Mult = 1      ECI = -2.300000000000000E-002   Entities:  CO* H2O* 
+      122. CO+CO_pair:        Mult = 2      ECI = 0.177000000000000         Entities:  CO* CO* 
+      123. H2O+OH_pair:       Mult = 1      ECI = -4.200000000000000E-002   Entities:  H2O* OH* 
+      124. H2O_Pt+OH_pair:    Mult = 1      ECI = -0.129000000000000        Entities:  H2O_Pt* OH* 
+      125. H2O_Pt+H2O_pair:   Mult = 1      ECI = 0.145000000000000         Entities:  H2O_Pt* H2O* 
+      126. COOH+C_pair:       Mult = 1      ECI = 3.300000000000000E-002    Entities:  COOH* C* 
+      127. H2O+CH3_pair:      Mult = 1      ECI = -7.199999999999999E-002   Entities:  H2O* CH3* 
+      128. H2O+C_pair:        Mult = 1      ECI = -1.900000000000000E-002   Entities:  H2O* C* 
+      129. CHO+CH_pair:       Mult = 1      ECI = 1.000000000000000E-002    Entities:  CHO* CH* 
+      130. OH_Pt+OH_pair:     Mult = 1      ECI = 0.143000000000000         Entities:  OH_Pt* OH* 
+      131. CH3_Pt+H2O_pair:   Mult = 1      ECI = 0.138000000000000         Entities:  CH3_Pt* H2O* 
+      132. CO2+CH2_pair:      Mult = 1      ECI = -0.217000000000000        Entities:  CO2* CH2* 
+      133. COOH+O_pair:       Mult = 1      ECI = -2.400000000000000E-002   Entities:  COOH* O* 
+      134. H2O+O_pair:        Mult = 1      ECI = -4.100000000000000E-002   Entities:  H2O* O* 
+      135. CO+C_pair:         Mult = 1      ECI = 0.117000000000000         Entities:  CO* C* 
+      136. COOH+H2O_pair:     Mult = 1      ECI = -2.300000000000000E-002   Entities:  COOH* H2O* 
+
+Finished reading energetics input.
+
+Mechanism setup:
+~~~~~~~~~~~~~~~~
+
+    Number of elementary steps: 126
+
+    Maximum number of sites involved in a step: 3
+
+    Reaction network:
+
+        1. aCH4_HfC_fwd:       A(Tini) =  2.9040E+03    Ea       =  0.95    k(Tini) =  4.8449E-02    Reaction: CH4  +  *(tC)  +  *(tC)  ->  CH3*(tC)  +  H*(tC)
+        2. aCH4_HfC_rev:       A(Tini) =  1.4638E+13  [ Ea-ideal =  1.23    k(Tini) =  9.0466E+06 ]  Reaction: CH3*(tC)  +  H*(tC)  ->  CH4  +  *(tC)  +  *(tC)
+        3. aCH4_Pt_fwd:        A(Tini) =  5.4279E+04    Ea       =  0.03    k(Tini) =  3.8768E+04    Reaction: CH4  +  *(Pt)  +  *(tC)  ->  CH3_Pt*(Pt)  +  H*(tC)
+        4. aCH4_Pt_rev:        A(Tini) =  2.5873E+13  [ Ea-ideal =  0.85    k(Tini) =  1.2701E+09 ]  Reaction: CH3_Pt*(Pt)  +  H*(tC)  ->  CH4  +  *(Pt)  +  *(tC)
+        5. aO2_HfC_fwd:        A(Tini) =  7.8650E+04    Ea       =  0.00    k(Tini) =  7.8650E+04    Reaction: O2  +  *(tC)  +  *(tC)  ->  O*(tC)  +  O*(tC)
+        6. aO2_HfC_rev:        A(Tini) =  4.8192E+16  [ Ea-ideal =  5.27    k(Tini) =  1.4079E-10 ]  Reaction: O*(tC)  +  O*(tC)  ->  O2  +  *(tC)  +  *(tC)
+        7. aO2_Pt_fwd:         A(Tini) =  3.9330E+05    Ea       =  0.00    k(Tini) =  3.9330E+05    Reaction: O2  +  *(Pt)  +  *(tC)  ->  O_Pt*(Pt)  +  O*(tC)
+        8. aO2_Pt_rev:         A(Tini) =  9.3509E+16  [ Ea-ideal =  4.85    k(Tini) =  3.5740E-08 ]  Reaction: O_Pt*(Pt)  +  O*(tC)  ->  O2  +  *(Pt)  +  *(tC)
+        9. aCO_HfC_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO  +  *(tC)  ->  CO*(tC)
+       10. aCO_HfC_rev:        A(Tini) =  1.0583E+16  [ Ea-ideal =  1.72    k(Tini) =  2.1932E+07 ]  Reaction: CO*(tC)  ->  CO  +  *(tC)
+       11. aCO_Pt_fwd:         A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO  +  *(Pt)  ->  CO_Pt*(Pt)
+       12. aCO_Pt_rev:         A(Tini) =  2.4379E+16  [ Ea-ideal =  2.48    k(Tini) =  8.0076E+03 ]  Reaction: CO_Pt*(Pt)  ->  CO  +  *(Pt)
+       13. aH2_HfC_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.49    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  *(tC)  ->  H*(tC)  +  H*(tC)
+       14. aH2_HfC_rev:        A(Tini) =  3.7560E+12  [ Ea-ideal =  1.65    k(Tini) =  1.9022E+04 ]  Reaction: H*(tC)  +  H*(tC)  ->  H2  +  *(tC)  +  *(tC)
+       15. aH2w*_Pt_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  *(Pt)  +  *(tC)  ->  H*(tC)  +  *(Pt)  +  H*(tC)
+       16. aH2w*_Pt_rev:       A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  *(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  *(Pt)  +  *(tC)
+       17. aH2wCH3_Pt_fwd:     A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CH3_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CH3_Pt*(Pt)  +  H*(tC)
+       18. aH2wCH3_Pt_rev:     A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CH3_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CH3_Pt*(Pt)  +  *(tC)
+       19. aH2wCH2_Pt_fwd:     A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CH2_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CH2_Pt*(Pt)  +  H*(tC)
+       20. aH2wCH2_Pt_rev:     A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CH2_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CH2_Pt*(Pt)  +  *(tC)
+       21. aH2wCH_Pt_fwd:      A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CH_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CH_Pt*(Pt)  +  H*(tC)
+       22. aH2wCH_Pt_rev:      A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CH_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CH_Pt*(Pt)  +  *(tC)
+       23. aH2wC_Pt_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  C_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  C_Pt*(Pt)  +  H*(tC)
+       24. aH2wC_Pt_rev:       A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  C_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  C_Pt*(Pt)  +  *(tC)
+       25. aH2wO_Pt_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  O_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  O_Pt*(Pt)  +  H*(tC)
+       26. aH2wO_Pt_rev:       A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  O_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  O_Pt*(Pt)  +  *(tC)
+       27. aH2wOH_Pt_fwd:      A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  OH_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  OH_Pt*(Pt)  +  H*(tC)
+       28. aH2wOH_Pt_rev:      A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  OH_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  OH_Pt*(Pt)  +  *(tC)
+       29. aH2wH2O_Pt_fwd:     A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  H2O_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  H2O_Pt*(Pt)  +  H*(tC)
+       30. aH2wH2O_Pt_rev:     A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  H2O_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  H2O_Pt*(Pt)  +  *(tC)
+       31. aH2wCO_Pt_fwd:      A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CO_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CO_Pt*(Pt)  +  H*(tC)
+       32. aH2wCO_Pt_rev:      A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CO_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CO_Pt*(Pt)  +  *(tC)
+       33. aH2wCO2_Pt_fwd:     A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CO2_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CO2_Pt*(Pt)  +  H*(tC)
+       34. aH2wCO2_Pt_rev:     A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CO2_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CO2_Pt*(Pt)  +  *(tC)
+       35. aH2wCOOH_Pt_fwd:    A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  COOH_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  COOH_Pt*(Pt)  +  H*(tC)
+       36. aH2wCOOH_Pt_rev:    A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  COOH_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  COOH_Pt*(Pt)  +  *(tC)
+       37. aH2wCHO_Pt_fwd:     A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  CHO_Pt*(Pt)  +  *(tC)  ->  H*(tC)  +  CHO_Pt*(Pt)  +  H*(tC)
+       38. aH2wCHO_Pt_rev:     A(Tini) =  9.0046E+14  [ Ea-ideal =  1.15    k(Tini) =  1.4081E+09 ]  Reaction: H*(tC)  +  CHO_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(tC)  +  CHO_Pt*(Pt)  +  *(tC)
+       39. aCO2_HfC_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO2  +  *(tC)  ->  CO2*(tC)
+       40. aCO2_HfC_rev:       A(Tini) =  9.3870E+16  [ Ea-ideal =  1.57    k(Tini) =  1.1220E+09 ]  Reaction: CO2*(tC)  ->  CO2  +  *(tC)
+       41. aCO2_Pt_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO2  +  *(Pt)  ->  CO2_Pt*(Pt)
+       42. aCO2_Pt_rev:        A(Tini) =  6.8081E+16  [ Ea-ideal =  1.35    k(Tini) =  1.0096E+10 ]  Reaction: CO2_Pt*(Pt)  ->  CO2  +  *(Pt)
+       43. aH2O_HfC_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2O  +  *(tM)  ->  H2O*(tM)
+       44. aH2O_HfC_rev:       A(Tini) =  1.3097E+15  [ Ea-ideal =  0.79    k(Tini) =  1.3829E+11 ]  Reaction: H2O*(tM)  ->  H2O  +  *(tM)
+       45. aH2O_Pt_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2O  +  *(Pt)  ->  H2O_Pt*(Pt)
+       46. aH2O_Pt_rev:        A(Tini) =  6.3682E+15  [ Ea-ideal =  0.79    k(Tini) =  6.7241E+11 ]  Reaction: H2O_Pt*(Pt)  ->  H2O  +  *(Pt)
+       47. bCH3_HfC_fwd:       A(Tini) =  6.6540E+13    Ea       =  0.88    k(Tini) =  2.4724E+09    Reaction: CH3*(tC)  +  *(tC)  ->  CH2*(tC)  +  H*(tC)
+       48. bCH3_HfC_rev:       A(Tini) =  3.8912E+11  [ Ea-ideal =  0.83    k(Tini) =  2.4373E+07 ]  Reaction: CH2*(tC)  +  H*(tC)  ->  CH3*(tC)  +  *(tC)
+       49. bCH3_Pt_fwd:        A(Tini) =  1.6430E+13    Ea       =  0.47    k(Tini) =  7.2789E+10    Reaction: CH3_Pt*(Pt)  +  *(tC)  ->  CH2_Pt*(Pt)  +  H*(tC)
+       50. bCH3_Pt_rev:        A(Tini) =  3.0097E+12  [ Ea-ideal =  0.08    k(Tini) =  1.1487E+12 ]  Reaction: CH2_Pt*(Pt)  +  H*(tC)  ->  CH3_Pt*(Pt)  +  *(tC)
+       51. bCH2_HfC_fwd:       A(Tini) =  3.7810E+12    Ea       =  0.72    k(Tini) =  8.4881E+08    Reaction: CH2*(tC)  +  *(tC)  ->  CH*(tC)  +  H*(tC)
+       52. bCH2_HfC_rev:       A(Tini) =  3.9024E+12  [ Ea-ideal =  0.66    k(Tini) =  1.8843E+09 ]  Reaction: CH*(tC)  +  H*(tC)  ->  CH2*(tC)  +  *(tC)
+       53. bCH2_Pt_fwd:        A(Tini) =  2.0050E+13    Ea       =  0.51    k(Tini) =  5.3308E+10    Reaction: CH2_Pt*(Pt)  +  *(tC)  ->  CH_Pt*(Pt)  +  H*(tC)
+       54. bCH2_Pt_rev:        A(Tini) =  3.8462E+12  [ Ea-ideal =  0.43    k(Tini) =  2.4702E+10 ]  Reaction: CH_Pt*(Pt)  +  H*(tC)  ->  CH2_Pt*(Pt)  +  *(tC)
+       55. bCH_HfC_fwd:        A(Tini) =  4.4340E+13    Ea       =  1.28    k(Tini) =  1.4987E+07    Reaction: CH*(tC)  +  *(tC)  ->  C*(tC)  +  H*(tC)
+       56. bCH_HfC_rev:        A(Tini) =  1.6130E+12  [ Ea-ideal =  0.97    k(Tini) =  2.0369E+07 ]  Reaction: C*(tC)  +  H*(tC)  ->  CH*(tC)  +  *(tC)
+       57. bCH_Pt_fwd:         A(Tini) =  2.1970E+14    Ea       =  0.85    k(Tini) =  1.1038E+10    Reaction: CH_Pt*(Pt)  +  *(tC)  ->  C_Pt*(Pt)  +  H*(tC)
+       58. bCH_Pt_rev:         A(Tini) =  3.1426E+13  [ Ea-ideal =  0.80    k(Tini) =  2.8869E+09 ]  Reaction: C_Pt*(Pt)  +  H*(tC)  ->  CH_Pt*(Pt)  +  *(tC)
+       59. fCO_HfC_fwd:        A(Tini) =  9.4270E+12    Ea       =  1.32    k(Tini) =  1.9800E+06    Reaction: C*(tC)  +  O*(tC)  ->  CO*(tC)  +  *(tC)
+       60. fCO_HfC_rev:        A(Tini) =  5.0929E+12  [ Ea-ideal =  2.21    k(Tini) =  3.6646E+01 ]  Reaction: CO*(tC)  +  *(tC)  ->  C*(tC)  +  O*(tC)
+       61. fCO_Pt_fwd:         A(Tini) =  1.4040E+13    Ea       =  1.63    k(Tini) =  8.6612E+04    Reaction: C_Pt*(Pt)  +  O*(tC)  ->  CO_Pt*(Pt)  +  *(tC)
+       62. fCO_Pt_rev:         A(Tini) =  1.6132E+12  [ Ea-ideal =  2.82    k(Tini) =  1.0368E-02 ]  Reaction: CO_Pt*(Pt)  +  *(tC)  ->  C_Pt*(Pt)  +  O*(tC)
+       63. fCHO_HfC_fwd:       A(Tini) =  2.5750E+13    Ea       =  1.42    k(Tini) =  1.8813E+06    Reaction: CH*(tC)  +  O*(tC)  ->  CHO*(tC)  +  *(tC)
+       64. fCHO_HfC_rev:       A(Tini) =  2.3261E+13  [ Ea-ideal =  1.82    k(Tini) =  1.5281E+04 ]  Reaction: CHO*(tC)  +  *(tC)  ->  CH*(tC)  +  O*(tC)
+       65. fCHO_Pt_fwd:        A(Tini) =  8.1130E+12    Ea       =  1.15    k(Tini) =  1.3602E+07    Reaction: CH_Pt*(Pt)  +  O*(tC)  ->  CHO_Pt*(Pt)  +  *(tC)
+       66. fCHO_Pt_rev:        A(Tini) =  1.3859E+13  [ Ea-ideal =  1.57    k(Tini) =  1.7760E+05 ]  Reaction: CHO_Pt*(Pt)  +  *(tC)  ->  CH_Pt*(Pt)  +  O*(tC)
+       67. bCHO_HfC_fwd:       A(Tini) =  4.8640E+14    Ea       =  1.29    k(Tini) =  1.4471E+08    Reaction: CHO*(tC)  +  *(tC)  ->  CO*(tC)  +  H*(tC)
+       68. bCHO_HfC_rev:       A(Tini) =  1.0579E+13  [ Ea-ideal =  1.46    k(Tini) =  4.4796E+05 ]  Reaction: CO*(tC)  +  H*(tC)  ->  CHO*(tC)  +  *(tC)
+       69. bCHO_Pt_fwd:        A(Tini) =  2.0110E+14    Ea       =  0.94    k(Tini) =  3.7680E+09    Reaction: CHO_Pt*(Pt)  +  *(tC)  ->  CO_Pt*(Pt)  +  H*(tC)
+       70. bCHO_Pt_rev:        A(Tini) =  1.9355E+12  [ Ea-ideal =  1.65    k(Tini) =  9.0376E+03 ]  Reaction: CO_Pt*(Pt)  +  H*(tC)  ->  CHO_Pt*(Pt)  +  *(tC)
+       71. bCO2_HfC_fwd:       A(Tini) =  9.6470E+13    Ea       =  1.69    k(Tini) =  2.8318E+05    Reaction: CO2*(tC)  +  *(tC)  ->  CO*(tC)  +  O*(tC)
+       72. bCO2_HfC_rev:       A(Tini) =  3.8759E+12  [ Ea-ideal =  1.22    k(Tini) =  2.8841E+06 ]  Reaction: CO*(tC)  +  O*(tC)  ->  CO2*(tC)  +  *(tC)
+       73. bCO2_Pt_fwd:        A(Tini) =  6.6070E+13    Ea       =  0.64    k(Tini) =  3.8412E+10    Reaction: CO2_Pt*(Pt)  +  *(tC)  ->  CO_Pt*(Pt)  +  O*(tC)
+       74. bCO2_Pt_rev:        A(Tini) =  8.4284E+12  [ Ea-ideal =  1.14    k(Tini) =  1.5869E+07 ]  Reaction: CO_Pt*(Pt)  +  O*(tC)  ->  CO2_Pt*(Pt)  +  *(tC)
+       75. fOH_HfC_fwd:        A(Tini) =  1.0550E+13    Ea       =  1.40    k(Tini) =  8.9630E+05    Reaction: O*(tC)  +  H*(tC)  +  *(tM)  ->  *(tC)  +  *(tC)  +  OH*(tM)
+       76. fOH_HfC_rev:        A(Tini) =  1.5685E+12  [ Ea-ideal =  0.99    k(Tini) =  1.6261E+07 ]  Reaction: *(tC)  +  *(tC)  +  OH*(tM)  ->  O*(tC)  +  H*(tC)  +  *(tM)
+       77. fOHa_Pt_fwd:        A(Tini) =  8.7470E+12    Ea       =  1.06    k(Tini) =  3.9783E+07    Reaction: O_Pt*(Pt)  +  H*(tC)  ->  OH_Pt*(Pt)  +  *(tC)
+       78. fOHa_Pt_rev:        A(Tini) =  5.6725E+13  [ Ea-ideal =  1.70    k(Tini) =  1.5531E+05 ]  Reaction: OH_Pt*(Pt)  +  *(tC)  ->  O_Pt*(Pt)  +  H*(tC)
+       79. fOHb_Pt_fwd:        A(Tini) =  3.7950E+12    Ea       =  0.59    k(Tini) =  4.1288E+09    Reaction: O_Pt*(Pt)  +  *(tM)  +  H*(tC)  ->  *(Pt)  +  OH*(tM)  +  *(tC)
+       80. fOHb_Pt_rev:        A(Tini) =  1.4540E+12  [ Ea-ideal =  0.59    k(Tini) =  1.4755E+09 ]  Reaction: *(Pt)  +  OH*(tM)  +  *(tC)  ->  O_Pt*(Pt)  +  *(tM)  +  H*(tC)
+       81. fH2O_HfC_fwd:       A(Tini) =  4.8790E+11    Ea       =  0.58    k(Tini) =  5.9613E+08    Reaction: OH*(tM)  +  H*(tC)  ->  H2O*(tM)  +  *(tC)
+       82. fH2O_HfC_rev:       A(Tini) =  7.6330E+12  [ Ea-ideal =  0.53    k(Tini) =  1.6855E+10 ]  Reaction: H2O*(tM)  +  *(tC)  ->  OH*(tM)  +  H*(tC)
+       83. fH2O_Pt_fwd:        A(Tini) =  1.7520E+13    Ea       =  1.21    k(Tini) =  1.3977E+07    Reaction: OH_Pt*(Pt)  +  H*(tC)  ->  H2O_Pt*(Pt)  +  *(tC)
+       84. fH2O_Pt_rev:        A(Tini) =  1.5741E+13  [ Ea-ideal =  0.53    k(Tini) =  3.5166E+10 ]  Reaction: H2O_Pt*(Pt)  +  *(tC)  ->  OH_Pt*(Pt)  +  H*(tC)
+       85. fCOOH_HfC_fwd:      A(Tini) =  2.7440E+12    Ea       =  1.57    k(Tini) =  3.4758E+04    Reaction: CO2*(tC)  +  H*(tC)  ->  COOH*(tC)  +  *(tC)
+       86. fCOOH_HfC_rev:      A(Tini) =  1.8950E+13  [ Ea-ideal =  0.93    k(Tini) =  3.8067E+08 ]  Reaction: COOH*(tC)  +  *(tC)  ->  CO2*(tC)  +  H*(tC)
+       87. fCOOH_Pt_fwd:       A(Tini) =  4.6340E+13    Ea       =  1.67    k(Tini) =  1.6958E+05    Reaction: CO2_Pt*(Pt)  +  H*(tC)  ->  COOH_Pt*(Pt)  +  *(tC)
+       88. fCOOH_Pt_rev:       A(Tini) =  3.3386E+14  [ Ea-ideal =  1.59    k(Tini) =  3.1276E+06 ]  Reaction: COOH_Pt*(Pt)  +  *(tC)  ->  CO2_Pt*(Pt)  +  H*(tC)
+       89. bCOOH_HfC_fwd:      A(Tini) =  8.8830E+13    Ea       =  0.47    k(Tini) =  3.8451E+11    Reaction: COOH*(tC)  +  *(tM)  ->  CO*(tC)  +  OH*(tM)
+       90. bCOOH_HfC_rev:      A(Tini) =  7.6843E+10  [ Ea-ideal =  0.21    k(Tini) =  6.4883E+09 ]  Reaction: CO*(tC)  +  OH*(tM)  ->  COOH*(tC)  +  *(tM)
+       91. bCOOH_Pt_fwd:       A(Tini) =  3.9240E+14    Ea       =  1.04    k(Tini) =  2.2772E+09    Reaction: COOH_Pt*(Pt)  +  *(tM)  ->  CO_Pt*(Pt)  +  OH*(tM)
+       92. bCOOH_Pt_rev:       A(Tini) =  1.0332E+12  [ Ea-ideal =  1.20    k(Tini) =  9.2565E+05 ]  Reaction: CO_Pt*(Pt)  +  OH*(tM)  ->  COOH_Pt*(Pt)  +  *(tM)
+       93. dO_HfC_fwd:         A(Tini) =  1.1360E+13    Ea       =  1.22    k(Tini) =  8.0697E+06    Reaction: O*(tC)  +  *(tC)  ->  *(tC)  +  O*(tC)
+       94. dO_HfC_rev:         A(Tini) =  1.1360E+13  [ Ea-ideal =  1.22    k(Tini) =  8.0697E+06 ]  Reaction: *(tC)  +  O*(tC)  ->  O*(tC)  +  *(tC)
+       95. dO_Pt_fwd:          A(Tini) =  6.3320E+12    Ea       =  0.51    k(Tini) =  1.7432E+10    Reaction: O_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  O*(tC)
+       96. dO_Pt_rev:          A(Tini) =  1.6320E+13  [ Ea-ideal =  0.93    k(Tini) =  3.4340E+08 ]  Reaction: *(Pt)  +  O*(tC)  ->  O_Pt*(Pt)  +  *(tC)
+       97. dH_HfC_fwd:         A(Tini) =  3.9910E+12    Ea       =  1.18    k(Tini) =  4.5624E+06    Reaction: H*(tC)  +  *(tC)  ->  *(tC)  +  H*(tC)
+       98. dH_HfC_rev:         A(Tini) =  3.9910E+12  [ Ea-ideal =  1.18    k(Tini) =  4.5624E+06 ]  Reaction: *(tC)  +  H*(tC)  ->  H*(tC)  +  *(tC)
+       99. dCO_HfC_fwd:        A(Tini) =  8.6920E+12    Ea       =  1.16    k(Tini) =  1.2976E+07    Reaction: CO*(tC)  +  *(tC)  ->  *(tC)  +  CO*(tC)
+      100. dCO_HfC_rev:        A(Tini) =  8.6920E+12  [ Ea-ideal =  1.16    k(Tini) =  1.2976E+07 ]  Reaction: *(tC)  +  CO*(tC)  ->  CO*(tC)  +  *(tC)
+      101. dCO_Pt_fwd:         A(Tini) =  3.3100E+12    Ea       =  1.73    k(Tini) =  6.3244E+03    Reaction: CO_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  CO*(tC)
+      102. dCO_Pt_rev:         A(Tini) =  7.1847E+12  [ Ea-ideal =  0.98    k(Tini) =  8.6615E+07 ]  Reaction: *(Pt)  +  CO*(tC)  ->  CO_Pt*(Pt)  +  *(tC)
+      103. dOH_HfC_fwd:        A(Tini) =  3.4900E+11    Ea       =  0.28    k(Tini) =  1.3700E+10    Reaction: OH*(tM)  +  *(tM)  ->  *(tM)  +  OH*(tM)
+      104. dOH_HfC_rev:        A(Tini) =  3.4900E+11  [ Ea-ideal =  0.28    k(Tini) =  1.3700E+10 ]  Reaction: *(tM)  +  OH*(tM)  ->  OH*(tM)  +  *(tM)
+      105. dOH_Pt_fwd:         A(Tini) =  1.2810E+13    Ea       =  0.97    k(Tini) =  1.7343E+08    Reaction: OH_Pt*(Pt)  +  *(tM)  ->  *(Pt)  +  OH*(tM)
+      106. dOH_Pt_rev:         A(Tini) =  7.5709E+11  [ Ea-ideal =  0.33    k(Tini) =  1.5882E+10 ]  Reaction: *(Pt)  +  OH*(tM)  ->  OH_Pt*(Pt)  +  *(tM)
+      107. dH2O_HfC_fwd:       A(Tini) =  1.7760E+13    Ea       =  0.39    k(Tini) =  1.9909E+11    Reaction: H2O*(tM)  +  *(tM)  ->  *(tM)  +  H2O*(tM)
+      108. dH2O_HfC_rev:       A(Tini) =  1.7760E+13  [ Ea-ideal =  0.39    k(Tini) =  1.9909E+11 ]  Reaction: *(tM)  +  H2O*(tM)  ->  H2O*(tM)  +  *(tM)
+      109. dH2O_Pt_fwd:        A(Tini) =  4.5130E+13    Ea       =  0.52    k(Tini) =  1.0809E+11    Reaction: H2O_Pt*(Pt)  +  *(tM)  ->  *(Pt)  +  H2O*(tM)
+      110. dH2O_Pt_rev:        A(Tini) =  4.6416E+13  [ Ea-ideal =  0.52    k(Tini) =  1.1117E+11 ]  Reaction: *(Pt)  +  H2O*(tM)  ->  H2O_Pt*(Pt)  +  *(tM)
+      111. dCH3_HfC_fwd:       A(Tini) =  8.8120E+13    Ea       =  1.27    k(Tini) =  3.5863E+07    Reaction: CH3*(tC)  +  *(tC)  ->  *(tC)  +  CH3*(tC)
+      112. dCH3_HfC_rev:       A(Tini) =  8.8120E+13  [ Ea-ideal =  1.27    k(Tini) =  3.5863E+07 ]  Reaction: *(tC)  +  CH3*(tC)  ->  CH3*(tC)  +  *(tC)
+      113. dCH3_Pt_fwd:        A(Tini) =  3.5680E+13    Ea       =  2.19    k(Tini) =  3.2007E+02    Reaction: CH3_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  CH3*(tC)
+      114. dCH3_Pt_rev:        A(Tini) =  3.7729E+14  [ Ea-ideal =  1.65    k(Tini) =  1.8241E+06 ]  Reaction: *(Pt)  +  CH3*(tC)  ->  CH3_Pt*(Pt)  +  *(tC)
+      115. dCH2_HfC_fwd:       A(Tini) =  3.6490E+11    Ea       =  1.28    k(Tini) =  1.3378E+05    Reaction: CH2*(tC)  +  *(tC)  ->  *(tC)  +  CH2*(tC)
+      116. dCH2_HfC_rev:       A(Tini) =  3.6490E+11  [ Ea-ideal =  1.28    k(Tini) =  1.3378E+05 ]  Reaction: *(tC)  +  CH2*(tC)  ->  CH2*(tC)  +  *(tC)
+      117. dCH2_Pt_fwd:        A(Tini) =  6.5420E+12    Ea       =  0.94    k(Tini) =  1.2401E+08    Reaction: CH2_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  CH2*(tC)
+      118. dCH2_Pt_rev:        A(Tini) =  2.2079E+12  [ Ea-ideal =  0.73    k(Tini) =  4.4135E+08 ]  Reaction: *(Pt)  +  CH2*(tC)  ->  CH2_Pt*(Pt)  +  *(tC)
+      119. dCH_HfC_fwd:        A(Tini) =  1.0730E+13    Ea       =  0.69    k(Tini) =  3.7006E+09    Reaction: CH*(tC)  +  *(tC)  ->  *(tC)  +  CH*(tC)
+      120. dCH_HfC_rev:        A(Tini) =  1.0730E+13  [ Ea-ideal =  0.69    k(Tini) =  3.7006E+09 ]  Reaction: *(tC)  +  CH*(tC)  ->  CH*(tC)  +  *(tC)
+      121. dCH_Pt_fwd:         A(Tini) =  6.7340E+12    Ea       =  1.43    k(Tini) =  4.4320E+05    Reaction: CH_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  CH*(tC)
+      122. dCH_Pt_rev:         A(Tini) =  1.2226E+13  [ Ea-ideal =  1.23    k(Tini) =  7.5558E+06 ]  Reaction: *(Pt)  +  CH*(tC)  ->  CH_Pt*(Pt)  +  *(tC)
+      123. dC_HfC_fwd:         A(Tini) =  2.7350E+12    Ea       =  1.45    k(Tini) =  1.3625E+05    Reaction: C*(tC)  +  *(tC)  ->  *(tC)  +  C*(tC)
+      124. dC_HfC_rev:         A(Tini) =  2.7350E+12  [ Ea-ideal =  1.45    k(Tini) =  1.3625E+05 ]  Reaction: *(tC)  +  C*(tC)  ->  C*(tC)  +  *(tC)
+      125. dC_Pt_fwd:          A(Tini) =  1.1470E+13    Ea       =  2.48    k(Tini) =  3.6810E+00    Reaction: C_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  C*(tC)
+      126. dC_Pt_rev:          A(Tini) =  5.2955E+12  [ Ea-ideal =  2.03    k(Tini) =  3.2608E+02 ]  Reaction: *(Pt)  +  C*(tC)  ->  C_Pt*(Pt)  +  *(tC)
+
+    Stiffness scaling enabled for the following elementary steps:
+        Fwd/Rev: 1/2 - aCH4_HfC_fwd/aCH4_HfC_rev
+        Fwd/Rev: 3/4 - aCH4_Pt_fwd/aCH4_Pt_rev
+        Fwd/Rev: 5/6 - aO2_HfC_fwd/aO2_HfC_rev
+        Fwd/Rev: 7/8 - aO2_Pt_fwd/aO2_Pt_rev
+        Fwd/Rev: 47/48 - bCH3_HfC_fwd/bCH3_HfC_rev
+        Fwd/Rev: 49/50 - bCH3_Pt_fwd/bCH3_Pt_rev
+        Fwd/Rev: 51/52 - bCH2_HfC_fwd/bCH2_HfC_rev
+        Fwd/Rev: 53/54 - bCH2_Pt_fwd/bCH2_Pt_rev
+        Fwd/Rev: 57/58 - bCH_Pt_fwd/bCH_Pt_rev
+        Fwd/Rev: 69/70 - bCHO_Pt_fwd/bCHO_Pt_rev
+        Fwd/Rev: 73/74 - bCO2_Pt_fwd/bCO2_Pt_rev
+        Fwd/Rev: 79/80 - fOHb_Pt_fwd/fOHb_Pt_rev
+        Fwd/Rev: 81/82 - fH2O_HfC_fwd/fH2O_HfC_rev
+        Fwd/Rev: 89/90 - bCOOH_HfC_fwd/bCOOH_HfC_rev
+        Fwd/Rev: 95/96 - dO_Pt_fwd/dO_Pt_rev
+        Fwd/Rev: 103/104 - dOH_HfC_fwd/dOH_HfC_rev
+        Fwd/Rev: 105/106 - dOH_Pt_fwd/dOH_Pt_rev
+        Fwd/Rev: 107/108 - dH2O_HfC_fwd/dH2O_HfC_rev
+        Fwd/Rev: 109/110 - dH2O_Pt_fwd/dH2O_Pt_rev
+        Fwd/Rev: 117/118 - dCH2_Pt_fwd/dCH2_Pt_rev
+        Fwd/Rev: 119/120 - dCH_HfC_fwd/dCH_HfC_rev
+
+Finished reading mechanism input.
+
+Preparing simulation:
+~~~~~~~~~~~~~~~~~~~~~
+
+    Constructing requested lattice structure.
+
+        Lattice structure written to lattice_output.txt
+
+
+    Pre-allocating KMC-simulation-handling datastructures... done!
+
+
+    Pre-allocating lattice-handling datastructures... done!
+
+
+    Pre-allocating event-rate-handling datastructures... done!
+
+    Initializing lattice state.
+
+        All lattice sites are vacant.
+
+    Initializing energetics.
+
+        Total adlayer energy: 0.000000000000000E+000
+
+    Initializing lattice events.
+
+
+        1674 lattice events found and stored in binary heap.
+
+Commencing simulation:
+~~~~~~~~~~~~~~~~~~~~~~
+Stiffness detected at time t = 1.741623097605511E-005:
+   The fastest non-equilibrated step is 57 - bCH_Pt_fwd. Occurred 43 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (0.176484264973860). Occurred 34495 times (too fast). StiffCoeffNew/Old = 0.176484264973860               
+     Elementary step 96 - dO_Pt_rev (0.176484264973860). Occurred 34457 times (too fast). StiffCoeffNew/Old = 0.176484264973860               
+     Elementary step 103 - dOH_HfC_fwd (4.975225249700812E-003). Occurred 1222280 times (too fast). StiffCoeffNew/Old = 4.975225249700812E-003          
+     Elementary step 104 - dOH_HfC_rev (4.975225249700812E-003). Occurred 1222658 times (too fast). StiffCoeffNew/Old = 4.975225249700812E-003          
+
+Stiffness detected at time t = 9.548415036804946E-004:
+   The fastest non-equilibrated step is 93 - dO_HfC_fwd. Occurred 7 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (6.870873447068996E-004). Occurred 254277 times (too fast). StiffCoeffNew/Old = 3.893193224952185E-003          
+     Elementary step 96 - dO_Pt_rev (6.870873447068996E-004). Occurred 254278 times (too fast). StiffCoeffNew/Old = 3.893193224952185E-003          
+     Elementary step 103 - dOH_HfC_fwd (1.355309469070498E-005). Occurred 363979 times (too fast). StiffCoeffNew/Old = 2.724116800846354E-003          
+     Elementary step 104 - dOH_HfC_rev (1.355309469070498E-005). Occurred 363402 times (too fast). StiffCoeffNew/Old = 2.724116800846354E-003          
+     Elementary step 105 - dOH_Pt_fwd (8.836467853799576E-002). Occurred 11203 times (too fast). StiffCoeffNew/Old = 8.836467853799576E-002          
+     Elementary step 106 - dOH_Pt_rev (8.836467853799576E-002). Occurred 11203 times (too fast). StiffCoeffNew/Old = 8.836467853799576E-002          
+
+Stiffness detected at time t = 0.470349888209393:
+   The fastest non-equilibrated step is 7 - aO2_Pt_fwd. Occurred 3 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (4.347468717201942E-006). Occurred 67052 times (too fast). StiffCoeffNew/Old = 6.327388723855047E-003          
+     Elementary step 96 - dO_Pt_rev (4.347468717201942E-006). Occurred 67055 times (too fast). StiffCoeffNew/Old = 6.327388723855047E-003          
+     Elementary step 103 - dOH_HfC_fwd (1.194000418852144E-008). Occurred 481582 times (too fast). StiffCoeffNew/Old = 8.809799135182140E-004          
+     Elementary step 104 - dOH_HfC_rev (1.194000418852144E-008). Occurred 481879 times (too fast). StiffCoeffNew/Old = 8.809799135182140E-004          
+     Elementary step 105 - dOH_Pt_fwd (5.556290374957644E-004). Occurred 67473 times (too fast). StiffCoeffNew/Old = 6.287908774056712E-003          
+     Elementary step 106 - dOH_Pt_rev (5.556290374957644E-004). Occurred 67473 times (too fast). StiffCoeffNew/Old = 6.287908774056712E-003          
+
+Stiffness detected at time t = 21.7980339470946:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 18254/18254 times. Stiffness coefficient: 4.347468717201942E-006.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 573988/573103 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.128762941930034E-008). Occurred 19309 times (too fast). StiffCoeffNew/Old = 0.945362266300689               
+     Elementary step 104 - dOH_HfC_rev (1.128762941930034E-008). Occurred 19442 times (too fast). StiffCoeffNew/Old = 0.945362266300689               
+     Elementary step 105 - dOH_Pt_fwd (5.387756945788942E-004). Occurred 18825 times (too fast). StiffCoeffNew/Old = 0.969667994687915               
+     Elementary step 106 - dOH_Pt_rev (5.387756945788942E-004). Occurred 18825 times (too fast). StiffCoeffNew/Old = 0.969667994687915               
+
+Stiffness scaling possibly too aggressive at time t = 42.8965997718468:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (5.643814709650171E-008). Occurred 18203 times. PartEquil ratio = 0.502928662209206. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (5.643814709650171E-008). Occurred 17991 times. PartEquil ratio = 0.497071337790794. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 42.8965997718468:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 212 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (7.221612471794930E-006). Occurred 18049 times (too slow). StiffCoeffNew/Old = 1.66110740330820                
+     Elementary step 96 - dO_Pt_rev (7.221612471794930E-006). Occurred 18050 times (too slow). StiffCoeffNew/Old = 1.66110740330820                
+     Elementary step 105 - dOH_Pt_fwd (8.705114550673465E-004). Occurred 18556 times (too slow). StiffCoeffNew/Old = 1.61572146595762                
+     Elementary step 106 - dOH_Pt_rev (8.705114550673465E-004). Occurred 18556 times (too slow). StiffCoeffNew/Old = 1.61572146595762                
+
+Stiffness scaling possibly too aggressive at time t = 61.3248629625176:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (2.821907354825085E-007). Occurred 79491 times. PartEquil ratio = 0.502557326471648. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (2.821907354825085E-007). Occurred 78682 times. PartEquil ratio = 0.497442673528352. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 61.3248629625176:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 809 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (3.144763810965782E-005). Occurred 26273 times (too slow). StiffCoeffNew/Old = 4.35465600411005                
+     Elementary step 96 - dO_Pt_rev (3.144763810965782E-005). Occurred 26273 times (too slow). StiffCoeffNew/Old = 4.35465600411005                
+     Elementary step 105 - dOH_Pt_fwd (3.795834616661023E-003). Occurred 26238 times (too slow). StiffCoeffNew/Old = 4.36046486759598                
+     Elementary step 106 - dOH_Pt_rev (3.795834616661023E-003). Occurred 26238 times (too slow). StiffCoeffNew/Old = 4.36046486759598                
+
+Stiffness detected at time t = 82.3316833817853:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 56530/56530 times. Stiffness coefficient: 3.795834616661023E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 283502/282551 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.736239775802611E-005). Occurred 64970 times (too fast). StiffCoeffNew/Old = 0.870093889487456               
+     Elementary step 96 - dO_Pt_rev (2.736239775802611E-005). Occurred 64970 times (too fast). StiffCoeffNew/Old = 0.870093889487456               
+     Elementary step 103 - dOH_HfC_fwd (7.071687646822712E-008). Occurred 225579 times (too fast). StiffCoeffNew/Old = 0.250599568222219               
+     Elementary step 104 - dOH_HfC_rev (7.071687646822712E-008). Occurred 225368 times (too fast). StiffCoeffNew/Old = 0.250599568222219               
+
+Stiffness detected at time t = 96.6977986861340:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 104/103 - dOH_HfC_rev/dOH_HfC_fwd. Occurred 76936/77422 times. Stiffness coefficient: 7.071687646822712E-008.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 389783/388459 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.725011888096898E-005). Occurred 77253 times (too fast). StiffCoeffNew/Old = 0.995896599484810               
+     Elementary step 96 - dO_Pt_rev (2.725011888096898E-005). Occurred 77253 times (too fast). StiffCoeffNew/Old = 0.995896599484810               
+     Elementary step 105 - dOH_Pt_fwd (3.378212454653516E-003). Occurred 86447 times (too fast). StiffCoeffNew/Old = 0.889978830960010               
+     Elementary step 106 - dOH_Pt_rev (3.378212454653516E-003). Occurred 86447 times (too fast). StiffCoeffNew/Old = 0.889978830960010               
+
+Stiffness detected at time t = 111.285571235648:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 78065/78065 times. Stiffness coefficient: 3.378212454653516E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 396151/394888 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.723755816753747E-005). Occurred 78101 times (too fast). StiffCoeffNew/Old = 0.999539058398740               
+     Elementary step 96 - dO_Pt_rev (2.723755816753747E-005). Occurred 78101 times (too fast). StiffCoeffNew/Old = 0.999539058398740               
+     Elementary step 103 - dOH_HfC_fwd (7.041650248083050E-008). Occurred 78398 times (too fast). StiffCoeffNew/Old = 0.995752442664354               
+     Elementary step 104 - dOH_HfC_rev (7.041650248083050E-008). Occurred 78231 times (too fast). StiffCoeffNew/Old = 0.995752442664354               
+
+Stiffness detected at time t = 126.034277644031:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 75577/75577 times. Stiffness coefficient: 3.378212454653516E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 396958/396288 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.622201331942295E-005). Occurred 78504 times (too fast). StiffCoeffNew/Old = 0.962715275654744               
+     Elementary step 96 - dO_Pt_rev (2.622201331942295E-005). Occurred 78504 times (too fast). StiffCoeffNew/Old = 0.962715275654744               
+     Elementary step 103 - dOH_HfC_fwd (6.691059516946486E-008). Occurred 79537 times (too fast). StiffCoeffNew/Old = 0.950211851088173               
+     Elementary step 104 - dOH_HfC_rev (6.691059516946486E-008). Occurred 79055 times (too fast). StiffCoeffNew/Old = 0.950211851088173               
+
+Stiffness detected at time t = 140.984919915160:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 75597/75597 times. Stiffness coefficient: 3.378212454653516E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 402216/401512 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.584054255352308E-005). Occurred 76713 times (too fast). StiffCoeffNew/Old = 0.985452270149779               
+     Elementary step 96 - dO_Pt_rev (2.584054255352308E-005). Occurred 76712 times (too fast). StiffCoeffNew/Old = 0.985452270149779               
+     Elementary step 103 - dOH_HfC_fwd (6.686548571047530E-008). Occurred 75648 times (too fast). StiffCoeffNew/Old = 0.999325824873097               
+     Elementary step 104 - dOH_HfC_rev (6.686548571047530E-008). Occurred 76005 times (too fast). StiffCoeffNew/Old = 0.999325824873097               
+
+Stiffness detected at time t = 155.715496163163:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (4.873384151689151E-008). Occurred 74987 times (too fast). StiffCoeffNew/Old = 1.885944980294044E-003          
+     Elementary step 96 - dO_Pt_rev (4.873384151689151E-008). Occurred 74988 times (too fast). StiffCoeffNew/Old = 1.885944980294044E-003          
+     Elementary step 103 - dOH_HfC_fwd (1.272723411437820E-010). Occurred 74299 times (too fast). StiffCoeffNew/Old = 1.903408608962564E-003          
+     Elementary step 104 - dOH_HfC_rev (1.272723411437820E-010). Occurred 74311 times (too fast). StiffCoeffNew/Old = 1.903408608962564E-003          
+     Elementary step 105 - dOH_Pt_fwd (5.911594077841896E-006). Occurred 80816 times (too fast). StiffCoeffNew/Old = 1.749917791493139E-003          
+     Elementary step 106 - dOH_Pt_rev (5.911594077841896E-006). Occurred 80816 times (too fast). StiffCoeffNew/Old = 1.749917791493139E-003          
+
+Stiffness scaling possibly too aggressive at time t = 177.900470317376:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (6.363617057189098E-010). Occurred 228 times. PartEquil ratio = 0.507795100222717. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (6.363617057189098E-010). Occurred 221 times. PartEquil ratio = 0.492204899777283. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 177.900470317376:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 7 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.182988313747072E-007). Occurred 221 times (too slow). StiffCoeffNew/Old = 4.47940947357994                
+     Elementary step 96 - dO_Pt_rev (2.182988313747072E-007). Occurred 221 times (too slow). StiffCoeffNew/Old = 4.47940947357994                
+     Elementary step 105 - dOH_Pt_fwd (2.709342390782377E-005). Occurred 216 times (too slow). StiffCoeffNew/Old = 4.58309950769059                
+     Elementary step 106 - dOH_Pt_rev (2.709342390782377E-005). Occurred 216 times (too slow). StiffCoeffNew/Old = 4.58309950769059                
+
+Stiffness detected at time t = 201.717478915782:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 2 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (6.168255104501662E-008). Occurred 1001 times (too fast). StiffCoeffNew/Old = 0.282560152322297               
+     Elementary step 96 - dO_Pt_rev (6.168255104501662E-008). Occurred 1001 times (too fast). StiffCoeffNew/Old = 0.282560152322297               
+     Elementary step 103 - dOH_HfC_fwd (1.526635037833009E-010). Occurred 1184 times (too fast). StiffCoeffNew/Old = 0.239900519486530               
+     Elementary step 104 - dOH_HfC_rev (1.526635037833009E-010). Occurred 1179 times (too fast). StiffCoeffNew/Old = 0.239900519486530               
+     Elementary step 105 - dOH_Pt_fwd (4.529064721225513E-006). Occurred 1692 times (too fast). StiffCoeffNew/Old = 0.167164723684763               
+     Elementary step 106 - dOH_Pt_rev (4.529064721225513E-006). Occurred 1692 times (too fast). StiffCoeffNew/Old = 0.167164723684763               
+
+Stiffness scaling possibly too aggressive at time t = 227.899433940337:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (7.633175189165044E-010). Occurred 283 times. PartEquil ratio = 0.485420240137221. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (7.633175189165044E-010). Occurred 300 times. PartEquil ratio = 0.514579759862779. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 227.899433940337:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 17 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (4.926741210112176E-007). Occurred 301 times (too slow). StiffCoeffNew/Old = 7.98725267785469                
+     Elementary step 96 - dO_Pt_rev (4.926741210112176E-007). Occurred 301 times (too slow). StiffCoeffNew/Old = 7.98725267785469                
+     Elementary step 105 - dOH_Pt_fwd (7.509386262867926E-005). Occurred 145 times (too slow). StiffCoeffNew/Old = 16.5804348692018                
+     Elementary step 106 - dOH_Pt_rev (7.509386262867926E-005). Occurred 145 times (too slow). StiffCoeffNew/Old = 16.5804348692018                
+
+Stiffness scaling possibly too aggressive at time t = 251.823781881581:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.816587594582522E-009). Occurred 1386 times. PartEquil ratio = 0.502173913043478. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.816587594582522E-009). Occurred 1374 times. PartEquil ratio = 0.497826086956522. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 251.823781881581:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 12 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 105 - dOH_Pt_fwd (5.049069365156592E-005). Occurred 2524 times (too fast). StiffCoeffNew/Old = 0.672367779258207               
+     Elementary step 106 - dOH_Pt_rev (5.049069365156592E-005). Occurred 2524 times (too fast). StiffCoeffNew/Old = 0.672367779258207               
+
+Stiffness scaling possibly too aggressive at time t = 274.309571139971:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.908293797291261E-008). Occurred 6307 times. PartEquil ratio = 0.489521887612543. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.908293797291261E-008). Occurred 6577 times. PartEquil ratio = 0.510478112387457. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 274.309571139971:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 270 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (8.811313087417470E-006). Occurred 2135 times (too slow). StiffCoeffNew/Old = 17.8846680019080                
+     Elementary step 96 - dO_Pt_rev (8.811313087417470E-006). Occurred 2135 times (too slow). StiffCoeffNew/Old = 17.8846680019080                
+     Elementary step 105 - dOH_Pt_fwd (1.075850915660201E-003). Occurred 1792 times (too slow). StiffCoeffNew/Old = 21.3079052366482                
+     Elementary step 106 - dOH_Pt_rev (1.075850915660201E-003). Occurred 1792 times (too slow). StiffCoeffNew/Old = 21.3079052366482                
+
+Stiffness detected at time t = 294.269545913030:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 27403/27403 times. Stiffness coefficient: 1.075850915660201E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 540306/538584 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (7.038109206124141E-006). Occurred 34307 times (too fast). StiffCoeffNew/Old = 0.798758270906812               
+     Elementary step 96 - dO_Pt_rev (7.038109206124141E-006). Occurred 34306 times (too fast). StiffCoeffNew/Old = 0.798758270906812               
+     Elementary step 103 - dOH_HfC_fwd (1.819835563848005E-008). Occurred 28735 times (too fast). StiffCoeffNew/Old = 0.953645380198364               
+     Elementary step 104 - dOH_HfC_rev (1.819835563848005E-008). Occurred 28956 times (too fast). StiffCoeffNew/Old = 0.953645380198364               
+
+Stiffness detected at time t = 314.109080412435:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (3.653290325844631E-008). Occurred 27245 times (too fast). StiffCoeffNew/Old = 5.190726967785264E-003          
+     Elementary step 96 - dO_Pt_rev (3.653290325844631E-008). Occurred 27246 times (too fast). StiffCoeffNew/Old = 5.190726967785264E-003          
+     Elementary step 103 - dOH_HfC_fwd (9.444189701965936E-011). Occurred 27334 times (too fast). StiffCoeffNew/Old = 5.189584097365584E-003          
+     Elementary step 104 - dOH_HfC_rev (9.444189701965936E-011). Occurred 27251 times (too fast). StiffCoeffNew/Old = 5.189584097365584E-003          
+     Elementary step 105 - dOH_Pt_fwd (4.149461248583657E-006). Occurred 36667 times (too fast). StiffCoeffNew/Old = 3.856911016371929E-003          
+     Elementary step 106 - dOH_Pt_rev (4.149461248583657E-006). Occurred 36667 times (too fast). StiffCoeffNew/Old = 3.856911016371929E-003          
+
+Stiffness scaling possibly too aggressive at time t = 336.809745454996:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (4.722094850982968E-010). Occurred 160 times. PartEquil ratio = 0.489296636085627. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (4.722094850982968E-010). Occurred 167 times. PartEquil ratio = 0.510703363914373. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 336.809745454996:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 7 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.288970195105779E-007). Occurred 158 times (too slow). StiffCoeffNew/Old = 6.26550312443776                
+     Elementary step 96 - dO_Pt_rev (2.288970195105779E-007). Occurred 158 times (too slow). StiffCoeffNew/Old = 6.26550312443776                
+
+Stiffness scaling possibly too aggressive at time t = 360.951304563578:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (2.361047425491484E-009). Occurred 917 times. PartEquil ratio = 0.518665158371041. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (2.361047425491484E-009). Occurred 851 times. PartEquil ratio = 0.481334841628959. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 360.951304563578:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 66 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.025100642558306E-006). Occurred 1055 times (too slow). StiffCoeffNew/Old = 8.84721280726296                
+     Elementary step 96 - dO_Pt_rev (2.025100642558306E-006). Occurred 1055 times (too slow). StiffCoeffNew/Old = 8.84721280726296                
+     Elementary step 105 - dOH_Pt_fwd (2.766448633593200E-004). Occurred 140 times (too slow). StiffCoeffNew/Old = 66.6700679404459                
+     Elementary step 106 - dOH_Pt_rev (2.766448633593200E-004). Occurred 140 times (too slow). StiffCoeffNew/Old = 66.6700679404459                
+
+Stiffness detected at time t = 383.471652213158:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 104/103 - dOH_HfC_rev/dOH_HfC_fwd. Occurred 3987/4017 times. Stiffness coefficient: 2.361047425491484E-009.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 611216/611124 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (9.021314259083760E-007). Occurred 8950 times (too fast). StiffCoeffNew/Old = 0.445474860335196               
+     Elementary step 96 - dO_Pt_rev (9.021314259083760E-007). Occurred 8950 times (too fast). StiffCoeffNew/Old = 0.445474860335196               
+     Elementary step 105 - dOH_Pt_fwd (1.876459799614850E-004). Occurred 5878 times (too fast). StiffCoeffNew/Old = 0.678291936032664               
+     Elementary step 106 - dOH_Pt_rev (1.876459799614850E-004). Occurred 5878 times (too fast). StiffCoeffNew/Old = 0.678291936032664               
+
+Stiffness scaling possibly too aggressive at time t = 405.982957684943:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.180523712745742E-008). Occurred 4000 times. PartEquil ratio = 0.504350018913126. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.180523712745742E-008). Occurred 3931 times. PartEquil ratio = 0.495649981086874. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 405.982957684943:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 69 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.201867141866426E-006). Occurred 3998 times (too slow). StiffCoeffNew/Old = 2.44073876447583                
+     Elementary step 96 - dO_Pt_rev (2.201867141866426E-006). Occurred 3998 times (too slow). StiffCoeffNew/Old = 2.44073876447583                
+
+Stiffness scaling possibly too aggressive at time t = 428.273615125516:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (5.902618563728710E-008). Occurred 19845 times. PartEquil ratio = 0.495641749294438. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (5.902618563728710E-008). Occurred 20194 times. PartEquil ratio = 0.504358250705562. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 428.273615125516:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 349 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.151101282412184E-005). Occurred 9441 times (too slow). StiffCoeffNew/Old = 5.22784168274770                
+     Elementary step 96 - dO_Pt_rev (1.151101282412184E-005). Occurred 9441 times (too slow). StiffCoeffNew/Old = 5.22784168274770                
+     Elementary step 105 - dOH_Pt_fwd (1.401977746524772E-003). Occurred 6606 times (too slow). StiffCoeffNew/Old = 7.47139771825931                
+     Elementary step 106 - dOH_Pt_rev (1.401977746524772E-003). Occurred 6606 times (too slow). StiffCoeffNew/Old = 7.47139771825931                
+
+Stiffness detected at time t = 445.846876500272:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 39443/39443 times. Stiffness coefficient: 1.151101282412184E-005.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 472798/471083 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (2.959074009699558E-008). Occurred 78679 times (too fast). StiffCoeffNew/Old = 0.501315471726890               
+     Elementary step 104 - dOH_HfC_rev (2.959074009699558E-008). Occurred 78488 times (too fast). StiffCoeffNew/Old = 0.501315471726890               
+     Elementary step 105 - dOH_Pt_fwd (1.381315621017075E-003). Occurred 40033 times (too fast). StiffCoeffNew/Old = 0.985262158719057               
+     Elementary step 106 - dOH_Pt_rev (1.381315621017075E-003). Occurred 40033 times (too fast). StiffCoeffNew/Old = 0.985262158719057               
+
+Stiffness detected at time t = 464.550297876189:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 41660/41660 times. Stiffness coefficient: 1.381315621017075E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 504746/503241 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.133069003267528E-005). Occurred 42323 times (too fast). StiffCoeffNew/Old = 0.984334758878151               
+     Elementary step 96 - dO_Pt_rev (1.133069003267528E-005). Occurred 42323 times (too fast). StiffCoeffNew/Old = 0.984334758878151               
+     Elementary step 103 - dOH_HfC_fwd (2.938688007916364E-008). Occurred 41949 times (too fast). StiffCoeffNew/Old = 0.993110682018642               
+     Elementary step 104 - dOH_HfC_rev (2.938688007916364E-008). Occurred 42098 times (too fast). StiffCoeffNew/Old = 0.993110682018642               
+
+Stiffness detected at time t = 483.373185666236:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 38844/38844 times. Stiffness coefficient: 1.381315621017075E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 509156/506586 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.054783050852538E-005). Occurred 41727 times (too fast). StiffCoeffNew/Old = 0.930908045150622               
+     Elementary step 96 - dO_Pt_rev (1.054783050852538E-005). Occurred 41726 times (too fast). StiffCoeffNew/Old = 0.930908045150622               
+     Elementary step 103 - dOH_HfC_fwd (2.749684371043582E-008). Occurred 41514 times (too fast). StiffCoeffNew/Old = 0.935684347449053               
+     Elementary step 104 - dOH_HfC_rev (2.749684371043582E-008). Occurred 41603 times (too fast). StiffCoeffNew/Old = 0.935684347449053               
+
+Stiffness detected at time t = 502.401974424798:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 36761/36761 times. Stiffness coefficient: 1.381315621017075E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 514860/514061 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (9.814685937274448E-006). Occurred 39507 times (too fast). StiffCoeffNew/Old = 0.930493330295897               
+     Elementary step 96 - dO_Pt_rev (9.814685937274448E-006). Occurred 39508 times (too fast). StiffCoeffNew/Old = 0.930493330295897               
+     Elementary step 103 - dOH_HfC_fwd (2.581498293082366E-008). Occurred 39156 times (too fast). StiffCoeffNew/Old = 0.938834405965880               
+     Elementary step 104 - dOH_HfC_rev (2.581498293082366E-008). Occurred 39386 times (too fast). StiffCoeffNew/Old = 0.938834405965880               
+
+Stiffness scaling possibly too aggressive at time t = 521.282279391492:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.290749146541183E-007). Occurred 36651 times. PartEquil ratio = 0.497590181517032. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.290749146541183E-007). Occurred 37006 times. PartEquil ratio = 0.502409818482968. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 540.254171801928:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 36387/36387 times. Stiffness coefficient: 9.814685937274448E-006.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 511570/510371 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.259763134896036E-007). Occurred 37282 times (too fast). StiffCoeffNew/Old = 0.975993777157878               
+     Elementary step 104 - dOH_HfC_rev (1.259763134896036E-007). Occurred 37037 times (too fast). StiffCoeffNew/Old = 0.975993777157878               
+     Elementary step 105 - dOH_Pt_fwd (1.105070718772911E-003). Occurred 45483 times (too fast). StiffCoeffNew/Old = 0.800013191741969               
+     Elementary step 106 - dOH_Pt_rev (1.105070718772911E-003). Occurred 45483 times (too fast). StiffCoeffNew/Old = 0.800013191741969               
+
+Stiffness detected at time t = 559.859577637632:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 30670/30670 times. Stiffness coefficient: 1.105070718772911E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 525346/522941 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (7.986215050838569E-006). Occurred 37692 times (too fast). StiffCoeffNew/Old = 0.813700520004245               
+     Elementary step 96 - dO_Pt_rev (7.986215050838569E-006). Occurred 37692 times (too fast). StiffCoeffNew/Old = 0.813700520004245               
+     Elementary step 103 - dOH_HfC_fwd (1.033653531321369E-007). Occurred 37379 times (too fast). StiffCoeffNew/Old = 0.820514192461008               
+     Elementary step 104 - dOH_HfC_rev (1.033653531321369E-007). Occurred 37610 times (too fast). StiffCoeffNew/Old = 0.820514192461008               
+
+Stiffness scaling possibly too aggressive at time t = 579.393501912056:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (5.168267656606843E-007). Occurred 30284 times. PartEquil ratio = 0.497977439405400. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (5.168267656606843E-007). Occurred 30530 times. PartEquil ratio = 0.502022560594600. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness scaling possibly too aggressive at time t = 599.292480977587:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (2.584133828303421E-006). Occurred 31429 times. PartEquil ratio = 0.502020605382957. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (2.584133828303421E-006). Occurred 31176 times. PartEquil ratio = 0.497979394617043. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness scaling possibly too aggressive at time t = 618.840425144147:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.292066914151711E-005). Occurred 30509 times. PartEquil ratio = 0.497659244759807. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.292066914151711E-005). Occurred 30796 times. PartEquil ratio = 0.502340755240193. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 638.544713040535:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 30909/30909 times. Stiffness coefficient: 7.986215050838569E-006.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 533426/533424 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.288939331574852E-005). Occurred 30984 times (too fast). StiffCoeffNew/Old = 0.997579395817196               
+     Elementary step 104 - dOH_HfC_rev (1.288939331574852E-005). Occurred 31038 times (too fast). StiffCoeffNew/Old = 0.997579395817196               
+     Elementary step 105 - dOH_Pt_fwd (9.856191270105875E-004). Occurred 34655 times (too fast). StiffCoeffNew/Old = 0.891905929880248               
+     Elementary step 106 - dOH_Pt_rev (9.856191270105875E-004). Occurred 34655 times (too fast). StiffCoeffNew/Old = 0.891905929880248               
+
+Stiffness detected at time t = 658.453944608499:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 30681/30681 times. Stiffness coefficient: 9.856191270105875E-004.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 537063/536945 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (7.841052960887649E-006). Occurred 31249 times (too fast). StiffCoeffNew/Old = 0.981823418349387               
+     Elementary step 96 - dO_Pt_rev (7.841052960887649E-006). Occurred 31249 times (too fast). StiffCoeffNew/Old = 0.981823418349387               
+     Elementary step 103 - dOH_HfC_fwd (1.276870221563658E-005). Occurred 30971 times (too fast). StiffCoeffNew/Old = 0.990636401795228               
+     Elementary step 104 - dOH_HfC_rev (1.276870221563658E-005). Occurred 31161 times (too fast). StiffCoeffNew/Old = 0.990636401795228               
+
+Stiffness scaling possibly too aggressive at time t = 678.670947077418:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (6.384351107818289E-005). Occurred 30896 times. PartEquil ratio = 0.496792140341850. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (6.384351107818289E-005). Occurred 31295 times. PartEquil ratio = 0.503207859658150. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 678.670947077418:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 399 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.409923346224989E-005). Occurred 31381 times (too slow). StiffCoeffNew/Old = 1.79813011499590                
+     Elementary step 96 - dO_Pt_rev (1.409923346224989E-005). Occurred 31381 times (too slow). StiffCoeffNew/Old = 1.79813011499590                
+     Elementary step 105 - dOH_Pt_fwd (2.546154368742061E-003). Occurred 21843 times (too slow). StiffCoeffNew/Old = 2.58330454327183                
+     Elementary step 106 - dOH_Pt_rev (2.546154368742061E-003). Occurred 21843 times (too slow). StiffCoeffNew/Old = 2.58330454327183                
+
+Stiffness detected at time t = 693.841766799750:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 42055/42055 times. Stiffness coefficient: 1.409923346224989E-005.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 413149/413051 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (2.286883854652217E-005). Occurred 117406 times (too fast). StiffCoeffNew/Old = 0.358201454780846               
+     Elementary step 104 - dOH_HfC_rev (2.286883854652217E-005). Occurred 116896 times (too fast). StiffCoeffNew/Old = 0.358201454780846               
+     Elementary step 105 - dOH_Pt_fwd (1.855973272393098E-003). Occurred 57694 times (too fast). StiffCoeffNew/Old = 0.728931951329428               
+     Elementary step 106 - dOH_Pt_rev (1.855973272393098E-003). Occurred 57694 times (too fast). StiffCoeffNew/Old = 0.728931951329428               
+
+Stiffness detected at time t = 711.819859539520:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (4.024975712343479E-008). Occurred 49539 times (too fast). StiffCoeffNew/Old = 2.854747900387765E-003          
+     Elementary step 96 - dO_Pt_rev (4.024975712343479E-008). Occurred 49539 times (too fast). StiffCoeffNew/Old = 2.854747900387765E-003          
+     Elementary step 103 - dOH_HfC_fwd (6.494522195311511E-008). Occurred 49798 times (too fast). StiffCoeffNew/Old = 2.839900322047261E-003          
+     Elementary step 104 - dOH_HfC_rev (6.494522195311511E-008). Occurred 49976 times (too fast). StiffCoeffNew/Old = 2.839900322047261E-003          
+     Elementary step 105 - dOH_Pt_fwd (5.274486211081112E-006). Occurred 49763 times (too fast). StiffCoeffNew/Old = 2.841897719938699E-003          
+     Elementary step 106 - dOH_Pt_rev (5.274486211081112E-006). Occurred 49763 times (too fast). StiffCoeffNew/Old = 2.841897719938699E-003          
+
+Stiffness scaling possibly too aggressive at time t = 735.121419267454:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.247261097655756E-007). Occurred 177 times. PartEquil ratio = 0.465789473684211. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.247261097655756E-007). Occurred 203 times. PartEquil ratio = 0.534210526315789. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 735.121419267454:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 26 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (8.176605318015463E-007). Occurred 181 times (too slow). StiffCoeffNew/Old = 20.3146699567406                
+     Elementary step 96 - dO_Pt_rev (8.176605318015463E-007). Occurred 181 times (too slow). StiffCoeffNew/Old = 20.3146699567406                
+     Elementary step 105 - dOH_Pt_fwd (1.168316254763738E-004). Occurred 166 times (too slow). StiffCoeffNew/Old = 22.1503329046388                
+     Elementary step 106 - dOH_Pt_rev (1.168316254763738E-004). Occurred 166 times (too slow). StiffCoeffNew/Old = 22.1503329046388                
+
+Stiffness detected at time t = 757.816823546908:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 103/104 - dOH_HfC_fwd/dOH_HfC_rev. Occurred 924/926 times. Stiffness coefficient: 3.247261097655756E-007.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 625194/621640 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (2.079599040420118E-007). Occurred 3633 times (too fast). StiffCoeffNew/Old = 0.254335260115607               
+     Elementary step 96 - dO_Pt_rev (2.079599040420118E-007). Occurred 3633 times (too fast). StiffCoeffNew/Old = 0.254335260115607               
+     Elementary step 105 - dOH_Pt_fwd (5.330983799514538E-005). Occurred 2025 times (too fast). StiffCoeffNew/Old = 0.456296296296296               
+     Elementary step 106 - dOH_Pt_rev (5.330983799514538E-005). Occurred 2025 times (too fast). StiffCoeffNew/Old = 0.456296296296296               
+
+Stiffness scaling possibly too aggressive at time t = 779.543994600614:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.623630548827878E-006). Occurred 891 times. PartEquil ratio = 0.506825938566553. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.623630548827878E-006). Occurred 867 times. PartEquil ratio = 0.493174061433447. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 779.543994600614:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 24 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (7.573383263331000E-007). Occurred 932 times (too slow). StiffCoeffNew/Old = 3.64175166276334                
+     Elementary step 96 - dO_Pt_rev (7.573383263331000E-007). Occurred 932 times (too slow). StiffCoeffNew/Old = 3.64175166276334                
+     Elementary step 105 - dOH_Pt_fwd (2.231067696196709E-004). Occurred 811 times (too slow). StiffCoeffNew/Old = 4.18509562231249                
+     Elementary step 106 - dOH_Pt_rev (2.231067696196709E-004). Occurred 811 times (too slow). StiffCoeffNew/Old = 4.18509562231249                
+
+Stiffness scaling possibly too aggressive at time t = 802.225490281696:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (8.118152744139390E-006). Occurred 4455 times. PartEquil ratio = 0.497820985584982. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (8.118152744139390E-006). Occurred 4494 times. PartEquil ratio = 0.502179014415018. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 802.225490281696:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 39 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.255877545514228E-006). Occurred 3326 times (too slow). StiffCoeffNew/Old = 1.65827807975198                
+     Elementary step 96 - dO_Pt_rev (1.255877545514228E-006). Occurred 3326 times (too slow). StiffCoeffNew/Old = 1.65827807975198                
+     Elementary step 105 - dOH_Pt_fwd (1.470694891679472E-004). Occurred 8367 times (too fast). StiffCoeffNew/Old = 0.659188824340274               
+     Elementary step 106 - dOH_Pt_rev (1.470694891679472E-004). Occurred 8367 times (too fast). StiffCoeffNew/Old = 0.659188824340274               
+
+Stiffness detected at time t = 823.788015004523:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 4054/4054 times. Stiffness coefficient: 1.470694891679472E-004.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 599440/599398 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (9.511166765392641E-007). Occurred 5353 times (too fast). StiffCoeffNew/Old = 0.757332337007286               
+     Elementary step 96 - dO_Pt_rev (9.511166765392641E-007). Occurred 5353 times (too fast). StiffCoeffNew/Old = 0.757332337007286               
+     Elementary step 103 - dOH_HfC_fwd (1.550942093531625E-006). Occurred 21220 times (too fast). StiffCoeffNew/Old = 0.191046182846371               
+     Elementary step 104 - dOH_HfC_rev (1.550942093531625E-006). Occurred 21128 times (too fast). StiffCoeffNew/Old = 0.191046182846371               
+
+Stiffness scaling possibly too aggressive at time t = 846.668431366416:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (7.754710467658126E-006). Occurred 4113 times. PartEquil ratio = 0.495064997592682. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (7.754710467658126E-006). Occurred 4195 times. PartEquil ratio = 0.504935002407318. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 846.668431366416:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 82 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.594606739016848E-006). Occurred 4251 times (too slow). StiffCoeffNew/Old = 2.72795841248162                
+     Elementary step 96 - dO_Pt_rev (2.594606739016848E-006). Occurred 4251 times (too slow). StiffCoeffNew/Old = 2.72795841248162                
+     Elementary step 105 - dOH_Pt_fwd (4.025251033229337E-004). Occurred 4237 times (too slow). StiffCoeffNew/Old = 2.73697220001401                
+     Elementary step 106 - dOH_Pt_rev (4.025251033229337E-004). Occurred 4237 times (too slow). StiffCoeffNew/Old = 2.73697220001401                
+
+Stiffness scaling possibly too aggressive at time t = 868.270724173126:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.877355233829063E-005). Occurred 20144 times. PartEquil ratio = 0.497272211113580. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.877355233829063E-005). Occurred 20365 times. PartEquil ratio = 0.502727788886420. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 868.270724173126:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 221 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (7.384769116607218E-006). Occurred 10981 times (too slow). StiffCoeffNew/Old = 2.84619977492445                
+     Elementary step 96 - dO_Pt_rev (7.384769116607218E-006). Occurred 10981 times (too slow). StiffCoeffNew/Old = 2.84619977492445                
+     Elementary step 105 - dOH_Pt_fwd (1.083690909894033E-003). Occurred 11609 times (too slow). StiffCoeffNew/Old = 2.69223186565987                
+     Elementary step 106 - dOH_Pt_rev (1.083690909894033E-003). Occurred 11609 times (too slow). StiffCoeffNew/Old = 2.69223186565987                
+
+Stiffness detected at time t = 886.355874701551:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 26226/26226 times. Stiffness coefficient: 7.384769116607218E-006.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 488994/487835 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.198495136628728E-005). Occurred 84846 times (too fast). StiffCoeffNew/Old = 0.309101195106428               
+     Elementary step 104 - dOH_HfC_rev (1.198495136628728E-005). Occurred 84823 times (too fast). StiffCoeffNew/Old = 0.309101195106428               
+     Elementary step 105 - dOH_Pt_fwd (9.310688878912662E-004). Occurred 30525 times (too fast). StiffCoeffNew/Old = 0.859164619164619               
+     Elementary step 106 - dOH_Pt_rev (9.310688878912662E-004). Occurred 30525 times (too fast). StiffCoeffNew/Old = 0.859164619164619               
+
+Stiffness scaling possibly too aggressive at time t = 906.530505227928:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (5.992475683143638E-005). Occurred 29603 times. PartEquil ratio = 0.504490533240171. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (5.992475683143638E-005). Occurred 29076 times. PartEquil ratio = 0.495509466759829. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 906.530505227928:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 527 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.874143976954354E-005). Occurred 29367 times (too slow). StiffCoeffNew/Old = 2.53785046947465                
+     Elementary step 96 - dO_Pt_rev (1.874143976954354E-005). Occurred 29367 times (too slow). StiffCoeffNew/Old = 2.53785046947465                
+     Elementary step 105 - dOH_Pt_fwd (2.736912680824474E-003). Occurred 25354 times (too slow). StiffCoeffNew/Old = 2.93953832677535                
+     Elementary step 106 - dOH_Pt_rev (2.736912680824474E-003). Occurred 25354 times (too slow). StiffCoeffNew/Old = 2.93953832677535                
+
+Stiffness detected at time t = 921.574258629816:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 96/95 - dO_Pt_rev/dO_Pt_fwd. Occurred 55369/55370 times. Stiffness coefficient: 1.874143976954354E-005.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 408758/407849 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (3.039300406708682E-005). Occurred 109169 times (too fast). StiffCoeffNew/Old = 0.507186105945827               
+     Elementary step 104 - dOH_HfC_rev (3.039300406708682E-005). Occurred 109361 times (too fast). StiffCoeffNew/Old = 0.507186105945827               
+     Elementary step 105 - dOH_Pt_fwd (2.655709898436268E-003). Occurred 57062 times (too fast). StiffCoeffNew/Old = 0.970330517682521               
+     Elementary step 106 - dOH_Pt_rev (2.655709898436268E-003). Occurred 57062 times (too fast). StiffCoeffNew/Old = 0.970330517682521               
+
+Stiffness detected at time t = 937.842437316291:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 103/104 - dOH_HfC_fwd/dOH_HfC_rev. Occurred 59924/59964 times. Stiffness coefficient: 3.039300406708682E-005.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 442890/442695 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.859866913006968E-005). Occurred 60384 times (too fast). StiffCoeffNew/Old = 0.992382087970323               
+     Elementary step 96 - dO_Pt_rev (1.859866913006968E-005). Occurred 60384 times (too fast). StiffCoeffNew/Old = 0.992382087970323               
+     Elementary step 105 - dOH_Pt_fwd (2.379532588015594E-003). Occurred 66879 times (too fast). StiffCoeffNew/Old = 0.896006220188699               
+     Elementary step 106 - dOH_Pt_rev (2.379532588015594E-003). Occurred 66880 times (too fast). StiffCoeffNew/Old = 0.896006220188699               
+
+Stiffness scaling possibly too aggressive at time t = 954.277855965419:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.519650203354341E-004). Occurred 60130 times. PartEquil ratio = 0.497979262596482. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.519650203354341E-004). Occurred 60618 times. PartEquil ratio = 0.502020737403518. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 970.742551937447:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 59095/59095 times. Stiffness coefficient: 2.379532588015594E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 450007/449403 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.820014161919336E-005). Occurred 60389 times (too fast). StiffCoeffNew/Old = 0.978572256536786               
+     Elementary step 96 - dO_Pt_rev (1.820014161919336E-005). Occurred 60389 times (too fast). StiffCoeffNew/Old = 0.978572256536786               
+     Elementary step 103 - dOH_HfC_fwd (1.479200289358185E-004). Occurred 60711 times (too fast). StiffCoeffNew/Old = 0.973382088913047               
+     Elementary step 104 - dOH_HfC_rev (1.479200289358185E-004). Occurred 60911 times (too fast). StiffCoeffNew/Old = 0.973382088913047               
+
+Stiffness scaling possibly too aggressive at time t = 987.663345051174:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (7.396001446790927E-004). Occurred 60860 times. PartEquil ratio = 0.502800680755440. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (7.396001446790927E-004). Occurred 60182 times. PartEquil ratio = 0.497199319244560. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 987.663345051174:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 678 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.889950395620196E-005). Occurred 60385 times (too slow). StiffCoeffNew/Old = 1.58787247708696                
+     Elementary step 96 - dO_Pt_rev (2.889950395620196E-005). Occurred 60385 times (too slow). StiffCoeffNew/Old = 1.58787247708696                
+     Elementary step 105 - dOH_Pt_fwd (4.328887415054289E-003). Occurred 52706 times (too slow). StiffCoeffNew/Old = 1.81921753745107                
+     Elementary step 106 - dOH_Pt_rev (4.328887415054289E-003). Occurred 52706 times (too slow). StiffCoeffNew/Old = 1.81921753745107                
+
+Stiffness detected at time t = 1097.73013348260:
+   The fastest non-equilibrated step is 4 - aCH4_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (6.588015287766289E-008). Occurred 62038 times (too fast). StiffCoeffNew/Old = 2.279629192857641E-003          
+     Elementary step 96 - dO_Pt_rev (6.588015287766289E-008). Occurred 62037 times (too fast). StiffCoeffNew/Old = 2.279629192857641E-003          
+     Elementary step 103 - dOH_HfC_fwd (5.363446685323058E-007). Occurred 195015 times (too fast). StiffCoeffNew/Old = 7.251819410676589E-004          
+     Elementary step 104 - dOH_HfC_rev (5.363446685323058E-007). Occurred 195471 times (too fast). StiffCoeffNew/Old = 7.251819410676589E-004          
+     Elementary step 105 - dOH_Pt_fwd (7.950508814633556E-006). Occurred 77001 times (too fast). StiffCoeffNew/Old = 1.836617137924306E-003          
+     Elementary step 106 - dOH_Pt_rev (7.950508814633556E-006). Occurred 77001 times (too fast). StiffCoeffNew/Old = 1.836617137924306E-003          
+
+Stiffness scaling possibly too aggressive at time t = 1120.70519295491:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (2.681723342661529E-006). Occurred 316 times. PartEquil ratio = 0.524916943521595. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (2.681723342661529E-006). Occurred 286 times. PartEquil ratio = 0.475083056478405. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1120.70519295491:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 30 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (9.224614424832054E-007). Occurred 303 times (too slow). StiffCoeffNew/Old = 14.0021144789415                
+     Elementary step 96 - dO_Pt_rev (9.224614424832054E-007). Occurred 304 times (too slow). StiffCoeffNew/Old = 14.0021144789415                
+     Elementary step 105 - dOH_Pt_fwd (2.480231777960650E-004). Occurred 136 times (too slow). StiffCoeffNew/Old = 31.1958874052889                
+     Elementary step 106 - dOH_Pt_rev (2.480231777960650E-004). Occurred 136 times (too slow). StiffCoeffNew/Old = 31.1958874052889                
+
+Stiffness scaling possibly too aggressive at time t = 1143.37501537994:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.340861671330764E-005). Occurred 1480 times. PartEquil ratio = 0.504602795772247. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.340861671330764E-005). Occurred 1453 times. PartEquil ratio = 0.495397204227753. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1143.37501537994:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 27 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 105 - dOH_Pt_fwd (6.933493688553958E-005). Occurred 13659 times (too fast). StiffCoeffNew/Old = 0.279550231964811               
+     Elementary step 106 - dOH_Pt_rev (6.933493688553958E-005). Occurred 13659 times (too fast). StiffCoeffNew/Old = 0.279550231964811               
+
+Stiffness scaling possibly too aggressive at time t = 1165.96849159132:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (6.704308356653821E-005). Occurred 7348 times. PartEquil ratio = 0.504047194402524. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (6.704308356653821E-005). Occurred 7230 times. PartEquil ratio = 0.495952805597476. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1165.96849159132:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 118 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (3.674809810495769E-006). Occurred 4189 times (too slow). StiffCoeffNew/Old = 3.98370017569886                
+     Elementary step 96 - dO_Pt_rev (3.674809810495769E-006). Occurred 4189 times (too slow). StiffCoeffNew/Old = 3.98370017569886                
+     Elementary step 105 - dOH_Pt_fwd (4.275838933702103E-004). Occurred 2706 times (too slow). StiffCoeffNew/Old = 6.16693275535939                
+     Elementary step 106 - dOH_Pt_rev (4.275838933702103E-004). Occurred 2706 times (too slow). StiffCoeffNew/Old = 6.16693275535939                
+
+Stiffness scaling possibly too aggressive at time t = 1187.04104233711:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.352154178326911E-004). Occurred 34051 times. PartEquil ratio = 0.502634880803011. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.352154178326911E-004). Occurred 33694 times. PartEquil ratio = 0.497365119196989. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1187.04104233711:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 357 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.229745354750912E-005). Occurred 15087 times (too slow). StiffCoeffNew/Old = 3.34641904796974                
+     Elementary step 96 - dO_Pt_rev (1.229745354750912E-005). Occurred 15087 times (too slow). StiffCoeffNew/Old = 3.34641904796974                
+     Elementary step 105 - dOH_Pt_fwd (1.712215212223589E-003). Occurred 12608 times (too slow). StiffCoeffNew/Old = 4.00439595310275                
+     Elementary step 106 - dOH_Pt_rev (1.712215212223589E-003). Occurred 12608 times (too slow). StiffCoeffNew/Old = 4.00439595310275                
+
+Stiffness detected at time t = 1202.79755041614:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 38091/38091 times. Stiffness coefficient: 1.229745354750912E-005.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 425120/424255 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (9.966662878893045E-005). Occurred 128114 times (too fast). StiffCoeffNew/Old = 0.297321135863372               
+     Elementary step 104 - dOH_HfC_rev (9.966662878893045E-005). Occurred 127281 times (too fast). StiffCoeffNew/Old = 0.297321135863372               
+     Elementary step 105 - dOH_Pt_fwd (1.650136363951238E-003). Occurred 39524 times (too fast). StiffCoeffNew/Old = 0.963743548223864               
+     Elementary step 106 - dOH_Pt_rev (1.650136363951238E-003). Occurred 39524 times (too fast). StiffCoeffNew/Old = 0.963743548223864               
+
+Stiffness detected at time t = 1221.19891771146:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 96/95 - dO_Pt_rev/dO_Pt_fwd. Occurred 44218/44219 times. Stiffness coefficient: 1.229745354750912E-005.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 493831/492990 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (9.897942710362553E-005). Occurred 44525 times (too fast). StiffCoeffNew/Old = 0.993104997192588               
+     Elementary step 104 - dOH_HfC_rev (9.897942710362553E-005). Occurred 44589 times (too fast). StiffCoeffNew/Old = 0.993104997192588               
+     Elementary step 105 - dOH_Pt_fwd (1.526032746500938E-003). Occurred 47814 times (too fast). StiffCoeffNew/Old = 0.924791901953403               
+     Elementary step 106 - dOH_Pt_rev (1.526032746500938E-003). Occurred 47814 times (too fast). StiffCoeffNew/Old = 0.924791901953403               
+
+Stiffness scaling possibly too aggressive at time t = 1239.46859187820:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (4.948971355181276E-004). Occurred 44209 times. PartEquil ratio = 0.497434570290524. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (4.948971355181276E-004). Occurred 44665 times. PartEquil ratio = 0.502565429709476. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1239.46859187820:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 456 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.794207888875674E-005). Occurred 44200 times (too slow). StiffCoeffNew/Old = 1.45900765710889                
+     Elementary step 96 - dO_Pt_rev (1.794207888875674E-005). Occurred 44201 times (too slow). StiffCoeffNew/Old = 1.45900765710889                
+     Elementary step 105 - dOH_Pt_fwd (2.265498999211659E-003). Occurred 43439 times (too slow). StiffCoeffNew/Old = 1.48456774889415                
+     Elementary step 106 - dOH_Pt_rev (2.265498999211659E-003). Occurred 43439 times (too slow). StiffCoeffNew/Old = 1.48456774889415                
+
+Stiffness detected at time t = 1253.35187153589:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 46207/46207 times. Stiffness coefficient: 2.265498999211659E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 369592/367936 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.706565745600623E-005). Occurred 48580 times (too fast). StiffCoeffNew/Old = 0.951152737752161               
+     Elementary step 96 - dO_Pt_rev (1.706565745600623E-005). Occurred 48579 times (too fast). StiffCoeffNew/Old = 0.951152737752161               
+     Elementary step 103 - dOH_HfC_fwd (1.377639400747393E-004). Occurred 165992 times (too fast). StiffCoeffNew/Old = 0.278368837052388               
+     Elementary step 104 - dOH_HfC_rev (1.377639400747393E-004). Occurred 166907 times (too fast). StiffCoeffNew/Old = 0.278368837052388               
+
+Stiffness detected at time t = 1270.21905859947:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 56465/56466 times. Stiffness coefficient: 1.706565745600623E-005.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 455336/454689 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.372995071364049E-004). Occurred 56656 times (too fast). StiffCoeffNew/Old = 0.996628777181587               
+     Elementary step 104 - dOH_HfC_rev (1.372995071364049E-004). Occurred 56710 times (too fast). StiffCoeffNew/Old = 0.996628777181587               
+     Elementary step 105 - dOH_Pt_fwd (2.068620142474593E-003). Occurred 61839 times (too fast). StiffCoeffNew/Old = 0.913096912951374               
+     Elementary step 106 - dOH_Pt_rev (2.068620142474593E-003). Occurred 61839 times (too fast). StiffCoeffNew/Old = 0.913096912951374               
+
+Stiffness detected at time t = 1287.49490809756:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 52505/52505 times. Stiffness coefficient: 2.068620142474593E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 462592/462291 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.555854811910901E-005). Occurred 57591 times (too fast). StiffCoeffNew/Old = 0.911687590074838               
+     Elementary step 96 - dO_Pt_rev (1.555854811910901E-005). Occurred 57591 times (too fast). StiffCoeffNew/Old = 0.911687590074838               
+     Elementary step 103 - dOH_HfC_fwd (1.256039067184190E-004). Occurred 57394 times (too fast). StiffCoeffNew/Old = 0.914816879813221               
+     Elementary step 104 - dOH_HfC_rev (1.256039067184190E-004). Occurred 57531 times (too fast). StiffCoeffNew/Old = 0.914816879813221               
+
+Stiffness detected at time t = 1304.69694427433:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 103/104 - dOH_HfC_fwd/dOH_HfC_rev. Occurred 52407/52457 times. Stiffness coefficient: 1.256039067184190E-004.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 464371/463887 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.555825124557598E-005). Occurred 52408 times (too fast). StiffCoeffNew/Old = 0.999980918943673               
+     Elementary step 96 - dO_Pt_rev (1.555825124557598E-005). Occurred 52408 times (too fast). StiffCoeffNew/Old = 0.999980918943673               
+     Elementary step 105 - dOH_Pt_fwd (1.776313280245547E-003). Occurred 61031 times (too fast). StiffCoeffNew/Old = 0.858694761678491               
+     Elementary step 106 - dOH_Pt_rev (1.776313280245547E-003). Occurred 61031 times (too fast). StiffCoeffNew/Old = 0.858694761678491               
+
+Stiffness detected at time t = 1322.43914032511:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 46929/46929 times. Stiffness coefficient: 1.776313280245547E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 475193/474841 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.349873676170081E-005). Occurred 54089 times (too fast). StiffCoeffNew/Old = 0.867625580062490               
+     Elementary step 96 - dO_Pt_rev (1.349873676170081E-005). Occurred 54089 times (too fast). StiffCoeffNew/Old = 0.867625580062490               
+     Elementary step 103 - dOH_HfC_fwd (1.093288646645402E-004). Occurred 53915 times (too fast). StiffCoeffNew/Old = 0.870425670036168               
+     Elementary step 104 - dOH_HfC_rev (1.093288646645402E-004). Occurred 54015 times (too fast). StiffCoeffNew/Old = 0.870425670036168               
+
+Stiffness detected at time t = 1340.53144201471:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 95/96 - dO_Pt_fwd/dO_Pt_rev. Occurred 47586/47586 times. Stiffness coefficient: 1.349873676170081E-005.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 485196/483936 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 103 - dOH_HfC_fwd (1.086076438129266E-004). Occurred 47902 times (too fast). StiffCoeffNew/Old = 0.993403198196318               
+     Elementary step 104 - dOH_HfC_rev (1.086076438129266E-004). Occurred 48000 times (too fast). StiffCoeffNew/Old = 0.993403198196318               
+     Elementary step 105 - dOH_Pt_fwd (1.694042602837137E-003). Occurred 49897 times (too fast). StiffCoeffNew/Old = 0.953684590255927               
+     Elementary step 106 - dOH_Pt_rev (1.694042602837137E-003). Occurred 49897 times (too fast). StiffCoeffNew/Old = 0.953684590255927               
+
+Stiffness scaling possibly too aggressive at time t = 1358.61883969494:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (5.430382190646329E-004). Occurred 47416 times. PartEquil ratio = 0.497591587872937. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (5.430382190646329E-004). Occurred 47875 times. PartEquil ratio = 0.502408412127063. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1376.55913188693:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 104/103 - dOH_HfC_rev/dOH_HfC_fwd. Occurred 47147/47305 times. Stiffness coefficient: 5.430382190646329E-004.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 484892/484034 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.347130669313778E-005). Occurred 47243 times (too fast). StiffCoeffNew/Old = 0.997967952924243               
+     Elementary step 96 - dO_Pt_rev (1.347130669313778E-005). Occurred 47243 times (too fast). StiffCoeffNew/Old = 0.997967952924243               
+     Elementary step 105 - dOH_Pt_fwd (1.563974046290485E-003). Occurred 51068 times (too fast). StiffCoeffNew/Old = 0.923220020365004               
+     Elementary step 106 - dOH_Pt_rev (1.563974046290485E-003). Occurred 51068 times (too fast). StiffCoeffNew/Old = 0.923220020365004               
+
+Stiffness detected at time t = 1394.77625061585:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 44207/44207 times. Stiffness coefficient: 1.563974046290485E-003.
+   The fastest equilibrated step is 93/94 - dO_HfC_fwd/dO_HfC_rev. Occurred 490197/489853 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.241196446401713E-005). Occurred 47980 times (too fast). StiffCoeffNew/Old = 0.921363067944977               
+     Elementary step 96 - dO_Pt_rev (1.241196446401713E-005). Occurred 47980 times (too fast). StiffCoeffNew/Old = 0.921363067944977               
+     Elementary step 103 - dOH_HfC_fwd (5.024927900152850E-004). Occurred 47774 times (too fast). StiffCoeffNew/Old = 0.925335956796584               
+     Elementary step 104 - dOH_HfC_rev (5.024927900152850E-004). Occurred 47802 times (too fast). StiffCoeffNew/Old = 0.925335956796584               
+
+Stiffness detected at time t = 1413.26872517216:
+   All elementary processes that have occurred in the past interval appear as fast and quasi-equilibrated.
+   The slowest equilibrated step is 105/106 - dOH_Pt_fwd/dOH_Pt_rev. Occurred 38478/38478 times. Stiffness coefficient: 1.563974046290485E-003.
+   The fastest equilibrated step is 94/93 - dO_HfC_rev/dO_HfC_fwd. Occurred 501584/501024 times. Stiffness coefficient: 1.00000000000000.
+   The fastest quasi-equilibrated step was not scaled down in the previous window, and no thresholding will be applied to any newly computed scaling coefficients.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+     Elementary step 95 - dO_Pt_fwd (1.057779775518164E-005). Occurred 45150 times (too fast). StiffCoeffNew/Old = 0.852225913621262               
+     Elementary step 96 - dO_Pt_rev (1.057779775518164E-005). Occurred 45150 times (too fast). StiffCoeffNew/Old = 0.852225913621262               
+     Elementary step 103 - dOH_HfC_fwd (4.290165433169463E-004). Occurred 45068 times (too fast). StiffCoeffNew/Old = 0.853776515487707               
+     Elementary step 104 - dOH_HfC_rev (4.290165433169463E-004). Occurred 45068 times (too fast). StiffCoeffNew/Old = 0.853776515487707               
+
+Stiffness detected at time t = 1432.12377631592:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (3.854884565638704E-008). Occurred 38806 times (too fast). StiffCoeffNew/Old = 3.644316761256236E-003          
+     Elementary step 96 - dO_Pt_rev (3.854884565638704E-008). Occurred 38806 times (too fast). StiffCoeffNew/Old = 3.644316761256236E-003          
+     Elementary step 103 - dOH_HfC_fwd (1.539549377150524E-006). Occurred 39576 times (too fast). StiffCoeffNew/Old = 3.588554803149268E-003          
+     Elementary step 104 - dOH_HfC_rev (1.539549377150524E-006). Occurred 39409 times (too fast). StiffCoeffNew/Old = 3.588554803149268E-003          
+     Elementary step 105 - dOH_Pt_fwd (4.735768472643737E-006). Occurred 46704 times (too fast). StiffCoeffNew/Old = 3.028035205492238E-003          
+     Elementary step 106 - dOH_Pt_rev (4.735768472643737E-006). Occurred 46704 times (too fast). StiffCoeffNew/Old = 3.028035205492238E-003          
+
+Stiffness scaling possibly too aggressive at time t = 1451.38060027164:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (7.697746885752619E-006). Occurred 124 times. PartEquil ratio = 1.00000000000000. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (7.697746885752619E-006). Occurred 125 times. PartEquil ratio = 1.00000000000000. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 105 - dOH_Pt_fwd (2.367884236321868E-005). Occurred 72 times. PartEquil ratio = 1.00000000000000. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 106 - dOH_Pt_rev (2.367884236321868E-005). Occurred 72 times. PartEquil ratio = 1.00000000000000. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1451.38060027164:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 125 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (4.425024378335206E-006). Occurred 154 times (too slow). StiffCoeffNew/Old = 114.790061880933                
+     Elementary step 96 - dO_Pt_rev (4.425024378335206E-006). Occurred 154 times (too slow). StiffCoeffNew/Old = 114.790061880933                
+
+Stiffness scaling possibly too aggressive at time t = 1473.90536734581:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.848873442876309E-005). Occurred 792 times. PartEquil ratio = 0.485591661557327. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.848873442876309E-005). Occurred 839 times. PartEquil ratio = 0.514408338442673. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1473.90536734581:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 47 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (1.491494350987025E-006). Occurred 19720 times (too fast). StiffCoeffNew/Old = 0.337059013344500               
+     Elementary step 96 - dO_Pt_rev (1.491494350987025E-006). Occurred 19720 times (too fast). StiffCoeffNew/Old = 0.337059013344500               
+     Elementary step 105 - dOH_Pt_fwd (6.872865417178373E-004). Occurred 229 times (too slow). StiffCoeffNew/Old = 29.0253438565657                
+     Elementary step 106 - dOH_Pt_rev (6.872865417178373E-004). Occurred 229 times (too slow). StiffCoeffNew/Old = 29.0253438565657                
+
+Stiffness scaling possibly too aggressive at time t = 1496.19640755084:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.924436721438155E-004). Occurred 4164 times. PartEquil ratio = 0.503689367364219. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.924436721438155E-004). Occurred 4103 times. PartEquil ratio = 0.496310632635781. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1496.19640755084:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 61 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 105 - dOH_Pt_fwd (2.637814960206697E-004). Occurred 22477 times (too fast). StiffCoeffNew/Old = 0.383801340502553               
+     Elementary step 106 - dOH_Pt_rev (2.637814960206697E-004). Occurred 22477 times (too fast). StiffCoeffNew/Old = 0.383801340502553               
+
+Stiffness detected at time t = 1518.09380082013:
+   The fastest non-equilibrated step is 8 - aO2_Pt_rev. Occurred 1 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (3.320150384650887E-008). Occurred 6353 times (too fast). StiffCoeffNew/Old = 2.226056292103093E-002          
+     Elementary step 96 - dO_Pt_rev (3.320150384650887E-008). Occurred 6353 times (too fast). StiffCoeffNew/Old = 2.226056292103093E-002          
+     Elementary step 103 - dOH_HfC_fwd (1.327851537561794E-006). Occurred 20496 times (too fast). StiffCoeffNew/Old = 6.899949074810182E-003          
+     Elementary step 104 - dOH_HfC_rev (1.327851537561794E-006). Occurred 20546 times (too fast). StiffCoeffNew/Old = 6.899949074810182E-003          
+     Elementary step 105 - dOH_Pt_fwd (4.423614006587165E-006). Occurred 8433 times (too fast). StiffCoeffNew/Old = 1.676999362472542E-002          
+     Elementary step 106 - dOH_Pt_rev (4.423614006587165E-006). Occurred 8433 times (too fast). StiffCoeffNew/Old = 1.676999362472542E-002          
+
+Stiffness scaling possibly too aggressive at time t = 1538.96963585139:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (6.639257687808968E-006). Occurred 160 times. PartEquil ratio = 0.551724137931034. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (6.639257687808968E-006). Occurred 130 times. PartEquil ratio = 0.448275862068966. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1538.96963585139:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 30 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (8.749195720046334E-007). Occurred 161 times (too slow). StiffCoeffNew/Old = 26.3518055100577                
+     Elementary step 96 - dO_Pt_rev (8.749195720046334E-007). Occurred 161 times (too slow). StiffCoeffNew/Old = 26.3518055100577                
+
+Stiffness scaling possibly too aggressive at time t = 1561.78584728294:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (3.319628843904484E-005). Occurred 716 times. PartEquil ratio = 0.508522727272727. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (3.319628843904484E-005). Occurred 692 times. PartEquil ratio = 0.491477272727273. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1561.78584728294:
+   The fastest non-equilibrated step is 103 - dOH_HfC_fwd. Occurred 24 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 105 - dOH_Pt_fwd (8.434968435261783E-005). Occurred 178 times (too slow). StiffCoeffNew/Old = 19.0680480319968                
+     Elementary step 106 - dOH_Pt_rev (8.434968435261783E-005). Occurred 178 times (too slow). StiffCoeffNew/Old = 19.0680480319968                
+
+Stiffness scaling possibly too aggressive at time t = 1584.15990042286:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (1.659814421952242E-004). Occurred 3501 times. PartEquil ratio = 0.495331069609508. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (1.659814421952242E-004). Occurred 3567 times. PartEquil ratio = 0.504668930390492. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1584.15990042286:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 66 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (2.076362223014612E-006). Occurred 3933 times (too slow). StiffCoeffNew/Old = 2.37320353716309                
+     Elementary step 96 - dO_Pt_rev (2.076362223014612E-006). Occurred 3933 times (too slow). StiffCoeffNew/Old = 2.37320353716309                
+     Elementary step 105 - dOH_Pt_fwd (1.968259715290469E-004). Occurred 4000 times (too slow). StiffCoeffNew/Old = 2.33345237791561                
+     Elementary step 106 - dOH_Pt_rev (1.968259715290469E-004). Occurred 4000 times (too slow). StiffCoeffNew/Old = 2.33345237791561                
+
+Stiffness scaling possibly too aggressive at time t = 1605.90565619346:
+   Applying a scale-up of the kinetic constants by a factor of 5.00000000000000.
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+    Elementary step 103 - dOH_HfC_fwd (8.299072109761209E-004). Occurred 17321 times. PartEquil ratio = 0.497758491867349. StiffCoeffNew/Old = 5.00000000000000.
+    Elementary step 104 - dOH_HfC_rev (8.299072109761209E-004). Occurred 17477 times. PartEquil ratio = 0.502241508132651. StiffCoeffNew/Old = 5.00000000000000.
+
+Stiffness detected at time t = 1605.90565619346:
+   The fastest non-equilibrated step is 104 - dOH_HfC_rev. Occurred 156 times (net count if reversible).
+   The following rate constants will be adjusted by the scaling coefficients in parenthesis (PEcur/PEori).
+   Scaling coefficients above the threshold of 1.00000000000000 have been automatically mapped to 1.
+     Elementary step 95 - dO_Pt_fwd (5.186023549474475E-006). Occurred 8833 times (too slow). StiffCoeffNew/Old = 2.49764876859734                
+     Elementary step 96 - dO_Pt_rev (5.186023549474475E-006). Occurred 8833 times (too slow). StiffCoeffNew/Old = 2.49764876859734                
+     Elementary step 105 - dOH_Pt_fwd (7.363611582962128E-004). Occurred 5897 times (too slow). StiffCoeffNew/Old = 3.74117883212147                
+     Elementary step 106 - dOH_Pt_rev (7.363611582962128E-004). Occurred 5897 times (too slow). StiffCoeffNew/Old = 3.74117883212147                
+
+
+Simulation stopped:
+~~~~~~~~~~~~~~~~~~~
+ Current KMC time: 1613.656
+ Events occurred:  115176900
+ Event frequency:  71376.36
+
+Performance facts:
+~~~~~~~~~~~~~~~~~~
+
+Elapsed CPU time:         86186.72 seconds
+Elapsed clock time:       86400.00 seconds
+Setup clock time:         0.9345990 seconds
+Simulation clock time:    86399.06 seconds
+
+Simulation clock time per KMC event: 7.5014232E-04 seconds
+Simulation clock time per KMC time:  53.54243 seconds/KMCTimeUnits
+
+Events per simulation clock hour:    4799089
+KMC Dt per simulation clock hour:    67.23640 KMCTimeUnits
+
+Execution queue statistics:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Number of insertions:           1597328925
+Number of removals:             1597328342
+Number of updates:             11826620450
+
+Memory usage statistics:
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Used capacity of process queue:                    1674
+       ...out of max-allocated:                    2016  (  83.04% utilization )
+       ...with cap of:                            12600
+
+Used capacity of process-participation list:         30
+       ...out of max-allocated:                      32  (  93.75% utilization )
+       ...with cap of:                              200
+
+Used capacity of cluster list:                      553
+       ...out of max-allocated:                    1008  (  54.86% utilization )
+       ...with cap of:                            12600
+
+Used capacity of cluster-participation list:         11
+       ...out of max-allocated:                      16  (  68.75% utilization )
+       ...with cap of:                               60
+
+Used capacity of largest temporary array:           368
+       ...out of max-allocated:                     383  (  96.08% utilization )
+       ...with cap of:                             1250
+
+Restart information successfully written in file restart.inf.
+
+> Normal termination <

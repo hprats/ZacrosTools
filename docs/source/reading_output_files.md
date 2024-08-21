@@ -9,7 +9,7 @@ All the information about a finished Zacros simulation can be extracted by creat
 ```python
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='zacros_results', ignore=30.0)
+kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
 ```
 
 ### Arguments

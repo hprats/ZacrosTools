@@ -18,13 +18,13 @@ class LatticeModel:
 
     @classmethod
     @enforce_types
-    def from_file(cls, path: str):
+    def from_file(cls, filepath: str):
         """Create a LatticeModel by reading an existing lattice_input.dat file.
 
         Parameters
         ----------
-        path: str
-            Path to the directory where the lattice_input.dat file is located
+        filepath: str
+            Path of the file that will be used as the lattice_input.dat. This file can have any name.
 
 
         Returns
@@ -37,7 +37,7 @@ class LatticeModel:
         start_pattern_detected = False
         end_pattern_detected = False
 
-        with open(path, 'r') as infile:
+        with open(filepath, 'r') as infile:
 
             while not start_pattern_detected:
                 line = infile.readline()
