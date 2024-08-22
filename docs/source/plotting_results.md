@@ -132,7 +132,7 @@ from zacrostools.plot_functions import plot_heatmap
 fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
-             gas_spec="H2", window_percent=[50, 100], window_type="time")
+             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ContourTof.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -161,7 +161,18 @@ plt.show()
 **Example:**
 
 ```python
-# TODO 
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_heatmap
+
+fig, axs = plt.subplots(1, figsize=(5, 3.5))
+
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", scan_path_ref="./scan_results_POM_1000K_HfC",
+             x="pressure_CH4", y="pressure_O2", z="tof_dif",
+             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True)
+
+plt.tight_layout()
+plt.savefig('ScanTofDif.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
 ```
 
 </div>
@@ -192,7 +203,7 @@ fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
              z="selectivity", main_product="H2", side_products=["H2O"], window_percent=[50, 100], window_type="time",
-             min_molec=10)
+             min_molec=10, auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanSelectivity.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -233,7 +244,7 @@ fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
 site_types = ['tC', 'tM']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
-                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
+                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time", auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -253,7 +264,7 @@ fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
 site_types = ['tC', 'tM']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
-                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
+                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time", auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -304,7 +315,8 @@ site_types = ['tC', 'tM', 'Pt']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
                  z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
-                 surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels)
+                 surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels, 
+                 auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanPhaseDiagram.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -331,7 +343,8 @@ from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="final_time")
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="final_time", 
+             auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanFinalTime.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -368,7 +381,7 @@ from zacrostools.plot_functions import plot_heatmap
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="energy_slope",
-             window_percent=[50, 100], window_type='nevents')
+             window_percent=[50, 100], window_type='nevents', auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanEnergySlope.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -405,7 +418,7 @@ from zacrostools.plot_functions import plot_heatmap
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="has_issues",
-             window_percent=[50, 100])
+             window_percent=[50, 100], auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -424,44 +437,57 @@ Example with a figure that includes multiple types of heatmaps:
 import matplotlib.pyplot as plt
 from zacrostools.plot_functions import plot_heatmap
 
-# Parameters for the figures
-products = ['CO2', 'H2', 'CH4', 'O2']
-site_types = ['tM', 'tC']
-ignore = 30
-min_molec = 5
-x = "pressure_CO"
-y = "pressure_H2O"
-scan_path = '/scan_WGS_1000K'
+scan_path = "./scan_results_POM_1000K_PtHfC"
+x = "pressure_CH4"
+y = "pressure_O2"
+window_percent = [50, 100]
+window_type = "time"
+min_molec = 10
 
-fig, axs = plt.subplots(3, 4, figsize=(11, 6), sharey='row', sharex='col')
+surf_spec_values = {
+    'CH3': 0.5, 'CH2': 0.5, 'CH': 0.5, 'C': 0.5, 'CH3_Pt': 0.5, 'CH2_Pt': 0.5, 'CH_Pt': 0.5, 'C_Pt': 0.5,
+    'CHO': 1.5, 'CO': 2.5, 'CO_Pt': 2.5, 'COOH': 3.5, 'COOH_Pt': 3.5, 'CO2': 4.5, 'CO2_Pt': 4.5, 'H': 5.5,
+    'H2O': 6.5, 'H2O_Pt': 6.5, 'OH': 7.5, 'OH_Pt': 7.5, 'O': 8.5, 'O_Pt': 8.5, 'O2_Pt': 8.5}
+tick_values = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5]
+tick_labels = ['$CH_{x}$', '$CHO$', '$CO$', '$COOH$', '$CO_{2}$', '$H$', '$H_{2}O$', '$OH$', '$O$']
 
-# TOF
-for n, product in enumerate(products):
-    plot_heatmap(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z=f"tof_{product}", ignore=ignore, min_molec=min_molec)
 
-# Total coverage
-for n, site_type in enumerate(site_types):
-    plot_heatmap(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type,
-                 weights='time')
+fig, axs = plt.subplots(4, 4, figsize=(11, 9), sharey='row', sharex='col')
 
-# Phase diagrams
-for n, site_type in enumerate(site_types):
-    plot_heatmap(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type,
-                 weights='time')
+for n, product in enumerate(['CO', 'H2', 'H2O', 'CO2']):
+    plot_heatmap(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z="tof", gas_spec=product,
+                 window_percent=window_percent, window_type=window_type, auto_title=True)
 
-# Selectivity
-plot_heatmap(ax=axs[2, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product='CO2',
-             side_products=['CH4'], ignore=ignore, min_molec=min_molec)
+for n, site_type in enumerate(['tC', 'tM', 'Pt']):
+    plot_heatmap(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage", surf_spec="total",
+                 window_percent=window_percent, window_type=window_type,
+                 site_type=site_type, weights="time", auto_title=True)
 
-# Final simulation time
-plot_heatmap(ax=axs[2, 1], scan_path=scan_path, x=x, y=y, z='final_time')
+for n, site_type in enumerate(['tC', 'tM', 'Pt']):
+    plot_heatmap(ax=axs[2, n], scan_path=scan_path, x=x, y=y, z="phase_diagram",
+                 window_percent=window_percent, window_type=window_type, site_type=site_type,
+                 surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels,
+                 min_coverage=20, weights="time", auto_title=True)
 
-# Final simulation energy
-plot_heatmap(ax=axs[2, 2], scan_path=scan_path, x=x, y=y, z='final_energy')
+plot_heatmap(ax=axs[3, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product="H2",
+             side_products=["H2O"], window_percent=window_percent, window_type=window_type, min_molec=min_molec, 
+             auto_title=True)
+
+plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_title=True)
+
+plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', window_percent=window_percent,
+             window_type='nevents', auto_title=True)
+
+plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='has_issues', window_percent=window_percent, 
+             auto_title=True)
+
+# Hide empty axes:
+axs[1, 3].axis('off')
+axs[2, 3].axis('off')
 
 plt.tight_layout()
+plt.savefig('ScanMultipleTypes.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
-plt.savefig("results_scan.pdf", bbox_inches='tight', transparent=False)
 ```
 ![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanMultipleTypes.png?raw=true)
 
