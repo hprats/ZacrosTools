@@ -6,9 +6,11 @@ simulations at various operating conditions.
 
 ---
 
-## Plots from a Single KMC Simulation
+## 1. Plots from a Single KMC Simulation
 
-### Surface Coverage vs. Simulated Time
+To plot the main results for a single KMC run, create a `KMCOutput` object and extract the desired data.
+
+**Example: Surface Coverage vs. Simulated Time**
 
 The following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
 simulation.
@@ -16,6 +18,7 @@ simulation.
 ```python
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
+
 kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
 
 plt.figure(figsize=(6, 4.5))
@@ -38,7 +41,7 @@ plt.show()
     <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true" alt="Coverage" width="500"/>
 </div>
 
-### Molecules Produced vs. Simulated Time
+**Example: Molecules Produced vs. Simulated Time**
 
 This example shows how to plot the number of molecules produced over simulated time in a single KMC simulation.
 
@@ -67,7 +70,7 @@ plt.show()
 
 ---
 
-## 2D heatmaps from a Set of KMC Simulations
+## 2. 2D heatmaps from a Set of KMC Simulations
 
 When running a set of KMC simulations at various operating conditions, 2D heatmaps for (*p<sub>A</sub>,
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
@@ -140,8 +143,6 @@ plt.show()
     <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
 </div>
 
-</div>
-
 #### TOF difference
 
 `z = 'tof_dif'`, plot log<sub>10</sub>∆TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species between two simulations
@@ -151,7 +152,7 @@ plt.show()
 **Additional required parameters:**
 
 - **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
-- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
+- **min_molec** (*int*): Minimum product molecules for TOF calculation. `NaN` assigned if not met. Default is `None`; if `None`, TOF below `min(levels)` is set to this threshold.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -410,6 +411,7 @@ plt.tight_layout()
 plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
+
 <div style="text-align: center;">
     <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
 </div>

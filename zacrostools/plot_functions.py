@@ -15,7 +15,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                  gas_spec: str = None, scan_path_ref: str = None,
                  main_product: str = None, side_products: list = None,
                  surf_spec: Union[str, list] = None,
-                 levels: list = None, min_molec: int = 0,
+                 levels: list = None, min_molec: int = None,
                  site_type: str = 'default', min_coverage: Union[float, int] = 20.0,
                  surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
                  window_percent: list = None, window_type: str = 'time', verbose: bool = False,
@@ -83,7 +83,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         window_percent = [0, 100]
 
     """Validate parameters"""
-    validate_params(z, gas_spec, scan_path_ref, main_product, side_products, surf_spec)
+    validate_params(z, gas_spec, scan_path_ref, min_molec, main_product, side_products, surf_spec)
 
     """Read and store results"""
     # Initialize lists and DataFrame to store data
@@ -120,8 +120,8 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     surf_spec_values, tick_labels, tick_values, levels, cmap = (
         handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_values, levels, cmap))
 
-    x_list, y_list, z_axis = prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_coverage,
-                                               surf_spec_values, levels)
+    x_list, y_list, z_axis, z_axis_pos, z_axis_neg = prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec,
+                                                                       min_coverage, surf_spec_values, levels)
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     # Plot using contour or pcolormesh
@@ -147,6 +147,17 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
             cbar = plt.colorbar(cp, ax=ax)
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
+    elif z == "tof_dif":
+        cp_neg = ax.pcolormesh(x_axis, y_axis, z_axis_neg, cmap="Reds", vmin=-4, vmax=4)
+        cp_pos = ax.pcolormesh(x_axis, y_axis, z_axis_pos, cmap="Greens", vmin=-4, vmax=4)
+        if show_colorbar:
+            cbar_neg = plt.colorbar(cp_neg, ax=ax)
+            cbar_pos = plt.colorbar(cp_pos, ax=ax)
+            for t in cbar_neg.ax.get_yticklabels():
+                t.set_fontsize(8)
+            for t in cbar_pos.ax.get_yticklabels():
+                t.set_fontsize(8)
+
     else:
         cp = ax.contourf(x_axis, y_axis, z_axis, levels=levels, cmap=cmap)
         if show_colorbar:
@@ -183,7 +194,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     return ax
 
 
-def validate_params(z, gas_spec, scan_path_ref, main_product, side_products, surf_spec):
+def validate_params(z, gas_spec, scan_path_ref, min_molec, main_product, side_products, surf_spec):
     """ Validates the input parameters based on the z value. """
 
     allowed_z_values = ["tof", "tof_dif", "selectivity", "coverage", "phase_diagram", "final_time", "final_energy",
@@ -197,6 +208,9 @@ def validate_params(z, gas_spec, scan_path_ref, main_product, side_products, sur
 
     elif z == "tof_dif" and (not gas_spec or not scan_path_ref):
         raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'tof_dif' plots")
+
+    elif z == "tof_dif" and min_molec is not None:
+        print("Warning: 'min_molec' is ignored if z = 'tof_dif'")
 
     elif z == "selectivity" and (not main_product or not side_products):
         raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
@@ -249,7 +263,9 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
 
     elif z == "tof_dif":
         df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
+        df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
         df.loc[folder_name, "tof_ref"] = kmc_output_ref.tof[gas_spec]
+        df.loc[folder_name, "total_production_ref"] = kmc_output_ref.total_production[gas_spec]
 
     elif z == "selectivity":
         df.loc[folder_name, "selectivity"] = kmc_output.get_selectivity(main_product=main_product,
@@ -302,7 +318,7 @@ def handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_value
 
     else:
         levels = {"tof": levels or [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
-                  "tof_dif": levels or [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2],
+                  "tof_dif": levels or [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
                   "selectivity": levels or [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
                   "coverage": levels or [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
                   "final_time": levels or [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
@@ -312,7 +328,7 @@ def handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_value
 
     # Handle general default values:
     if cmap is None:
-        cmap = {"tof": "inferno", "tof_dif": "RdYlGn", "selectivity": "Greens", "coverage": "Oranges",
+        cmap = {"tof": "inferno", "selectivity": "Greens", "coverage": "Oranges",
                 "phase_diagram": "bwr", "final_time": "inferno", "final_energy": "inferno", "energy_slope": None,
                 "has_issues": "RdYlGn"}.get(z)
 
@@ -345,12 +361,13 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
     log_y_list = np.sort(np.asarray(log_y_list))
     x_list = 10.0 ** log_x_list
     y_list = 10.0 ** log_y_list
-    z_axis = np.zeros((len(x_list), len(y_list)))
+
+    z_axis = np.full((len(x_list), len(y_list)), np.nan)
+    z_axis_pos = np.full((len(x_list), len(y_list)), np.nan)
+    z_axis_neg = np.full((len(x_list), len(y_list)), np.nan)
 
     for i, log_x in enumerate(log_x_list):
         for j, log_y in enumerate(log_y_list):
-
-            z_axis[j, i] = float('NaN')
 
             if len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) > 1:
                 raise PlotError(
@@ -363,18 +380,19 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
                 folder_name = df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index[0]
 
                 if z == "tof":
-                    if min_molec != 0:
+                    if min_molec is None:
+                        z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10 ** min(levels)))
+                    else:
                         if df.loc[folder_name, "total_production"] > min_molec:
                             z_axis[j, i] = np.log10(df.loc[folder_name, "tof"])
-                    else:
-                        z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10 ** min(levels)))
 
                 elif z == "tof_dif":
-                    tof_dif = abs(df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"])
-                    if df.loc[folder_name, "tof"] > df.loc[folder_name, "tof_ref"]:
-                        z_axis[j, i] = np.log10(tof_dif)
-                    else:
-                        z_axis[j, i] = - np.log10(tof_dif)
+                    tof_dif = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
+                    if abs(tof_dif) > 10 ** min(levels):
+                        if tof_dif > 0:
+                            z_axis_pos[j, i] = np.log10(tof_dif)
+                        else:
+                            z_axis[j, i] = - np.log10(-tof_dif)
 
                 elif z == "selectivity":
                     if df.loc[folder_name, "main_and_side_prod"] > min_molec:
@@ -403,7 +421,7 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
                         else:
                             z_axis[j, i] = 0.5
 
-    return x_list, y_list, z_axis
+    return x_list, y_list, z_axis, z_axis_pos, z_axis_neg
 
 
 def convert_to_subscript(chemical_formula):
