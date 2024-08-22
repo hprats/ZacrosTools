@@ -428,7 +428,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true" alt="ScanIssues" width="400"/>
 </div>
 
 #### Multiple types of plots
