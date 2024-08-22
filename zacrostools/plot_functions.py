@@ -19,7 +19,7 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
                  # Mandatory for 'selectivity'
                  main_product: str = None, side_products: list = None,
                  # Mandatory for 'coverage'
-                 surf_spec: str = None,
+                 surf_spec: Union[str, list] = None,
                  # Extra
                  levels: list = None, min_molec: int = 0,
                  site_type: str = 'default', min_coverage: float = 20.0,
@@ -49,7 +49,7 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
         Path for reference scan jobs, required for 'tof_dif' plots.
     gas_spec : str, optional
         Gas species product for tof plots.
-    surf_spec : str, optional
+    surf_spec : str or list
         Surface species for coverage plots.
     main_product : str, optional
         Main product for selectivity plots.
@@ -116,7 +116,7 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
         if site_type == 'default':
             site_type = list(parse_general_output(simulation_path)['site_types'].keys())[0]
         df = process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product,
-                             side_products, site_type, simulation_path, verbose)
+                             side_products, site_type, simulation_path, window_percent, verbose)
 
     """Plot results"""
     # Handle plot default values
@@ -244,7 +244,7 @@ def update_unique_values(log_x, log_y, log_x_list, log_y_list):
 
 
 def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product, side_products,
-                    site_type, simulation_path, verbose):
+                    site_type, simulation_path, window_percent, verbose):
 
     if z == 'tof':
         df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
@@ -264,7 +264,11 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
         if surf_spec == 'total':
             df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
         else:
-            df.loc[folder_name, "coverage"] = kmc_output.av_coverage_per_site_type[site_type][surf_spec]
+            av_coverage = 0.0
+            for ads in list(surf_spec):
+                if ads in kmc_output.av_coverage_per_site_type[site_type]:
+                    av_coverage += kmc_output.av_coverage_per_site_type[site_type][ads]
+            df.loc[folder_name, "coverage"] = av_coverage
 
     elif z == "phase_diagram":
         df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
@@ -280,7 +284,7 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
         df.loc[folder_name, "energy_slope"] = kmc_output.energy_slope
 
     elif z == 'has_issues':
-        df.loc[folder_name, "has_issues"] = detect_issues(simulation_path)
+        df.loc[folder_name, "has_issues"] = detect_issues(path=simulation_path, window_percent=window_percent)
         if df.loc[folder_name, "has_issues"] and verbose:
             print(f"Issue detected: {simulation_path}")
 
@@ -300,7 +304,7 @@ def handle_plot_defaults(z, surf_spec_values, scan_path, tick_labels, tick_value
                        "has_issues": tick_values or [-0.5, 0.5]}.get(z)
 
     else:
-        levels = {"tof": levels or [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3],
+        levels = {"tof": levels or [-4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
                   "tof_dif": levels or [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2],
                   "selectivity": levels or [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
                   "coverage": levels or [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],

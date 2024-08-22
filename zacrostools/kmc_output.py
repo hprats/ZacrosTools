@@ -3,9 +3,8 @@ from zacrostools.read_functions import parse_general_output, get_data_specnum, g
 from zacrostools.custom_exceptions import *
 
 
-def detect_issues(path):
+def detect_issues(path, window_percent):
 
-    min_window_percent = 30.0
     energy_slope_threshold = 5.0e-10  # eV/Å²/step
     time_linear_fit_threshold = 0.95
     num_std_energy = 8
@@ -17,7 +16,7 @@ def detect_issues(path):
             indices = np.round(np.linspace(0, len(nevents) - 1, size)).astype(int)
             return time[indices], energy[indices], nevents[indices]
 
-    kmc_output = KMCOutput(path=path, window_percent=[min_window_percent, 100.0],
+    kmc_output = KMCOutput(path=path, window_percent=window_percent,
                            window_type='nevents', weights='events')
 
     # Reduce arrays to 100 elements if necessary
@@ -52,10 +51,6 @@ def detect_issues(path):
 
     # Detect issues
     has_issues = energy_trend or time_not_linear or initial_energy_issues
-
-    # Sometimes a simulation with no issues have very low std and leads to a false positive.
-    # if abs(np.max(kmc_output.energy) - np.min(kmc_output.energy)) < 0.05:
-    #    has_issues = False
 
     return has_issues
 

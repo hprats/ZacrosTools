@@ -2,19 +2,15 @@
 
 ## Plots from a Single KMC Simulation
 
-The first step is to import matplotlib and read the simulation results:
+#### Surface coverage as a function of simulated time
 
 ```python
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
-
 kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
-```
 
-#### Surface coverage as a function of simulated time
-
-```python
 plt.figure(figsize=(6, 4.5))
+
 for site_type in kmc_output.site_types:
     for surf_species in kmc_output.coverage_per_site_type[site_type]:
         coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]
@@ -29,23 +25,30 @@ plt.tight_layout()
 plt.show()
 ```
 
+![Coverage](https://github.com/hprats/ZacrosTools/blob/main/docs/images/Coverage.png?raw=true)
+
 #### Molecules produced as a function of simulated time
 
 ```python
+import matplotlib.pyplot as plt
+from zacrostools.kmc_output import KMCOutput
+
+kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
+
 plt.figure(figsize=(8, 6))
 
 for gas_species in kmc_output.gas_species_names:
     if kmc_output.tof[gas_species] > 0.0 and kmc_output.production[gas_species][-1] > 0:
         plt.plot(kmc_output.time, kmc_output.production[gas_species], linewidth=2, label=gas_species + '$_{(g)}$')
 
-plx.xlabel('Time (s)')
+plt.xlabel('Time (s)')
 plt.ylabel('Molecules produced')
 plt.title('Molecules produced as a function of simulated time', fontsize=16)
 plt.tight_layout()
 plt.show()
 ```
 
-![TOF and Coverage Plot](https://github.com/hprats/ZacrosTools/blob/main/docs/images/tof_and_coverage.png?raw=true)
+![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/docs/images/MoleculesProduced.png?raw=true)
 
 ## Contour Plots from a Set of KMC Simulations at Various Operating Conditions
 
@@ -112,6 +115,22 @@ values:
 
 ##### Example
 
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
+
+plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
+             gas_spec="H2", window_percent=[50, 100], window_type="time")
+
+plt.tight_layout()
+plt.savefig('ContourTof.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+![ScanTof](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanTof.png?raw=true)
+
 #### TOF difference
 
 ##### Additional required parameters
@@ -122,6 +141,10 @@ values:
   - Default: `0`.
 
 ##### Example
+
+```python
+# TODO 
+```
 
 #### Selectivity
 
@@ -134,14 +157,71 @@ values:
 
 ##### Example
 
-#### Coverage
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
 
-- **site_type** (*str*): Name of site type.
-  - Default: `'default'`.
+fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
+
+plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
+             z="selectivity", main_product="H2", side_products=["H2O"], window_percent=[50, 100], window_type="time",
+             min_molec=10)
+
+plt.tight_layout()
+plt.savefig('ScanSelectivity.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+![ScanSelectivity](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanSelectivity.png?raw=true)
+
+#### Coverage
 
 ##### Additional required parameters
 
-##### Example
+- **surf_spec** (*str*): Surface species for coverage plots.
+  - Default: `20.0`.
+- **site_type** (*str*): Name of site type.
+  - Default: `'default'`.
+
+##### Example (total coverage)
+
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
+
+site_types = ['tC', 'tM']
+for n, site_type in enumerate(site_types):
+    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
+                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
+
+plt.tight_layout()
+plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanCoverageTotal.png?raw=true)
+
+##### Example (coverage of a specific surface species)
+
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
+
+site_types = ['tC', 'tM']
+for n, site_type in enumerate(site_types):
+    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
+                 surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
+
+plt.tight_layout()
+plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+![ScanCoverageSpecific](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanCoverageSpecific.png?raw=true)
 
 #### Phase diagram
 
@@ -157,14 +237,36 @@ will be included. Default: `None`.
 - **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
 automatically from the output data.
   - Default: `None`.
-- **tick_values** (*list*): List of tick values for the colorbar in phase diagrams. If `None`, ticks are determined 
-automatically from the input. 
-  - Default: `None`.
 - **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
 automatically from the output data.
   - Default: `None`.
 
 ##### Example
+
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+surf_spec_values = {
+    'CH3': 0.5, 'CH2': 0.5, 'CH': 0.5, 'C': 0.5, 'CH3_Pt': 0.5, 'CH2_Pt': 0.5, 'CH_Pt': 0.5, 'C_Pt': 0.5,
+    'CHO': 1.5, 'CO': 2.5, 'CO_Pt': 2.5, 'COOH': 3.5, 'COOH_Pt': 3.5, 'CO2': 4.5, 'CO2_Pt': 4.5, 'H': 5.5,
+    'H2O': 6.5, 'H2O_Pt': 6.5, 'OH': 7.5, 'OH_Pt': 7.5, 'O': 8.5, 'O_Pt': 8.5, 'O2_Pt': 8.5}
+
+tick_values = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5]
+tick_labels = ['$CH_{x}$', '$CHO$', '$CO$', '$COOH$', '$CO_{2}$', '$H$', '$H_{2}O$', '$OH$', '$O$']
+
+fig, axs = plt.subplots(1, 3, figsize=(10, 2.8))
+
+site_types = ['tC', 'tM', 'Pt']
+for n, site_type in enumerate(site_types):
+    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
+                 z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
+                 surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels)
+
+plt.tight_layout()
+plt.savefig('ScanPhaseDiagram.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
 
 #### Final time
 
@@ -172,17 +274,38 @@ automatically from the output data.
 
 ##### Example
 
-#### Final energy
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
 
-##### Additional required parameters
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-##### Example
+plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="final_time")
+
+plt.tight_layout()
+plt.savefig('ScanFinalTime.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
 
 #### Energy slope
 
 ##### Additional required parameters
 
 ##### Example
+
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+
+plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="energy_slope",
+             window_percent=[50, 100], window_type='nevents')
+
+plt.tight_layout()
+plt.savefig('ScanEnergySlope.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
 
 #### Issues
 
