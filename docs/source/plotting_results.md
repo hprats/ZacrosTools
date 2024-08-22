@@ -362,7 +362,9 @@ plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-![ScanIssues](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true)
+![ScanIssues](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true){: style="width: 50%;" }
+
+
 
 ### Example with multiple types of plots
 
