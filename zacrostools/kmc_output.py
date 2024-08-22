@@ -17,7 +17,7 @@ def detect_issues(path, window_percent):
             return time[indices], energy[indices], nevents[indices]
 
     kmc_output = KMCOutput(path=path, window_percent=window_percent,
-                           window_type='nevents', weights='events')
+                           window_type='nevents', weights='nevents')
 
     # Reduce arrays to 100 elements if necessary
     time_reduced, energy_reduced, nevents_reduced = reduce_size(time=kmc_output.time,
@@ -38,7 +38,7 @@ def detect_issues(path, window_percent):
     time_not_linear = r_squared_time < time_linear_fit_threshold
 
     # Detect patterns with U shape in the energy plot at the beginning of the simulation
-    kmc_output_full = KMCOutput(path=path, window_percent=[0.0, 100.0], window_type='nevents', weights='events')
+    kmc_output_full = KMCOutput(path=path, window_percent=[0.0, 100.0], window_type='nevents', weights='nevents')
     min_energy = np.min(kmc_output_full.energy)
     max_energy = np.max(kmc_output_full.energy)
     energy_diff = np.diff(energy_reduced)  # First differences for energy
@@ -132,7 +132,7 @@ class KMCOutput:
             - 'time': Apply a window over the simulated time.
             - 'nevents': Apply a window over the number of simulated events.
         weights: str (optional)
-            Weights for calculating the weighted average. Possible values: 'time', 'events', None. If None, all weights
+            Weights for calculating the weighted average. Possible values: 'time', 'nevents', None. If None, all weights
             are set to 1. Default value: None.
         """
 
@@ -212,8 +212,8 @@ class KMCOutput:
 
     def get_average(self, array, weights):
 
-        if weights not in [None, 'time', 'events']:
-            raise KMCOutputError(f"'weights' must be one of the following: 'none' (default), 'time', or 'events'.")
+        if weights not in [None, 'time', 'nevents']:
+            raise KMCOutputError(f"'weights' must be one of the following: 'none' (default), 'time', or 'nevents'.")
 
         if len(array) == 1:
             """ If the catalyst is poisoned, it could be that the last ∆t is very high and the time window only
@@ -224,7 +224,7 @@ class KMCOutput:
                 return np.average(array)
             elif weights == 'time':
                 return np.average(array[1:], weights=np.diff(self.time))
-            elif weights == 'events':
+            elif weights == 'nevents':
                 return np.average(array[1:], weights=np.diff(self.nevents))
 
     @enforce_types

@@ -22,9 +22,9 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
                  surf_spec: Union[str, list] = None,
                  # Extra
                  levels: list = None, min_molec: int = 0,
-                 site_type: str = 'default', min_coverage: float = 20.0,
+                 site_type: str = 'default', min_coverage: Union[float, int] = 20.0,
                  surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
-                 window_percent=None, window_type: str = 'time', verbose: bool = False,
+                 window_percent: list = None, window_type: str = 'time', verbose: bool = False,
                  weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True):
     """
     Creates a contour or pcolormesh plot based on KMC simulation data.

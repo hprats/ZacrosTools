@@ -25,7 +25,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-![Coverage](https://github.com/hprats/ZacrosTools/blob/main/docs/images/Coverage.png?raw=true)
+![Coverage](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true)
 
 #### Molecules produced as a function of simulated time
 
@@ -48,7 +48,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/docs/images/MoleculesProduced.png?raw=true)
+![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/MoleculesProduced.png?raw=true)
 
 ## Contour Plots from a Set of KMC Simulations at Various Operating Conditions
 
@@ -85,19 +85,6 @@ Depending on the type of plot (**z**), some additional parameters might be neede
 - **levels** (*list*): Determines the number and positions of the contour lines/regions.
   - Default: `'[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]'` for TOF plots.
   - Default: `'[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]'` for selectivity plots.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
-- **weights** (*str*): Weights for the averages. Possible values:
-  - `'time'`
-  - `'events'`
-  - `None` (all weights are set to 1).
-  - Default value: `None`.
 - **cmap** (*str*): The colormap or instance or registered colormap name used to map scalar data to colors.
 - **show_points** (*bool*): If `True`, show the grid points as black dots.
   - Default value: `False`.
@@ -112,6 +99,14 @@ values:
 
 - **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
   - Default: `0`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
 
 ##### Example
 
@@ -129,7 +124,7 @@ plt.savefig('ContourTof.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-![ScanTof](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanTof.png?raw=true)
+![ScanTof](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true)
 
 #### TOF difference
 
@@ -139,6 +134,14 @@ plt.show()
   - Default: `None`.
 - **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
   - Default: `0`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
 
 ##### Example
 
@@ -154,6 +157,14 @@ plt.show()
 - **side_products** (*list*): List of side products to calculate the selectivity.
 - **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
   - Default: `0`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
 
 ##### Example
 
@@ -172,7 +183,7 @@ plt.savefig('ScanSelectivity.png', dpi=200, bbox_inches='tight', transparent=Fal
 plt.show()
 ```
 
-![ScanSelectivity](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanSelectivity.png?raw=true)
+![ScanSelectivity](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanSelectivity.png?raw=true)
 
 #### Coverage
 
@@ -182,6 +193,19 @@ plt.show()
   - Default: `20.0`.
 - **site_type** (*str*): Name of site type.
   - Default: `'default'`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
+- **weights** (*str*): Weights for the averages. Possible values:
+  - `'time'`
+  - `'nevents'`
+  - `None` (all weights are set to 1).
+  - Default value: `None`.
 
 ##### Example (total coverage)
 
@@ -201,7 +225,7 @@ plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanCoverageTotal.png?raw=true)
+![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanCoverageTotal.png?raw=true)
 
 ##### Example (coverage of a specific surface species)
 
@@ -221,7 +245,7 @@ plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanCoverageSpecific](https://github.com/hprats/ZacrosTools/blob/main/docs/images/ScanCoverageSpecific.png?raw=true)
+![ScanCoverageSpecific](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanCoverageSpecific.png?raw=true)
 
 #### Phase diagram
 
@@ -240,6 +264,19 @@ automatically from the output data.
 - **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
 automatically from the output data.
   - Default: `None`.
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
+- **weights** (*str*): Weights for the averages. Possible values:
+  - `'time'`
+  - `'nevents'`
+  - `None` (all weights are set to 1).
+  - Default value: `None`.
 
 ##### Example
 
@@ -268,9 +305,13 @@ plt.savefig('ScanPhaseDiagram.png', dpi=200, bbox_inches='tight', transparent=Fa
 plt.show()
 ```
 
+![ScanPhaseDiagram](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanPhaseDiagram.png?raw=true)
+
 #### Final time
 
 ##### Additional required parameters
+
+None.
 
 ##### Example
 
@@ -287,9 +328,24 @@ plt.savefig('ScanFinalTime.png', dpi=200, bbox_inches='tight', transparent=False
 plt.show()
 ```
 
+![ScanFinalTime](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanFinalTime.png?raw=true)
+
 #### Energy slope
 
 ##### Additional required parameters
+
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
+values:
+  - `'time'`: Apply a window over the simulated time.
+  - `'nevents'`: Apply a window over the number of simulated events.
+
+```{tip}
+For `z = 'energy_slope'` plots, it is advised to set `window_percent = [50, 100]` and `window_type = 'nevents'`
+```
 
 ##### Example
 
@@ -307,13 +363,41 @@ plt.savefig('ScanEnergySlope.png', dpi=200, bbox_inches='tight', transparent=Fal
 plt.show()
 ```
 
+![ScanEnergySlope](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true)
+
 #### Issues
 
 ##### Additional required parameters
 
+- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
+total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
+the total number of events to be considered. 
+  - Default: `[0, 100]`
+
+```{tip}
+For `z = 'issues'` plots, it is advised to set `window_percent = [50, 100]`.
+The `window_type` keyword is not necessary, as it will automatically be set to `'nevents'`
+```
+
 ##### Example
 
-### Example with multiple contour plots
+```python
+import matplotlib.pyplot as plt
+from zacrostools.plot_functions import plot_contour
+
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+
+plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="has_issues",
+             window_percent=[50, 100])
+
+plt.tight_layout()
+plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+![ScanIssues](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true)
+
+### Example with multiple types of plots
 
 ```python
 import matplotlib.pyplot as plt
@@ -358,8 +442,7 @@ plt.tight_layout()
 plt.show()
 plt.savefig("results_scan.pdf", bbox_inches='tight', transparent=False)
 ```
-
-![Contour Plots](https://github.com/hprats/ZacrosTools/blob/main/docs/images/contour_plots.png?raw=true)
+![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanMultipleTypes.png?raw=true)
 
 ```{warning}
 This section of the documentation is under development.
