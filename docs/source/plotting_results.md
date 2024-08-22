@@ -70,7 +70,7 @@ plt.show()
 
 ---
 
-## 2. 2D heatmaps from a Set of KMC Simulations
+## 2. Heatmaps in 2D from a Set of KMC Simulations
 
 When running a set of KMC simulations at various operating conditions, 2D heatmaps for (*p<sub>A</sub>,
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
@@ -175,6 +175,8 @@ plt.savefig('ScanTofDif.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTofDif.png?raw=true" alt="ScanTofDif" width="400"/>
 </div>
 
 #### Selectivity
