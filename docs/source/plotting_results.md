@@ -176,7 +176,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTofDif.png?raw=true" alt="ScanTofDif" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTofDif.png?raw=true" alt="ScanTofDif" width="500"/>
 </div>
 
 #### Selectivity
