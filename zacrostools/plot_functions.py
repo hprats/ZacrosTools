@@ -12,20 +12,16 @@ import matplotlib.ticker as mticker
 
 @enforce_types
 def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
-                 # Mandatory for 'tof' and 'tof_dif'
-                 gas_spec: str = None,
-                 # Mandatory for 'tof_dif'
-                 scan_path_ref: str = None,
-                 # Mandatory for 'selectivity'
+                 gas_spec: str = None, scan_path_ref: str = None,
                  main_product: str = None, side_products: list = None,
-                 # Mandatory for 'coverage'
                  surf_spec: Union[str, list] = None,
-                 # Extra
                  levels: list = None, min_molec: int = 0,
                  site_type: str = 'default', min_coverage: Union[float, int] = 20.0,
                  surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
                  window_percent: list = None, window_type: str = 'time', verbose: bool = False,
-                 weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True):
+                 weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True,
+                 auto_title: bool = False):
+
     """
     Creates a contour or pcolormesh plot based on KMC simulation data.
 
@@ -79,7 +75,8 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
         If True, show grid points as black dots. Default is False.
     show_colorbar : bool, optional
         If True, show the colorbar. Default is True.
-
+    auto_title : bool, optional
+        Automatically generates titles for subplots if True. Default is False.
     """
 
     if window_percent is None:
@@ -172,11 +169,11 @@ def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
     else:
         ax.set_ylabel('$T$ (K)')
 
-    title, pad = get_plot_title(z, gas_spec, main_product, site_type)
-
-    ax.set_title(title, y=1.0, pad=pad, color="w",
-                 path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
-    ax.set_facecolor("lightgray")
+    if auto_title:
+        title, pad = get_plot_title(z, gas_spec, main_product, site_type)
+        ax.set_title(title, y=1.0, pad=pad, color="w",
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+        ax.set_facecolor("lightgray")
 
     if show_points:
         for i in x_list:

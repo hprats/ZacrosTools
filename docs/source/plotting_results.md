@@ -32,7 +32,9 @@ plt.tight_layout()
 plt.show()
 ```
 
-![Coverage](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/Coverage.png?raw=true" alt="Coverage" width="400"/>
+</div>
 
 ### Molecules Produced vs. Simulated Time
 
@@ -57,7 +59,9 @@ plt.tight_layout()
 plt.show()
 ```
 
-![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/MoleculesProduced.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/MoleculesProduced.png?raw=true" alt="MoleculesProduced" width="400"/>
+</div>
 
 ## Contour Plots from a Set of KMC Simulations
 
@@ -90,14 +94,11 @@ Depending on the type of plot (**z**), some additional parameters might be neede
 
 ### Optional Parameters
 
-- **levels** (*list*): Determines the number and positions of the contour lines/regions.
-  - Default: `'[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]'` for TOF plots.
-  - Default: `'[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]'` for selectivity plots.
-- **cmap** (*str*): The colormap or instance or registered colormap name used to map scalar data to colors.
-- **show_points** (*bool*): If `True`, show the grid points as black dots.
-  - Default value: `False`.
-- **show_colorbar** (*bool*): If `True`, show the colorbar.
-  - Default value: `True`.
+- **levels** (*list*): Defines the contour lines/regions. Default is `[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]` for TOF plots, and `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]` for selectivity plots.
+- **cmap** (*str*): Colormap used to map scalar data to colors. Accepts colormap instances or registered names.
+- **show_points** (*bool*): Displays grid points as black dots if `True`. Default is `False`.
+- **show_colorbar** (*bool*): Displays the colorbar if `True`. Default is `True`.
+- **auto_title** (*bool*): Automatically generates titles for subplots if `True`. Default is `False`.
 
 ### Contour Plot Types
 
@@ -127,7 +128,9 @@ plt.savefig('ContourTof.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-![ScanTof](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
+</div>
 
 #### TOF difference
 
@@ -175,7 +178,9 @@ plt.savefig('ScanSelectivity.png', dpi=200, bbox_inches='tight', transparent=Fal
 plt.show()
 ```
 
-![ScanSelectivity](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanSelectivity.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanSelectivity.png?raw=true" alt="ScanSelectivity" width="400"/>
+</div>
 
 #### Coverage
 
@@ -300,7 +305,9 @@ plt.savefig('ScanFinalTime.png', dpi=200, bbox_inches='tight', transparent=False
 plt.show()
 ```
 
-![ScanFinalTime](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanFinalTime.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanFinalTime.png?raw=true" alt="ScanFinalTime" width="400"/>
+</div>
 
 #### Energy slope
 
@@ -331,7 +338,9 @@ plt.savefig('ScanEnergySlope.png', dpi=200, bbox_inches='tight', transparent=Fal
 plt.show()
 ```
 
-![ScanEnergySlope](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true)
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
+</div>
 
 #### Issues
 
@@ -361,9 +370,9 @@ plt.tight_layout()
 plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
-
-![ScanIssues](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true){: style="width: 50%;" }
-
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true" alt="ScanIssues" width="400"/>
+</div>
 
 
 ### Example with multiple types of plots
