@@ -21,5 +21,5 @@
 ```
 
 ```{eval-rst}
-.. autofunction:: zacrostools.plot_functions.plot_contour
+.. autofunction:: zacrostools.plot_functions.plot_heatmap
 ```

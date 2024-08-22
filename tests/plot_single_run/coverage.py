@@ -4,7 +4,7 @@ from zacrostools.kmc_output import KMCOutput
 
 kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
 
-plt.figure(figsize=(6, 4.5))
+plt.figure(figsize=(5, 4))
 for site_type in kmc_output.site_types:
     for surf_species in kmc_output.coverage_per_site_type[site_type]:
         coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]

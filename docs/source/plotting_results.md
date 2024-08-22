@@ -4,11 +4,13 @@ This document provides instructions for generating plots from finished *Zacros* 
 `zacrostools` library. It includes examples for both single simulation results and contour plots from multiple 
 simulations at various operating conditions.
 
+---
+
 ## Plots from a Single KMC Simulation
 
 ### Surface Coverage vs. Simulated Time
 
-he following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
+The following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
 simulation.
 
 ```python
@@ -33,7 +35,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/Coverage.png?raw=true" alt="Coverage" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true" alt="Coverage" width="500"/>
 </div>
 
 ### Molecules Produced vs. Simulated Time
@@ -60,12 +62,14 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/MoleculesProduced.png?raw=true" alt="MoleculesProduced" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/MoleculesProduced.png?raw=true" alt="MoleculesProduced" width="500"/>
 </div>
 
-## Contour Plots from a Set of KMC Simulations
+---
 
-When running a set of KMC simulations at various operating conditions, contour plots for (*p<sub>A</sub>,
+## 2D heatmaps from a Set of KMC Simulations
+
+When running a set of KMC simulations at various operating conditions, 2D heatmaps for (*p<sub>A</sub>,
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
 {py:func}`zacrostools.plot_functions.plot_heatmap` function.
 
@@ -80,17 +84,17 @@ p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the
   - `'pressure_Y'`, where `Y` is a gas species
   - `'temperature'`
 - **z** (*str*): Magnitude to plot on the z-axis. Possible values:
-  - `'tof'`, TOF (in log10)
-  - `'tof_dif'`, difference in TOF between two systems (in log10) 
-  - `'selectivity'`, selectivity (in %)
-  - `'coverage'`, coverage (in %)
-  - `'phase_diagram'`, most dominant surface species
-  - `'final_time'`, final time (in log10)
-  - `'final_energy'`, final energy
-  - `'energy_slope'`, energy slope
-  - `'has_issues'`, to check for issues
+  - `'tof'`: log<sub>10</sub>TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>).
+  - `'tof_dif'`: Difference in log<sub>10</sub>TOF between two systems.
+  - `'selectivity'`: Selectivity (%).
+  - `'coverage'`: Coverage (%).
+  - `'phase_diagram'`: Most dominant surface species.
+  - `'final_time'`: log<sub>10</sub>Final time (s).
+  - `'final_energy'`: Final energy (eV·Å<sup>-2</sup>).
+  - `'energy_slope'`: Energy slope (eV·Å<sup>-2</sup>·step<sup>-1</sup>).
+  - `'has_issues'`: To check for issues.
 
-Depending on the type of plot (**z**), some additional parameters might be needed (see bellow).
+Depending on the type of plot (`z`), some additional parameters might be needed (see bellow).
 
 ### Optional Parameters
 
@@ -100,11 +104,15 @@ Depending on the type of plot (**z**), some additional parameters might be neede
 - **show_colorbar** (*bool*): Displays the colorbar if `True`. Default is `True`.
 - **auto_title** (*bool*): Automatically generates titles for subplots if `True`. Default is `False`.
 
-### Contour Plot Types
+### Heatmap Types
 
 #### TOF (Turnover Frequency)
 
-##### Additional required parameters
+`z = 'tof'`, plot log<sub>10</sub>TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
 - **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
@@ -112,7 +120,7 @@ Depending on the type of plot (**z**), some additional parameters might be neede
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
-##### Example
+**Example:**
 
 ```python
 import matplotlib.pyplot as plt
@@ -132,9 +140,15 @@ plt.show()
     <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
 </div>
 
+</div>
+
 #### TOF difference
 
-##### Additional required parameters
+`z = 'tof_dif'`, plot log<sub>10</sub>∆TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species between two simulations
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
 - **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
@@ -143,15 +157,21 @@ plt.show()
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
-##### Example
+**Example:**
 
 ```python
 # TODO 
 ```
 
+</div>
+
 #### Selectivity
 
-##### Additional required parameters
+`z = 'selectivity'`, plot selectivity (%) towards a given gas-phase species.
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **main_product** (*str*): The main product for selectivity calculation.
 - **side_products** (*list*): List of side products for selectivity calculation.
@@ -161,7 +181,7 @@ plt.show()
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
-##### Example
+**Example**
 
 ```python
 import matplotlib.pyplot as plt
@@ -184,7 +204,11 @@ plt.show()
 
 #### Coverage
 
-##### Additional required parameters
+`z = 'coverage'`, plot the coverage (%) of one or all surface species
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **surf_spec** (*str*): Surface species for coverage plots.
 - **site_type** (*str*): Name of site type. Default is `'default'`.
@@ -197,7 +221,7 @@ plt.show()
   - `'nevents'`
   - `None` (all weights are set to 1). Default is `None`.
 
-##### Example (total coverage)
+**Example (total coverage)**
 
 ```python
 import matplotlib.pyplot as plt
@@ -217,7 +241,7 @@ plt.show()
 
 ![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanCoverageTotal.png?raw=true)
 
-##### Example (coverage of a specific surface species)
+**Example (coverage of a specific surface species)**
 
 ```python
 import matplotlib.pyplot as plt
@@ -239,7 +263,11 @@ plt.show()
 
 #### Phase diagram
 
-##### Additional required parameters
+`z = 'phase_diagram'`, plot the most dominant surface species. 
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **site_type** (*str*): Name of the site type. Default is `'default'`.
 - **min_coverage** (*float*): Minimum total coverage required to plot the dominant surface species. Default is `20.0`.
@@ -255,7 +283,7 @@ plt.show()
   - `'nevents'`
   - `None` (all weights set to 1). Default is `None`.
 
-##### Example
+**Example**
 
 ```python
 import matplotlib.pyplot as plt
@@ -286,11 +314,15 @@ plt.show()
 
 #### Final time
 
-##### Additional required parameters
+`z = 'final_time'`, plot log<sub>10</sub> of the final time (s)
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 None.
 
-##### Example
+**Example**
 
 ```python
 import matplotlib.pyplot as plt
@@ -311,7 +343,11 @@ plt.show()
 
 #### Energy slope
 
-##### Additional required parameters
+`z = 'energy_slope'`, plot the energy slope (eV·Å<sup>-2</sup>·step<sup>-1</sup>).
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
@@ -322,7 +358,7 @@ plt.show()
 For `z = 'energy_slope'` plots, set `window_percent = [50, 100]` and `window_type = 'nevents'`.
 ```
 
-##### Example
+**Example**
 
 ```python
 import matplotlib.pyplot as plt
@@ -344,7 +380,11 @@ plt.show()
 
 #### Issues
 
-##### Additional required parameters
+`z = 'has_issues'`, plot a colored mesh showing the simulations that might have issues. 
+
+<div style="margin-left: 20px;">
+
+**Additional required parameters:**
 
 - **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
 total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
@@ -355,7 +395,7 @@ the total number of events to be considered.
 For `z = 'issues'` plots, set `window_percent = [50, 100]`. The `window_type` is automatically set to `'nevents'`.
 ```
 
-##### Example
+**Example**
 
 ```python
 import matplotlib.pyplot as plt
@@ -371,11 +411,12 @@ plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true" alt="ScanIssues" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
 </div>
 
+#### Multiple types of plots
 
-### Example with multiple types of plots
+Example with a figure that includes multiple types of heatmaps:
 
 ```python
 import matplotlib.pyplot as plt
