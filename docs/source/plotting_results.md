@@ -1,8 +1,15 @@
 # Plotting Results
 
+This document provides instructions for generating plots from finished *Zacros* simulations using the 
+`zacrostools` library. It includes examples for both single simulation results and contour plots from multiple 
+simulations at various operating conditions.
+
 ## Plots from a Single KMC Simulation
 
-#### Surface coverage as a function of simulated time
+### Surface Coverage vs. Simulated Time
+
+he following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
+simulation.
 
 ```python
 import matplotlib.pyplot as plt
@@ -27,7 +34,9 @@ plt.show()
 
 ![Coverage](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true)
 
-#### Molecules produced as a function of simulated time
+### Molecules Produced vs. Simulated Time
+
+This example shows how to plot the number of molecules produced over simulated time in a single KMC simulation.
 
 ```python
 import matplotlib.pyplot as plt
@@ -50,14 +59,13 @@ plt.show()
 
 ![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/MoleculesProduced.png?raw=true)
 
-## Contour Plots from a Set of KMC Simulations at Various Operating Conditions
+## Contour Plots from a Set of KMC Simulations
 
-Alternatively, when running a set of KMC simulations at various operating conditions, contour plots for (*p<sub>A</sub>,
+When running a set of KMC simulations at various operating conditions, contour plots for (*p<sub>A</sub>,
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
 {py:func}`zacrostools.plot_functions.plot_contour` function.
 
-
-### Main Parameters (**mandatory** for all plots)
+### Main Parameters (Mandatory for All Plots)
 
 - **ax** (*matplotlib.axes.Axes*): Axis object where the contour plot should be created.
 - **scan_path** (*str*): Path of the directory containing all the scan jobs.
@@ -91,22 +99,17 @@ Depending on the type of plot (**z**), some additional parameters might be neede
 - **show_colorbar** (*bool*): If `True`, show the colorbar.
   - Default value: `True`.
 
-### Contour plot types
+### Contour Plot Types
 
-#### TOF
+#### TOF (Turnover Frequency)
 
 ##### Additional required parameters
 
-- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
-  - Default: `0`.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
+- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
+- **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): The type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
 
 ##### Example
 
@@ -130,18 +133,12 @@ plt.show()
 
 ##### Additional required parameters
 
-- **scan_path_ref** (*str*): Path of the directory containing all reference scan jobs.
-  - Default: `None`.
-- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
-  - Default: `0`.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
+- **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
+- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
 
 ##### Example
 
@@ -153,18 +150,13 @@ values:
 
 ##### Additional required parameters
 
-- **main_product** (*str*): Main product to calculate the selectivity.
-- **side_products** (*list*): List of side products to calculate the selectivity.
-- **min_molec** (*int*): Defines a minimum number of product molecules to calculate and plot either the TOF or the selectivity.
-  - Default: `0`.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
+- **main_product** (*str*): The main product for selectivity calculation.
+- **side_products** (*list*): List of side products for selectivity calculation.
+- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot selectivity. Default is `0`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
 
 ##### Example
 
@@ -190,22 +182,15 @@ plt.show()
 ##### Additional required parameters
 
 - **surf_spec** (*str*): Surface species for coverage plots.
-  - Default: `20.0`.
-- **site_type** (*str*): Name of site type.
-  - Default: `'default'`.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
+- **site_type** (*str*): Name of site type. Default is `'default'`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
 - **weights** (*str*): Weights for the averages. Possible values:
   - `'time'`
   - `'nevents'`
-  - `None` (all weights are set to 1).
-  - Default value: `None`.
+  - `None` (all weights are set to 1). Default is `None`.
 
 ##### Example (total coverage)
 
@@ -251,32 +236,19 @@ plt.show()
 
 ##### Additional required parameters
 
-- **site_type** (*str*): Name of site type.
-  - Default: `'default'`.
-- **min_coverage** (*float*): Minimum total coverage to plot the dominant surface species.
-  - Default: `20.0`.
-- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all surface species 
-will be included. Default: `None`.
-  - Default: `None`.
-- **tick_values** (*list*): Ticks for the colorbar in phase diagram plots. If `None`, tick_values are determined 
-automatically from the output data.
-  - Default: `None`.
-- **ticks_labels** (*list*): Labels for the colorbar in phase diagrams. If `None`, tick_labels are determined 
-automatically from the output data.
-  - Default: `None`.
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
-- **weights** (*str*): Weights for the averages. Possible values:
+- **site_type** (*str*): Name of the site type. Default is `'default'`.
+- **min_coverage** (*float*): Minimum total coverage required to plot the dominant surface species. Default is `20.0`.
+- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all species are included. Default is `None`.
+- **tick_values** (*list*): Tick marks for the colorbar. If `None`, they are determined automatically. Default is `None`.
+- **ticks_labels** (*list*): Labels for the colorbar ticks. If `None`, they are determined automatically. Default is `None`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
+- **weights** (*str*): Weights for averaging. Possible values:
   - `'time'`
   - `'nevents'`
-  - `None` (all weights are set to 1).
-  - Default value: `None`.
+  - `None` (all weights set to 1). Default is `None`.
 
 ##### Example
 
@@ -334,17 +306,13 @@ plt.show()
 
 ##### Additional required parameters
 
-- **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
-total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
-- **window_type** (*str*): The type of window to apply when calculating averages (e.g. av_coverage) or TOF. Possible 
-values:
-  - `'time'`: Apply a window over the simulated time.
-  - `'nevents'`: Apply a window over the number of simulated events.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Possible values:
+  - `'time'` (based on simulated time)
+  - `'nevents'` (based on the number of events)
 
 ```{tip}
-For `z = 'energy_slope'` plots, it is advised to set `window_percent = [50, 100]` and `window_type = 'nevents'`
+For `z = 'energy_slope'` plots, set `window_percent = [50, 100]` and `window_type = 'nevents'`.
 ```
 
 ##### Example
@@ -375,8 +343,7 @@ the total number of events to be considered.
   - Default: `[0, 100]`
 
 ```{tip}
-For `z = 'issues'` plots, it is advised to set `window_percent = [50, 100]`.
-The `window_type` keyword is not necessary, as it will automatically be set to `'nevents'`
+For `z = 'issues'` plots, set `window_percent = [50, 100]`. The `window_type` is automatically set to `'nevents'`.
 ```
 
 ##### Example
