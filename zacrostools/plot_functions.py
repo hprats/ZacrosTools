@@ -11,7 +11,7 @@ import matplotlib.ticker as mticker
 
 
 @enforce_types
-def plot_contour(ax, scan_path: str, x: str, y: str, z: str,
+def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                  gas_spec: str = None, scan_path_ref: str = None,
                  main_product: str = None, side_products: list = None,
                  surf_spec: Union[str, list] = None,

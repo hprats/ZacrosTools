@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
              gas_spec="H2", window_percent=[50, 100], window_type="time")
 
 axs.set_title("$log_{10}$TOF " + f"$H_{2}$", y=1.0, pad=-14, color="w",

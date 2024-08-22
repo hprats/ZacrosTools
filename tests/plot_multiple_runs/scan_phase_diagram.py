@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 surf_spec_values = {
     'CH3': 0.5, 'CH2': 0.5, 'CH': 0.5, 'C': 0.5, 'CH3_Pt': 0.5, 'CH2_Pt': 0.5, 'CH_Pt': 0.5, 'C_Pt': 0.5,
@@ -13,7 +13,7 @@ fig, axs = plt.subplots(1, 3, figsize=(10, 2.8))
 
 site_types = ['tC', 'tM', 'Pt']
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
+    plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
                  z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels)
 

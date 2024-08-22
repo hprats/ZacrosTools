@@ -67,7 +67,7 @@ plt.show()
 
 When running a set of KMC simulations at various operating conditions, contour plots for (*p<sub>A</sub>,
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
-{py:func}`zacrostools.plot_functions.plot_contour` function.
+{py:func}`zacrostools.plot_functions.plot_heatmap` function.
 
 ### Main Parameters (Mandatory for All Plots)
 
@@ -116,11 +116,11 @@ Depending on the type of plot (**z**), some additional parameters might be neede
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
              gas_spec="H2", window_percent=[50, 100], window_type="time")
 
 plt.tight_layout()
@@ -165,11 +165,11 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
              z="selectivity", main_product="H2", side_products=["H2O"], window_percent=[50, 100], window_type="time",
              min_molec=10)
 
@@ -201,13 +201,13 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
 
 site_types = ['tC', 'tM']
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
+    plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
                  surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
 
 plt.tight_layout()
@@ -221,13 +221,13 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
 
 site_types = ['tC', 'tM']
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
+    plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="coverage",
                  surf_spec="total", site_type=site_type, window_percent=[50, 100], window_type="time")
 
 plt.tight_layout()
@@ -259,7 +259,7 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 surf_spec_values = {
     'CH3': 0.5, 'CH2': 0.5, 'CH': 0.5, 'C': 0.5, 'CH3_Pt': 0.5, 'CH2_Pt': 0.5, 'CH_Pt': 0.5, 'C_Pt': 0.5,
@@ -273,7 +273,7 @@ fig, axs = plt.subplots(1, 3, figsize=(10, 2.8))
 
 site_types = ['tC', 'tM', 'Pt']
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
+    plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
                  z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels)
 
@@ -294,11 +294,11 @@ None.
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="final_time")
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="final_time")
 
 plt.tight_layout()
 plt.savefig('ScanFinalTime.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -326,11 +326,11 @@ For `z = 'energy_slope'` plots, set `window_percent = [50, 100]` and `window_typ
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="energy_slope",
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="energy_slope",
              window_percent=[50, 100], window_type='nevents')
 
 plt.tight_layout()
@@ -359,11 +359,11 @@ For `z = 'issues'` plots, set `window_percent = [50, 100]`. The `window_type` is
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_contour(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="has_issues",
+plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="has_issues",
              window_percent=[50, 100])
 
 plt.tight_layout()
@@ -379,7 +379,7 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_contour
+from zacrostools.plot_functions import plot_heatmap
 
 # Parameters for the figures
 products = ['CO2', 'H2', 'CH4', 'O2']
@@ -394,27 +394,27 @@ fig, axs = plt.subplots(3, 4, figsize=(11, 6), sharey='row', sharex='col')
 
 # TOF
 for n, product in enumerate(products):
-    plot_contour(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z=f"tof_{product}", ignore=ignore, min_molec=min_molec)
+    plot_heatmap(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z=f"tof_{product}", ignore=ignore, min_molec=min_molec)
 
 # Total coverage
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type,
+    plot_heatmap(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage_total", ignore=ignore, site_type=site_type,
                  weights='time')
 
 # Phase diagrams
 for n, site_type in enumerate(site_types):
-    plot_contour(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type,
+    plot_heatmap(ax=axs[1, n + 2], scan_path=scan_path, x=x, y=y, z="phase_diagram", ignore=ignore, site_type=site_type,
                  weights='time')
 
 # Selectivity
-plot_contour(ax=axs[2, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product='CO2',
+plot_heatmap(ax=axs[2, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product='CO2',
              side_products=['CH4'], ignore=ignore, min_molec=min_molec)
 
 # Final simulation time
-plot_contour(ax=axs[2, 1], scan_path=scan_path, x=x, y=y, z='final_time')
+plot_heatmap(ax=axs[2, 1], scan_path=scan_path, x=x, y=y, z='final_time')
 
 # Final simulation energy
-plot_contour(ax=axs[2, 2], scan_path=scan_path, x=x, y=y, z='final_energy')
+plot_heatmap(ax=axs[2, 2], scan_path=scan_path, x=x, y=y, z='final_energy')
 
 plt.tight_layout()
 plt.show()
