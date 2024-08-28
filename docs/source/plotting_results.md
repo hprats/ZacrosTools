@@ -10,7 +10,7 @@ simulations at various operating conditions.
 
 To plot the main results for a single KMC run, create a `KMCOutput` object and extract the desired data.
 
-**Example: Surface Coverage vs. Simulated Time**
+### Coverage
 
 The following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
 simulation.
@@ -19,29 +19,62 @@ simulation.
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
 
-plt.figure(figsize=(6, 4.5))
-
-for site_type in kmc_output.site_types:
-    for surf_species in kmc_output.coverage_per_site_type[site_type]:
-        coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]
-        if coverage >= 1.0:
-            plt.plot(kmc_output.time, kmc_output.coverage_per_site_type[site_type][surf_species],
-                     label=f"{surf_species} ({site_type})")
+plt.figure(figsize=(5, 4))
+for surf_species in kmc_output.surf_species_names:
+    av_coverage = kmc_output.av_coverage[surf_species]
+    if av_coverage >= 1.0:
+        plt.plot(kmc_output.time, kmc_output.coverage[surf_species],
+                 label=f"{surf_species}")
 
 plt.xlabel('Simulated time (s)')
 plt.ylabel('Surface coverage (%)')
 plt.legend()
 plt.tight_layout()
+plt.savefig('CoverageAllSites.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/Coverage.png?raw=true" alt="Coverage" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoverageAllSites.png?raw=true" alt="CoverageAllSites" width="500"/>
 </div>
 
-**Example: Molecules Produced vs. Simulated Time**
+In the previous example, the coverage is calculated as the number of molecules of a given adsorbate divided by the total 
+number of sites. In general, however, it is more useful to calculate the coverage as the number of molecules of a given 
+adsorbate on a given site type divided by the total number of sites of that site type. The following example demonstrate
+ how to do that:
+
+```python
+import matplotlib.pyplot as plt
+from zacrostools.kmc_output import KMCOutput
+
+kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
+
+fig, axs = plt.subplots(1, 2, figsize=(4 * len(kmc_output.site_types), 4), sharey='all')
+
+for i, site_type in enumerate(kmc_output.site_types):
+    for surf_species in kmc_output.coverage_per_site_type[site_type]:
+        av_coverage = kmc_output.av_coverage_per_site_type[site_type][surf_species]
+        if av_coverage >= 1.0:
+            axs[i].plot(kmc_output.time, kmc_output.coverage_per_site_type[site_type][surf_species],
+                        label=surf_species)
+    axs[i].set_title(site_type)
+
+axs[0].set_xlabel('Simulated time (s)')
+axs[1].set_xlabel('Simulated time (s)')
+axs[0].set_ylabel('Surface coverage (%)')
+plt.legend()
+plt.tight_layout()
+plt.savefig('CoveragePerType.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoveragePerType.png?raw=true" alt="CoveragePerType" width="500"/>
+</div>
+
+### TOF
 
 This example shows how to plot the number of molecules produced over simulated time in a single KMC simulation.
 
@@ -61,6 +94,7 @@ plt.xlabel('Time (s)')
 plt.ylabel('Molecules produced')
 plt.title('Molecules produced as a function of simulated time', fontsize=16)
 plt.tight_layout()
+plt.savefig('MoleculesProduced.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -76,7 +110,9 @@ When running a set of KMC simulations at various operating conditions, 2D heatma
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
 {py:func}`zacrostools.plot_functions.plot_heatmap` function.
 
-### Main Parameters (Mandatory for All Plots)
+### Parameters (Mandatory for All Plots)
+
+#### Mandatory for all plots
 
 - **ax** (*matplotlib.axes.Axes*): Axis object where the contour plot should be created.
 - **scan_path** (*str*): Path of the directory containing all the scan jobs.
@@ -99,7 +135,7 @@ p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the
 
 Depending on the type of plot (`z`), some additional parameters might be needed (see bellow).
 
-### Optional Parameters
+#### Optional
 
 - **levels** (*list*): Defines the contour lines/regions. Default is `[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]` for TOF plots, and `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]` for selectivity plots.
 - **cmap** (*str*): Colormap used to map scalar data to colors. Accepts colormap instances or registered names.
