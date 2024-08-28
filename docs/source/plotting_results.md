@@ -73,7 +73,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoveragePerType.png?raw=true" alt="CoveragePerType" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoveragePerType.png?raw=true" alt="CoveragePerType" width="600"/>
 </div>
 
 ### TOF

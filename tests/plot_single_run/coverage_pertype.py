@@ -4,7 +4,7 @@ from zacrostools.kmc_output import KMCOutput
 
 kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
 
-fig, axs = plt.subplots(1, 2, figsize=(4 * len(kmc_output.site_types), 4), sharey='all')
+fig, axs = plt.subplots(1, 2, figsize=(3 * len(kmc_output.site_types), 3), sharey='all')
 
 for i, site_type in enumerate(kmc_output.site_types):
     for surf_species in kmc_output.coverage_per_site_type[site_type]:
