@@ -40,10 +40,12 @@ plt.show()
     <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoverageAllSites.png?raw=true" alt="CoverageAllSites" width="500"/>
 </div>
 
-In the previous example, the coverage is calculated as the number of molecules of a given adsorbate divided by the total 
-number of sites. In general, however, it is more useful to calculate the coverage as the number of molecules of a given 
-adsorbate on a given site type divided by the total number of sites of that site type. The following example demonstrate
- how to do that:
+Here's an improved version of the text:
+
+In the previous example, coverage is calculated by dividing the number of molecules of a given adsorbate by the total 
+number of sites. However, it is often more meaningful to calculate coverage as the number of molecules of a specific 
+adsorbate on a particular site type, divided by the total number of sites of that type. The following example 
+demonstrates how to do this:
 
 ```python
 import matplotlib.pyplot as plt
