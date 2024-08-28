@@ -117,7 +117,9 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 
 **Additional required parameters:**
 
-- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot TOF. Default is `0`.
+- **min_molec** (*int*): Minimum product molecules for TOF calculation. Default is `None`; if `None`, TOF is always 
+calculated regardless of the number of product molecules produced, and any TOF below `min(levels)` is set to this 
+threshold.
 - **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): The type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -152,7 +154,6 @@ plt.show()
 **Additional required parameters:**
 
 - **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
-- **min_molec** (*int*): Minimum product molecules for TOF calculation. `NaN` assigned if not met. Default is `None`; if `None`, TOF below `min(levels)` is set to this threshold.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -189,7 +190,8 @@ plt.show()
 
 - **main_product** (*str*): The main product for selectivity calculation.
 - **side_products** (*list*): List of side products for selectivity calculation.
-- **min_molec** (*int*): Minimum number of product molecules required to calculate and plot selectivity. Default is `0`.
+- **min_molec** (*int*): Minimum value of main + side product molecules for selectivity calculation. 
+Default is `None`; if `None`, selectivity only calculated if main + side product molecules is greater than zero.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)

@@ -83,7 +83,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         window_percent = [0, 100]
 
     """Validate parameters"""
-    validate_params(z, gas_spec, scan_path_ref, min_molec, main_product, side_products, surf_spec)
+    validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec)
 
     """Read and store results"""
     # Initialize lists and DataFrame to store data
@@ -148,8 +148,8 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
             for t in cbar.ax.get_yticklabels():
                 t.set_fontsize(8)
     elif z == "tof_dif":
-        cp_neg = ax.pcolormesh(x_axis, y_axis, z_axis_neg, cmap="Reds", vmin=-4, vmax=4)
-        cp_pos = ax.pcolormesh(x_axis, y_axis, z_axis_pos, cmap="Greens", vmin=-4, vmax=4)
+        cp_neg = ax.pcolormesh(x_axis, y_axis, z_axis_neg, cmap="Reds", vmin=-4, vmax=2)
+        cp_pos = ax.pcolormesh(x_axis, y_axis, z_axis_pos, cmap="Greens", vmin=-4, vmax=2)
         if show_colorbar:
             cbar_neg = plt.colorbar(cp_neg, ax=ax)
             cbar_pos = plt.colorbar(cp_pos, ax=ax)
@@ -195,7 +195,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     return ax
 
 
-def validate_params(z, gas_spec, scan_path_ref, min_molec, main_product, side_products, surf_spec):
+def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec):
     """ Validates the input parameters based on the z value. """
 
     allowed_z_values = ["tof", "tof_dif", "selectivity", "coverage", "phase_diagram", "final_time", "final_energy",
@@ -204,14 +204,22 @@ def validate_params(z, gas_spec, scan_path_ref, min_molec, main_product, side_pr
     if z not in allowed_z_values:
         raise PlotError(f"Incorrect value for z: '{z}'. \nAllowed values are: {allowed_z_values}")
 
+    if not os.path.isdir(scan_path):
+        raise PlotError(f"{scan_path}: 'scan_path' directory does not exist")
+
     if z == "tof" and not gas_spec:
         raise PlotError("'gas_spec' is required for 'tof' plots")
 
-    elif z == "tof_dif" and (not gas_spec or not scan_path_ref):
-        raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'tof_dif' plots")
+    elif z == "tof_dif":
 
-    elif z == "tof_dif" and min_molec is not None:
-        print("Warning: 'min_molec' is ignored if z = 'tof_dif'")
+        if not gas_spec or not scan_path_ref:
+            raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'tof_dif' plots")
+
+        if not os.path.isdir(scan_path_ref):
+            raise PlotError(f"{scan_path_ref}: 'scan_path_ref' directory does not exist")
+
+        if min_molec is not None:
+            print("Warning: 'min_molec' is ignored if z = 'tof_dif'")
 
     elif z == "selectivity" and (not main_product or not side_products):
         raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
@@ -384,7 +392,7 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
                     if min_molec is None:
                         z_axis[j, i] = np.log10(max(df.loc[folder_name, "tof"], 10 ** min(levels)))
                     else:
-                        if df.loc[folder_name, "total_production"] > min_molec:
+                        if df.loc[folder_name, "total_production"] >= min_molec:
                             z_axis[j, i] = np.log10(df.loc[folder_name, "tof"])
 
                 elif z == "tof_dif":
@@ -396,8 +404,12 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
                             z_axis[j, i] = - np.log10(-tof_dif)
 
                 elif z == "selectivity":
-                    if df.loc[folder_name, "main_and_side_prod"] > min_molec:
-                        z_axis[j, i] = df.loc[folder_name, "selectivity"]
+                    if min_molec is None:
+                        if df.loc[folder_name, "main_and_side_prod"] > 0:
+                            z_axis[j, i] = df.loc[folder_name, "selectivity"]
+                    else:
+                        if df.loc[folder_name, "main_and_side_prod"] >= min_molec:
+                            z_axis[j, i] = df.loc[folder_name, "selectivity"]
 
                 elif z == "coverage":
                     z_axis[j, i] = df.loc[folder_name, "coverage"]
