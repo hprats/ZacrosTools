@@ -8,10 +8,6 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 temperature scans, which often require the generation of numerous input files and the processing of extensive output 
 data.
 
-```{warning}
-This project is still under development.
-```
-
 ### Contributors
 
 - Hector Prats

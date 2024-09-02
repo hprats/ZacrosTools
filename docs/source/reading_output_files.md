@@ -135,6 +135,3 @@ for site_type in kmc_output.site_types:
         print(f"Coverage {surf_species}: {coverage:.3f} % of {site_type} sites")
 ```
 
-```{warning}
-This section of the documentation is under development.
-```

@@ -539,6 +539,3 @@ plt.show()
 ```
 ![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanMultipleTypes.png?raw=true)
 
-```{warning}
-This section of the documentation is under development.
-```
