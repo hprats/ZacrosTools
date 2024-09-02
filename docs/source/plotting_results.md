@@ -397,7 +397,9 @@ plt.show()
 
 #### Energy slope
 
-`z = 'energy_slope'`, plot the energy slope (eV·Å<sup>-2</sup>·step<sup>-1</sup>).
+`z = 'energy_slope'`, plot the slope of the lattice energy (eV·Å<sup>-2</sup>·step<sup>-1</sup>).
+
+A high slope of the lattice energy indicates that the simulation might have not reached the steady-state. 
 
 <div style="margin-left: 20px;">
 
@@ -436,6 +438,12 @@ plt.show()
 
 `z = 'has_issues'`, plot a colored mesh showing the simulations that might have issues. 
 
+The presence of issues are detected by checking for (1) positive or negative trend in the lattice energy within the 
+selected events window, (2) non-linearity of the time vs number of events plot within the selected events window, and 
+(3) sudden changes of the lattice energy at the initial stages of the simulation. These issues typically occur due to 
+too short simulations (i.e. the system has not reached the steady-state) or problems with the dynamic scaling algorithm.
+False positives or negatives might occur, so always check manually your results to make sure that there are no issues.
+
 <div style="margin-left: 20px;">
 
 **Additional required parameters:**
@@ -471,7 +479,7 @@ plt.show()
 
 #### Multiple types of plots
 
-Example with a figure that includes multiple types of heatmaps:
+Different types of heatmaps might be combined in a single figure, as shown in the following example:
 
 ```python
 import matplotlib.pyplot as plt

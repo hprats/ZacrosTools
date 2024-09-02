@@ -185,7 +185,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     if auto_title:
         title, pad = get_plot_title(z, gas_spec, main_product, site_type)
         ax.set_title(title, y=1.0, pad=pad, color="w",
-                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=10)
+                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=12)
 
     if show_points:
         for i in x_list:
@@ -401,7 +401,7 @@ def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_covera
                         if tof_dif > 0:
                             z_axis_pos[j, i] = np.log10(tof_dif)
                         else:
-                            z_axis[j, i] = - np.log10(-tof_dif)
+                            z_axis_neg[j, i] = - np.log10(-tof_dif)
 
                 elif z == "selectivity":
                     if min_molec is None:
