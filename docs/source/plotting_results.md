@@ -541,8 +541,8 @@ plt.show()
 
 ### Customising the Plots
 
-The size of axis ticks and fontsize of axis labels and titles can be adjusted with Matplotlib. Below are two examples on 
- how to do that.
+The size of axis ticks and fontsize of axis labels and titles can be adjusted with Matplotlib. Below are two examples 
+that show how to do that.
 
 For a plot with a single heatmap:
 
