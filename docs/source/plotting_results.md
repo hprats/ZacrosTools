@@ -569,7 +569,10 @@ plt.tight_layout()
 plt.savefig('FontSize.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
-![CustomiseSingle](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/CustomiseSingle.png?raw=true)
+
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/CustomiseSingle.png?raw=true" alt="CustomiseSingle" width="500"/>
+</div>
 
 For a plot with a multiple heatmaps:
 
