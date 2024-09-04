@@ -17,5 +17,5 @@ axs.set_ylabel(axs.get_ylabel(), fontsize=16)
 axs.set_title(axs.get_title(), fontsize=20, loc='center', pad=-170)
 
 plt.tight_layout()
-plt.savefig('FontSize.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.savefig('CustomiseSingle.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
