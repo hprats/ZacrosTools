@@ -6,6 +6,6 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial stable release of ZacrosTools.
 
-## [0.9.9] - 03-09-2024
+## [0.9.9-beta] - 03-09-2024
 ### Added
 - Last beta release.
