@@ -1,19 +1,20 @@
 # Plotting Results
 
 This document provides instructions for generating plots from finished *Zacros* simulations using the 
-`zacrostools` library. It includes examples for both single simulation results and contour plots from multiple 
-simulations at various operating conditions.
+`zacrostools` library. This section includes examples for visualizing results from a single simulation and generating 
+heatmap plots from multiple simulations at different operating conditions.
 
 ---
 
-## 1. Plots from a Single KMC Simulation
+## 1. Plotting Results from a Single KMC Simulation
 
-To plot the main results for a single KMC run, create a `KMCOutput` object and extract the desired data.
+To plot the main results for a single KMC run, create a `KMCOutput` object and extract the relevant data for plotting. 
+Below are examples demonstrating how to plot surface coverage and the number of molecules produced over time.
 
 ### Coverage
 
-The following example demonstrates how to plot surface coverage as a function of simulated time for a single KMC 
-simulation.
+In this example, we plot surface coverage as a function of simulation time for different surface species. The `KMCOutput` 
+object is initialized with data from a finished KMC simulation, and the plot displays the coverage for all species that reach a threshold coverage of 1%.
 
 ```python
 import matplotlib.pyplot as plt
@@ -76,7 +77,7 @@ plt.show()
 
 ### TOF
 
-This example shows how to plot the number of molecules produced over simulated time in a single KMC simulation.
+This example demonstrates how to plot the number of molecules produced over time for different gas-phase species in a single KMC simulation. 
 
 ```python
 import matplotlib.pyplot as plt
@@ -153,9 +154,8 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 **Additional required parameters:**
 
 - **min_molec** (*int*): Minimum product molecules for TOF calculation. Default is `0`. 
-- **levels** (*list*): Defines the contour lines/regions. Default is `None`. If `None`, levels are automatically 
-determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF below 
-`min(levels)` is set to `min(levels)`.
+- **levels** (*list*): Specifies the contour levels for the plot. If `None`, the levels are automatically determined, with any TOF below `1.0e-06` set to this threshold. 
+If provided, TOF values below the lowest value in levels are set to `min(levels)`.
 - **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): The type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -192,9 +192,8 @@ plt.show()
 **Additional required parameters:**
 
 - **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
-- **levels** (*list*): Defines the levels used in the colorbar. Default is `None`. If `None`, levels are automatically 
-determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF difference 
-below `min(levels)` is set to `min(levels)`.
+- **levels** (*list*): Defines the levels used in the colorbar. If `None`, the levels are automatically determined based on the data, with TOF differences below `1.0e-06` set to this value. 
+If `levels` is provided, any TOF difference below the smallest value in levels is set to `min(levels)`. Default is `'None'`.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -236,7 +235,7 @@ plt.show()
 - **main_product** (*str*): The main product for selectivity calculation.
 - **side_products** (*list*): List of side products for selectivity calculation.
 - **min_molec** (*int*): Minimum value of main + side product molecules for selectivity calculation. 
-Default is `None`; if `None`, selectivity only calculated if main + side product molecules is greater than zero.
+If `None`, selectivity only calculated if main + side product molecules is greater than zero. Default is `None`; 
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
@@ -385,8 +384,8 @@ plt.show()
 
 **Additional required parameters:**
 
-- **levels** (*list*): Defines the levels used in the colorbar. Default is `None`. If `None`, levels are automatically 
-determined from the plot.
+- **levels** (*list*): Defines the levels used in the colorbar. If `None`, levels are automatically determined from the plot.
+Default is `None`. 
 
 **Example**
 
@@ -448,17 +447,19 @@ plt.show()
     <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
 </div>
 
-#### Issues
+#### Simulation issues
 
-`z = 'issues'`, plot a colored mesh showing the simulations that might have issues. 
-
-The presence of issues are detected by checking for (1) positive or negative trend in the lattice energy within the 
-selected events window, (2) non-linearity of the time vs number of events plot within the selected events window, and 
-(3) sudden changes of the lattice energy at the initial stages of the simulation. These issues typically occur due to 
-too short simulations (i.e. the system has not reached the steady-state) or problems with the dynamic scaling algorithm.
-False positives or negatives might occur, so always check manually your results to make sure that there are no issues.
+To identify and visualize potential issues in simulations, set `z = 'issues'`. This plot displays a colored mesh that highlights simulations with detected problems.
 
 <div style="margin-left: 20px;">
+
+**Issue Detection Criteria:**
+1. **Trend Analysis**: Positive or negative trends in lattice energy within the selected events window.
+2. **Non-Linearity**: Deviations from linearity in the time vs. number of events plot within the selected events window.
+3. **Sudden Energy Changes**: Abrupt changes in lattice energy at the early stages of the simulation.
+
+These issues often arise from simulations that are too short (i.e., the system has not reached steady-state) or problems with the dynamic scaling algorithm. 
+Be aware that false positives or negatives can occur, so manual verification of results is recommended.
 
 **Additional required parameters:**
 
