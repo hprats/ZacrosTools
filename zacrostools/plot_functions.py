@@ -204,8 +204,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
     if auto_title:
         title, pad = get_plot_title(z, gas_spec, main_product, site_type)
-        ax.set_title(title, y=1.0, pad=pad, color="w",
-                     path_effects=[pe.withStroke(linewidth=2, foreground="black")], fontsize=12)
+        ax.set_title(title, y=1.0, pad=pad, color="w", path_effects=[pe.withStroke(linewidth=2, foreground="black")])
 
     if show_points:
         for i in x_list:
