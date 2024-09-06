@@ -1,11 +1,9 @@
 # ZacrosTools
 
-> [!WARNING]  
-> This project is under development. The documentation is in preparation.
-
-ZacrosTools is a simple toolkit for the preparation of **[Zacros](https://zacros.org/)** input files. It is specially 
-useful when running scans at different pressure and temperature conditions, which may require hundreds of KMC 
-simulations.
+ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Zacros](https://zacros.org/)** input files
+ and the reading of **[Zacros](https://zacros.org/)** output files. It is especially useful for performing pressure and 
+temperature scans, which often require the generation of numerous input files and the processing of extensive output 
+data.
 
 ## Installation
 
