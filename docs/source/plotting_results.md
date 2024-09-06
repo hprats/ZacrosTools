@@ -156,7 +156,7 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 - **levels** (*list*): Defines the contour lines/regions. Default is `None`. If `None`, levels are automatically 
 determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF below 
 `min(levels)` is set to `min(levels)`.
-- **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): The type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
@@ -195,7 +195,7 @@ plt.show()
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `None`. If `None`, levels are automatically 
 determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF difference 
 below `min(levels)` is set to `min(levels)`.
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
@@ -238,7 +238,7 @@ plt.show()
 - **min_molec** (*int*): Minimum value of main + side product molecules for selectivity calculation. 
 Default is `None`; if `None`, selectivity only calculated if main + side product molecules is greater than zero.
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
@@ -275,7 +275,7 @@ plt.show()
 - **surf_spec** (*str*): Surface species for coverage plots.
 - **site_type** (*str*): Name of site type. Default is `'default'`.
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
@@ -338,7 +338,7 @@ plt.show()
 included. Default is `None`.
 - **tick_values** (*list*): Tick marks for the colorbar. If `None`, they are determined automatically. Default is `None`.
 - **ticks_labels** (*list*): Labels for the colorbar ticks. If `None`, they are determined automatically. Default is `None`.
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
