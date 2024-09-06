@@ -260,7 +260,7 @@ Currently, the only way to create a `LatticeModel` is by reading a `lattice_inpu
 ```python
 from zacrostools.lattice_input import LatticeModel
 
-lattice_model = LatticeModel.from_file('lattice_inputs/lattice_input_for_HfC.dat')
+lattice_model = LatticeModel.from_file(filepath='lattice_inputs/lattice_input_for_HfC.dat')
 ```
 
 In future releases, the user will be able to create a `LatticeModel` file directly from `ZacrosTools`.
