@@ -1,12 +1,18 @@
 # Welcome to ZacrosTools Documentation
 
-Welcome to the ZacrosTools documentation! This guide provides comprehensive information on using the ZacrosTools Python
- library.
+Welcome to the ZacrosTools documentation! This guide provides comprehensive information on using the ZacrosTools Python library.
 
-ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Zacros](https://zacros.org/)** input files
- and the reading of **[Zacros](https://zacros.org/)** output files. It is especially useful for performing pressure and 
-temperature scans, which often require the generation of numerous input files and the processing of extensive output 
-data.
+ZacrosTools is a versatile toolkit designed to simplify the preparation and analysis of Kinetic Monte Carlo (KMC) simulations with **[Zacros](https://zacros.org/)**.
+
+### Key Features:
+- **User-friendly:** Simplifies the creation, execution, and analysis of Zacros simulations with intuitive Python functions and classes.
+- **Automated Input Generation:** Generates Zacros input files for pressure or temperature scans, reducing the risk of errors and speeding up the setup process.
+- **Result Analysis Tools:** Provides powerful tools for analyzing Zacros simulation outputs, including multiple plotting functions.
+- **Extensibility:** Easily integrates with other Python libraries and tools, enabling seamless incorporation into broader computational workflows.
+- **Documentation and Examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
+
+### What’s Next:
+We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities. We welcome contributions from the community and are eager to hear feedback on this initial release.
 
 ### Contributors
 
