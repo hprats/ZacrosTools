@@ -37,7 +37,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoverageAllSites.png?raw=true" alt="CoverageAllSites" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_single_run/CoverageAllSites.png?raw=true" alt="CoverageAllSites" width="500"/>
 </div>
 
 In the previous example, coverage is calculated by dividing the number of molecules of a given adsorbate by the total 
@@ -71,7 +71,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/CoveragePerType.png?raw=true" alt="CoveragePerType" width="600"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_single_run/CoveragePerType.png?raw=true" alt="CoveragePerType" width="600"/>
 </div>
 
 ### TOF
@@ -99,7 +99,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_single_run/MoleculesProduced.png?raw=true" alt="MoleculesProduced" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_single_run/MoleculesProduced.png?raw=true" alt="MoleculesProduced" width="500"/>
 </div>
 
 ---
@@ -180,7 +180,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
 </div>
 
 #### TOF difference
@@ -222,7 +222,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanTofDif.png?raw=true" alt="ScanTofDif" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTofDif.png?raw=true" alt="ScanTofDif" width="500"/>
 </div>
 
 #### Selectivity
@@ -261,7 +261,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanSelectivity.png?raw=true" alt="ScanSelectivity" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanSelectivity.png?raw=true" alt="ScanSelectivity" width="400"/>
 </div>
 
 #### Coverage
@@ -302,7 +302,7 @@ plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanCoverageTotal.png?raw=true)
+![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanCoverageTotal.png?raw=true)
 
 **Example (coverage of a specific surface species)**
 
@@ -322,7 +322,7 @@ plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanCoverageSpecific](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanCoverageSpecific.png?raw=true)
+![ScanCoverageSpecific](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanCoverageSpecific.png?raw=true)
 
 #### Phase diagram
 
@@ -375,7 +375,7 @@ plt.savefig('ScanPhaseDiagram.png', dpi=200, bbox_inches='tight', transparent=Fa
 plt.show()
 ```
 
-![ScanPhaseDiagram](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanPhaseDiagram.png?raw=true)
+![ScanPhaseDiagram](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanPhaseDiagram.png?raw=true)
 
 #### Final time
 
@@ -405,7 +405,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanFinalTime.png?raw=true" alt="ScanFinalTime" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanFinalTime.png?raw=true" alt="ScanFinalTime" width="400"/>
 </div>
 
 #### Energy slope
@@ -445,7 +445,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanEnergySlope.png?raw=true" alt="ScanEnergySlope" width="400"/>
 </div>
 
 #### Issues
@@ -487,7 +487,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanIssues.png?raw=true" alt="ScanIssues" width="400"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanIssues.png?raw=true" alt="ScanIssues" width="400"/>
 </div>
 
 #### Multiple types of plots
@@ -550,7 +550,7 @@ plt.tight_layout()
 plt.savefig('ScanMultipleTypes.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
-![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/ScanMultipleTypes.png?raw=true)
+![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanMultipleTypes.png?raw=true)
 
 ### Customising the Plots
 
@@ -584,7 +584,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/CustomiseSingle.png?raw=true" alt="CustomiseSingle" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/CustomiseSingle.png?raw=true" alt="CustomiseSingle" width="500"/>
 </div>
 
 In order to customise the colorbar, one has to select `show_colorbar=False` and retrieve the colorbar instance:
@@ -608,7 +608,7 @@ plt.show()
 ```
 
 <div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/CustomiseColorbar.png?raw=true" alt="CustomiseColorbar" width="500"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/CustomiseColorbar.png?raw=true" alt="CustomiseColorbar" width="500"/>
 </div>
 
 For a plot with a multiple heatmaps:
@@ -681,4 +681,4 @@ plt.tight_layout()
 plt.savefig('CustomiseMultiple.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
-![CustomiseMultiple](https://github.com/hprats/ZacrosTools/blob/main/tests/plot_multiple_runs/CustomiseMultiple.png?raw=true)
+![CustomiseMultiple](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/CustomiseMultiple.png?raw=true)
