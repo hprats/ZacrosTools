@@ -42,7 +42,7 @@ plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_t
 plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', window_percent=window_percent,
              window_type='nevents', auto_title=True)
 
-plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='has_issues', window_percent=window_percent,
+plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', window_percent=window_percent,
              auto_title=True)
 
 # Hide empty axes:

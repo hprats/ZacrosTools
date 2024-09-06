@@ -137,7 +137,6 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 
 #### Optional
 
-- **levels** (*list*): Defines the contour lines/regions. Default is `[-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]` for TOF plots, and `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]` for selectivity plots.
 - **cmap** (*str*): Colormap used to map scalar data to colors. Accepts colormap instances or registered names.
 - **show_points** (*bool*): Displays grid points as black dots if `True`. Default is `False`.
 - **show_colorbar** (*bool*): Displays the colorbar if `True`. Default is `True`.
@@ -153,9 +152,10 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 
 **Additional required parameters:**
 
-- **min_molec** (*int*): Minimum product molecules for TOF calculation. Default is `None`; if `None`, TOF is always 
-calculated regardless of the number of product molecules produced, and any TOF below `min(levels)` is set to this 
-threshold.
+- **min_molec** (*int*): Minimum product molecules for TOF calculation. Default is `0`. 
+- **levels** (*list*): Defines the contour lines/regions. Default is `None`. If `None`, levels are automatically 
+determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF below 
+`min(levels)` is set to `min(levels)`.
 - **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): The type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -164,16 +164,18 @@ threshold.
 **Example:**
 
 ```python
+import numpy as np
 import matplotlib.pyplot as plt
 from zacrostools.plot_functions import plot_heatmap
 
-fig, axs = plt.subplots(1, figsize=(5.5, 4.5))
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2", z="tof",
-             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True)
+             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True,
+             levels=np.logspace(-3, 4, num=15), min_molec=0)
 
 plt.tight_layout()
-plt.savefig('ContourTof.png', dpi=200, bbox_inches='tight', transparent=False)
+plt.savefig('ScanTof.png', dpi=200, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -190,14 +192,20 @@ plt.show()
 **Additional required parameters:**
 
 - **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
+- **levels** (*list*): Defines the levels used in the colorbar. Default is `None`. If `None`, levels are automatically 
+determined from the plot, and any tof below a threshold value of 1.0e-06 is set to this value. Else, any TOF difference 
+below `min(levels)` is set to `min(levels)`.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
+Note that `min_molec` parameter is not used in `z = 'tof_dif'` plots. 
+
 **Example:**
 
 ```python
+import numpy as np
 import matplotlib.pyplot as plt
 from zacrostools.plot_functions import plot_heatmap
 
@@ -205,7 +213,8 @@ fig, axs = plt.subplots(1, figsize=(5, 3.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC", scan_path_ref="./scan_results_POM_1000K_HfC",
              x="pressure_CH4", y="pressure_O2", z="tof_dif",
-             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True)
+             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True,
+             levels=np.logspace(-3, 4, num=15))
 
 plt.tight_layout()
 plt.savefig('ScanTofDif.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -228,6 +237,7 @@ plt.show()
 - **side_products** (*list*): List of side products for selectivity calculation.
 - **min_molec** (*int*): Minimum value of main + side product molecules for selectivity calculation. 
 Default is `None`; if `None`, selectivity only calculated if main + side product molecules is greater than zero.
+- **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -264,6 +274,7 @@ plt.show()
 
 - **surf_spec** (*str*): Surface species for coverage plots.
 - **site_type** (*str*): Name of site type. Default is `'default'`.
+- **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -323,7 +334,8 @@ plt.show()
 
 - **site_type** (*str*): Name of the site type. Default is `'default'`.
 - **min_coverage** (*float*): Minimum total coverage required to plot the dominant surface species. Default is `20.0`.
-- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all species are included. Default is `None`.
+- **surf_spec_values** (*list*): List of surface species to include in the phase diagram. If `None`, all species are 
+included. Default is `None`.
 - **tick_values** (*list*): Tick marks for the colorbar. If `None`, they are determined automatically. Default is `None`.
 - **ticks_labels** (*list*): Labels for the colorbar ticks. If `None`, they are determined automatically. Default is `None`.
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
@@ -373,7 +385,8 @@ plt.show()
 
 **Additional required parameters:**
 
-None.
+- **levels** (*list*): Defines the levels used in the colorbar. Default is `None`. If `None`, levels are automatically 
+determined from the plot.
 
 **Example**
 
@@ -405,6 +418,7 @@ A high slope of the lattice energy indicates that the simulation might have not 
 
 **Additional required parameters:**
 
+- **levels** (*list*): Defines the levels used in the colorbar. Default is `np.logspace(-11, -8, num=7)`. 
 - **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
 - **window_type** (*str*): Type of window to apply. Possible values:
   - `'time'` (based on simulated time)
@@ -436,7 +450,7 @@ plt.show()
 
 #### Issues
 
-`z = 'has_issues'`, plot a colored mesh showing the simulations that might have issues. 
+`z = 'issues'`, plot a colored mesh showing the simulations that might have issues. 
 
 The presence of issues are detected by checking for (1) positive or negative trend in the lattice energy within the 
 selected events window, (2) non-linearity of the time vs number of events plot within the selected events window, and 
@@ -450,11 +464,10 @@ False positives or negatives might occur, so always check manually your results 
 
 - **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
 total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. 
-  - Default: `[0, 100]`
+the total number of events to be considered. Default: `[50, 100]`
 
 ```{tip}
-For `z = 'issues'` plots, set `window_percent = [50, 100]`. The `window_type` is automatically set to `'nevents'`.
+For `z = 'issues'` plots, `window_percent = [50, 100]` is recommended. The `window_type` is automatically set to `'nevents'`.
 ```
 
 **Example**
@@ -518,7 +531,7 @@ for n, site_type in enumerate(['tC', 'tM', 'Pt']):
                  min_coverage=20, weights="time", auto_title=True)
 
 plot_heatmap(ax=axs[3, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product="H2",
-             side_products=["H2O"], window_percent=window_percent, window_type=window_type, min_molec=min_molec, 
+             side_products=["H2O"], window_percent=window_percent, window_type=window_type, min_molec=min_molec,
              auto_title=True)
 
 plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_title=True)
@@ -526,7 +539,7 @@ plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_t
 plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', window_percent=window_percent,
              window_type='nevents', auto_title=True)
 
-plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='has_issues', window_percent=window_percent, 
+plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', window_percent=window_percent,
              auto_title=True)
 
 # Hide empty axes:

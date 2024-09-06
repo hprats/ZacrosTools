@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from zacrostools.plot_functions import plot_heatmap
 
