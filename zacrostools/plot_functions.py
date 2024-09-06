@@ -212,7 +212,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
             for j in y_list:
                 ax.plot(i, j, marker='.', color='w', markersize=3)
 
-    return ax
+    return cp
 
 
 def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec):
