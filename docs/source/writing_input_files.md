@@ -39,7 +39,7 @@ The **gas_energy** must not include the ZPE (it is included in the pre-exponenti
 | O2    | linear | 32.0             | 2          | 3          | [12.178379354326061] | 2.6        |
 | CO2   | linear | 44.01            | 2.0        | 1.0        | [44.317229117708344] | 0.0        |
 
-This `pandas.DataFrame` can be created, for instance, by including all the information on a .csv file and reading it:
+This `pandas.DataFrame` can be created, for instance, by including all the information on a `.csv` file and reading it:
 
 ```python
 import pandas as pd
@@ -114,25 +114,27 @@ steps, this value can be either undefined or an empty list, i.e., `[]`.
   - Default value: `None`.
 
 ```{caution}
-- **activ_eng** must not include the ZPE (it is included in the pre-exponential factor).
+- `activ_eng` must not include the ZPE (it is included in the pre-exponential factor).
 - For elementary steps with more than one surface species in the initial and/or final states:
-  - **activ_eng** must be calculated from the **co-adsorbed** configuration of the reactants.
-  - **vib_energies_is** and **vib_energies_fs** must correspond to the reactants and/or products at **infinite** 
+  - `activ_eng` must be calculated from the **co-adsorbed** configuration of the reactants.
+  - `vib_energies_is` and `vib_energies_fs` must correspond to the reactants and/or products at **infinite** 
   separation.
 ```
 
 ### Example
 
-| index          | sites | site_types | neighboring | area_site | initial               | final                 | activ_eng | molecule | vib_energies_is                                                                                    | vib_energies_fs                                                                                      | vib_energies_ts                                                                           | prox_factor |
-|----------------|-------|------------|-------------|-----------|-----------------------|-----------------------|-----------|----------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|
-| CO_adsorption  | 1     | topC       |             | 5.34      | ['1 * 1']             | ['1 CO* 1']           | 0.0       | CO       | [264.160873]                                                                                       | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | []                                                                                        | 0.0         |
-| O2_adsorption  | 2     | topC topC  | 1-2         | 5.34      | ['1 * 1', '2 * 1']    | ['1 O* 1', '2 O* 1']  | 0.0       | O2       | [194.973022]                                                                                       | [79.738187, 77.981497, 40.487926, 39.798116, 38.056578, 37.441762]                                   | []                                                                                        | 0.0         |
-| CO2_adsorption | 1     | topC       |             | 5.34      | ['1 * 1']             | ['1 CO2* 1']          | 0.0       | CO2      | [294.059036, 163.752147, 78.494148, 78.310738]                                                     | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | []                                                                                        | 0.0         |
-| CO+O_reaction  | 2     | topC topC  | 1-2         |           | ['1 CO* 1', '2 O* 1'] | ['1 CO2* 1', '2 * 1'] | 1.249     |          | [240.448231, 83.18955, 80.04067, 61.668486, 59.849388, 38.271338, 36.143131, 12.378844, 10.126178] | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [217.940927, 81.361728, 66.833494, 56.917831, 50.342099, 37.430358, 19.074043, 12.356398] |             |
-| CO_diffusion   | 2     | topC topC  | 1-2         |           | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  | 1.156     |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |             |
-| O_diffusion    | 2     | topC topC  | 1-2         |           | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   | 1.221     |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |             |
+| index          | site_types | neighboring | area_site | initial               | final                 | activ_eng | molecule | vib_energies_is                                                                                    | vib_energies_fs                                                                                      | vib_energies_ts                                                                           | prox_factor |
+|----------------|------------|-------------|-----------|-----------------------|-----------------------|-----------|----------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|
+| CO_adsorption  | topC       |             | 5.34      | ['1 * 1']             | ['1 CO* 1']           | 0.0       | CO       | [264.160873]                                                                                       | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | []                                                                                        | 0.0         |
+| O2_adsorption  | topC topC  | 1-2         | 5.34      | ['1 * 1', '2 * 1']    | ['1 O* 1', '2 O* 1']  | 0.0       | O2       | [194.973022]                                                                                       | [79.738187, 77.981497, 40.487926, 39.798116, 38.056578, 37.441762]                                   | []                                                                                        | 0.0         |
+| CO2_adsorption | topC       |             | 5.34      | ['1 * 1']             | ['1 CO2* 1']          | 0.0       | CO2      | [294.059036, 163.752147, 78.494148, 78.310738]                                                     | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | []                                                                                        | 0.0         |
+| CO+O_reaction  | topC topC  | 1-2         |           | ['1 CO* 1', '2 O* 1'] | ['1 CO2* 1', '2 * 1'] | 1.249     |          | [240.448231, 83.18955, 80.04067, 61.668486, 59.849388, 38.271338, 36.143131, 12.378844, 10.126178] | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [217.940927, 81.361728, 66.833494, 56.917831, 50.342099, 37.430358, 19.074043, 12.356398] |             |
+| CO_diffusion   | topC topC  | 1-2         |           | ['1 CO* 1', '2 * 1']  | ['1 * 1', '2 CO* 1']  | 1.156     |          | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                  | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                                    | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                                     |             |
+| O_diffusion    | topC topC  | 1-2         |           | ['1 O* 1', '2 * 1']   | ['1 * 1', '2 O* 1']   | 1.221     |          | [78.662275, 40.796289, 40.348665]                                                                  | [78.662275, 40.796289, 40.348665]                                                                    | [56.617104, 49.715199]                                                                    |             |
 
-This `pandas.DataFrame` can be created, for instance, by including all the information in a .csv file and reading it:
+Note that the keyword `sites` in the `mechanism_input.dat` file is calculated automatically from the lattice state.
+
+This `pandas.DataFrame` can be created, for instance, by including all the information in a `.csv` file and reading it:
 
 ```python
 import pandas as pd
@@ -194,6 +196,8 @@ The row index has to be the name of the cluster.
 - **lattice_state** (*list*): Cluster configuration in Zacros format.
   - Example: `['1 CO* 1','2 CO* 1']`.
 
+Note that the keyword `sites` in the `energetics_input.dat` file is calculated automatically from the lattice state.
+
 **Optional:**
 
 - **neighboring** (*str*): Connectivity between sites involved.
@@ -212,19 +216,19 @@ factor. For the multi-body terms (lateral interactions), the ZPE should be ignor
 
 ### Example
 
-| index        | cluster_eng | sites | site_types | lattice_state            | neighboring | graph_multiplicity |
-|--------------|-------------|-------|------------|--------------------------|-------------|--------------------|
-| CO2_point    | -1.576      | 1     | tC         | ['1 CO2* 1']             |             |                    |
-| CO_point     | 0.233       | 1     | tC         | ['1 CO* 1']              |             |                    |
-| O_point      | -1.333      | 1     | tC         | ['1 O* 1']               |             |                    |
-| CO2+CO2_pair | -0.062      | 2     | tC tC      | ['1 CO2* 1', '2 CO2* 1'] | 1-2         | 2                  |
-| CO2+CO_pair  | -0.184      | 2     | tC tC      | ['1 CO2* 1', '2 CO* 1']  | 1-2         |                    |
-| CO2+O_pair   | -0.162      | 2     | tC tC      | ['1 CO2* 1', '2 O* 1']   | 1-2         |                    |
-| CO+CO_pair   | 0.177       | 2     | tC tC      | ['1 CO* 1', '2 CO* 1']   | 1-2         | 2                  |
-| CO+O_pair    | -0.032      | 2     | tC tC      | ['1 CO* 1', '2 O* 1']    | 1-2         |                    |
-| O+O_pair     | 0.034       | 2     | tC tC      | ['1 O* 1', '2 O* 1']     | 1-2         | 2                  |
+| index        | cluster_eng | site_types | lattice_state            | neighboring | graph_multiplicity |
+|--------------|-------------|------------|--------------------------|-------------|--------------------|
+| CO2_point    | -1.576      | tC         | ['1 CO2* 1']             |             |                    |
+| CO_point     | 0.233       | tC         | ['1 CO* 1']              |             |                    |
+| O_point      | -1.333      | tC         | ['1 O* 1']               |             |                    |
+| CO2+CO2_pair | -0.062      | tC tC      | ['1 CO2* 1', '2 CO2* 1'] | 1-2         | 2                  |
+| CO2+CO_pair  | -0.184      | tC tC      | ['1 CO2* 1', '2 CO* 1']  | 1-2         |                    |
+| CO2+O_pair   | -0.162      | tC tC      | ['1 CO2* 1', '2 O* 1']   | 1-2         |                    |
+| CO+CO_pair   | 0.177       | tC tC      | ['1 CO* 1', '2 CO* 1']   | 1-2         | 2                  |
+| CO+O_pair    | -0.032      | tC tC      | ['1 CO* 1', '2 O* 1']    | 1-2         |                    |
+| O+O_pair     | 0.034       | tC tC      | ['1 O* 1', '2 O* 1']     | 1-2         | 2                  |
 
-This `pandas.DataFrame` can be created, for instance, by including all the information in a .csv file and reading it:
+This `pandas.DataFrame` can be created, for instance, by including all the information in a `.csv` file and reading it:
 
 ```python
 import pandas as pd
