@@ -271,8 +271,9 @@ In future releases, the user will be able to create a `LatticeModel` file direct
 
 Example of a lattice input file for HfC(001):
 
-![lattice](https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice.png?raw=true)
-
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice.png?raw=true" alt="lattice" width="300"/>
+</div>
 
     # lattice_input_for_HfC.dat file
 
