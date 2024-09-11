@@ -11,6 +11,10 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 - **Extensibility:** Easily integrates with other Python libraries and tools, enabling seamless incorporation into broader computational workflows.
 - **Documentation and Examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
+<div style="text-align: center;">
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
+</div>
+
 ### What’s Next:
 We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities. We welcome contributions from the community and are eager to hear feedback on this initial release.
 
