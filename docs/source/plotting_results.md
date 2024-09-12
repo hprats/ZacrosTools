@@ -147,7 +147,7 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 
 #### TOF (Turnover Frequency)
 
-`z = 'tof'`, plot log<sub>10</sub>TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species
+`z = 'tof'`, plot the TOF (in molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species.
 
 <div style="margin-left: 20px;">
 
@@ -185,7 +185,7 @@ plt.show()
 
 #### TOF difference
 
-`z = 'tof_dif'`, plot log<sub>10</sub>∆TOF (molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species between two simulations
+`z = 'tof_dif'`, plot the TOF difference (∆TOF, in molec·s<sup>-1</sup>·Å<sup>-2</sup>) of a given gas-phase species between two simulations.
 
 <div style="margin-left: 20px;">
 
@@ -226,7 +226,7 @@ plt.show()
 
 #### Selectivity
 
-`z = 'selectivity'`, plot selectivity (%) towards a given gas-phase species.
+`z = 'selectivity'`, plot the selectivity (in %) towards a given gas-phase species.
 
 <div style="margin-left: 20px;">
 
@@ -265,7 +265,7 @@ plt.show()
 
 #### Coverage
 
-`z = 'coverage'`, plot the coverage (%) of one or all surface species
+`z = 'coverage'`, plot the coverage (in %) of one or all surface species.
 
 <div style="margin-left: 20px;">
 
@@ -378,7 +378,7 @@ plt.show()
 
 #### Final time
 
-`z = 'final_time'`, plot log<sub>10</sub> of the final time (s)
+`z = 'final_time'`, plot the final time of the simulation (in s).
 
 <div style="margin-left: 20px;">
 
@@ -409,7 +409,7 @@ plt.show()
 
 #### Energy slope
 
-`z = 'energy_slope'`, plot the slope of the lattice energy (eV·Å<sup>-2</sup>·step<sup>-1</sup>).
+`z = 'energy_slope'`, plot the slope of the lattice energy (in eV·Å<sup>-2</sup>·step<sup>-1</sup>).
 
 A high slope of the lattice energy indicates that the simulation might have not reached the steady-state. 
 
