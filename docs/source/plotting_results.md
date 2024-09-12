@@ -151,13 +151,19 @@ Depending on the type of plot (`z`), some additional parameters might be needed 
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
+
+Mandatory:
+
+- **gas_spec** (*str*): Name of gas-phase species for the TOF calculation.
+
+Optional:
 
 - **min_molec** (*int*): Minimum product molecules for TOF calculation. Default is `0`. 
 - **levels** (*list*): Specifies the contour levels for the plot. If `None`, the levels are automatically determined, with any TOF below `1.0e-06` set to this threshold. 
-If provided, TOF values below the lowest value in levels are set to `min(levels)`.
-- **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
-- **window_type** (*str*): The type of window to apply. Possible values:
+If provided, TOF values below the lowest value in levels are set to `min(levels)`. Default is `None`.
+- **window_percent** (*list*): Specifies the percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): The type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
@@ -189,17 +195,23 @@ plt.show()
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
 
-- **scan_path_ref** (*str*): Path to the directory containing reference scan job results. Default is `None`.
+Mandatory:
+
+- **gas_spec** (*str*): Name of gas-phase species for the TOF calculation.
+- **scan_path_ref** (*str*): Path to the directory containing reference scan job results.
+
+Optional:
+
 - **levels** (*list*): Defines the levels used in the colorbar. If `None`, the levels are automatically determined based on the data, with TOF differences below `1.0e-06` set to this value. 
 If `levels` is provided, any TOF difference below the smallest value in levels is set to `min(levels)`. Default is `'None'`.
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
-- **window_type** (*str*): Type of window to apply. Possible values:
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
-Note that `min_molec` parameter is not used in `z = 'tof_dif'` plots. 
+Note that `min_molec` parameter is not allowed in `z = 'tof_dif'` plots. 
 
 **Example:**
 
@@ -230,15 +242,20 @@ plt.show()
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
+
+Mandatory:
 
 - **main_product** (*str*): The main product for selectivity calculation.
 - **side_products** (*list*): List of side products for selectivity calculation.
+
+Optional:
+
 - **min_molec** (*int*): Minimum value of main + side product molecules for selectivity calculation. 
 If `None`, selectivity only calculated if main + side product molecules is greater than zero. Default is `None`; 
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
-- **window_type** (*str*): Type of window to apply. Possible values:
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
@@ -269,19 +286,24 @@ plt.show()
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
+
+Mandatory:
 
 - **surf_spec** (*str*): Surface species for coverage plots.
-- **site_type** (*str*): Name of site type. Default is `'default'`.
+
+Optional:
+
+- **site_type** (*str*): Name of site type. Default is `'default'` (i.e., only valid if a default lattice model is used).
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`. 
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
-- **window_type** (*str*): Type of window to apply. Possible values:
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
-- **weights** (*str*): Weights for the averages. Possible values:
+- **weights** (*str*): Weights for the averages. Default is `None`. Possible values:
   - `'time'`
   - `'nevents'`
-  - `None` (all weights are set to 1). Default is `None`.
+  - `None` (all weights are set to 1).
 
 **Example (total coverage)**
 
@@ -329,7 +351,9 @@ plt.show()
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
+
+Optional:
 
 - **site_type** (*str*): Name of the site type. Default is `'default'`.
 - **min_coverage** (*float*): Minimum total coverage required to plot the dominant surface species. Default is `20.0`.
@@ -337,14 +361,14 @@ plt.show()
 included. Default is `None`.
 - **tick_values** (*list*): Tick marks for the colorbar. If `None`, they are determined automatically. Default is `None`.
 - **ticks_labels** (*list*): Labels for the colorbar ticks. If `None`, they are determined automatically. Default is `None`.
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[50, 100]`.
-- **window_type** (*str*): Type of window to apply. Possible values:
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
-- **weights** (*str*): Weights for averaging. Possible values:
+- **weights** (*str*): Weights for averaging. Default is `None`. Possible values:
   - `'time'`
   - `'nevents'`
-  - `None` (all weights set to 1). Default is `None`.
+  - `None` (all weights set to 1).
 
 **Example**
 
@@ -382,10 +406,11 @@ plt.show()
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
 
-- **levels** (*list*): Defines the levels used in the colorbar. If `None`, levels are automatically determined from the plot.
-Default is `None`. 
+Optional:
+
+- **levels** (*list*): Defines the levels used in the colorbar. If `None`, levels are automatically determined from the plot. Default is `None`. 
 
 **Example**
 
@@ -415,11 +440,13 @@ A high slope of the lattice energy indicates that the simulation might have not 
 
 <div style="margin-left: 20px;">
 
-**Additional required parameters:**
+**Additional parameters:**
+
+Optional:
 
 - **levels** (*list*): Defines the levels used in the colorbar. Default is `np.logspace(-11, -8, num=7)`. 
-- **window_percent** (*list*): Percentage range of the simulation time or events to consider, e.g., `[0, 100]`.
-- **window_type** (*str*): Type of window to apply. Possible values:
+- **window_percent** (*list*): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **window_type** (*str*): Type of window to apply. Default is `time`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
