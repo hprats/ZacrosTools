@@ -223,9 +223,6 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
     if z not in allowed_z_values:
         raise PlotError(f"Incorrect value for z: '{z}'. \nAllowed values are: {allowed_z_values}")
 
-    if not os.path.isdir(scan_path):
-        raise PlotError(f"{scan_path}: 'scan_path' directory does not exist")
-
     if z == "tof" and not gas_spec:
         raise PlotError("'gas_spec' is required for 'tof' plots")
 
