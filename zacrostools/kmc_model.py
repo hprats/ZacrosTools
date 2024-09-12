@@ -23,7 +23,7 @@ def process_cell(cell):
             if isinstance(parsed_cell, list):
                 return parsed_cell
         except (ValueError, SyntaxError):
-            pass
+            raise ReactionModelError(f"Cell is not a list: {cell}.")
     elif pd.isna(cell) or cell == '':
         return []
     # Return an empty list if parsing fails or if the cell is of an unexpected type
