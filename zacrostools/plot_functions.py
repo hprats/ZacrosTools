@@ -89,6 +89,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     df = pd.DataFrame()
 
     # Parse all directories in scan_path and read x, y, and z values
+
     for simulation_path in glob(f"{scan_path}/*"):
         folder_name = simulation_path.split('/')[-1]
         if not os.path.isfile(f"{simulation_path}/general_output.txt"):
@@ -216,6 +217,12 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
 def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec):
     """ Validates the input parameters based on the z value. """
+
+    if not os.path.isdir(scan_path):
+        raise PlotError(f"Scan path folder does not exist: {scan_path}")
+
+    if len(glob(f"{scan_path}/*")) == 0:
+        raise PlotError(f"Scan path folder is empty: {scan_path}")
 
     allowed_z_values = ["tof", "tof_dif", "selectivity", "coverage", "phase_diagram", "final_time", "final_energy",
                         "energy_slope", "issues"]
