@@ -111,9 +111,9 @@ When running a set of KMC simulations at various operating conditions, 2D heatma
 p<sub>B</sub>*) or (*p<sub>A</sub>, T*) scans can be easily created using the 
 {py:func}`zacrostools.plot_functions.plot_heatmap` function.
 
-### Parameters (Mandatory for All Plots)
+### Parameters
 
-#### Mandatory for all plots
+#### Mandatory for all plot types
 
 - **ax** (*matplotlib.axes.Axes*): Axis object where the contour plot should be created.
 - **scan_path** (*str*): Path of the directory containing all the scan jobs.
