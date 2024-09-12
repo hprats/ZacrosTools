@@ -101,6 +101,8 @@ class ReactionModel:
         vib_energies_is = self.df.loc[step, 'vib_energies_is']
         vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
         vib_energies_fs = self.df.loc[step, 'vib_energies_fs']
+        if 0.0 in vib_energies_is or 0.0 in vib_energies_ts or 0.0 in vib_energies_is:
+            raise ReactionModelError(f"Vibrational energy of 0.0 found in step {step}.")
         step_type = self.get_step_type(step)
         if 'adsorption' in step_type:
             molecule = self.df.loc[step, 'molecule']
