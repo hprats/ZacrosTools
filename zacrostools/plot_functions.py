@@ -80,7 +80,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     """
 
     if window_percent is None:
-        window_percent = [50, 100] if z == "issues" else [0, 100]
+        window_percent = [30, 100] if z == "issues" else [0, 100]
 
     validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec)
 
