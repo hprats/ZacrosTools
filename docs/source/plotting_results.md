@@ -483,7 +483,6 @@ To identify and visualize potential issues in simulations, set `z = 'issues'`. T
 **Issue Detection Criteria:**
 1. **Trend Analysis**: Positive or negative trends in lattice energy within the selected events window.
 2. **Non-Linearity**: Deviations from linearity in the time vs. number of events plot within the selected events window.
-3. **Sudden Energy Changes**: Abrupt changes in lattice energy at the early stages of the simulation.
 
 These issues often arise from simulations that are too short (i.e., the system has not reached steady-state) or problems with the dynamic scaling algorithm. 
 Be aware that false positives or negatives can occur, so manual verification of results is recommended.
@@ -492,7 +491,7 @@ Be aware that false positives or negatives can occur, so manual verification of 
 
 - **window_percent** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the 
 total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or 
-the total number of events to be considered. Default: `[50, 100]`
+the total number of events to be considered. Default: `[30, 100]`
 
 ```{tip}
 For `z = 'issues'` plots, `window_percent = [50, 100]` is recommended. The `window_type` is automatically set to `'nevents'`.
