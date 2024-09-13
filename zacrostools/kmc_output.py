@@ -7,7 +7,6 @@ def detect_issues(path, window_percent):
 
     energy_slope_threshold = 5.0e-10  # eV/Å²/step
     time_linear_fit_threshold = 0.95
-    num_std_energy = 8
 
     def reduce_size(time, energy, nevents, size=100):
         if len(nevents) <= size:
@@ -37,20 +36,8 @@ def detect_issues(path, window_percent):
     r_squared_time = np.corrcoef(time_reduced, time_predicted)[0, 1] ** 2
     time_not_linear = r_squared_time < time_linear_fit_threshold
 
-    # Detect patterns with U shape in the energy plot at the beginning of the simulation
-    kmc_output_full = KMCOutput(path=path, window_percent=[0.0, 100.0], window_type='nevents', weights='nevents')
-    min_energy = np.min(kmc_output_full.energy)
-    max_energy = np.max(kmc_output_full.energy)
-    energy_diff = np.diff(energy_reduced)  # First differences for energy
-    if kmc_output.av_energy > 0:
-        initial_energy_issues = ((max_energy - kmc_output.av_energy) > num_std_energy * np.std(energy_diff) or
-                                 min_energy < -1.0 * num_std_energy * np.std(energy_diff))
-    else:
-        initial_energy_issues = (abs(min_energy - kmc_output.av_energy) > num_std_energy * np.std(energy_diff) or
-                                 max_energy > num_std_energy * np.std(energy_diff))
-
     # Detect issues
-    has_issues = energy_trend or time_not_linear or initial_energy_issues
+    has_issues = energy_trend or time_not_linear
 
     return has_issues
 
