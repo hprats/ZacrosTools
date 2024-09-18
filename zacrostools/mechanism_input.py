@@ -29,6 +29,7 @@ class ReactionModel:
             - neighboring (str): connectivity between sites involved, e.g. 1-2. Default value: None
             - prox_factor (float): proximity factor. Default value: 0.5
             - angles (str): Angle between sites in Zacros format, e.g. '1-2-3:180'. Default value: None
+            - graph_multiplicity (int or float): Graph multiplicity of the step. Default value: None
     """
 
     @enforce_types
@@ -135,5 +136,11 @@ class ReactionModel:
         if step in manual_scaling:
             pe_fwd = pe_fwd * manual_scaling[step]
             pe_rev = pe_rev * manual_scaling[step]
+
+        if 'graph_multiplicity' in self.df.columns:
+            if not pd.isna(self.df.loc[step, 'graph_multiplicity']):
+                pe_fwd = pe_fwd / float(self.df.loc[step, 'graph_multiplicity'])
+                pe_rev = pe_rev / float(self.df.loc[step, 'graph_multiplicity'])
+
         pe_ratio = pe_fwd / pe_rev
         return pe_fwd, pe_ratio
