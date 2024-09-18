@@ -112,6 +112,9 @@ steps, this value can be either undefined or an empty list, i.e., `[]`.
 - **angles** (*str*): Angle between sites in Zacros format.
   - Example: `'1-2-3:180'`. 
   - Default value: `None`.
+- **graph_multiplicity** (*int or float*): Graph multiplicity of the step. The computed pre-exponential factor will be divided by `graph_multiplicity`.
+Should be used in steps with same initial and final configuration (symmetric steps), such as diffusions to the same site type. For instance, diffusion of A* from top to top should have a value of `2`.
+  - Default value: `None`.
 
 ```{caution}
 - `activ_eng` must not include the ZPE (it is included in the pre-exponential factor).
