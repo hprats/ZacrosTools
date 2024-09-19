@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from zacrostools.custom_exceptions import EnergeticModelError
 from zacrostools.custom_exceptions import KMCOutputError
@@ -42,28 +43,113 @@ def parse_general_output(path):
 
 
 def parse_simulation_input(path):
-    dmatch = ['temperature',
-              'pressure',
-              'gas_specs_names',
-              'gas_molar_fracs']
+    def process_values(keyword, values):
+        if not values:
+            # No values, set to True
+            return True
+        # For surf_specs_names, remove '*'
+        if keyword == 'surf_specs_names':
+            return [name.rstrip('*') for name in values]
+        # For 'override_array_bounds', store value as a string
+        if keyword == 'override_array_bounds':
+            return ' '.join(values)
+        # For stopping_criteria keywords, handle 'infinite' as string
+        if keyword in stopping_keywords:
+            val = ' '.join(values)
+            if val.lower() in ['infinity', 'infinite']:
+                return 'infinity'
+            else:
+                if keyword == 'max_steps':
+                    try:
+                        return int(val)
+                    except ValueError:
+                        return val  # Return as string if cannot parse
+                else:
+                    try:
+                        return float(val)
+                    except ValueError:
+                        return val  # Return as string if cannot parse
+        # For reporting_scheme keywords, store values as strings
+        if keyword in reporting_keywords:
+            return ' '.join(values)
+        # Try to parse as int
+        if len(values) == 1:
+            val = values[0]
+            try:
+                return int(val)
+            except ValueError:
+                try:
+                    return float(val)
+                except ValueError:
+                    return val  # Return as string
+        else:
+            # Multiple values, try to parse as list of ints
+            try:
+                return [int(v) for v in values]
+            except ValueError:
+                # Try to parse as list of floats
+                try:
+                    return [float(v) for v in values]
+                except ValueError:
+                    # Return as list of strings
+                    return values
+
     data = {}
-    with open(f"{path}/simulation_input.dat", 'r') as file_object:
-        line = file_object.readline()
-        while len(dmatch) != 0:
-            if 'temperature' in line:
-                data['temperature'] = float(line.split()[-1])
-                dmatch.remove('temperature')
-            elif 'pressure' in line:
-                data['pressure'] = float(line.split()[-1])
-                dmatch.remove('pressure')
-            elif 'gas_specs_names' in line:
-                data['gas_specs_names'] = line.split()[1:]
-                dmatch.remove('gas_specs_names')
-            elif 'gas_molar_fracs' in line:
-                data['gas_molar_fracs'] = [float(x) for x in line.split()[1:]]
-                dmatch.remove('gas_molar_fracs')
-            line = file_object.readline()
-        return data
+    reporting_scheme = {}
+    stopping_criteria = {}
+    reporting_keywords = ['snapshots', 'process_statistics', 'species_numbers']
+    stopping_keywords = ['max_steps', 'max_time', 'wall_time']
+
+    # Initialize the special keywords with None
+    for key in reporting_keywords:
+        reporting_scheme[key] = None
+    for key in stopping_keywords:
+        stopping_criteria[key] = None
+
+    filename = os.path.join(path, 'simulation_input.dat')
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    current_keyword = None
+    current_values = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        if line == 'finish':
+            continue
+        # Check if line starts with a keyword
+        if not line[0].isspace():
+            # New keyword line
+            tokens = line.split()
+            keyword = tokens[0]
+            values = tokens[1:]
+            # If we were collecting values for a previous keyword, store them
+            if current_keyword is not None:
+                if current_keyword in reporting_keywords:
+                    reporting_scheme[current_keyword] = process_values(current_keyword, current_values)
+                elif current_keyword in stopping_keywords:
+                    stopping_criteria[current_keyword] = process_values(current_keyword, current_values)
+                else:
+                    data[current_keyword] = process_values(current_keyword, current_values)
+            # Start collecting values for the new keyword
+            current_keyword = keyword
+            current_values = values
+        else:
+            # Continuation line, add tokens to current_values
+            tokens = line.split()
+            current_values.extend(tokens)
+    # After processing all lines, store the last keyword's values
+    if current_keyword is not None:
+        if current_keyword in reporting_keywords:
+            reporting_scheme[current_keyword] = process_values(current_keyword, current_values)
+        elif current_keyword in stopping_keywords:
+            stopping_criteria[current_keyword] = process_values(current_keyword, current_values)
+        else:
+            data[current_keyword] = process_values(current_keyword, current_values)
+    # Add reporting_scheme and stopping_criteria to data
+    data['reporting_scheme'] = reporting_scheme
+    data['stopping_criteria'] = stopping_criteria
+    return data
 
 
 def get_partial_pressures(path):
@@ -141,63 +227,78 @@ def get_stiffness_scalable_steps(path):
 
 
 def get_species_sites_dict(path):
-    with open(f"{path}/energetics_input.dat", 'r') as file:
-        lines = file.readlines()
 
-    inside_block = False
-    site_types_provided = False
+    parsed_sim_data = parse_simulation_input(path)
+    surf_specs_names = parsed_sim_data.get('surf_specs_names')
+    surf_specs_dent = parsed_sim_data.get('surf_specs_dent')
+
+    species_dentates = dict(zip(surf_specs_names, surf_specs_dent))
+    species_in_simulation = set(surf_specs_names)
+
+    with open(os.path.join(path, 'energetics_input.dat'), 'r') as f:
+        lines = f.readlines()
+
+    species_site_types = {}
+    num_lines = len(lines)
+    i = 0
+    while i < num_lines:
+        line = lines[i].strip()
+        if line.startswith('cluster'):
+            cluster_species = []
+            site_types = []
+            i += 1
+            while i < num_lines:
+                line = lines[i].strip()
+                if line.startswith('end_cluster'):
+                    break
+                elif line.startswith('lattice_state'):
+                    # Process lattice_state block
+                    i += 1  # Move to the next line after 'lattice_state'
+                    while i < num_lines:
+                        line = lines[i].strip()
+                        if not line or line.startswith('#'):
+                            i += 1
+                            continue
+                        if line.startswith('site_types') or line.startswith('cluster_eng') or line.startswith(
+                                'neighboring') or line.startswith('end_cluster'):
+                            break  # End of lattice_state block
+                        tokens = line.split()
+                        if tokens and tokens[0].isdigit():
+                            species_name = tokens[1].rstrip('*')
+                            cluster_species.append(species_name)
+                        i += 1
+                elif line.startswith('site_types'):
+                    tokens = line.split()
+                    site_types = tokens[1:]
+                    i += 1  # Move to the next line after 'site_types'
+                    continue  # Continue to process other lines in the cluster
+                else:
+                    i += 1
+            # After processing the cluster
+            if len(cluster_species) != len(site_types):
+                raise ValueError("Mismatch between number of species and site_types in a cluster.")
+            # Associate species with site types
+            for species, site_type in zip(cluster_species, site_types):
+                if species not in species_in_simulation:
+                    raise ValueError(
+                        f"Species '{species}' declared in energetics_input.dat but not in surf_specs_names.")
+                if species in species_site_types:
+                    if species_site_types[species] != site_type:
+                        raise ValueError(
+                            f"Species '{species}' is adsorbed on multiple site types: '{species_site_types[species]}' and '{site_type}'")
+                else:
+                    species_site_types[species] = site_type
+            i += 1  # Move past 'end_cluster'
+        else:
+            i += 1
+
     species_sites_dict = {}
-    current_species = []
-    num_sites = 0
-
-    for i, line in enumerate(lines):
-        line = line.strip()
-
-        # Detect the start of a cluster block
-        if line.startswith('cluster') and 'cluster_eng' not in line:
-            inside_block = True
-            current_species = []
-            site_types_provided = False
-
-        if inside_block:
-            if line.startswith('sites'):
-                num_sites = int(line.split()[1])
-
-            if line.startswith('lattice_state'):
-                state_lines = lines[i + 1:i + 1 + num_sites]
-                for state_line in state_lines:
-                    species = state_line.split()[1].replace('*', '')
-                    current_species.append(species)
-
-            if line.startswith('site_types'):
-                site_types_provided = True
-                types = line.split()[1:]
-                for j, site_type in enumerate(types):
-                    species = current_species[j]
-                    if species in species_sites_dict:
-                        if species_sites_dict[species] != site_type:
-                            raise EnergeticModelError(f"species {species} adsorbs to more than one site type: "
-                                                      f"{species_sites_dict[species]} and {site_type}. This is not "
-                                                      f"allowed, because it prevents to calculate the coverage per site"
-                                                      f" type. Please, define two different species, e.g. {species}_"
-                                                      f"{species_sites_dict[species]} and {species}_{site_type}")
-                    else:
-                        species_sites_dict[species] = site_type
-
-            # Detect the end of a cluster block
-            if 'end_cluster' in line:
-                if not site_types_provided:
-                    default_site_type_name = list(parse_general_output(path)['site_types'].keys())[0]
-                    # default_site_type_name = 'default'
-                    for species in current_species:
-                        if species in species_sites_dict:
-                            if species_sites_dict[species] != default_site_type_name:
-                                raise EnergeticModelError(f"species {species} adsorbs to more than one site type: "
-                                                          f"{species_sites_dict[species]} and {default_site_type_name}."
-                                                          f" When using a default_lattice, do not include the "
-                                                          f"'site_types' keyword.")
-                        else:
-                            species_sites_dict[species] = default_site_type_name
-                inside_block = False
-
+    for species in surf_specs_names:
+        if species not in species_site_types:
+            raise ValueError(f"Species '{species}' declared in surf_specs_names but not found in energetics_input.dat.")
+        species_sites_dict[species] = {
+            'surf_specs_dent': species_dentates[species],
+            'site_type': species_site_types[species]
+        }
     return species_sites_dict
+

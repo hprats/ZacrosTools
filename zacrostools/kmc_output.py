@@ -174,7 +174,7 @@ class KMCOutput:
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
         # Compute partial coverages (per total number of sites of a given type)
-        ads_sites = get_species_sites_dict(self.path)
+        species_sites_dict = get_species_sites_dict(self.path)
         self.coverage_per_site_type = {}
         self.av_coverage_per_site_type = {}
         for site_type in self.site_types:
@@ -182,9 +182,9 @@ class KMCOutput:
             self.av_coverage_per_site_type[site_type] = {}
         for i in range(5, 5 + self.n_surf_species):
             surf_spec = header[i].replace('*', '')
-            site_type = ads_sites[surf_spec]
+            site_type = species_sites_dict[surf_spec]['site_type']
             self.coverage_per_site_type[site_type][surf_spec] = data_specnum[:, i] / self.site_types[
-                ads_sites[surf_spec]] * 100
+                species_sites_dict[surf_spec]['site_type']] * 100
             self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
                 array=self.coverage_per_site_type[site_type][surf_spec], weights=weights)
         self.total_coverage_per_site_type = {}
