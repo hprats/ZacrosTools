@@ -187,7 +187,9 @@ mechanism_data = pd.DataFrame(steps).T
 The information on the energetics model is contained in a `pandas.DataFrame`, where each row corresponds to a cluster.
 
 ```{important}
-The row index has to be the name of the cluster.
+- The row index has to be the name of the cluster.
+- If a surface species binds to multiple site types, use different names (e.g. `O_top` and `O_hollow`). Otherwise, the 
+coverage per site type can not be calculated. 
 ```
 
 ### Columns
