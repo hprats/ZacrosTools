@@ -1,5 +1,5 @@
 import numpy as np
-from zacrostools.read_functions import parse_general_output, get_data_specnum, get_species_sites_dict
+from zacrostools.read_functions import parse_general_output, get_data_specnum, get_surf_specs_data
 from zacrostools.custom_exceptions import *
 
 
@@ -163,18 +163,19 @@ class KMCOutput:
                 self.tof[header[i]] = 0.00
 
         # Compute coverages (per total number of sites)
+        surf_specs_data = get_surf_specs_data(self.path)
         self.coverage = {}
         self.av_coverage = {}
         for i in range(5, 5 + self.n_surf_species):
             surf_spec = header[i].replace('*', '')
-            self.coverage[surf_spec] = data_specnum[:, i] / self.n_sites * 100
+            num_dentates = surf_specs_data[surf_spec]['surf_specs_dent']
+            self.coverage[surf_spec] = data_specnum[:, i] * num_dentates / self.n_sites * 100
             self.av_coverage[surf_spec] = self.get_average(array=self.coverage[surf_spec], weights=weights)
         self.total_coverage = sum(self.coverage.values())
         self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # to prevent 100.00000000001 (num. error)
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
         # Compute partial coverages (per total number of sites of a given type)
-        species_sites_dict = get_species_sites_dict(self.path)
         self.coverage_per_site_type = {}
         self.av_coverage_per_site_type = {}
         for site_type in self.site_types:
@@ -182,9 +183,10 @@ class KMCOutput:
             self.av_coverage_per_site_type[site_type] = {}
         for i in range(5, 5 + self.n_surf_species):
             surf_spec = header[i].replace('*', '')
-            site_type = species_sites_dict[surf_spec]['site_type']
-            self.coverage_per_site_type[site_type][surf_spec] = data_specnum[:, i] / self.site_types[
-                species_sites_dict[surf_spec]['site_type']] * 100
+            site_type = surf_specs_data[surf_spec]['site_type']
+            num_dentates = surf_specs_data[surf_spec]['surf_specs_dent']
+            self.coverage_per_site_type[site_type][surf_spec] = data_specnum[:, i] * num_dentates / self.site_types[
+                surf_specs_data[surf_spec]['site_type']] * 100
             self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
                 array=self.coverage_per_site_type[site_type][surf_spec], weights=weights)
         self.total_coverage_per_site_type = {}
