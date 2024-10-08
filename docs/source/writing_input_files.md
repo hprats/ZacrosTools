@@ -215,8 +215,9 @@ Note that the keyword `sites` in the `energetics_input.dat` file is calculated a
   - Default value: `1`.
 
 ```{caution}
-The **cluster_eng** must not include the ZPE. For the single-body terms, the ZPE is included in the pre-exponential 
-factor. For the multi-body terms (lateral interactions), the ZPE should be ignored.
+**cluster_eng** should not include the ZPE:
+- For the single-body terms, the ZPE is included in the pre-exponential factor. 
+- For the multi-body terms (lateral interactions), the ZPE should be ignored.
 ```
 
 ### Example
