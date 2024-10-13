@@ -15,6 +15,16 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
     <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
 </div>
 
+### Recent Changes [1.01] - 13-Oct-2024
+
+#### Version 1.01 - 13-Oct-2024
+- *ZacrosTools* is now compatible with multidentate species.
+- *ZacrosTools* is now compatible with default lattices.
+- Bug fix for cases where vibrational energies of 0.0 are specified in the reaction model.
+- Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
+
+Full details in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
+
 ### What’s Next:
 We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities. We welcome contributions from the community and are eager to hear feedback on this initial release.
 
