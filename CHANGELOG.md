@@ -1,10 +1,20 @@
-# Change Log
-All notable changes to this project will be documented in this file.
- 
-## [1.0.0] - 06-09-2024
-### Added
-- Initial stable release of ZacrosTools.
+## [1.01] - 13-Oct-2024
 
-## [0.9.9-beta] - 03-09-2024
 ### Added
-- Last beta release.
+- Added data validation and error handling in `plot_result.py`.
+- *ZacrosTools* is now compatible with the definition of multidentate species.
+- *ZacrosTools* is now compatible with default lattices.
+
+### Changed
+- The `detect_issues` function now only considers the specified window percent.
+- Default `window_percent` for `detect_issues` changed from `[50, 100]` to `[30, 100]`.
+
+### Fixed
+- Bug fix for cases where vibrational energies of 0.0 are specified in the reaction model. 
+
+### Improved
+- Improved the documentation in ReadTheDocs. 
+
+## [1.0] - 06-Sep-2024
+
+Initial release.
