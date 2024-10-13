@@ -20,9 +20,9 @@ $ git clone https://github.com/hprats/ZacrosTools.git
 ```
 The only requirements are [scipy](https://scipy.org/) and [pandas](https://pandas.pydata.org/).
 
-## How to use it
+## How to Use
 
-Please, follow this link for the documentation: https://zacrostools.readthedocs.io/en/latest/
+For detailed usage instructions, please visit the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
 ## Contributors
 
