@@ -13,7 +13,7 @@
 - Bug fix for cases where vibrational energies of 0.0 are specified in the reaction model. 
 
 ### Improved
-- Improved the documentation in ReadTheDocs. 
+- Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
 ## [1.0] - 06-Sep-2024
 
