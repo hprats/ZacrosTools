@@ -2,7 +2,7 @@
 
 ### Added
 - Added data validation and error handling in `plot_result.py`.
-- *ZacrosTools* is now compatible with the definition of multidentate species.
+- *ZacrosTools* is now compatible with multidentate species.
 - *ZacrosTools* is now compatible with default lattices.
 
 ### Changed
