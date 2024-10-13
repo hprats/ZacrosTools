@@ -5,6 +5,9 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 temperature scans, which often require the generation of numerous input files and the processing of extensive output 
 data.
 
+## Changelog
+You can view the full list of changes in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Installation
 
 The easiest way to install ZacrosTools is by using pip:
