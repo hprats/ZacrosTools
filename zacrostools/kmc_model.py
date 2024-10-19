@@ -92,7 +92,9 @@ class KMCModel:
                        # Optional arguments
                        reporting_scheme: Union[dict, None] = None, stopping_criteria: Union[dict, None] = None,
                        manual_scaling: Union[dict, None] = None, stiffness_scalable_steps: Union[list, None] = None,
-                       stiffness_scaling_tags: Union[dict, None] = None, sig_figs_energies: int = 16, sig_figs_pe: int = 16,
+                       stiffness_scalable_symmetric_steps: Union[list, None] = None,
+                       stiffness_scaling_tags: Union[dict, None] = None,
+                       sig_figs_energies: int = 16, sig_figs_pe: int = 16,
                        random_seed: Union[int, None] = None):
         """
 
@@ -119,6 +121,9 @@ class KMCModel:
         stiffness_scalable_steps: list of str, optional
             Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
             Default value: []
+        stiffness_scalable_symmetric_steps: list of str, optional
+            Steps that will be marked as 'stiffness_scalable_symmetric' in mechanism_input.dat.
+            Default value: []
         stiffness_scaling_tags: dict, optional
             Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g. {'check_every': 500,
             'min_separation': 400.0, 'max_separation': 600.0}.
@@ -144,28 +149,35 @@ class KMCModel:
             manual_scaling = {}
         if stiffness_scalable_steps is None:
             stiffness_scalable_steps = []
+        if stiffness_scalable_symmetric_steps is None:
+            stiffness_scalable_symmetric_steps = []
         if stiffness_scaling_tags is None:
             stiffness_scaling_tags = {}
-        if len(stiffness_scalable_steps) == 0 and len(stiffness_scaling_tags) > 0:
-            raise InconsistentDataError("'stiffness_scaling_tags' defined but no steps are stiffness scalable")
+        if len(stiffness_scaling_tags) > 0:
+            if len(stiffness_scalable_steps) == 0 and len(stiffness_scalable_symmetric_steps) == 0:
+                raise InconsistentDataError("'stiffness_scaling_tags' defined but no steps are stiffness scalable")
         self.path = path
         if not os.path.exists(self.path):
             os.mkdir(self.path)
-            self.write_simulation_input(temperature=temperature,
-                                        pressure=pressure,
-                                        reporting_scheme=reporting_scheme,
-                                        stopping_criteria=stopping_criteria,
-                                        stiffness_scalable_steps=stiffness_scalable_steps,
-                                        stiffness_scaling_tags=stiffness_scaling_tags,
-                                        sig_figs_energies=sig_figs_energies,
-                                        random_seed=random_seed)
-            self.reaction_model.write_mechanism_input(path=self.path,
-                                                      temperature=temperature,
-                                                      gas_data=self.gas_data,
-                                                      manual_scaling=manual_scaling,
-                                                      stiffness_scalable_steps=stiffness_scalable_steps,
-                                                      sig_figs_energies=sig_figs_energies,
-                                                      sig_figs_pe=sig_figs_pe)
+            self.write_simulation_input(
+                temperature=temperature,
+                pressure=pressure,
+                reporting_scheme=reporting_scheme,
+                stopping_criteria=stopping_criteria,
+                stiffness_scalable_steps=stiffness_scalable_steps,
+                stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
+                stiffness_scaling_tags=stiffness_scaling_tags,
+                sig_figs_energies=sig_figs_energies,
+                random_seed=random_seed)
+            self.reaction_model.write_mechanism_input(
+                path=self.path,
+                temperature=temperature,
+                gas_data=self.gas_data,
+                manual_scaling=manual_scaling,
+                stiffness_scalable_steps=stiffness_scalable_steps,
+                stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
+                sig_figs_energies=sig_figs_energies,
+                sig_figs_pe=sig_figs_pe)
             self.energetic_model.write_energetics_input(path=self.path,
                                                         sig_figs_energies=sig_figs_energies)
             self.lattice_model.write_lattice_input(path=self.path)
@@ -173,7 +185,8 @@ class KMCModel:
             print(f'{self.path} already exists (nothing done)')
 
     def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria,
-                               stiffness_scalable_steps, stiffness_scaling_tags, sig_figs_energies, random_seed):
+                               stiffness_scalable_steps, stiffness_scalable_symmetric_steps, stiffness_scaling_tags,
+                               sig_figs_energies, random_seed):
         """Writes the simulation_input.dat file"""
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs = self.get_surf_specs()
@@ -211,7 +224,7 @@ class KMCModel:
                 infile.write((tag + '\t').expandtabs(26) + str(reporting_scheme[tag]) + '\n')
             for tag in ['max_steps', 'max_time', 'wall_time']:
                 infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria[tag]) + '\n')
-            if len(stiffness_scalable_steps) > 0:
+            if len(stiffness_scalable_steps) > 0 or len(stiffness_scalable_symmetric_steps) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in stiffness_scaling_tags:
                     infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')

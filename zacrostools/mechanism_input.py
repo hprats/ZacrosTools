@@ -36,8 +36,8 @@ class ReactionModel:
     def __init__(self, mechanism_data: pd.DataFrame = None):
         self.df = mechanism_data
 
-    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, stiffness_scalable_steps, sig_figs_energies,
-                              sig_figs_pe):
+    def write_mechanism_input(self, path, temperature, gas_data, manual_scaling, stiffness_scalable_steps,
+                              stiffness_scalable_symmetric_steps, sig_figs_energies, sig_figs_pe):
         """Writes the mechanism_input.dat file"""
         write_header(f"{path}/mechanism_input.dat")
         with open(f"{path}/mechanism_input.dat", 'a') as infile:
@@ -78,7 +78,13 @@ class ReactionModel:
                         if not pd.isna(self.df.loc[step, keyword]):
                             infile.write(f"  {keyword} {self.df.loc[step, keyword]}\n")
                 if step in stiffness_scalable_steps:
-                    infile.write(f"  stiffness_scalable \n")
+                    if step in stiffness_scalable_symmetric_steps:
+                        raise ReactionModelError(f"Step {step} can not be in both 'stiffness_scalable_steps' and "
+                                                 f"'stiffness_scalable_symmetric_steps'")
+                    else:
+                        infile.write(f"  stiffness_scalable \n")
+                if step in stiffness_scalable_symmetric_steps:
+                    infile.write(f"  stiffness_scalable_symmetric \n")
                 infile.write(f"\nend_reversible_step\n\n")
                 infile.write('############################################################################\n\n')
             infile.write(f"end_mechanism\n")
