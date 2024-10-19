@@ -188,6 +188,20 @@ class KMCModel:
                                stiffness_scalable_steps, stiffness_scalable_symmetric_steps, stiffness_scaling_tags,
                                sig_figs_energies, random_seed):
         """Writes the simulation_input.dat file"""
+
+        allowed_stiffness_scaling_tags = [
+            'check_every',
+            'min_separation',
+            'max_separation',
+            'max_qequil_separation',
+            'tol_part_equil_ratio',
+            'stiffn_coeff_threshold',
+            'scaling_factor',
+            'upscaling_factor',
+            'downscaling_limit',
+            'min_noccur'
+        ]
+
         gas_specs_names = [x for x in self.gas_data.index]
         surf_specs = self.get_surf_specs()
         write_header(f"{self.path}/simulation_input.dat")
@@ -227,7 +241,10 @@ class KMCModel:
             if len(stiffness_scalable_steps) > 0 or len(stiffness_scalable_symmetric_steps) > 0:
                 infile.write(f"enable_stiffness_scaling\n")
                 for tag in stiffness_scaling_tags:
-                    infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
+                    if tag in allowed_stiffness_scaling_tags:
+                        infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
+                    else:
+                        raise InconsistentDataError(f"Invalid tag in 'stiffness_scaling_tags': {tag}")
             infile.write(f"finish\n")
 
     def get_surf_specs(self):
