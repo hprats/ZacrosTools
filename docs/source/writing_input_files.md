@@ -349,10 +349,10 @@ ZacrosTools.
 - **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values). 
   - Example: `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. 
   - Default value: `{}`.
-- **auto_scaling_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`. 
+- **stiffness_scalable_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`. 
   - Example: `['CO_diffusion', 'O_diffusion']`. 
   - Default value: `[]`.
-- **auto_scaling_tags** (*dict*): Keywords controlling the dynamic scaling algorithm and their corresponding values. 
+- **stiffness_scaling_tags** (*dict*): Keywords controlling the stiffness scaling algorithm and their corresponding values. 
   - Example: `{'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}`. 
   - Default value: `{}` (Zacros default values).
 - **sig_figs_energies** (*int*): Number of significant figures used when writing `gas_energies` in the 
