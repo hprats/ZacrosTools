@@ -349,8 +349,13 @@ ZacrosTools.
 - **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values). 
   - Example: `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. 
   - Default value: `{}`.
+- **stiffness_scaling_algorithm** (*str*): Algorithm used for stiffness scaling. Possible values are `legacy` or `prats2024`.
+  - Default value: `legacy`.
 - **stiffness_scalable_steps** (*list*): Steps that will be marked as `stiffness_scalable` in `mechanism_input.dat`. 
-  - Example: `['CO_diffusion', 'O_diffusion']`. 
+  - Example: `['CO2_dissociation', 'O_top_hollow_diffusion']`. 
+  - Default value: `[]`.
+- **stiffness_scalable_symmetric_steps** (*list*): Steps that will be marked as `stiffness_scalable_symmetric` in `mechanism_input.dat`.
+  - Example: `['O_top_top_diffusion', 'O_hollow_hollow_diffusion']`. 
   - Default value: `[]`.
 - **stiffness_scaling_tags** (*dict*): Keywords controlling the stiffness scaling algorithm and their corresponding values. 
   - Example: `{'check_every': 2000, 'min_separation': 200.0, 'max_separation': 600.0}`. 
