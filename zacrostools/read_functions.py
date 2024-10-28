@@ -47,12 +47,19 @@ def parse_simulation_input(path):
         if not values:
             # No values, set to True
             return True
+
+        # Define keywords that should always return lists
+        list_keywords = {'gas_specs_names', 'gas_energies', 'gas_molec_weights',
+                         'gas_molar_fracs', 'surf_specs_names', 'surf_specs_dent'}
+
         # For surf_specs_names, remove '*'
         if keyword == 'surf_specs_names':
             return [name.rstrip('*') for name in values]
+
         # For 'override_array_bounds', store value as a string
         if keyword == 'override_array_bounds':
             return ' '.join(values)
+
         # For stopping_criteria keywords, handle 'infinite' as string
         if keyword in stopping_keywords:
             val = ' '.join(values)
@@ -69,10 +76,22 @@ def parse_simulation_input(path):
                         return float(val)
                     except ValueError:
                         return val  # Return as string if cannot parse
+
         # For reporting_scheme keywords, store values as strings
         if keyword in reporting_keywords:
             return ' '.join(values)
-        # Try to parse as int
+
+        # For certain keywords, always return a list
+        if keyword in list_keywords:
+            try:
+                return [int(v) for v in values]
+            except ValueError:
+                try:
+                    return [float(v) for v in values]
+                except ValueError:
+                    return values  # Return as list of strings
+
+        # Default handling
         if len(values) == 1:
             val = values[0]
             try:
@@ -150,6 +169,7 @@ def parse_simulation_input(path):
     data['reporting_scheme'] = reporting_scheme
     data['stopping_criteria'] = stopping_criteria
     return data
+
 
 
 def get_partial_pressures(path):
