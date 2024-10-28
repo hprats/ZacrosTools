@@ -225,7 +225,7 @@ class KMCModel:
                 infile.write('random_seed\t'.expandtabs(26) + str(random_seed) + '\n')
             infile.write('temperature\t'.expandtabs(26) + str(float(temperature)) + '\n')
             p_tot = sum(pressure.values())
-            infile.write('pressure\t'.expandtabs(26) + str(p_tot) + '\n')
+            infile.write('pressure\t'.expandtabs(26) + str(float(p_tot)) + '\n')
             infile.write('n_gas_species\t'.expandtabs(26) + str(len(gas_specs_names)) + '\n')
             infile.write('gas_specs_names\t'.expandtabs(26) + " ".join(str(x) for x in gas_specs_names) + '\n')
             tags_dict = ['gas_energy', 'gas_molec_weight']
