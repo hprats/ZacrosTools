@@ -154,7 +154,6 @@ steps = {
     'CO_adsorption': {
         'sites': 1,
         'site_types': 'topC',
-        'neighboring': '',
         'area_site': 5.34,
         'initial': ['1 * 1'],
         'final': ['1 CO* 1'],
