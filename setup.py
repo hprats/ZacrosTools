@@ -17,15 +17,17 @@ def read_version():
     raise RuntimeError("Unable to find version string.")
 
 
+version = read_version()
+
 setup(
     name='zacrostools',
-    version=read_version(),
+    version=version,
     description='A collective of tools for the preparation of input files for ZACROS',
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
     url='https://github.com/hprats/ZacrosTools',
-    download_url='https://github.com/hprats/ZacrosTools/archive/refs/tags/v1.01.tar.gz',
+    download_url=f'https://github.com/hprats/ZacrosTools/archive/refs/tags/v{version}.tar.gz',
     author='Hector Prats',
     author_email='hpratsgarcia@gmail.com',
     keywords=['python', 'chemistry', 'KMC', 'ZACROS'],
