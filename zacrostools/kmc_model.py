@@ -211,6 +211,7 @@ class KMCModel:
             'stiffn_coeff_threshold',
             'scaling_factor',
             'upscaling_factor',
+            'upscaling_limit',
             'downscaling_limit',
             'min_noccur'
         ]
