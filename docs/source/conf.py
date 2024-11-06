@@ -6,6 +6,20 @@
 import os
 import sys
 
+
+# Function to read the version from version.py
+def read_version():
+    version_path = os.path.join(os.path.dirname(__file__), 'zacrostools', 'version.py')
+    with open(version_path, 'r') as f:
+        for line in f:
+            if line.startswith('__version__'):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
+
+
+version = read_version()
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
@@ -14,7 +28,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'ZacrosTools Documentation'
 copyright = '2024, Hector Prats'
 author = 'Hector Prats'
-release = '1.01'
+release = version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
