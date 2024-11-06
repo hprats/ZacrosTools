@@ -345,7 +345,7 @@ ZacrosTools.
 - **stopping_criteria** (*dict*): Stopping criteria in Zacros format. 
   - Must contain the following keys: `'max_steps'`, `'max_time'`, and `'wall_time'`. 
   - Default value: `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
-- **manual_scaling** (*list*): Step names (keys) and their corresponding manual scaling factors (values). 
+- **manual_scaling** (*dict*): Step names (keys) and their corresponding manual scaling factors (values). 
   - Example: `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`. 
   - Default value: `{}`.
 - **stiffness_scaling_algorithm** (*str*): Algorithm used for stiffness scaling. Possible values are `legacy` or `prats2024`.
