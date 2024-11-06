@@ -15,12 +15,14 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
     <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
 </div>
 
-### Recent Changes [1.01] - 13-Oct-2024
+### Recent Changes
 
-#### Version 1.01 - 13-Oct-2024
-- *ZacrosTools* is now compatible with multidentate species.
-- *ZacrosTools* is now compatible with default lattices.
-- Bug fix for cases where vibrational energies of 0.0 are specified in the reaction model.
+#### Version 1.02 - 06-Nov-2024
+- In `KMCModel.create_job_dir` method, parameter `auto_scaling_steps` has been renamed to `stiffness_scaling_steps`and 
+parameter `auto_scaling_tags` has been renamed to `stiffness_scaling_tags`.
+- Fixed bug where, if only one surface species was declared, `surf_specs_dent` would be an integer instead of a list.
+- Fixed bug where the total pressure could be written as an integer, and then the simulation will crash.
+- Now, ZacrosTools checks if the keywords provided in `stiffness_scaling_tags` are allowed.
 - Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
 Full details in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
