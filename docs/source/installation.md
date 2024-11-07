@@ -42,19 +42,19 @@ The easiest and quickest way to install ZacrosTools is using `pip`. This method 
 
 If you want to contribute to ZacrosTools or use the latest development version, you can install it directly from the GitHub repository.
 
-1. **Clone the Repository:**
+1. **Clone the repository:**
 
     ```bash
     git clone https://github.com/hprats/ZacrosTools.git
     ```
 
-2. **Navigate to the Project Directory:**
+2. **Navigate to the project directory:**
 
     ```bash
     cd ZacrosTools
     ```
 
-3. **Install the Package:**
+3. **Install the package:**
 
     ```bash
     pip install .
@@ -62,7 +62,7 @@ If you want to contribute to ZacrosTools or use the latest development version, 
 
     This command installs ZacrosTools in your Python environment.
 
-4. **Verify the Installation:**
+4. **Verify the installation:**
 
     Similar to the `pip` installation, verify by importing the library:
 
@@ -81,7 +81,7 @@ If you plan to contribute to ZacrosTools or run the test suite locally, you may 
     pip install pytest
     ```
 
-2. **Run Tests:**
+2. **Run tests:**
 
     ```bash
     pytest
