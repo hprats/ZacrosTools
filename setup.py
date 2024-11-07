@@ -6,7 +6,6 @@ from zacrostools.version import __version__
 # Ensure the zacrostools package is accessible
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-
 with open("README.md", "r") as f:
     long_description = f.read()
 
@@ -22,5 +21,8 @@ setup(
     author='Hector Prats',
     author_email='hpratsgarcia@gmail.com',
     keywords=['python', 'chemistry', 'KMC', 'ZACROS'],
-    install_requires=['pandas', 'scipy']
+    install_requires=['pandas', 'scipy'],
+    extras_require={
+        'dev': ['pytest'],
+    }
 )
