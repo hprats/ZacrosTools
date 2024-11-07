@@ -18,13 +18,36 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 
 ### Recent Changes
 
-#### Version 1.02 - 06-Nov-2024
-- In `KMCModel.create_job_dir` method, parameter `auto_scaling_steps` has been renamed to `stiffness_scaling_steps`and 
-parameter `auto_scaling_tags` has been renamed to `stiffness_scaling_tags`.
-- Fixed bug where, if only one surface species was declared, `surf_specs_dent` would be an integer instead of a list.
-- Fixed bug where the total pressure could be written as an integer, and then the simulation will crash.
-- Now, ZacrosTools checks if the keywords provided in `stiffness_scaling_tags` are allowed.
-- Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
+#### [1.3] - 07-Nov-2024
+
+##### Added
+- **Comprehensive Test Suite with Pytest**: Implemented a suite of tests using Pytest to ensure code reliability and facilitate future development.
+- **Continuous Integration with GitHub Actions**: Set up CI workflows to automatically run tests on every push and pull request, enhancing code quality and preventing regressions.
+- **Enhanced Documentation**:
+  - Updated `README.md` with detailed installation instructions, usage examples, badges, and contributor guidelines.
+
+##### Improved
+- **Project Structure**: Organized the project files and directories for better clarity and maintainability.
+- **Error Handling**: Enhanced custom exceptions and error messages for more informative feedback to users.
+- **Code Quality**: Refactored code to adhere to PEP 8 standards, improving readability and consistency.
+
+#### [1.2] - 06-Nov-2024
+
+##### Added
+- **New Parameters in `KMCModel.create_job_dir`**: Introduced new parameters in anticipation of a future version of Zacros.
+
+##### Changed
+- **Parameter Renaming in `KMCModel.create_job_dir`**:
+  - Renamed `auto_scaling_steps` to `stiffness_scaling_steps`.
+  - Renamed `auto_scaling_tags` to `stiffness_scaling_tags`.
+
+##### Fixed
+- **Surface Species List Bug**: Resolved an issue where, if only one surface species was declared, `surf_specs_dent` would be an integer instead of a list.
+- **Total Pressure Format**: Fixed a bug where the total pressure could be written as an integer, causing simulation crashes.
+
+##### Improved
+- **Keyword Validation**: Added checks to ensure that the keywords provided in `stiffness_scaling_tags` are allowed.
+- **Documentation Enhancements**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
 Full details in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 
