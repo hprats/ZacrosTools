@@ -18,7 +18,7 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 - [License](#license)
 - [Contributors](#contributors)
 
-## Features
+## Key Features
 
 - **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
 - **Output file parsing**: Easily read, analyze and process data from Zacros output files.
