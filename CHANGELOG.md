@@ -10,11 +10,6 @@ All notable changes to this project will be documented in this file.
 - **Enhanced Documentation**:
   - Updated `README.md` with detailed installation instructions, usage examples, badges, and contributor guidelines.
 
-### Improved
-- **Project Structure**: Organized the project files and directories for better clarity and maintainability.
-- **Error Handling**: Enhanced custom exceptions and error messages for more informative feedback to users.
-- **Code Quality**: Refactored code to adhere to PEP 8 standards, improving readability and consistency.
-
 ## [1.2] - 06-Nov-2024
 
 ### Added
