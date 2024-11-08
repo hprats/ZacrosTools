@@ -26,10 +26,11 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 - **Customizable workflows**: Create customised workflows to fit specific simulation needs.
 - **Documentation and examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
-<div style="text-align: center;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
-    <p>Example of turnover frequency heatmap generated using ZacrosTools.</p>
-</div>
+<p align="center">
+  <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
+  <br/>
+  Example of turnover frequency heatmap generated using ZacrosTools.
+</p>
 
 ## Installation
 
