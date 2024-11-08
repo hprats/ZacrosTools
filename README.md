@@ -28,6 +28,7 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 
 <div style="text-align: center;">
     <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
+    <p>Example of turnover frequency heatmap generated using ZacrosTools.</p>
 </div>
 
 ## Installation
