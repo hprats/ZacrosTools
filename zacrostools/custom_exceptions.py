@@ -13,13 +13,23 @@ class LatticeModelError(ZacrosToolsError):
     pass
 
 
+class GasModelError(ZacrosToolsError):
+    """Exception raised for errors in the gas model."""
+    pass
+
+
+class EnergeticsModelError(ZacrosToolsError):
+    """Exception raised for errors in the energetics model."""
+    pass
+
+
 class ReactionModelError(ZacrosToolsError):
     """Exception raised for errors in the reaction model."""
     pass
 
 
-class EnergeticModelError(ZacrosToolsError):
-    """Exception raised for errors in the energetic model."""
+class KMCModelError(ZacrosToolsError):
+    """Exception raised for errors when creating the KMC model."""
     pass
 
 
@@ -35,11 +45,6 @@ class KMCOutputError(ZacrosToolsError):
 
 class PlotError(ZacrosToolsError):
     """Exception raised for errors in the plot_functions module."""
-    pass
-
-
-class InconsistentDataError(ZacrosToolsError):
-    """Exception raised for inconsistent data across models."""
     pass
 
 
