@@ -82,7 +82,7 @@ def get_q_rot(temperature, inertia_moments: list, sym_number):
 
 
 def calc_ads(area_site, molec_mass, temperature, vib_energies_is, vib_energies_ts, vib_energies_fs,
-             inertia_moments, sym_number, degeneracy=1):
+             inertia_moments, sym_number, degeneracy):
     """Calculates the forward and reverse pre-exponential factors for a reversible activated adsorption.
 
     Parameters
