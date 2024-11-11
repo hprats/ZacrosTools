@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from zacrostools.custom_exceptions import EnergeticModelError
+from zacrostools.custom_exceptions import EnergeticsModelError
 from zacrostools.custom_exceptions import KMCOutputError
 
 
@@ -310,17 +310,17 @@ def get_surf_specs_data(path):
                         i += 1
                 # After processing the cluster
                 if len(cluster_species) != len(site_types):
-                    raise EnergeticModelError(f"Mismatch between number of species and site_types in a cluster in line {i+1}."
+                    raise EnergeticsModelError(f"Mismatch between number of species and site_types in a cluster in line {i+1}."
                                               f"\nCluster species: {cluster_species}"
                                               f"\nSite types: {site_types}")
                 # Associate species with site types
                 for species, site_type in zip(cluster_species, site_types):
                     if species not in species_in_simulation:
-                        raise EnergeticModelError(
+                        raise EnergeticsModelError(
                             f"Species '{species}' declared in energetics_input.dat but not in surf_specs_names.")
                     if species in species_site_types:
                         if species_site_types[species] != site_type:
-                            raise EnergeticModelError(
+                            raise EnergeticsModelError(
                                 f"Species '{species}' is adsorbed on multiple site types: '{species_site_types[species]}' and '{site_type}'")
                     else:
                         species_site_types[species] = site_type
@@ -330,7 +330,7 @@ def get_surf_specs_data(path):
 
         for species in surf_specs_names:
             if species not in species_site_types:
-                raise EnergeticModelError(f"Species '{species}' declared in surf_specs_names but not found in energetics_input.dat.")
+                raise EnergeticsModelError(f"Species '{species}' declared in surf_specs_names but not found in energetics_input.dat.")
             surf_specs_data[species] = {
                 'surf_specs_dent': species_dentates[species],
                 'site_type': species_site_types[species]
