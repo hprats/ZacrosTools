@@ -6,34 +6,123 @@ from zacrostools.custom_exceptions import LatticeModelError
 
 
 class LatticeModel:
-    """A class that represents a KMC lattice model for Zacros.
+    """
+    Represents a KMC lattice model for Zacros.
 
-    Parameters:
-
-    lattice_type: str
+    Parameters
+    ----------
+    lattice_type : str
         Type of lattice structure. Must be one of the following:
         - 'default_choice'
         - 'periodic_cell'
         - 'explicit'
 
-    Additional parameters specific to each lattice type must be provided as keyword arguments:
-        - For 'default_choice':
-            - default_lattice_type (str): One of 'triangular_periodic', 'rectangular_periodic', 'hexagonal_periodic'.
-            - lattice_constant (float): Lattice constant.
-            - copies (List[int]): Number of copies in horizontal and vertical directions.
-        - For 'periodic_cell':
-            - cell_vectors (Tuple[Tuple[float, float], Tuple[float, float]]): Two unit vectors defining the unit cell.
-            - sites (Dict[str, Union[Tuple[float, float], List[Tuple[float, float]]]]):
-                Dictionary mapping site types to their coordinates. Values can be either a single tuple or a list of tuples.
-            - coordinate_type (str, optional): 'direct' or 'cartesian'. Defaults to 'direct'.
-            - copies (List[int]): Number of copies in horizontal and vertical directions.
-            - neighboring_structure (Union[str, Dict[str, str]], optional):
-                - If a dictionary, it maps site pair strings to their relationship keywords.
-                  Example: {'1-2': 'self', '1-1': 'north'}
-                - If 'from_distances', the user must provide a `max_distances` dictionary to generate the neighboring structure automatically.
-            - max_distances (Dict[str, float], optional):
-                Required if `neighboring_structure='from_distances'`.
-                Example: {'tC-tC': 4.0, 'tC-tM': 4.0, 'tM-tM': 4.0}
+    default_lattice_type : str, optional
+        Required if `lattice_type` is 'default_choice'.
+        One of 'triangular_periodic', 'rectangular_periodic', 'hexagonal_periodic'.
+
+    lattice_constant : float, optional
+        Required if `lattice_type` is 'default_choice'.
+        The lattice constant.
+
+    copies : list of int, optional
+        Required for 'default_choice' and 'periodic_cell'.
+        Number of copies in horizontal and vertical directions, e.g., `[10, 10]`.
+
+    cell_vectors : tuple of tuple of float, optional
+        Required if `lattice_type` is 'periodic_cell'.
+        Two unit vectors defining the unit cell, e.g., `((2.5, 0.0), (0.0, 2.5))`.
+
+    sites : dict, optional
+        Required if `lattice_type` is 'periodic_cell'.
+        Dictionary mapping site types to their coordinates.
+        Values can be either a single tuple or a list of tuples.
+        Example:
+        ```
+        {
+            'A': [(0.0, 0.0)],
+            'B': [(0.5, 0.5)]
+        }
+        ```
+
+    coordinate_type : str, optional
+        Required if `lattice_type` is 'periodic_cell'.
+        Coordinate system used for site positions: 'direct' or 'cartesian'.
+        Defaults to 'direct'.
+
+    neighboring_structure : Union[str, dict], optional
+        Required if `lattice_type` is 'periodic_cell'.
+        - If a dictionary, it maps site pair strings to a list of relationship keywords.
+          Example: `{'1-2': ['self'], '1-1': ['north', 'east']}`
+        - If 'from_distances', the user must provide a `max_distances` dictionary to
+          generate the neighboring structure automatically.
+
+    max_distances : dict, optional
+        Required if `neighboring_structure='from_distances'`.
+        Dictionary mapping site type pairs to maximum allowed distances.
+        Example: `{'A-A': 3.0, 'A-B': 3.0, 'B-B': 3.0}`
+
+    Examples
+    --------
+    **Default Choice Lattice**
+
+    ```python
+    lattice_model = LatticeModel(
+        lattice_type='default_choice',
+        default_lattice_type='triangular_periodic',
+        lattice_constant=2.5,
+        copies=[20, 20]
+    )
+    ```
+
+    **Periodic Cell Lattice**
+
+    ```python
+    lattice_model = LatticeModel(
+        lattice_type='periodic_cell',
+        cell_vectors=((2.5, 0.0), (0.0, 2.5)),
+        sites={
+            'A': [(0.0, 0.0)],
+            'B': [(0.5, 0.5)]
+        },
+        coordinate_type='direct',
+        copies=[10, 10],
+        neighboring_structure='from_distances',
+        max_distances={
+            'A-A': 3.0,
+            'A-B': 3.0,
+            'B-B': 3.0
+        }
+    )
+    ```
+
+    Alternatively, when specifying the `neighboring_structure` directly:
+
+    ```python
+    neighboring_structure = {
+        '1-1': ['north', 'east'],
+        '1-2': ['self'],
+        '2-1': ['north', 'east', 'northeast'],
+        '2-2': ['north', 'east']
+    }
+
+    lattice_model = LatticeModel(
+        lattice_type='periodic_cell',
+        cell_vectors=((3.27, 0.0), (0.0, 3.27)),
+        sites={
+            'tC': [(0.25, 0.25)],
+            'tM': [(0.75, 0.75)]
+        },
+        coordinate_type='direct',
+        copies=[10, 10],
+        neighboring_structure=neighboring_structure
+    )
+    ```
+
+    Raises
+    ------
+    LatticeModelError
+        If required parameters are missing or invalid.
     """
 
     ALLOWED_LATTICE_TYPES = {'default_choice', 'periodic_cell', 'explicit'}
@@ -55,7 +144,7 @@ class LatticeModel:
                  cell_vectors: Optional[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
                  sites: Optional[Dict[str, Union[Tuple[float, float], List[Tuple[float, float]]]]] = None,
                  coordinate_type: str = 'direct',
-                 neighboring_structure: Optional[Union[str, Dict[str, str]]] = None,
+                 neighboring_structure: Optional[Union[str, Dict[str, Union[str, List[str]]]]] = None,
                  max_distances: Optional[Dict[str, float]] = None):
         """
         Initialize the LatticeModel with the specified lattice type.
@@ -156,16 +245,23 @@ class LatticeModel:
                 raise LatticeModelError("For 'periodic_cell' lattice_type, 'neighboring_structure' must be provided.")
             if isinstance(neighboring_structure, dict):
                 # Validate each key-value pair in neighboring_structure
-                for pair, keyword in neighboring_structure.items():
+                for pair, keywords in neighboring_structure.items():
                     if not isinstance(pair, str) or not self._is_valid_pair_key(pair):
                         raise LatticeModelError(
                             f"Invalid key '{pair}' in 'neighboring_structure'. Keys must be strings in the format 'int-int', e.g., '1-2'."
                         )
-                    if keyword not in self.ALLOWED_NEIGHBORING_KEYWORDS:
+                    if isinstance(keywords, str):
+                        keywords = [keywords]
+                    if not isinstance(keywords, list):
                         raise LatticeModelError(
-                            f"Invalid keyword '{keyword}' for 'neighboring_structure'. "
-                            f"Allowed keywords are: {', '.join(self.ALLOWED_NEIGHBORING_KEYWORDS)}."
+                            f"Values in 'neighboring_structure' must be strings or lists of strings. Invalid value for key '{pair}'."
                         )
+                    for keyword in keywords:
+                        if keyword not in self.ALLOWED_NEIGHBORING_KEYWORDS:
+                            raise LatticeModelError(
+                                f"Invalid keyword '{keyword}' for 'neighboring_structure'. "
+                                f"Allowed keywords are: {', '.join(self.ALLOWED_NEIGHBORING_KEYWORDS)}."
+                            )
                 self.neighboring_structure = neighboring_structure
                 self.max_distances = None  # Not used when providing a dict directly
             elif isinstance(neighboring_structure, str) and neighboring_structure == 'from_distances':
@@ -204,11 +300,15 @@ class LatticeModel:
         """
         Validate that the pair key is in the format 'int-int'.
 
-        Parameters:
-            pair (str): The pair string to validate.
+        Parameters
+        ----------
+        pair : str
+            The pair string to validate.
 
-        Returns:
-            bool: True if valid, False otherwise.
+        Returns
+        -------
+        bool
+            True if valid, False otherwise.
         """
         parts = pair.split('-')
         if len(parts) != 2:
@@ -219,11 +319,15 @@ class LatticeModel:
         """
         Validate that the site type pair key is in the format 'SiteType1-SiteType2'.
 
-        Parameters:
-            pair (str): The site type pair string to validate.
+        Parameters
+        ----------
+        pair : str
+            The site type pair string to validate.
 
-        Returns:
-            bool: True if valid, False otherwise.
+        Returns
+        -------
+        bool
+            True if valid, False otherwise.
         """
         parts = pair.split('-')
         if len(parts) != 2:
@@ -234,8 +338,10 @@ class LatticeModel:
         """
         Validate the properties specific to the 'periodic_cell' lattice type.
 
-        Raises:
-            LatticeModelError: If any of the site coordinates are invalid based on the coordinate type.
+        Raises
+        ------
+        LatticeModelError
+            If any of the site coordinates are invalid based on the coordinate type.
         """
         if self.coordinate_type == 'direct':
             # Ensure all coordinates are between 0 and 1
@@ -256,16 +362,21 @@ class LatticeModel:
         """
         Generate the neighboring_structure based on distance criteria.
 
-        Parameters:
-            max_distances (Dict[str, float]):
-                Mapping of site type pairs to maximum allowed distances in angstroms.
-                Example: {'tC-tC': 4.0, 'tC-tM': 3.0, 'tM-tM': 2.0}
+        Parameters
+        ----------
+        max_distances : dict
+            Mapping of site type pairs to maximum allowed distances in angstroms.
+            Example: `{'A-A': 4.0, 'A-B': 3.0, 'B-B': 2.0}`
 
-        Returns:
-            Dict[str, List[str]]: Generated neighboring_structure mapping site pairs to a list of relationship keywords.
+        Returns
+        -------
+        dict
+            Generated neighboring_structure mapping site pairs to a list of relationship keywords.
 
-        Raises:
-            LatticeModelError: If site types in max_distances do not exist in the defined sites.
+        Raises
+        ------
+        LatticeModelError
+            If site types in max_distances do not exist in the defined sites.
         """
         # Create a list of all sites with their types and coordinates
         site_list: List[Dict[str, Any]] = []
@@ -298,7 +409,7 @@ class LatticeModel:
 
         # Iterate over all unique pairs within the unit cell for 'self' relations
         for i in range(num_sites):
-            for j in range(i + 1, num_sites):
+            for j in range(i, num_sites):
                 site_i = site_list[i]
                 site_j = site_list[j]
                 pair_key = f"{site_i['index']}-{site_j['index']}"
@@ -314,7 +425,8 @@ class LatticeModel:
                 if dist <= max_distance:
                     if pair_key not in neighboring_structure:
                         neighboring_structure[pair_key] = []
-                    neighboring_structure[pair_key].append('self')
+                    if 'self' not in neighboring_structure[pair_key]:
+                        neighboring_structure[pair_key].append('self')
 
         # Directions and their corresponding shift vectors in direct coordinates
         directions = self.DIRECTIONS
@@ -350,12 +462,17 @@ class LatticeModel:
         """
         Retrieve the maximum distance for a given pair of site types, considering symmetry.
 
-        Parameters:
-            pair_types (str): Pair of site types in the format 'type1-type2'.
-            max_distances (Dict[str, float]): Mapping of site type pairs to maximum distances.
+        Parameters
+        ----------
+        pair_types : str
+            Pair of site types in the format 'type1-type2'.
+        max_distances : dict
+            Mapping of site type pairs to maximum distances.
 
-        Returns:
-            Optional[float]: The maximum distance if defined, else None.
+        Returns
+        -------
+        Optional[float]
+            The maximum distance if defined, else None.
         """
         # Check the pair as is
         if pair_types in max_distances:
@@ -367,14 +484,20 @@ class LatticeModel:
     def write_lattice_input(self,
                             output_dir: Union[str, Path],
                             sig_figs: int = 8):
-        """Writes the lattice_input.dat file based on the lattice type.
+        """
+        Writes the `lattice_input.dat` file based on the lattice type.
 
-        Parameters:
-            output_dir (Union[str, Path]): Directory path where the file will be written.
-            sig_figs (int, optional): Number of significant figures for numerical values. Default is `8`.
+        Parameters
+        ----------
+        output_dir : Union[str, Path]
+            Directory path where the file will be written.
+        sig_figs : int, optional
+            Number of significant figures for numerical values. Default is 8.
 
-        Raises:
-            LatticeModelError: If file writing fails or if lattice_type is unsupported.
+        Raises
+        ------
+        LatticeModelError
+            If file writing fails or if `lattice_type` is unsupported.
         """
         # Convert output_dir to Path object if it's a string
         output_dir = Path(output_dir) if isinstance(output_dir, str) else output_dir
@@ -408,10 +531,14 @@ class LatticeModel:
                     site_coordinates = []
 
                     # Assign indices to sites
+                    site_indices = {}
+                    current_index = 1
                     for site_type in site_type_names:
                         for coord in self.sites[site_type]:
                             site_types.append(site_type)
                             site_coordinates.append(coord)
+                            site_indices[(coord[0], coord[1])] = current_index
+                            current_index += 1
 
                     n_cell_sites = len(site_coordinates)
 
@@ -431,6 +558,8 @@ class LatticeModel:
                     # Write neighboring_structure
                     infile.write("  neighboring_structure\n")
                     for pair, keywords in self.neighboring_structure.items():
+                        if isinstance(keywords, str):
+                            keywords = [keywords]
                         for keyword in keywords:
                             infile.write(f"    {pair} {keyword}\n")
                     infile.write("  end_neighboring_structure\n")
@@ -445,16 +574,21 @@ class LatticeModel:
 
     def repeat_lattice_model(self, a: int, b: int):
         """
-        Create a new unit cell by repeating the original unit cell a times along the first cell vector
-        and b times along the second cell vector.
+        Create a new unit cell by repeating the original unit cell `a` times along the first cell vector
+        and `b` times along the second cell vector.
 
-        Parameters:
-            a (int): Number of repetitions along the first cell vector.
-            b (int): Number of repetitions along the second cell vector.
+        Parameters
+        ----------
+        a : int
+            Number of repetitions along the first cell vector.
+        b : int
+            Number of repetitions along the second cell vector.
 
-        Raises:
-            LatticeModelError: If lattice_type is not 'periodic_cell', neighboring_structure is not 'from_distances',
-                               or if a or b are not positive integers.
+        Raises
+        ------
+        LatticeModelError
+            If `lattice_type` is not 'periodic_cell', `neighboring_structure` is not 'from_distances',
+            or if `a` or `b` are not positive integers.
         """
         if self.lattice_type != 'periodic_cell':
             raise LatticeModelError("repeat_lattice_model method is only available for 'periodic_cell' lattice_type.")
@@ -481,7 +615,7 @@ class LatticeModel:
                         # Ensure the coordinates wrap around within [0,1)
                         new_x = new_x % 1.0
                         new_y = new_y % 1.0
-                        new_sites[site_type].append( (new_x, new_y) )
+                        new_sites[site_type].append((new_x, new_y))
         self.sites = new_sites
 
         # Recalculate neighboring_structure
@@ -500,13 +634,18 @@ class LatticeModel:
         """
         Remove a site from the lattice model based on its direct coordinates and update the neighboring structure.
 
-        Parameters:
-            direct_coords (Tuple[float, float]): A tuple containing the direct x and y coordinates of the site to remove.
-            tolerance (float, optional): Tolerance for coordinate matching. Default is 1e-8.
+        Parameters
+        ----------
+        direct_coords : Tuple[float, float]
+            A tuple containing the direct x and y coordinates of the site to remove.
+        tolerance : float, optional
+            Tolerance for coordinate matching. Default is 1e-8.
 
-        Raises:
-            LatticeModelError: If lattice_type is not 'periodic_cell', if neighboring_structure is not 'from_distances',
-                               or if the site with the given coordinates is not found.
+        Raises
+        ------
+        LatticeModelError
+            If `lattice_type` is not 'periodic_cell', if `neighboring_structure` is not 'from_distances',
+            or if the site with the given coordinates is not found.
         """
         if self.lattice_type != 'periodic_cell':
             raise LatticeModelError("remove_site method is only available for 'periodic_cell' lattice_type.")
@@ -541,14 +680,20 @@ class LatticeModel:
         """
         Change the site type of a specific site based on its direct coordinates and update the neighboring structure.
 
-        Parameters:
-            direct_coords (Tuple[float, float]): A tuple containing the direct x and y coordinates of the site to change.
-            new_site_type (str): The new site type name to assign to the specified site.
-            tolerance (float, optional): Tolerance for coordinate matching. Default is 1e-8.
+        Parameters
+        ----------
+        direct_coords : Tuple[float, float]
+            A tuple containing the direct x and y coordinates of the site to change.
+        new_site_type : str
+            The new site type name to assign to the specified site.
+        tolerance : float, optional
+            Tolerance for coordinate matching. Default is 1e-8.
 
-        Raises:
-            LatticeModelError: If lattice_type is not 'periodic_cell', if neighboring_structure is not 'from_distances',
-                               if the site with the given coordinates is not found, or if the new_site_type is invalid.
+        Raises
+        ------
+        LatticeModelError
+            If `lattice_type` is not 'periodic_cell', if `neighboring_structure` is not 'from_distances',
+            if the site with the given coordinates is not found, or if the `new_site_type` is invalid.
         """
         if self.lattice_type != 'periodic_cell':
             raise LatticeModelError("change_site_type method is only available for 'periodic_cell' lattice_type.")
