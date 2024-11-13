@@ -6,34 +6,44 @@ from zacrostools.custom_exceptions import GasModelError, enforce_types
 
 
 class GasModel:
-    """A class that represents gas-phase molecular data for KMC reaction modeling.
+    """
+    Represents gas-phase molecular data for KMC reaction modeling.
 
-    Parameters:
+    Parameters
+    ----------
+    gas_data : pandas.DataFrame
+        Information on gas-phase molecules. The molecule name is taken as the index of each row.
 
-    gas_data: Pandas DataFrame
-        Information on gas-phase molecules.
-        The molecule name is taken as the index of each row.
+        **Required columns**:
 
-        The following columns are required:
-            - type (str): 'non_linear' or 'linear'.
-            - gas_molec_weight (float): Molecular weights (in amu) of the gas species.
-            - sym_number (int): Symmetry number of the molecule.
-            - inertia_moments (list): Moments of inertia for the gas-phase molecule (in amu·Å²).
-              - 1 element for linear molecules, 3 elements for non-linear molecules.
-              - Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
-            - gas_energy (float): Formation energy (in eV). Do not include the ZPE.
+        - **type** (str): 'non_linear' or 'linear'.
+        - **gas_molec_weight** (float): Molecular weight (in amu) of the gas species.
+        - **sym_number** (int): Symmetry number of the molecule.
+        - **inertia_moments** (list): Moments of inertia for the gas-phase molecule (in amu·Å²).
+            - 1 element for linear molecules, 3 elements for non-linear molecules.
+            - Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
+        - **gas_energy** (float): Formation energy (in eV). Do not include the ZPE.
 
-        **Optional:**
-            - degeneracy (int): Degeneracy of the ground state, for the calculation of the electronic partition function.
-              - Default value: `1`.
+        Optional columns:
 
-    Example:
+        - **degeneracy** (int): Degeneracy of the ground state, for the calculation of the electronic partition function.
+            - Default value: 1.
 
-    | index | type       | gas_molec_weight | sym_number | degeneracy | inertia_moments      | gas_energy |
-    |-------|------------|------------------|------------|------------|-----------------------|------------|
-    | CO    | linear     | 28.01            | 1          | 1          | [8.973619026272551]   | 1.96       |
-    | O2    | linear     | 32.0             | 2          | 3          | [12.178379354326061]  | 2.6        |
-    | CO2   | non_linear | 44.01            | 2          | 1          | [44.317229117708344]  | 0.0        |
+    Raises
+    ------
+    GasModelError
+        If `gas_data` is not provided, contains duplicates, or is invalid.
+
+    Examples
+    --------
+    Example DataFrame:
+
+    | index | type       | gas_molec_weight | sym_number | degeneracy | inertia_moments        | gas_energy |
+    |-------|------------|------------------|------------|------------|------------------------|------------|
+    | CO    | linear     | 28.01            | 1          | 1          | [8.973619026272551]    | 1.96       |
+    | O2    | linear     | 32.0             | 2          | 3          | [12.178379354326061]   | 2.6        |
+    | CO2   | non_linear | 44.01            | 2          | 1          | [44.317229117708344]   | 0.0        |
+
     """
 
     REQUIRED_COLUMNS = {
@@ -49,6 +59,19 @@ class GasModel:
 
     @enforce_types
     def __init__(self, gas_data: pd.DataFrame = None):
+        """
+        Initialize the GasModel.
+
+        Parameters
+        ----------
+        gas_data : pandas.DataFrame
+            DataFrame containing gas-phase molecular data.
+
+        Raises
+        ------
+        GasModelError
+            If `gas_data` is not provided, contains duplicates, or is invalid.
+        """
         if gas_data is None:
             raise GasModelError("gas_data must be provided as a Pandas DataFrame.")
         self.df = gas_data.copy()
@@ -59,16 +82,32 @@ class GasModel:
         """
         Create a GasModel instance from a dictionary.
 
-        Parameters:
-            species_dict (dict): Dictionary where keys are species names and values are dictionaries
-                                 of species properties.
+        Parameters
+        ----------
+        species_dict : dict
+            Dictionary where keys are species names and values are dictionaries of species properties.
 
-        Returns:
-            GasModel: An instance of GasModel.
+        Returns
+        -------
+        GasModel
+            An instance of GasModel.
+
+        Raises
+        ------
+        GasModelError
+            If the instance cannot be created from the provided dictionary due to duplicates or invalid data.
         """
         try:
             df = pd.DataFrame.from_dict(species_dict, orient='index')
+
+            # Check for duplicate molecule names
+            if df.index.duplicated().any():
+                duplicates = df.index[df.index.duplicated()].unique().tolist()
+                raise GasModelError(f"Duplicate molecule names found in dictionary: {duplicates}")
+
             return cls.from_df(df)
+        except GasModelError:
+            raise
         except Exception as e:
             raise GasModelError(f"Failed to create GasModel from dictionary: {e}")
 
@@ -77,11 +116,20 @@ class GasModel:
         """
         Create a GasModel instance by reading a CSV file.
 
-        Parameters:
-            csv_path (Union[str, Path]): Path to the CSV file.
+        Parameters
+        ----------
+        csv_path : Union[str, Path]
+            Path to the CSV file.
 
-        Returns:
-            GasModel: An instance of GasModel.
+        Returns
+        -------
+        GasModel
+            An instance of GasModel.
+
+        Raises
+        ------
+        GasModelError
+            If the CSV file cannot be read, contains duplicates, or the data is invalid.
         """
         try:
             csv_path = Path(csv_path)
@@ -89,6 +137,11 @@ class GasModel:
                 raise GasModelError(f"The CSV file '{csv_path}' does not exist.")
 
             df = pd.read_csv(csv_path, index_col=0, dtype=str)
+
+            # Check for duplicate molecule names
+            if df.index.duplicated().any():
+                duplicates = df.index[df.index.duplicated()].unique().tolist()
+                raise GasModelError(f"Duplicate molecule names found in CSV: {duplicates}")
 
             # Parse list-like columns
             for col in cls.LIST_COLUMNS:
@@ -102,6 +155,8 @@ class GasModel:
                     df[col] = pd.to_numeric(df[col], errors='coerce')
 
             return cls.from_df(df)
+        except GasModelError:
+            raise
         except Exception as e:
             raise GasModelError(f"Failed to create GasModel from CSV file: {e}")
 
@@ -110,28 +165,51 @@ class GasModel:
         """
         Create a GasModel instance from a Pandas DataFrame.
 
-        Parameters:
-            df (pd.DataFrame): DataFrame containing gas data.
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame containing gas data.
 
-        Returns:
-            GasModel: An instance of GasModel.
+        Returns
+        -------
+        GasModel
+            An instance of GasModel.
+
+        Raises
+        ------
+        GasModelError
+            If the DataFrame contains duplicates or is invalid.
         """
+        # Check for duplicate molecule names
+        if df.index.duplicated().any():
+            duplicates = df.index[df.index.duplicated()].unique().tolist()
+            raise GasModelError(f"Duplicate molecule names found in DataFrame: {duplicates}")
+
         return cls(gas_data=df)
 
     @staticmethod
     def _parse_list_cell(cell):
         """
-        Parses a cell expected to contain a list. If the cell is NaN or empty, returns an empty list.
+        Parse a cell expected to contain a list.
+
+        If the cell is NaN or empty, returns an empty list.
         Otherwise, evaluates the string to a Python list.
 
-        Parameters:
-            cell (str): The cell content as a string.
+        Parameters
+        ----------
+        cell : str
+            The cell content as a string.
 
-        Returns:
-            list: The parsed list, or empty list if the cell is NaN or empty.
+        Returns
+        -------
+        list
+            The parsed list, or empty list if the cell is NaN or empty.
 
-        Raises:
-            GasModelError: If the cell cannot be parsed into a list.
+        Raises
+        ------
+        GasModelError
+            If the cell cannot be parsed into a list.
+
         """
         if pd.isna(cell) or cell.strip() == '':
             return []
@@ -144,15 +222,23 @@ class GasModel:
         """
         Validate that the DataFrame contains the required columns and correct data types.
 
-        Parameters:
-            df (pd.DataFrame, optional): The DataFrame to validate.
-                                         If None, uses self.df.
+        Parameters
+        ----------
+        df : pandas.DataFrame, optional
+            The DataFrame to validate. If None, uses self.df.
 
-        Raises:
-            GasModelError: If validation fails.
+        Raises
+        ------
+        GasModelError
+            If validation fails.
         """
         if df is None:
             df = self.df
+
+        # Check for duplicate molecule names
+        if df.index.duplicated().any():
+            duplicates = df.index[df.index.duplicated()].unique().tolist()
+            raise GasModelError(f"Duplicate molecule names found: {duplicates}")
 
         missing_columns = self.REQUIRED_COLUMNS - set(df.columns)
         if missing_columns:
@@ -207,15 +293,18 @@ class GasModel:
         """
         Add a new gas-phase species to the model.
 
-        Parameters:
-            species_info (dict, optional): Dictionary containing species properties.
-                                           Must include a key 'species_name' to specify the species' name.
-            species_series (pd.Series, optional): Pandas Series containing species properties.
-                                                 Must include 'species_name' as part of the Series data.
+        Parameters
+        ----------
+        species_info : dict, optional
+            Dictionary containing species properties. Must include a key 'species_name' to specify the species' name.
+        species_series : pandas.Series, optional
+            Pandas Series containing species properties. Must include 'species_name' as part of the Series data.
 
-        Raises:
-            GasModelError: If neither species_info nor species_series is provided,
-                           or if required fields are missing, or if the species already exists.
+        Raises
+        ------
+        GasModelError
+            If neither `species_info` nor `species_series` is provided, or if required fields are missing,
+            or if the species already exists.
         """
         if species_info is not None and species_series is not None:
             raise GasModelError("Provide either 'species_info' or 'species_series', not both.")
@@ -233,6 +322,10 @@ class GasModel:
                 raise GasModelError("Missing 'species_name' in species_series.")
             species_name = species_series.pop('species_name')
             new_data = species_series.to_dict()
+
+        # Check if species already exists
+        if species_name in self.df.index:
+            raise GasModelError(f"Species '{species_name}' already exists in the model.")
 
         # Parse list-like columns if necessary
         for col in self.LIST_COLUMNS:
@@ -262,21 +355,21 @@ class GasModel:
         except GasModelError as e:
             raise GasModelError(f"Invalid data for new species '{species_name}': {e}")
 
-        # Check if species already exists
-        if species_name in self.df.index:
-            raise GasModelError(f"Species '{species_name}' already exists in the model.")
-
         self.df = temp_df
 
     def remove_species(self, species_names: list):
         """
         Remove existing gas-phase species from the model.
 
-        Parameters:
-            species_names (list): List of species names to be removed.
+        Parameters
+        ----------
+        species_names : list
+            List of species names to be removed.
 
-        Raises:
-            GasModelError: If any of the species names do not exist in the model.
+        Raises
+        ------
+        GasModelError
+            If any of the species names do not exist in the model.
         """
         missing_species = [name for name in species_names if name not in self.df.index]
         if missing_species:

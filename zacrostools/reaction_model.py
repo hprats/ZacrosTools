@@ -9,36 +9,57 @@ from zacrostools.gas_model import GasModel
 
 
 class ReactionModel:
-    """A class that represents a KMC reaction model.
+    """
+    Represents a KMC reaction model.
 
-    Parameters:
+    Parameters
+    ----------
+    mechanism_data : pandas.DataFrame
+        Information on the reaction model. The reaction name is taken as the index of each row.
 
-    mechanism_data: pd.DataFrame
-        Information on the reaction model.
-        The reaction name is taken as the index of each row.
+        **Required columns**:
 
-        The following columns are required:
-            - site_types (str): The types of each site in the pattern.
-            - initial (list): Initial configuration in Zacros format, e.g., ['1 CO* 1','2 * 1'].
-            - final (list): Final configuration in Zacros format, e.g., ['1 C* 1','2 O* 1'].
-            - activ_eng (float): Activation energy (in eV).
-            - vib_energies_is (list of floats): Vibrational energies for the initial state (in meV). Do not include the ZPE.
-            - vib_energies_fs (list of floats): Vibrational energies for the final state (in meV). Do not include the ZPE.
+        - **site_types** (str): The types of each site in the pattern.
+        - **initial** (list): Initial configuration in Zacros format, e.g., `['1 CO* 1', '2 * 1']`.
+        - **final** (list): Final configuration in Zacros format, e.g., `['1 C* 1', '2 O* 1']`.
+        - **activ_eng** (float): Activation energy (in eV).
+        - **vib_energies_is** (list of float): Vibrational energies for the initial state (in meV). Do not include the ZPE.
+        - **vib_energies_fs** (list of float): Vibrational energies for the final state (in meV). Do not include the ZPE.
 
-        **Mandatory for adsorption steps:**
-            - molecule (str): Gas-phase molecule involved. Only required for adsorption steps.
-            - area_site (float): Area of adsorption site (in Å²). Only required for adsorption steps.
+        **Mandatory for adsorption steps**:
 
-        **Mandatory for activated adsorption steps and surface reaction steps:**
-            - vib_energies_ts (list of floats): Vibrational energies for the transition state (in meV). For non-activated adsorption
-              steps, this value can be either undefined or an empty list, i.e., `[]`.
+        - **molecule** (str): Gas-phase molecule involved. Only required for adsorption steps.
+        - **area_site** (float): Area of adsorption site (in Å²). Only required for adsorption steps.
 
-        The following columns are optional:
-            - neighboring (str): Connectivity between sites involved, e.g., '1-2'. Default value: None.
-            - prox_factor (float): Proximity factor. Default value: None.
-            - angles (str): Angle between sites in Zacros format, e.g., '1-2-3:180'. Default value: None.
-            - graph_multiplicity (int or float): Graph multiplicity of the step. The computed pre-exponential factor will be divided by `graph_multiplicity`.
-              Should be used in steps with same initial and final configuration (symmetric steps), such as diffusions to the same site type. For instance, diffusion of A* from top to top should have a value of `2`. Default value: 1.
+        **Mandatory for activated adsorption steps and surface reaction steps**:
+
+        - **vib_energies_ts** (list of float): Vibrational energies for the transition state (in meV).
+          For non-activated adsorption steps, this value can be either undefined or an empty list, i.e., `[]`.
+
+        **Optional columns**:
+
+        - **neighboring** (str): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
+        - **prox_factor** (float): Proximity factor. Default is `None`.
+        - **angles** (str): Angle between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
+        - **graph_multiplicity** (int or float): Graph multiplicity of the step. The computed pre-exponential factor
+          will be divided by `graph_multiplicity`. Should be used in steps with the same initial and final configuration
+          (symmetric steps), such as diffusions to the same site type. For instance, diffusion of A* from top to top
+          should have a value of `2`. Default is `1`.
+
+    Raises
+    ------
+    ReactionModelError
+        If `mechanism_data` is not provided, contains duplicates, or is invalid.
+
+    Examples
+    --------
+    Example DataFrame:
+
+    | index             | site_types | initial                  | final                    | activ_eng | vib_energies_is    | vib_energies_fs    | molecule | area_site | vib_energies_ts   | neighboring | prox_factor | angles        | graph_multiplicity |
+    |-------------------|------------|--------------------------|--------------------------|-----------|--------------------|--------------------|----------|-----------|-------------------|-------------|-------------|---------------|--------------------|
+    | CO_adsorption     | '1'        | ['1 * 1']                | ['1 CO* 1']              | 0.0       | [200.0, 300.0]     | [150.0, 250.0]     | 'CO'     | 6.5       | []                | NaN         | NaN         | NaN           | NaN                |
+    | Surface_reaction  | '1 1'      | ['1 CO* 1', '2 O* 1']    | ['1 * 1', '2 * 1']       | 0.5       | [200.0, 300.0, 400.0] | [150.0, 250.0, 350.0] | NaN      | NaN       | [250.0, 350.0, 450.0] | '1-2'       | 0.8         | '1-2-3:180'   | 2                  |
+
     """
 
     REQUIRED_COLUMNS = {
@@ -56,6 +77,19 @@ class ReactionModel:
 
     @enforce_types
     def __init__(self, mechanism_data: pd.DataFrame = None):
+        """
+        Initialize the ReactionModel.
+
+        Parameters
+        ----------
+        mechanism_data : pandas.DataFrame
+            DataFrame containing the reaction mechanism data.
+
+        Raises
+        ------
+        ReactionModelError
+            If `mechanism_data` is not provided, contains duplicates, or is invalid.
+        """
         if mechanism_data is None:
             raise ReactionModelError("mechanism_data must be provided as a Pandas DataFrame.")
         self.df = mechanism_data.copy()
@@ -66,16 +100,32 @@ class ReactionModel:
         """
         Create a ReactionModel instance from a dictionary.
 
-        Parameters:
-            steps_dict (dict): Dictionary where keys are step names and values are dictionaries
-                               of step properties.
+        Parameters
+        ----------
+        steps_dict : dict
+            Dictionary where keys are step names and values are dictionaries of step properties.
 
-        Returns:
-            ReactionModel: An instance of ReactionModel.
+        Returns
+        -------
+        ReactionModel
+            An instance of ReactionModel.
+
+        Raises
+        ------
+        ReactionModelError
+            If the instance cannot be created from the provided dictionary due to duplicates or invalid data.
         """
         try:
             df = pd.DataFrame.from_dict(steps_dict, orient='index')
+
+            # Check for duplicate step names
+            if df.index.duplicated().any():
+                duplicates = df.index[df.index.duplicated()].unique().tolist()
+                raise ReactionModelError(f"Duplicate step names found in dictionary: {duplicates}")
+
             return cls.from_df(df)
+        except ReactionModelError:
+            raise
         except Exception as e:
             raise ReactionModelError(f"Failed to create ReactionModel from dictionary: {e}")
 
@@ -84,11 +134,20 @@ class ReactionModel:
         """
         Create a ReactionModel instance by reading a CSV file.
 
-        Parameters:
-            csv_path (Union[str, Path]): Path to the CSV file.
+        Parameters
+        ----------
+        csv_path : str or Path
+            Path to the CSV file.
 
-        Returns:
-            ReactionModel: An instance of ReactionModel.
+        Returns
+        -------
+        ReactionModel
+            An instance of ReactionModel.
+
+        Raises
+        ------
+        ReactionModelError
+            If the CSV file cannot be read, contains duplicates, or the data is invalid.
         """
         try:
             csv_path = Path(csv_path)
@@ -96,6 +155,11 @@ class ReactionModel:
                 raise ReactionModelError(f"The CSV file '{csv_path}' does not exist.")
 
             df = pd.read_csv(csv_path, index_col=0, dtype=str)
+
+            # Check for duplicate step names
+            if df.index.duplicated().any():
+                duplicates = df.index[df.index.duplicated()].unique().tolist()
+                raise ReactionModelError(f"Duplicate step names found in CSV: {duplicates}")
 
             # Parse list-like columns
             for col in cls.LIST_COLUMNS:
@@ -118,7 +182,6 @@ class ReactionModel:
 
             return cls.from_df(df)
         except ReactionModelError:
-            # Re-raise known ReactionModelError without modification
             raise
         except Exception as e:
             raise ReactionModelError(f"Failed to create ReactionModel from CSV file: {e}")
@@ -128,28 +191,50 @@ class ReactionModel:
         """
         Create a ReactionModel instance from a Pandas DataFrame.
 
-        Parameters:
-            df (pd.DataFrame): DataFrame containing mechanism data.
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame containing mechanism data.
 
-        Returns:
-            ReactionModel: An instance of ReactionModel.
+        Returns
+        -------
+        ReactionModel
+            An instance of ReactionModel.
+
+        Raises
+        ------
+        ReactionModelError
+            If the DataFrame contains duplicates or is invalid.
         """
+        # Check for duplicate step names
+        if df.index.duplicated().any():
+            duplicates = df.index[df.index.duplicated()].unique().tolist()
+            raise ReactionModelError(f"Duplicate step names found in DataFrame: {duplicates}")
+
         return cls(mechanism_data=df)
 
     @staticmethod
     def _parse_list_cell(cell: str) -> list:
         """
-        Parses a cell expected to contain a list. If the cell is NaN or empty, returns an empty list.
+        Parse a cell expected to contain a list.
+
+        If the cell is NaN or empty, returns an empty list.
         Otherwise, evaluates the string to a Python list.
 
-        Parameters:
-            cell (str): The cell content as a string.
+        Parameters
+        ----------
+        cell : str
+            The cell content as a string.
 
-        Returns:
-            list: The parsed list, or empty list if the cell is NaN or empty.
+        Returns
+        -------
+        list
+            The parsed list, or empty list if the cell is NaN or empty.
 
-        Raises:
-            ReactionModelError: If the cell cannot be parsed into a list.
+        Raises
+        ------
+        ReactionModelError
+            If the cell cannot be parsed into a list.
         """
         if pd.isna(cell) or cell.strip() == '':
             return []
@@ -159,17 +244,26 @@ class ReactionModel:
             raise ReactionModelError(f"Failed to parse list from cell: {cell}. Error: {e}")
 
     def _validate_dataframe(self, df: Optional[pd.DataFrame] = None):
-        """Validate that the DataFrame contains the required columns and correct data types.
+        """
+        Validate that the DataFrame contains the required columns and correct data types.
 
-        Parameters:
-            df (pd.DataFrame, optional): The DataFrame to validate.
-                                         If None, uses self.df.
+        Parameters
+        ----------
+        df : pandas.DataFrame, optional
+            The DataFrame to validate. If None, uses `self.df`.
 
-        Raises:
-            ReactionModelError: If validation fails.
+        Raises
+        ------
+        ReactionModelError
+            If validation fails.
         """
         if df is None:
             df = self.df
+
+        # Check for duplicate step names
+        if df.index.duplicated().any():
+            duplicates = df.index[df.index.duplicated()].unique().tolist()
+            raise ReactionModelError(f"Duplicate step names found: {duplicates}")
 
         missing_columns = self.REQUIRED_COLUMNS - set(df.columns)
         if missing_columns:
@@ -208,24 +302,7 @@ class ReactionModel:
                 invalid_steps = df[~df['angles'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
                 raise ReactionModelError("Column 'angles' must contain string values or NaN.")
 
-        # Validate 'lattice_state' list contents
-        if 'lattice_state' in df.columns:
-            for step, lattice_state in df['lattice_state'].items():
-                if not isinstance(lattice_state, list):
-                    raise ReactionModelError(f"'lattice_state' for step '{step}' must be a list.")
-                for state in lattice_state:
-                    if not isinstance(state, str):
-                        raise ReactionModelError(f"Each entry in 'lattice_state' for step '{step}' must be a string.")
-
-        # Removed the default assignment for 'prox_factor'
-        # Assign default values for optional columns if missing or NaN (excluding 'prox_factor')
-        if 'prox_factor' not in df.columns:
-            pass  # Do not assign a default value
-        else:
-            # Optionally, ensure 'prox_factor' is valid if provided
-            pass
-
-        # For 'graph_multiplicity', we can keep the default assignment to 1
+        # Assign default values for optional columns if missing
         if 'graph_multiplicity' not in df.columns:
             df['graph_multiplicity'] = 1
         else:
@@ -240,21 +317,32 @@ class ReactionModel:
                               stiffness_scalable_symmetric_steps: list = None,
                               sig_figs_energies: int = 8,
                               sig_figs_pe: int = 8):
-        """Writes the mechanism_input.dat file.
+        """
+        Write the `mechanism_input.dat` file.
 
-        Parameters:
-            output_dir (Union[str, Path]): Directory path where the file will be written.
-            temperature (float): Temperature in Kelvin for pre-exponential calculations.
-            gas_model (GasModel): Instance of GasModel containing gas-phase molecule data.
-            manual_scaling (dict, optional): Dictionary for manual scaling factors per step. Default is an empty dictionary `{}`.
-            stiffness_scalable_steps (list, optional): List of steps that are stiffness scalable. Default is an empty list `[]`.
-            stiffness_scalable_symmetric_steps (list, optional): List of steps that are stiffness scalable and symmetric.
-                                                                Default is an empty list `[]`.
-            sig_figs_energies (int, optional): Number of significant figures for activation energies. Default is `8`.
-            sig_figs_pe (int, optional): Number of significant figures for pre-exponential factors. Default is `8`.
+        Parameters
+        ----------
+        output_dir : str or Path
+            Directory path where the file will be written.
+        temperature : float
+            Temperature in Kelvin for pre-exponential calculations.
+        gas_model : GasModel
+            Instance of GasModel containing gas-phase molecule data.
+        manual_scaling : dict, optional
+            Dictionary for manual scaling factors per step. Default is `{}`.
+        stiffness_scalable_steps : list, optional
+            List of steps that are stiffness scalable. Default is `[]`.
+        stiffness_scalable_symmetric_steps : list, optional
+            List of steps that are stiffness scalable and symmetric. Default is `[]`.
+        sig_figs_energies : int, optional
+            Number of significant figures for activation energies. Default is `8`.
+        sig_figs_pe : int, optional
+            Number of significant figures for pre-exponential factors. Default is `8`.
 
-        Raises:
-            ReactionModelError: If there are inconsistencies in the data or during file writing.
+        Raises
+        ------
+        ReactionModelError
+            If there are inconsistencies in the data or during file writing.
         """
         # Handle default arguments
         if manual_scaling is None:
@@ -297,7 +385,7 @@ class ReactionModel:
 
                     infile.write(f"reversible_step {step}\n\n")
 
-                    molecule = self.df.loc[step, 'molecule']
+                    molecule = self.df.loc[step].get('molecule', None)
                     if pd.notna(molecule):
                         infile.write(f"  gas_reacs_prods {molecule} -1\n")
 
@@ -356,21 +444,29 @@ class ReactionModel:
             raise ReactionModelError(f"Failed to write to '{output_file}': {e}")
 
     def get_step_type(self, step: str) -> str:
-        """Determines the type of a given step based on its properties.
-
-        Parameters:
-            step (str): The name of the reaction step.
-
-        Returns:
-            str: The type of the step ('non_activated_adsorption', 'activated_adsorption', 'surface_reaction').
-
-        Raises:
-            ReactionModelError: If the step type cannot be determined.
         """
-        if 'molecule' not in self.df.columns:
-            return 'surface_reaction'
-        molecule = self.df.loc[step, 'molecule']
-        if pd.isna(molecule):
+        Determine the type of a given step based on its properties.
+
+        Parameters
+        ----------
+        step : str
+            The name of the reaction step.
+
+        Returns
+        -------
+        str
+            The type of the step:
+            - 'non_activated_adsorption'
+            - 'activated_adsorption'
+            - 'surface_reaction'
+
+        Raises
+        ------
+        ReactionModelError
+            If the step type cannot be determined.
+        """
+        molecule = self.df.loc[step].get('molecule', None)
+        if pd.isna(molecule) or molecule is None:
             return 'surface_reaction'
         vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
         if not isinstance(vib_energies_ts, list):
@@ -381,20 +477,31 @@ class ReactionModel:
             return 'activated_adsorption'
 
     def get_pre_expon(self, step: str, temperature: float, gas_model: GasModel, manual_scaling: dict) -> tuple:
-        """Calculates the forward pre-exponential and the pre-exponential ratio, required for the mechanism_input.dat
-        file.
+        """
+        Calculate the forward pre-exponential and the pre-exponential ratio.
 
-        Parameters:
-            step (str): The name of the reaction step.
-            temperature (float): Temperature in Kelvin.
-            gas_model (GasModel): Instance of GasModel containing gas-phase molecule data.
-            manual_scaling (dict): Dictionary for manual scaling factors per step.
+        These values are required for the `mechanism_input.dat` file.
 
-        Returns:
-            tuple: (pe_fwd, pe_ratio)
+        Parameters
+        ----------
+        step : str
+            The name of the reaction step.
+        temperature : float
+            Temperature in Kelvin.
+        gas_model : GasModel
+            Instance of GasModel containing gas-phase molecule data.
+        manual_scaling : dict
+            Dictionary for manual scaling factors per step.
 
-        Raises:
-            ReactionModelError: If vibrational energies contain 0.0 or other calculation errors.
+        Returns
+        -------
+        tuple
+            A tuple containing `(pe_fwd, pe_ratio)`.
+
+        Raises
+        ------
+        ReactionModelError
+            If vibrational energies contain 0.0 or other calculation errors.
         """
         vib_energies_is = self.df.loc[step, 'vib_energies_is']
         vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
@@ -417,7 +524,7 @@ class ReactionModel:
                 molec_mass = molec_data['gas_molec_weight']
                 inertia_moments = molec_data['inertia_moments']
                 sym_number = molec_data['sym_number']
-                degeneracy = molec_data['degeneracy']  # Directly use the value
+                degeneracy = molec_data['degeneracy']
                 if step_type == 'non_activated_adsorption':
                     vib_energies_ts = []
                 pe_fwd, pe_rev = calc_ads(
@@ -447,7 +554,7 @@ class ReactionModel:
             pe_rev *= manual_scaling[step]
 
         # Apply graph multiplicity if applicable
-        graph_multiplicity = self.df.loc[step].get('graph_multiplicity', None)
+        graph_multiplicity = self.df.loc[step].get('graph_multiplicity', 1)
         if graph_multiplicity is not None and not pd.isna(graph_multiplicity):
             pe_fwd /= float(graph_multiplicity)
             pe_rev /= float(graph_multiplicity)
@@ -462,15 +569,18 @@ class ReactionModel:
         """
         Add a new reaction step to the model.
 
-        Parameters:
-            step_info (dict, optional): Dictionary containing step properties.
-                                        Must include a key 'step_name' to specify the step's name.
-            step_series (pd.Series, optional): Pandas Series containing step properties.
-                                               Must include 'step_name' as part of the Series data.
+        Parameters
+        ----------
+        step_info : dict, optional
+            Dictionary containing step properties. Must include a key `'step_name'` to specify the step's name.
+        step_series : pandas.Series, optional
+            Pandas Series containing step properties. Must include `'step_name'` as part of the Series data.
 
-        Raises:
-            ReactionModelError: If neither step_info nor step_series is provided,
-                                 or if required fields are missing, or if the step already exists.
+        Raises
+        ------
+        ReactionModelError
+            If neither `step_info` nor `step_series` is provided, or if required fields are missing,
+            or if the step already exists.
         """
         if step_info is not None and step_series is not None:
             raise ReactionModelError("Provide either 'step_info' or 'step_series', not both.")
@@ -560,11 +670,15 @@ class ReactionModel:
         """
         Remove existing reaction steps from the model.
 
-        Parameters:
-            step_names (list): List of step names to be removed.
+        Parameters
+        ----------
+        step_names : list
+            List of step names to be removed.
 
-        Raises:
-            ReactionModelError: If any of the step names do not exist in the model.
+        Raises
+        ------
+        ReactionModelError
+            If any of the step names do not exist in the model.
         """
         missing_steps = [name for name in step_names if name not in self.df.index]
         if missing_steps:
