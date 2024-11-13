@@ -12,18 +12,24 @@ from zacrostools.custom_exceptions import enforce_types
 
 
 class KMCModel:
-    """A class that represents a KMC model.
+    """
+    Represents a Kinetic Monte Carlo (KMC) model.
 
-    Parameters:
+    Parameters
+    ----------
+    gas_model : GasModel
+        An instance containing information about the gas molecules.
+    reaction_model : ReactionModel
+        An instance containing information about the reaction model.
+    energetics_model : EnergeticsModel
+        An instance containing information about the energetic model.
+    lattice_model : LatticeModel
+        An instance containing information about the lattice model.
 
-    gas_model: GasModel
-        An instance of GasModel containing information about the gas molecules.
-    reaction_model: ReactionModel
-        An instance of ReactionModel containing information about the reaction model.
-    energetics_model: EnergeticsModel
-        An instance of EnergeticsModel containing information about the energetic model.
-    lattice_model: LatticeModel
-        An instance of LatticeModel containing information about the lattice model.
+    Raises
+    ------
+    KMCModelError
+        If there are inconsistencies in the model configurations.
     """
 
     @enforce_types
@@ -40,10 +46,13 @@ class KMCModel:
         self.check_errors()
 
     def check_errors(self):
-        """Checks for data consistency after initialization.
+        """
+        Check for data consistency after initialization.
 
-        Raises:
-            KMCModelError: If there are inconsistencies in the model configurations.
+        Raises
+        ------
+        KMCModelError
+            If there are inconsistencies in the model configurations.
         """
         if self.lattice_model.lattice_type == 'default':
             if 'site_types' in self.reaction_model.df.columns:
@@ -73,62 +82,57 @@ class KMCModel:
                        sig_figs_energies: int = 8,
                        sig_figs_pe: int = 8,
                        random_seed: Union[int, None] = None):
-        """Creates a job directory and writes necessary input files for the KMC simulation.
+        """
+        Create a job directory and write necessary input files for the KMC simulation.
 
-        Parameters:
-
-        job_path: str
+        Parameters
+        ----------
+        job_path : str
             The path for the job directory where input files will be written.
-        temperature: float or int
+        temperature : float or int
             Reaction temperature (in K).
-        pressure: dict
-            Partial pressures of all gas species (in bar), e.g., {'CO': 1.0, 'O2': 0.001}.
-        reporting_scheme: dict, optional
+        pressure : dict
+            Partial pressures of all gas species (in bar), e.g., `{'CO': 1.0, 'O2': 0.001}`.
+        reporting_scheme : dict, optional
             Reporting scheme in Zacros format. Must contain the following keys:
-            'snapshots', 'process_statistics', and 'species_numbers'.
-            Default value: {
-                'snapshots': 'on event 10000',
-                'process_statistics': 'on event 10000',
-                'species_numbers': 'on event 10000'
-            }
-        stopping_criteria: dict, optional
+            `'snapshots'`, `'process_statistics'`, and `'species_numbers'`.
+            Default is `{'snapshots': 'on event 10000', 'process_statistics': 'on event 10000', 'species_numbers': 'on event 10000'}`.
+        stopping_criteria : dict, optional
             Stopping criteria in Zacros format. Must contain the following keys:
-            'max_steps', 'max_time', and 'wall_time'.
-            Default value: {
-                'max_steps': 'infinity',
-                'max_time': 'infinity',
-                'wall_time': 86400
-            }
-        manual_scaling: dict, optional
+            `'max_steps'`, `'max_time'`, and `'wall_time'`.
+            Default is `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
+        manual_scaling : dict, optional
             Step names (keys) and their corresponding manual scaling factors (values), e.g.,
-            {'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}.
-            Default value: {}
-        stiffness_scaling_algorithm: str, optional
-            Algorithm used for stiffness scaling. Possible values are None (default), 'legacy', or 'prats2024'.
-            Default value: None
-        stiffness_scalable_steps: list of str, optional
-            Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
-            Default value: []
-        stiffness_scalable_symmetric_steps: list of str, optional
-            Steps that will be marked as 'stiffness_scalable_symmetric' in mechanism_input.dat.
-            Default value: []
-        stiffness_scaling_tags: dict, optional
+            `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`.
+            Default is `{}`.
+        stiffness_scaling_algorithm : str, optional
+            Algorithm used for stiffness scaling. Possible values are `None` (default), `'legacy'`, or `'prats2024'`.
+            Default is `None`.
+        stiffness_scalable_steps : list of str, optional
+            Steps that will be marked as `'stiffness_scalable'` in `mechanism_input.dat`.
+            Default is `[]`.
+        stiffness_scalable_symmetric_steps : list of str, optional
+            Steps that will be marked as `'stiffness_scalable_symmetric'` in `mechanism_input.dat`.
+            Default is `[]`.
+        stiffness_scaling_tags : dict, optional
             Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g.,
-            {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}.
-            Default value: {}
-        sig_figs_energies: int, optional
-            Number of significant figures used when writing 'cluster_eng' in energetics_input.dat,
-            'activ_eng' in mechanism_input.dat, and 'gas_energies' in simulation_input.dat.
-            Default value: 8
-        sig_figs_pe: int, optional
-            Number of significant figures used when writing 'pre_expon' and 'pe_ratio' in mechanism_input.dat.
-            Default value: 8
-        random_seed: int, optional
+            `{'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}`.
+            Default is `{}`.
+        sig_figs_energies : int, optional
+            Number of significant figures used when writing `'cluster_eng'` in `energetics_input.dat`,
+            `'activ_eng'` in `mechanism_input.dat`, and `'gas_energies'` in `simulation_input.dat`.
+            Default is `8`.
+        sig_figs_pe : int, optional
+            Number of significant figures used when writing `'pre_expon'` and `'pe_ratio'` in `mechanism_input.dat`.
+            Default is `8`.
+        random_seed : int, optional
             The integer seed of the random number generator. If not specified, ZacrosTools will generate one.
-            Default value: None
+            Default is `None`.
 
-        Raises:
-            KMCModelError: If there are inconsistencies in the stiffness scaling configuration or during file writing.
+        Raises
+        ------
+        KMCModelError
+            If there are inconsistencies in the stiffness scaling configuration or during file writing.
         """
 
         if reporting_scheme is None:
@@ -289,15 +293,20 @@ class KMCModel:
             raise KMCModelError(f"Failed to write to 'simulation_input.dat': {e}")
 
     def get_surf_specs(self):
-        """Identifies all surface species and their corresponding dentates from the energetic_model dataframe.
+        """
+        Identify all surface species and their corresponding dentates from the `energetics_model` DataFrame.
 
-        Used to write 'surf_specs_names' and 'surf_specs_dent' in the simulation_input.dat file.
+        Used to write `'surf_specs_names'` and `'surf_specs_dent'` in the `simulation_input.dat` file.
 
-        Returns:
-            dict: A dictionary with surf_specs_names as keys and dentates as values.
+        Returns
+        -------
+        dict
+            A dictionary with surface species names as keys and dentates as values.
 
-        Raises:
-            KMCModelError: If the lattice_state format is invalid.
+        Raises
+        ------
+        KMCModelError
+            If the `lattice_state` format is invalid.
         """
         surf_specs = {}
         for cluster in self.energetics_model.df.index:
