@@ -8,32 +8,20 @@ Welcome to the ZacrosTools documentation! This guide provides comprehensive info
 
 ZacrosTools is a versatile toolkit designed to simplify the preparation and analysis of Kinetic Monte Carlo (KMC) simulations with **[Zacros](https://zacros.org/)**.
 
-## Table of Contents
+## Key Features 
 
-- [Key Features](#key-features)
-- [Installation](#installation)
-  - [Prerequisites](#prerequisites)
-  - [Installing from Source](#installing-from-source)
-- [Quick Start Guide](#quick-start-guide)
-- [Recent Changes](#recent-changes)
-- [What's Next](#whats-next)
-- [Documentation](#documentation)
-- [Contributors](#contributors)
-
-## Key Features
-
-- **Automatic Input File Generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
-- **Output File Parsing**: Easily read, analyze, and process data from Zacros output files.
-- **Pressure and Temperature Scans**: Streamline the process of performing scans over different pressures and temperatures.
-- **Customizable Workflows**: Create customized workflows to fit specific simulation needs.
-- **Documentation and Examples**: Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
+- **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
+- **Output file parsing**: Easily read, analyze, and process data from Zacros output files.
+- **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
+- **Customizable workflows**: Create customized workflows to fit specific simulation needs.
+- **Documentation and examples**: Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
 <div style="text-align: center;">
     <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
     <p>Example of turnover frequency heatmap generated using ZacrosTools.</p>
 </div>
 
-## Installation
+## Installation 
 
 ZacrosTools is available on PyPI and can be installed using `pip`:
 
@@ -41,7 +29,7 @@ ZacrosTools is available on PyPI and can be installed using `pip`:
 pip install zacrostools
 ```
 
-### Prerequisites
+### Prerequisites 
 
 - **Python 3.8 or higher**
 - **[Scipy](https://scipy.org/)**
@@ -58,6 +46,33 @@ git clone https://github.com/hprats/ZacrosTools.git
 cd ZacrosTools
 pip install .
 ```
+
+## Quick Start Guide
+
+Get started with ZacrosTools by following these steps:
+
+1. **Define the Gas Model**: Specify gas-phase molecular data required for your simulations.
+2. **Set Up the Lattice Model**: Define the lattice structure on which the KMC simulation will run.
+3. **Create the Energetics Model**: Provide cluster formation energies and configurations.
+4. **Define the Reaction Model**: Outline the reaction mechanisms and steps involved in the simulation.
+5. **Assemble the KMC Model**: Combine all models to prepare for running simulations.
+6. **Run Simulations**: Execute KMC simulations using Zacros with the generated input files.
+7. **Analyze Results**: Parse and visualize the output data to gain insights.
+
+Detailed instructions for each step are provided in the documentation sections below.
+
+## Documentation
+
+The ZacrosTools documentation is organized into the following sections:
+
+- **[Gas Model](gas_model.md)**: Learn how to define gas-phase molecular data for KMC simulations.
+- **[Lattice Model](lattice_model.md)**: Understand how to set up lattice structures for simulations.
+- **[Energetics Model](energetics_model.md)**: Define cluster energetics for your simulations.
+- **[Reaction Model](reaction_model.md)**: Specify reaction mechanisms and steps.
+- **[KMC Model](kmc_model.md)**: Integrate all components to set up and run KMC simulations.
+- **[Reading Output Files](reading_output_files.md)**: Parse and analyze data from Zacros output files.
+- **[Plotting Results](plotting_results.md)**: Visualize simulation results effectively.
+- **[API Reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
 
 ## Recent Changes
 
@@ -84,7 +99,7 @@ Contributions are welcome!
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/hprats/ZacrosTools/blob/main/LICENSE) file for details.
 
 ## Contributors
 
@@ -92,13 +107,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents
 
    installation.md
-   writing_input_files.md
+   gas_model.md
+   lattice_model.md
+   energetics_model.md
+   reaction_model.md
+   kmc_model.md
    reading_output_files.md
    plotting_results.md
    api_reference.md
-```
 ```
