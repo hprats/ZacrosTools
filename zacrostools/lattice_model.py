@@ -439,7 +439,7 @@ class LatticeModel:
 
         # Convert cell_vectors to numpy arrays for calculations
         alpha = np.array(self.cell_vectors[0])  # Vector α
-        beta = np.array(self.cell_vectors[1])   # Vector β
+        beta = np.array(self.cell_vectors[1])  # Vector β
 
         # Prepare dictionary to hold neighboring relations
         neighboring_structure: Dict[str, List[str]] = {}
@@ -454,7 +454,7 @@ class LatticeModel:
 
         # Iterate over all unique pairs within the unit cell for 'self' relations
         for i in range(num_sites):
-            for j in range(i, num_sites):
+            for j in range(i + 1, num_sites):
                 site_i = site_list[i]
                 site_j = site_list[j]
                 pair_key = f"{site_i['index']}-{site_j['index']}"
@@ -470,8 +470,7 @@ class LatticeModel:
                 if dist <= max_distance:
                     if pair_key not in neighboring_structure:
                         neighboring_structure[pair_key] = []
-                    if 'self' not in neighboring_structure[pair_key]:
-                        neighboring_structure[pair_key].append('self')
+                    neighboring_structure[pair_key].append('self')
 
         # Directions and their corresponding shift vectors in direct coordinates
         directions = self.DIRECTIONS
