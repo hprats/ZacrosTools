@@ -3,6 +3,7 @@ from typing import Union, Optional, List, Tuple, Dict, Any
 import numpy as np
 from zacrostools.write_functions import write_header
 from zacrostools.custom_exceptions import LatticeModelError
+from zacrostools.parse_input_files import parse_lattice_input_file
 
 
 class LatticeModel:
@@ -146,11 +147,7 @@ class LatticeModel:
                  coordinate_type: str = 'direct',
                  neighboring_structure: Optional[Union[str, Dict[str, Union[str, List[str]]]]] = None,
                  max_distances: Optional[Dict[str, float]] = None):
-        """
-        Initialize the LatticeModel with the specified lattice type.
 
-        [Docstring content remains the same]
-        """
         # Validate lattice_type
         if lattice_type not in self.ALLOWED_LATTICE_TYPES:
             raise LatticeModelError(
@@ -295,6 +292,54 @@ class LatticeModel:
 
             # Perform additional validations
             self._validate_periodic_cell()
+
+    @classmethod
+    def from_file(cls, input_file: Union[str, Path]):
+        """
+        Create a LatticeModel instance by reading a `lattice_input.dat` file.
+
+        Parameters
+        ----------
+        input_file : Union[str, Path]
+            Path to the lattice input file.
+
+        Returns
+        -------
+        LatticeModel
+            An instance of LatticeModel initialized with parameters extracted from the file.
+
+        Raises
+        ------
+        LatticeModelError
+            If the file cannot be read, the lattice block is missing, or if required parameters are invalid or missing.
+        """
+        parsed_data = parse_lattice_input_file(input_file)
+
+        lattice_type = parsed_data['lattice_type']
+
+        if lattice_type == 'default_choice':
+            return cls(
+                lattice_type='default_choice',
+                default_lattice_type=parsed_data['default_lattice_type'],
+                lattice_constant=parsed_data['lattice_constant'],
+                copies=parsed_data['copies']
+            )
+
+        elif lattice_type == 'periodic_cell':
+            return cls(
+                lattice_type='periodic_cell',
+                cell_vectors=parsed_data['cell_vectors'],
+                sites=parsed_data['sites'],
+                coordinate_type=parsed_data.get('coordinate_type', 'direct'),
+                copies=parsed_data['copies'],
+                neighboring_structure=parsed_data['neighboring_structure']
+            )
+
+        elif lattice_type == 'explicit':
+            raise LatticeModelError("The 'explicit' lattice_type is not yet supported.")
+
+        else:
+            raise LatticeModelError(f"Unsupported lattice_type '{lattice_type}'.")
 
     def _is_valid_pair_key(self, pair: str) -> bool:
         """
