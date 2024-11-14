@@ -20,10 +20,11 @@ The `LatticeModel` supports different lattice types:
 
 ## Creating a LatticeModel
 
-There are two primary ways to create a `LatticeModel`:
+There are three primary ways to create a `LatticeModel`:
 
 1. **Using the Default Lattice Choice**
 2. **Defining a Custom Periodic Cell**
+3. **Loading from an Existing Lattice Input File**
 
 ### 1. Using the Default Lattice Choice
 
@@ -139,6 +140,37 @@ lattice_model = LatticeModel(
     neighboring_structure='from_distances',
     max_distances=max_distances
 )
+```
+
+### 3. Loading from an Existing Lattice Input File
+
+This method allows you to create a `LatticeModel` by reading a previously created `lattice_input.dat` file. This is particularly useful when you want to reuse lattice configurations or when the lattice file was provided by another user.
+
+#### Method
+
+```python
+lattice_model = LatticeModel.from_file(input_file)
+```
+
+- **`input_file`** (`str` or `Path`): Path to the existing `lattice_input.dat` file.
+
+#### Notes
+
+- The method reads the `lattice` block from the file, which starts with the `lattice` keyword and ends with `end_lattice`.
+- The method supports `'default_choice'` and `'periodic_cell'` lattice types.
+- If the lattice type is `'explicit'`, a `LatticeModelError` will be raised as this type is not yet supported.
+- The method ignores any content outside the `lattice` block.
+
+#### Example
+
+```python
+from zacrostools.lattice_model import LatticeModel
+
+# Load a LatticeModel from an existing lattice_input.dat file
+lattice_model = LatticeModel.from_file(input_file='path/to/lattice_input.dat')
+
+# Write the lattice input file (optional, e.g., to a new directory)
+lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ```
 
 ---
@@ -353,6 +385,18 @@ lattice_model = LatticeModel(
 lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ```
 
+### Example 4: Loading a LatticeModel from an Existing Lattice Input File
+
+```python
+from zacrostools.lattice_model import LatticeModel
+
+# Load a LatticeModel from an existing lattice_input.dat file
+lattice_model = LatticeModel.from_file(input_file='lattice_input_Cu111.dat')
+
+# Optionally, you can modify the lattice or write it to a new location
+lattice_model.write_lattice_input(output_dir='kmc_simulation')
+```
+
 ---
 
 ## Additional Notes
@@ -400,6 +444,11 @@ For detailed guidance on these steps, refer to the respective sections in the do
 ---
 
 **Updates Based on Recent Changes:**
+
+- **New `from_file` Class Method**:
+  - You can now create a `LatticeModel` by reading an existing `lattice_input.dat` file.
+  - This feature enhances flexibility, allowing you to reuse lattice configurations or incorporate lattices provided by others.
+  - The method supports both `'default_choice'` and `'periodic_cell'` lattice types.
 
 - **Neighboring Structure Format Change**:
   - The `neighboring_structure` can now accept multiple relationship keywords for the same site pair.
