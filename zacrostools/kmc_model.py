@@ -135,29 +135,25 @@ class KMCModel:
             If there are inconsistencies in the stiffness scaling configuration or during file writing.
         """
 
-        if reporting_scheme is None:
-            reporting_scheme = {
-                'snapshots': 'on event 10000',
-                'process_statistics': 'on event 10000',
-                'species_numbers': 'on event 10000'
-            }
-        if stopping_criteria is None:
-            stopping_criteria = {
-                'max_steps': 'infinity',
-                'max_time': 'infinity',
-                'wall_time': 86400
-            }
-        if manual_scaling is None:
-            manual_scaling = {}
-        if stiffness_scalable_steps is None:
-            stiffness_scalable_steps = []
-        if stiffness_scalable_symmetric_steps is None:
-            stiffness_scalable_symmetric_steps = []
-        if stiffness_scaling_tags is None:
-            stiffness_scaling_tags = {}
-        if len(stiffness_scaling_tags) > 0:
-            if len(stiffness_scalable_steps) == 0 and len(stiffness_scalable_symmetric_steps) == 0:
-                raise KMCModelError("'stiffness_scaling_tags' defined but no steps are stiffness scalable")
+        # Parse and validate parameters
+        parsed_params = self._parse_parameters(
+            reporting_scheme=reporting_scheme,
+            stopping_criteria=stopping_criteria,
+            manual_scaling=manual_scaling,
+            stiffness_scaling_algorithm=stiffness_scaling_algorithm,
+            stiffness_scalable_steps=stiffness_scalable_steps,
+            stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
+            stiffness_scaling_tags=stiffness_scaling_tags
+        )
+
+        # Unpack parsed parameters
+        reporting_scheme = parsed_params['reporting_scheme']
+        stopping_criteria = parsed_params['stopping_criteria']
+        manual_scaling = parsed_params['manual_scaling']
+        stiffness_scaling_algorithm = parsed_params['stiffness_scaling_algorithm']
+        stiffness_scalable_steps = parsed_params['stiffness_scalable_steps']
+        stiffness_scalable_symmetric_steps = parsed_params['stiffness_scalable_symmetric_steps']
+        stiffness_scaling_tags = parsed_params['stiffness_scaling_tags']
 
         self.job_dir = Path(job_path)
         if not self.job_dir.exists():
@@ -190,29 +186,136 @@ class KMCModel:
         else:
             print(f'{self.job_dir} already exists (nothing done)')
 
+    def _parse_parameters(self,
+                          reporting_scheme,
+                          stopping_criteria,
+                          manual_scaling,
+                          stiffness_scaling_algorithm,
+                          stiffness_scalable_steps,
+                          stiffness_scalable_symmetric_steps,
+                          stiffness_scaling_tags):
+        """
+        Parse and validate the parameters provided to create_job_dir.
+
+        Returns
+        -------
+        dict
+            A dictionary containing parsed and validated parameters.
+
+        Raises
+        ------
+        KMCModelError
+            If any of the parameters fail validation.
+        """
+
+        # Define allowed keys and defaults for reporting_scheme
+        allowed_reporting_keys = {'snapshots', 'process_statistics', 'species_numbers'}
+        default_reporting_scheme = {
+            'snapshots': 'on event 10000',
+            'process_statistics': 'on event 10000',
+            'species_numbers': 'on event 10000'
+        }
+
+        if reporting_scheme is None:
+            reporting_scheme = default_reporting_scheme
+        else:
+            # Filter out invalid keys and apply defaults
+            reporting_scheme = {key: reporting_scheme.get(key, default_reporting_scheme[key])
+                                for key in allowed_reporting_keys}
+
+        allowed_stopping_keys = {'max_steps', 'max_time', 'wall_time'}
+        default_stopping_criteria = {
+            'max_steps': 'infinity',
+            'max_time': 'infinity',
+            'wall_time': 86400
+        }
+
+        if stopping_criteria is None:
+            stopping_criteria = default_stopping_criteria
+        else:
+            # Filter out invalid keys and apply defaults
+            stopping_criteria = {key: stopping_criteria.get(key, default_stopping_criteria[key])
+                                 for key in allowed_stopping_keys}
+
+        if manual_scaling is None:
+            manual_scaling = {}
+
+        allowed_scaling_algorithms = {'legacy', 'prats2024'}
+        if stiffness_scaling_algorithm is not None:
+            if stiffness_scaling_algorithm not in allowed_scaling_algorithms:
+                raise KMCModelError(
+                    f"Invalid stiffness_scaling_algorithm '{stiffness_scaling_algorithm}'. "
+                    f"Allowed values are 'legacy' or 'prats2024'.")
+
+        if stiffness_scaling_algorithm is None:
+            if stiffness_scalable_steps or stiffness_scalable_symmetric_steps or stiffness_scaling_tags:
+                stiffness_scaling_algorithm = 'legacy'
+            else:
+                stiffness_scaling_algorithm = None
+
+        if stiffness_scalable_steps is None:
+            stiffness_scalable_steps = []
+
+        if stiffness_scalable_symmetric_steps is None:
+            stiffness_scalable_symmetric_steps = []
+
+        if stiffness_scaling_tags is None:
+            stiffness_scaling_tags = {}
+
+        if stiffness_scaling_algorithm == 'legacy':
+            allowed_tags = {
+                'check_every',
+                'min_separation',
+                'max_separation',
+                'max_qequil_separation',
+                'tol_part_equil_ratio',
+                'stiffn_coeff_threshold',
+                'scaling_factor'
+            }
+        elif stiffness_scaling_algorithm == 'prats2024':
+            allowed_tags = {
+                'check_every',
+                'min_separation',
+                'max_separation',
+                'tol_part_equil_ratio',
+                'upscaling_factor',
+                'upscaling_limit',
+                'downscaling_limit',
+                'min_noccur'
+            }
+        else:
+            allowed_tags = set()
+
+        if stiffness_scaling_tags:
+            if stiffness_scaling_algorithm is None:
+                raise KMCModelError(
+                    "stiffness_scaling_tags provided but no stiffness_scaling_algorithm selected.")
+            invalid_tags = set(stiffness_scaling_tags.keys()) - allowed_tags
+            if invalid_tags:
+                raise KMCModelError(
+                    f"Invalid stiffness_scaling_tags keys for algorithm '{stiffness_scaling_algorithm}': "
+                    f"{invalid_tags}. Allowed keys are: {allowed_tags}.")
+
+        if stiffness_scaling_algorithm in allowed_scaling_algorithms:
+            if not stiffness_scalable_steps and not stiffness_scalable_symmetric_steps:
+                raise KMCModelError(
+                    "stiffness_scaling_algorithm selected but no steps are stiffness scalable.")
+
+        return {
+            'reporting_scheme': reporting_scheme,
+            'stopping_criteria': stopping_criteria,
+            'manual_scaling': manual_scaling,
+            'stiffness_scaling_algorithm': stiffness_scaling_algorithm,
+            'stiffness_scalable_steps': stiffness_scalable_steps,
+            'stiffness_scalable_symmetric_steps': stiffness_scalable_symmetric_steps,
+            'stiffness_scaling_tags': stiffness_scaling_tags
+        }
+
     def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria,
                                stiffness_scaling_algorithm, stiffness_scalable_steps,
                                stiffness_scalable_symmetric_steps, stiffness_scaling_tags,
                                sig_figs_energies, random_seed):
         """Writes the simulation_input.dat file."""
-        allowed_stiffness_scaling_algorithms = [
-            'legacy',
-            'prats2024'
-        ]
-
-        allowed_stiffness_scaling_tags = [
-            'check_every',
-            'min_separation',
-            'max_separation',
-            'max_qequil_separation',
-            'tol_part_equil_ratio',
-            'stiffn_coeff_threshold',
-            'scaling_factor',
-            'upscaling_factor',
-            'upscaling_limit',
-            'downscaling_limit',
-            'min_noccur'
-        ]
 
         gas_specs_names = list(self.gas_model.df.index)
         surf_specs = self.get_surf_specs()
@@ -276,18 +379,10 @@ class KMCModel:
                     if stiffness_scaling_algorithm is None:
                         infile.write(f"enable_stiffness_scaling\n")
                     else:
-                        if stiffness_scaling_algorithm not in allowed_stiffness_scaling_algorithms:
-                            raise KMCModelError(
-                                f"Invalid stiffness_scaling_algorithm: {stiffness_scaling_algorithm}. "
-                                f"Allowed values are: {allowed_stiffness_scaling_algorithms}")
                         infile.write(
                             'enable_stiffness_scaling\t'.expandtabs(26) + stiffness_scaling_algorithm + '\n')
                     for tag in stiffness_scaling_tags:
-                        if tag in allowed_stiffness_scaling_tags:
-                            infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
-                        else:
-                            raise KMCModelError(f"Invalid tag in 'stiffness_scaling_tags': {tag}")
-
+                        infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
                 infile.write(f"finish\n")
         except IOError as e:
             raise KMCModelError(f"Failed to write to 'simulation_input.dat': {e}")
