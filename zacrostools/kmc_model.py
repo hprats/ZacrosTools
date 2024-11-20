@@ -54,7 +54,7 @@ class KMCModel:
         KMCModelError
             If there are inconsistencies in the model configurations.
         """
-        if self.lattice_model.lattice_type == 'default':
+        if self.lattice_model.lattice_type == 'default_choice':
             if 'site_types' in self.reaction_model.df.columns:
                 raise KMCModelError("Remove 'site_types' from the reaction model when using a default lattice.")
             if 'site_types' in self.energetics_model.df.columns:
@@ -81,6 +81,7 @@ class KMCModel:
                        stiffness_scaling_tags: Union[dict, None] = None,
                        sig_figs_energies: int = 8,
                        sig_figs_pe: int = 8,
+                       sig_figs_lattice: int = 8,
                        random_seed: Union[int, None] = None):
         """
         Create a job directory and write necessary input files for the KMC simulation.
@@ -124,6 +125,9 @@ class KMCModel:
             Default is `8`.
         sig_figs_pe : int, optional
             Number of significant figures used when writing `'pre_expon'` and `'pe_ratio'` in `mechanism_input.dat`.
+            Default is `8`.
+        sig_figs_lattice : int, optional
+            Number of significant figures used when writing coordinates in `lattice_input.dat`.
             Default is `8`.
         random_seed : int, optional
             The integer seed of the random number generator. If not specified, ZacrosTools will generate one.
@@ -182,7 +186,8 @@ class KMCModel:
                 output_dir=self.job_dir,
                 sig_figs_energies=sig_figs_energies)
             self.lattice_model.write_lattice_input(
-                output_dir=self.job_dir)
+                output_dir=self.job_dir,
+                sig_figs=sig_figs_lattice)
         else:
             print(f'{self.job_dir} already exists (nothing done)')
 
