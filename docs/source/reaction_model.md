@@ -12,7 +12,6 @@ The `ReactionModel` requires detailed information about each reaction step, incl
 
 ### Required Columns
 
-- **`site_types`** (`str`): Types of each site in the reaction pattern.
 - **`initial`** (`list` of `str`): Initial configuration in Zacros format (e.g., `['1 CO* 1', '2 * 1']`).
 - **`final`** (`list` of `str`): Final configuration in Zacros format (e.g., `['1 C* 1', '2 O* 1']`).
 - **`activ_eng`** (`float`): Activation energy in electronvolts (eV).
@@ -29,6 +28,7 @@ The `ReactionModel` requires detailed information about each reaction step, incl
 
 ### Optional Columns
 
+- **`site_types`** (`str`): Types of each site in the reaction pattern. Required if `lattice_type is 'periodic_cell'`.
 - **`neighboring`** (`str`): Connectivity between sites involved (e.g., `'1-2'`).
 - **`prox_factor`** (`float`): Proximity factor.
 - **`angles`** (`str`): Angle constraints between sites in Zacros format (e.g., `'1-2-3:180'`).

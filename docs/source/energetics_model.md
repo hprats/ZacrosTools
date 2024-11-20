@@ -9,11 +9,11 @@ The `EnergeticsModel` requires information about each cluster, including formati
 ### Required Columns
 
 - **`cluster_eng`** (`float`): Cluster formation energy in electronvolts (eV).
-- **`site_types`** (`str`): Types of each site in the cluster pattern.
 - **`lattice_state`** (`list` of `str`): Cluster configuration in Zacros format, e.g., `['1 CO* 1', '2 CO* 1']`.
 
 ### Optional Columns
 
+- **`site_types`** (`str`): Types of each site in the cluster pattern. Required if `lattice_type is 'periodic_cell'`.
 - **`neighboring`** (`str`): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
 - **`angles`** (`str`): Angle constraints between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
 - **`graph_multiplicity`** (`int`): Symmetry number of the cluster. Default is `None`.
@@ -78,7 +78,7 @@ You can load cluster energetics data from a CSV file. The CSV should have the re
 
 #### Example CSV (`energetics_data.csv`)
 
-```csv
+```text
 ,index,cluster_eng,site_types,lattice_state,neighboring,angles,graph_multiplicity
 CO_on_site1,-1.50,1,"['1 CO* 1']",,,
 O2_dissociation,-2.00,"1 1","['1 O* 1', '2 O* 1']","1-2",,

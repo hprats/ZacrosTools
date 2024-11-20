@@ -19,7 +19,6 @@ class ReactionModel:
 
         **Required columns**:
 
-        - **site_types** (str): The types of each site in the pattern.
         - **initial** (list): Initial configuration in Zacros format, e.g., `['1 CO* 1', '2 * 1']`.
         - **final** (list): Final configuration in Zacros format, e.g., `['1 C* 1', '2 O* 1']`.
         - **activ_eng** (float): Activation energy (in eV).
@@ -38,6 +37,7 @@ class ReactionModel:
 
         **Optional columns**:
 
+        - **site_types** (str): The types of each site in the pattern. Required if `lattice_type is 'periodic_cell'`.
         - **neighboring** (str): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
         - **prox_factor** (float): Proximity factor. Default is `None`.
         - **angles** (str): Angle between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
@@ -63,7 +63,6 @@ class ReactionModel:
     """
 
     REQUIRED_COLUMNS = {
-        'site_types',
         'initial',
         'final',
         'activ_eng',
@@ -72,7 +71,7 @@ class ReactionModel:
     }
     REQUIRED_ADS_COLUMNS = {'molecule', 'area_site'}
     REQUIRED_ACTIVATED_COLUMNS = {'vib_energies_ts'}
-    OPTIONAL_COLUMNS = {'neighboring', 'prox_factor', 'angles', 'graph_multiplicity'}
+    OPTIONAL_COLUMNS = {'site_types', 'neighboring', 'prox_factor', 'angles', 'graph_multiplicity'}
     LIST_COLUMNS = ['initial', 'final', 'vib_energies_is', 'vib_energies_fs', 'vib_energies_ts']
 
     @enforce_types
@@ -285,10 +284,12 @@ class ReactionModel:
                     invalid_steps = df[~df[col].apply(lambda x: isinstance(x, (int, float)))].index.tolist()
                     raise ReactionModelError(f"Column '{col}' must contain numeric values. Invalid steps: {invalid_steps}")
 
-        # Validate 'site_types' column
-        if not df['site_types'].apply(lambda x: isinstance(x, str)).all():
-            invalid_steps = df[~df['site_types'].apply(lambda x: isinstance(x, str))].index.tolist()
-            raise ReactionModelError(f"Column 'site_types' must contain string values. Invalid steps: {invalid_steps}")
+        # Validate 'site_types' column if present
+        if 'site_types' in df.columns:
+            if not df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
+                invalid_steps = df[~df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
+                raise ReactionModelError(
+                    f"Column 'site_types' must contain string or NaN values. Invalid steps: {invalid_steps}")
 
         # Validate 'neighboring' column if present
         if 'neighboring' in df.columns:

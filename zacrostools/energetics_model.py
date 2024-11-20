@@ -18,11 +18,11 @@ class EnergeticsModel:
         **Required columns**:
 
         - **cluster_eng** (float): Cluster formation energy (in eV).
-        - **site_types** (str): The types of each site in the pattern.
         - **lattice_state** (list): Cluster configuration in Zacros format, e.g., `['1 CO* 1', '2 CO* 1']`.
 
         **Optional columns**:
 
+        - **site_types** (str): The types of each site in the pattern. Required if `lattice_type is 'periodic_cell'`.
         - **neighboring** (str): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
         - **angles** (str): Angle between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
         - **graph_multiplicity** (int): Symmetry number of the cluster, e.g., `2`. Default is `None`.
@@ -42,8 +42,8 @@ class EnergeticsModel:
     | O2_dissociation  | -2.5        | '1 1'      | ['1 O* 1', '2 O* 1']        | '1-2'       | NaN          | 2                  |
     """
 
-    REQUIRED_COLUMNS = {'cluster_eng', 'site_types', 'lattice_state'}
-    OPTIONAL_COLUMNS = {'neighboring', 'angles', 'graph_multiplicity'}
+    REQUIRED_COLUMNS = {'cluster_eng', 'lattice_state'}
+    OPTIONAL_COLUMNS = {'site_types', 'neighboring', 'angles', 'graph_multiplicity'}
     LIST_COLUMNS = ['lattice_state']
 
     @enforce_types
@@ -239,11 +239,13 @@ class EnergeticsModel:
                     raise EnergeticsModelError(
                         f"Column '{col}' must contain numeric values. Invalid clusters: {invalid_clusters}")
 
-        # Validate 'site_types' column
-        if not df['site_types'].apply(lambda x: isinstance(x, str)).all():
-            invalid_clusters = df[~df['site_types'].apply(lambda x: isinstance(x, str))].index.tolist()
-            raise EnergeticsModelError(
-                f"Column 'site_types' must contain string values. Invalid clusters: {invalid_clusters}")
+        # Validate 'site_types' column if present
+        if 'site_types' in df.columns:
+            if not df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
+                invalid_clusters = df[
+                    ~df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
+                raise EnergeticsModelError(
+                    f"Column 'site_types' must contain string or NaN values. Invalid clusters: {invalid_clusters}")
 
         # Validate 'neighboring' column if present
         if 'neighboring' in df.columns:
