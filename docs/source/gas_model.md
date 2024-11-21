@@ -1,12 +1,10 @@
 # Gas Model
 
-The `GasModel` class in ZacrosTools is designed to represent gas-phase molecular data required for Kinetic Monte Carlo (KMC) reaction modeling using Zacros. It encapsulates all necessary properties of gas-phase species, ensuring consistency and facilitating integration with other models like `ReactionModel`.
-
 ## Overview
 
-The `GasModel` requires information about each gas-phase molecule involved in the simulation. This information includes molecular weight, symmetry number, moments of inertia, and formation energy. Optionally, the degeneracy of the ground state can also be specified.
+The `GasModel` contains the information about each gas-phase molecule involved in the simulation.
 
-### Required Columns
+### Required columns
 
 - **`type`** (`str`): Specifies whether the molecule is `'linear'` or `'non_linear'`.
 - **`gas_molec_weight`** (`float`): Molecular weight in atomic mass units (amu).
@@ -16,12 +14,12 @@ The `GasModel` requires information about each gas-phase molecule involved in th
   - Non-linear molecules: Provide 3 moments of inertia.
 - **`gas_energy`** (`float`): Formation energy in electronvolts (eV). Do not include the zero-point energy (ZPE).
 
-### Optional Column
+### Optional column
 
 - **`degeneracy`** (`int`): Degeneracy of the ground state, used in calculating the electronic partition function.
   - Default value: `1`.
 
-### Example Data Table
+### Example data table
 
 | index | type       | gas_molec_weight | sym_number | degeneracy | inertia_moments             | gas_energy |
 |-------|------------|------------------|------------|------------|-----------------------------|------------|
@@ -33,15 +31,15 @@ The `GasModel` requires information about each gas-phase molecule involved in th
 
 ---
 
-## Creating a GasModel
+## Creating a `GasModel`
 
 There are several ways to create a `GasModel` instance:
 
-1. **From a Dictionary**
-2. **From a CSV File**
+1. **From a dictionary**
+2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### 1. From a Dictionary
+### 1. From a dictionary
 
 You can create a `GasModel` by providing a dictionary where each key is a species name and each value is a dictionary of properties.
 
@@ -82,9 +80,9 @@ species_data = {
 gas_model = GasModel.from_dict(species_data)
 ```
 
-### 2. From a CSV File
+### 2. From a CSV file
 
-You can load gas-phase species data from a CSV file. The CSV should have the required columns and use the species names as the index.
+The CSV should have the required columns and use the species names as the index.
 
 #### Example CSV (`gas_data.csv`)
 
@@ -135,11 +133,11 @@ gas_model = GasModel.from_df(df)
 
 ---
 
-## Adding and Removing Species
+## Adding and removing species
 
 You can modify an existing `GasModel` by adding or removing species.
 
-### Adding a Species
+### Adding a species
 
 Use the `add_species` method to add a new species.
 
@@ -161,7 +159,7 @@ new_species = {
 gas_model.add_species(species_info=new_species)
 ```
 
-### Removing Species
+### Removing species
 
 Use the `remove_species` method to remove species by name.
 
@@ -177,7 +175,7 @@ gas_model.remove_species(species_to_remove)
 
 ---
 
-## Accessing Gas-Phase Data
+## Accessing gas-phase data
 
 The gas species data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
@@ -204,7 +202,7 @@ N2                        [10.822]         0.00
 
 ---
 
-## Full Example
+## Full example
 
 Below is a complete example demonstrating the creation and modification of a `GasModel`:
 
@@ -254,17 +252,15 @@ print(gas_model.df)
 
 ---
 
-## Next Steps
+## Next steps
 
 With the `GasModel` defined, you can proceed to:
 
-- **Define the Reaction Model**: Specify reaction mechanisms using the `ReactionModel`.
-- **Set Up the Energetics Model**: Provide cluster energetics with the `EnergeticsModel`.
-- **Configure the Lattice Model**: Define the simulation lattice using the `LatticeModel`.
-- **Assemble the KMC Model**: Integrate all components into a `KMCModel` for simulation.
+- Define the `EnergeticsModel`
+- Define the `ReactionModel`
+- Create a `LatticeModel`
+- Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
 
 ---
-
-**Note:** Ensure that all required data is accurate and consistent when creating the `GasModel`, as this will impact the accuracy of your KMC simulations.

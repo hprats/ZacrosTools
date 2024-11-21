@@ -1,24 +1,22 @@
 # Energetics Model
 
-The `EnergeticsModel` class in ZacrosTools represents the energetics data required for Kinetic Monte Carlo (KMC) simulations using Zacros. It encapsulates the cluster formation energies and configurations, allowing you to define the energetics of surface species and clusters involved in your simulation.
-
 ## Overview
 
-The `EnergeticsModel` requires information about each cluster, including formation energies, lattice states, site types, and optional parameters like neighboring relationships and graph multiplicities.
+The `EnergeticsModel` contains the information about each cluster included in the cluster expansion.
 
-### Required Columns
+### Required columns
 
 - **`cluster_eng`** (`float`): Cluster formation energy in electronvolts (eV).
 - **`lattice_state`** (`list` of `str`): Cluster configuration in Zacros format, e.g., `['1 CO* 1', '2 CO* 1']`.
 
-### Optional Columns
+### Optional columns
 
 - **`site_types`** (`str`): Types of each site in the cluster pattern. Required if `lattice_type is 'periodic_cell'`.
 - **`neighboring`** (`str`): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
 - **`angles`** (`str`): Angle constraints between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
 - **`graph_multiplicity`** (`int`): Symmetry number of the cluster. Default is `None`.
 
-### Example Data Table
+### Example data table
 
 | index            | cluster_eng | site_types | lattice_state                  | neighboring | angles | graph_multiplicity |
 |------------------|-------------|------------|-------------------------------|-------------|--------|--------------------|
@@ -28,15 +26,15 @@ The `EnergeticsModel` requires information about each cluster, including formati
 
 ---
 
-## Creating an EnergeticsModel
+## Creating an `EnergeticsModel`
 
 You can create an `EnergeticsModel` instance in several ways:
 
-1. **From a Dictionary**
-2. **From a CSV File**
+1. **From a dictionary**
+2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### 1. From a Dictionary
+### 1. From a dictionary
 
 You can provide a dictionary where each key is a cluster name and each value is a dictionary of cluster properties.
 
@@ -72,7 +70,7 @@ clusters_data = {
 energetics_model = EnergeticsModel.from_dict(clusters_data)
 ```
 
-### 2. From a CSV File
+### 2. From a CSV file
 
 You can load cluster energetics data from a CSV file. The CSV should have the required columns and use the cluster names as the index.
 
@@ -125,11 +123,11 @@ energetics_model = EnergeticsModel.from_df(df)
 
 ---
 
-## Adding and Removing Clusters
+## Adding and removing clusters
 
 You can modify an existing `EnergeticsModel` by adding or removing clusters.
 
-### Adding a Cluster
+### Adding a cluster
 
 Use the `add_cluster` method to add a new cluster.
 
@@ -151,7 +149,7 @@ new_cluster = {
 energetics_model.add_cluster(cluster_info=new_cluster)
 ```
 
-### Removing Clusters
+### Removing clusters
 
 Use the `remove_clusters` method to remove clusters by name.
 
@@ -167,7 +165,7 @@ energetics_model.remove_clusters(clusters_to_remove)
 
 ---
 
-## Writing the Energetics Input File
+## Writing the `energetics_input.dat` file
 
 The `EnergeticsModel` can generate the `energetics_input.dat` file required by Zacros.
 
@@ -187,11 +185,11 @@ energetics_model.write_energetics_input(output_dir, sig_figs_energies=8)
 energetics_model.write_energetics_input(output_dir='kmc_simulation')
 ```
 
-This will generate a file named `energetics_input.dat` in the `kmc_simulation` directory, containing the cluster definitions.
+This will generate a file named `energetics_input.dat` in the `kmc_simulation` directory.
 
 ---
 
-## Accessing Energetics Data
+## Accessing energetics data
 
 The cluster data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
@@ -218,9 +216,9 @@ CO2_adsorption     1-2 2-3  1-2-3:120                    1
 
 ---
 
-## Full Example
+## Full example
 
-Below is a complete example demonstrating the creation and modification of an `EnergeticsModel`:
+Below is an example demonstrating the creation and modification of an `EnergeticsModel`:
 
 ```python
 from zacrostools.energetics_model import EnergeticsModel
@@ -266,24 +264,20 @@ print(energetics_model.df)
 
 ---
 
-## Next Steps
+## Next steps
 
 With the `EnergeticsModel` defined, you can proceed to:
 
-- **Define the Gas Model**: Specify gas-phase species using the `GasModel`.
-- **Define the Reaction Model**: Outline reaction mechanisms using the `ReactionModel`.
-- **Configure the Lattice Model**: Set up the simulation lattice using the `LatticeModel`.
-- **Assemble the KMC Model**: Integrate all components into a `KMCModel` for simulation.
+- Define the `ReactionModel`
+- Create a `LatticeModel`
+- Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
 
----
-
-**Note:** Ensure that all required data is accurate and consistent when creating the `EnergeticsModel`, as this will impact the accuracy of your KMC simulations.
 
 ---
 
-## Additional Notes
+## Additional notes
 
 - **Cluster Definitions**:
   - The `lattice_state` specifies the configuration of species on lattice sites, following Zacros syntax.
@@ -298,7 +292,3 @@ For detailed guidance on these steps, refer to the respective sections in the do
 
 - **Writing the Input File**:
   - When writing the `energetics_input.dat` file, the clusters are defined in a format that Zacros can interpret directly.
-
----
-
-By defining the energetics model carefully, you ensure that the KMC simulation accurately represents the energetics of the surface reactions and species, leading to more reliable and meaningful simulation results.

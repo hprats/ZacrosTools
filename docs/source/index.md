@@ -12,8 +12,7 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 
 - **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
 - **Output file parsing**: Easily read, analyze, and process data from Zacros output files.
-- **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
-- **Customizable workflows**: Create customized workflows to fit specific simulation needs.
+- **Pressure and temperature scans**: Run scans over different pressures and temperatures and easily create heatmap plots with the results.
 - **Documentation and examples**: Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
 <div style="text-align: center;">
@@ -51,13 +50,11 @@ pip install .
 
 Get started with ZacrosTools by following these steps:
 
-1. **Define the Gas Model**: Specify gas-phase molecular data required for your simulations.
-2. **Set Up the Lattice Model**: Define the lattice structure on which the KMC simulation will run.
-3. **Create the Energetics Model**: Provide cluster formation energies and configurations.
-4. **Define the Reaction Model**: Outline the reaction mechanisms and steps involved in the simulation.
-5. **Assemble the KMC Model**: Combine all models to prepare for running simulations.
-6. **Run Simulations**: Execute KMC simulations using Zacros with the generated input files.
-7. **Analyze Results**: Parse and visualize the output data to gain insights.
+1. **Define the `GasModel`, the `EnergeticsModel` and the `ReactionModel` from a Python dictionary, a Pandas DataFrame, or a `.csv` file**
+2. **Create a default or custom `LatticeModel`**
+3. **Combine all previous models to create a `KMCModel`**
+4. **Write the input files with {py:func}`KMCModel.create_job_dir()` and run Zacros**
+5. **Parse the results with `KMCOutput` and visualize the results with `plot_functions` to gain insights**
 
 Detailed instructions for each step are provided in the documentation sections below.
 
@@ -65,14 +62,14 @@ Detailed instructions for each step are provided in the documentation sections b
 
 The ZacrosTools documentation is organized into the following sections:
 
-- **[Gas Model](gas_model.md)**: Learn how to define gas-phase molecular data for KMC simulations.
-- **[Lattice Model](lattice_model.md)**: Understand how to set up lattice structures for simulations.
-- **[Energetics Model](energetics_model.md)**: Define cluster energetics for your simulations.
-- **[Reaction Model](reaction_model.md)**: Specify reaction mechanisms and steps.
-- **[KMC Model](kmc_model.md)**: Integrate all components to set up and run KMC simulations.
-- **[Reading Output Files](reading_output_files.md)**: Parse and analyze data from Zacros output files.
-- **[Plotting Results](plotting_results.md)**: Visualize simulation results effectively.
-- **[API Reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
+- **[Gas Model](gas_model.md)**: Learn how to define the gas-phase molecular data.
+- **[Energetics Model](energetics_model.md)**: Define all the terms used in the cluster expansion.
+- **[Reaction Model](reaction_model.md)**: Specify the elementary steps included in the reaction mechanism.
+- **[Lattice Model](lattice_model.md)**: Understand how to set up a lattice model.
+- **[Writing_input_files](writing_input_files.md)**: Integrate all components into a KMC model and write the Zacros input files.
+- **[Reading output files](reading_output_files.md)**: Parse and analyze data from Zacros output files.
+- **[Plotting results](plotting_results.md)**: Visualize simulation results using simple plots or heatmaps.
+- **[API reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
 
 ## Recent Changes
 
@@ -80,9 +77,9 @@ The ZacrosTools documentation is organized into the following sections:
 
 #### Added
 
-- **Comprehensive Test Suite with Pytest**: Implemented a suite of tests using Pytest to ensure code reliability and facilitate future development.
-- **Continuous Integration with GitHub Actions**: Set up CI workflows to automatically run tests on every push and pull request, enhancing code quality and preventing regressions.
-- **Enhanced Documentation**:
+- **Test suite with Pytest**: Implemented a suite of tests using Pytest to ensure code reliability and facilitate future development.
+- **Continuous integration with GitHub Actions**: Set up CI workflows to automatically run tests on every push and pull request.
+- **Improved documentation**:
   - Updated `README.md` with detailed installation instructions, usage examples, badges, and contributor guidelines.
 
 Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
@@ -93,9 +90,9 @@ We plan to continue improving ZacrosTools with additional features, optimization
 
 Contributions are welcome!
 
-- **Report Bugs**: Use the [issue tracker](https://github.com/hprats/ZacrosTools/issues) to report bugs.
-- **Request Features**: Suggest new features or improvements.
-- **Submit Pull Requests**: Fork the repository and submit pull requests for your contributions.
+- **Report bugs**: Use the [issue tracker](https://github.com/hprats/ZacrosTools/issues) to report bugs.
+- **Request features**: Suggest new features or improvements.
+- **Submit pull requests**: Fork the repository and submit pull requests for your contributions.
 
 ## License
 
@@ -105,6 +102,10 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 - **Hector Prats** - [hector.pratsgarcia@chem.ox.ac.uk](mailto:hector.pratsgarcia@chem.ox.ac.uk)
 
+## Acknowledgements
+
+- **Zeyu Wu** 
+
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
@@ -112,10 +113,10 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
    installation.md
    gas_model.md
-   lattice_model.md
    energetics_model.md
    reaction_model.md
-   kmc_model.md
+   lattice_model.md
+   writing_input_files.md
    reading_output_files.md
    plotting_results.md
    api_reference.md

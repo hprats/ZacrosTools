@@ -1,16 +1,14 @@
 # Reaction Model
 
-The `ReactionModel` class in ZacrosTools represents the reaction mechanism for Kinetic Monte Carlo (KMC) simulations using Zacros. It allows you to define adsorption, desorption, surface reactions, and diffusion steps, including all necessary parameters such as activation energies and vibrational frequencies. This class integrates with the `GasModel` to ensure consistency between gas-phase species and reactions.
-
 ## Overview
 
-The `ReactionModel` requires detailed information about each reaction step, including the initial and final states, activation energies, and vibrational energies. It supports different types of reaction steps:
+The `ReactionModel` contains the information about each elementary step. It supports different types of steps:
 
 - **Non-activated adsorption**
 - **Activated adsorption**
-- **Surface reactions**
+- **Surface reactions or diffusions**
 
-### Required Columns
+### Required columns
 
 - **`initial`** (`list` of `str`): Initial configuration in Zacros format (e.g., `['1 CO* 1', '2 * 1']`).
 - **`final`** (`list` of `str`): Final configuration in Zacros format (e.g., `['1 C* 1', '2 O* 1']`).
@@ -18,15 +16,15 @@ The `ReactionModel` requires detailed information about each reaction step, incl
 - **`vib_energies_is`** (`list` of `float`): Vibrational energies for the initial state in millielectronvolts (meV), excluding the zero-point energy (ZPE).
 - **`vib_energies_fs`** (`list` of `float`): Vibrational energies for the final state in meV, excluding the ZPE.
 
-### Additional Required Columns for Specific Steps
+### Additional required columns for specific steps
 
-- **Adsorption Steps**:
+- **Adsorption steps**:
   - **`molecule`** (`str`): Gas-phase molecule involved.
   - **`area_site`** (`float`): Area of the adsorption site in square angstroms (Å²).
-- **Activated Steps** (e.g., activated adsorption, surface reactions):
+- **Activated steps** (e.g., activated adsorption, surface reactions):
   - **`vib_energies_ts`** (`list` of `float`): Vibrational energies for the transition state in meV, excluding the ZPE.
 
-### Optional Columns
+### Optional columns
 
 - **`site_types`** (`str`): Types of each site in the reaction pattern. Required if `lattice_type is 'periodic_cell'`.
 - **`neighboring`** (`str`): Connectivity between sites involved (e.g., `'1-2'`).
@@ -34,7 +32,7 @@ The `ReactionModel` requires detailed information about each reaction step, incl
 - **`angles`** (`str`): Angle constraints between sites in Zacros format (e.g., `'1-2-3:180'`).
 - **`graph_multiplicity`** (`int` or `float`): Symmetry factor of the step. The computed pre-exponential factor will be divided by this value. Useful for symmetric steps like diffusion on equivalent sites.
 
-### Example Data Table
+### Example data table
 
 | index              | site_types | initial                       | final                       | activ_eng | vib_energies_is      | vib_energies_fs      | molecule | area_site | vib_energies_ts    | neighboring | prox_factor | angles     | graph_multiplicity |
 |--------------------|------------|-------------------------------|-----------------------------|-----------|----------------------|----------------------|----------|-----------|--------------------|-------------|-------------|------------|--------------------|
@@ -44,15 +42,15 @@ The `ReactionModel` requires detailed information about each reaction step, incl
 
 ---
 
-## Creating a ReactionModel
+## Creating a `ReactionModel`
 
 You can create a `ReactionModel` instance in several ways:
 
-1. **From a Dictionary**
-2. **From a CSV File**
+1. **From a dictionary**
+2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### 1. From a Dictionary
+### 1. From a dictionary
 
 Provide a dictionary where each key is a reaction step name and each value is a dictionary of step properties.
 
@@ -175,11 +173,11 @@ reaction_model = ReactionModel.from_df(df)
 
 ---
 
-## Adding and Removing Steps
+## Adding and removing steps
 
 You can modify an existing `ReactionModel` by adding or removing reaction steps.
 
-### Adding a Step
+### Adding a step
 
 Use the `add_step` method to add a new reaction step.
 
@@ -204,7 +202,7 @@ new_step = {
 reaction_model.add_step(step_info=new_step)
 ```
 
-### Removing Steps
+### Removing steps
 
 Use the `remove_steps` method to remove steps by name.
 
@@ -220,7 +218,7 @@ reaction_model.remove_steps(steps_to_remove)
 
 ---
 
-## Writing the Mechanism Input File
+## Writing the `mechanism_input.dat` file
 
 The `ReactionModel` can generate the `mechanism_input.dat` file required by Zacros.
 
@@ -273,7 +271,7 @@ reaction_model.write_mechanism_input(
 
 ---
 
-## Accessing Reaction Data
+## Accessing reaction data
 
 The reaction steps data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
@@ -306,7 +304,7 @@ CO_diffusion         None   None                  2
 
 ---
 
-## Full Example
+## Full example
 
 Below is a complete example demonstrating the creation and modification of a `ReactionModel`:
 
@@ -380,10 +378,8 @@ print(reaction_model.df)
 
 With the `ReactionModel` defined, you can proceed to:
 
-- **Define the Gas Model**: Specify gas-phase species using the `GasModel`.
-- **Set Up the Energetics Model**: Provide cluster energetics with the `EnergeticsModel`.
-- **Configure the Lattice Model**: Set up the simulation lattice using the `LatticeModel`.
-- **Assemble the KMC Model**: Integrate all components into a `KMCModel` for simulation.
+- Create a `LatticeModel`
+- Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
 
@@ -391,23 +387,19 @@ For detailed guidance on these steps, refer to the respective sections in the do
 
 ## Additional Notes
 
-- **Vibrational Energies**:
+- **Vibrational energies**:
   - Provide vibrational energies in millielectronvolts (meV) without including the zero-point energy (ZPE).
   - Ensure that no vibrational energy is zero, as this can lead to calculation errors.
 
-- **Activation Energies**:
+- **Activation energies**:
   - Activation energies should be provided in electronvolts (eV).
 
-- **Pre-exponential Factors**:
+- **Pre-exponential factors**:
   - The `ReactionModel` calculates pre-exponential factors internally when writing the mechanism input file, based on the provided vibrational energies and temperature.
 
-- **Graph Multiplicity**:
+- **Graph multiplicity**:
   - Used to account for symmetry in reaction steps.
   - The pre-exponential factor is divided by the `graph_multiplicity`.
 
-- **Manual Scaling**:
+- **Manual scaling**:
   - You can manually scale the pre-exponential factors of specific steps using the `manual_scaling` dictionary.
-
----
-
-By carefully defining the reaction model, you ensure that the KMC simulation accurately represents the reaction mechanisms and kinetics of the system, leading to reliable and meaningful simulation results.

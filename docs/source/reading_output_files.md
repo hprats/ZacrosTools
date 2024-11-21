@@ -1,4 +1,4 @@
-# Reading Output Files
+# Reading output files
 
 ## 1. Store Simulation Data in a `KMCOutput` Object
 

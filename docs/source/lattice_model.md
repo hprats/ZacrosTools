@@ -1,16 +1,14 @@
 # Lattice Model
 
-The `LatticeModel` class in ZacrosTools represents the lattice structure on which the Kinetic Monte Carlo (KMC) simulation will run. It allows you to define various types of lattices, specify site types and coordinates, and set up neighboring structures. This flexibility enables modeling of complex surface geometries and interactions in Zacros simulations.
-
 ## Overview
 
-The `LatticeModel` supports different lattice types:
+The `LatticeModel` represents the lattice structure on which adsorbates can bind, and supports different lattice types:
 
-- **`default_choice`**: Predefined lattice structures (e.g., triangular, rectangular).
+- **`default_choice`**: Predefined lattice structures (e.g., triangular, rectangular or hexagonal).
 - **`periodic_cell`**: Custom periodic unit cells with specified cell vectors and sites.
 - **`explicit`**: Explicitly defined lattice structures (not yet implemented).
 
-### Allowed Lattice Types
+### Allowed lattice types
 
 - `'default_choice'`
 - `'periodic_cell'`
@@ -18,15 +16,15 @@ The `LatticeModel` supports different lattice types:
 
 ---
 
-## Creating a LatticeModel
+## Creating a `LatticeModel`
 
 There are three primary ways to create a `LatticeModel`:
 
-1. **Using the Default Lattice Choice**
-2. **Defining a Custom Periodic Cell**
-3. **Loading from an Existing Lattice Input File**
+1. **Using a default lattice**
+2. **Defining a custom periodic cell**
+3. **Loading from an existing lattice input file**
 
-### 1. Using the Default Lattice Choice
+### 1. Using a default lattice 
 
 This method allows you to select from predefined lattice types and specify basic parameters.
 
@@ -51,7 +49,7 @@ lattice_model = LatticeModel(
 )
 ```
 
-### 2. Defining a Custom Periodic Cell
+### 2. Defining a custom periodic cell
 
 This method allows you to define a custom lattice by specifying the unit cell vectors, site types, and neighboring structures.
 
@@ -67,7 +65,7 @@ This method allows you to define a custom lattice by specifying the unit cell ve
   - If providing a dictionary, it maps site pairs to a list of relationship keywords.
 - **`max_distances`** (`Dict[str, float]`, required if `neighboring_structure='from_distances'`): Defines maximum distances for neighbor pairs.
 
-#### Neighboring Structure Format
+#### Neighboring structure format
 
 When specifying the `neighboring_structure` directly as a dictionary:
 
@@ -76,7 +74,7 @@ When specifying the `neighboring_structure` directly as a dictionary:
 
 This allows multiple relationships to be specified for the same site pair.
 
-#### Example with Direct Neighboring Structure
+#### Example with direct neighboring structure
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -109,7 +107,7 @@ lattice_model = LatticeModel(
 )
 ```
 
-#### Example with Automatic Neighboring Structure Generation
+#### Example with automatic neighboring structure generation
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -142,7 +140,7 @@ lattice_model = LatticeModel(
 )
 ```
 
-### 3. Loading from an Existing Lattice Input File
+### 3. Loading from an existing lattice input file
 
 This method allows you to create a `LatticeModel` by reading a previously created `lattice_input.dat` file. This is particularly useful when you want to reuse lattice configurations or when the lattice file was provided by another user.
 
@@ -175,11 +173,11 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 
 ---
 
-## Methods for Modifying the Lattice
+## Methods for modifying the lattice
 
 The `LatticeModel` class provides methods to modify the lattice after creation.
 
-### Repeating the Lattice Model
+### Repeating the `LatticeModel`
 
 You can expand the unit cell by repeating it along the cell vectors.
 
@@ -199,7 +197,7 @@ lattice_model.repeat_lattice_model(a, b)
 lattice_model.repeat_lattice_model(a=2, b=3)
 ```
 
-### Removing a Site
+### Removing a site
 
 You can remove a specific site based on its coordinates.
 
@@ -219,7 +217,7 @@ lattice_model.remove_site(direct_coords, tolerance=1e-8)
 lattice_model.remove_site(direct_coords=(0.5, 0.5))
 ```
 
-### Changing the Site Type
+### Changing the site type
 
 You can change the type of a specific site.
 
@@ -242,7 +240,7 @@ lattice_model.change_site_type(direct_coords=(0.0, 0.0), new_site_type='B')
 
 ---
 
-## Writing the Lattice Input File
+## Writing the `lattice_input.dat` file
 
 The `LatticeModel` can generate the `lattice_input.dat` file required by Zacros.
 
@@ -264,9 +262,9 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 
 ---
 
-## Full Examples
+## Full examples
 
-### Example 1: Creating a Default Triangular Lattice
+### Example 1: Creating a default triangular lattice
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -283,7 +281,7 @@ lattice_model = LatticeModel(
 lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ```
 
-### Example 2: Defining a Custom Periodic Cell with Direct Neighboring Structure
+### Example 2: Defining a custom periodic cell with direct neighboring structure
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -349,7 +347,7 @@ lattice periodic_cell
 end_lattice
 ```
 
-### Example 3: Defining a Custom Periodic Cell with Automatic Neighboring Structure Generation
+### Example 3: Defining a custom periodic cell with automatic neighboring structure generation
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -385,7 +383,7 @@ lattice_model = LatticeModel(
 lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ```
 
-### Example 4: Loading a LatticeModel from an Existing Lattice Input File
+### Example 4: Loading a `LatticeModel` from an existing lattice input file
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -399,69 +397,13 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 
 ---
 
-## Additional Notes
+## Next steps
 
-- **Coordinate Types**:
-  - **`direct`**: Coordinates are given in terms of the unit cell vectors (values between 0 and 1).
-  - **`cartesian`**: Coordinates are given in absolute units (e.g., Ångströms).
-
-- **Neighboring Structure**:
-  - When specifying `neighboring_structure`, you can either provide a dictionary mapping site pairs to a list of relationship keywords or use `'from_distances'` to automatically generate the neighboring structure based on `max_distances`.
-  - **Direct Specification**: Allows precise control over neighboring relationships.
-    - **Format**:
-      - **Keys**: Site pairs in the format `'site_index1-site_index2'` (e.g., `'1-2'`).
-      - **Values**: List of relationship keywords (e.g., `['north', 'east']`).
-  - **Automatic Generation**: Generates neighboring relationships based on distances.
-    - Requires `max_distances` to define interaction cutoffs for site type pairs.
-
-- **Allowed Neighboring Keywords**:
-  - `'self'`, `'north'`, `'northeast'`, `'east'`, `'southeast'`
-
-- **Site Indices**:
-  - Site indices start from `1` and are assigned based on the order of site definitions.
-  - The combination of `site_indices` and `site_coordinates` determines the mapping.
-
-- **Site Types**:
-  - Site types are user-defined labels (e.g., `'A'`, `'B'`) that can be used to differentiate between different kinds of sites on the lattice.
+- Assemble the `KMCModel`
 
 ---
 
-## Next Steps
-
-With the `LatticeModel` defined, you can proceed to:
-
-- **Define the Gas Model**: Specify gas-phase species using the `GasModel`.
-- **Set Up the Energetics Model**: Provide cluster energetics with the `EnergeticsModel`.
-- **Define the Reaction Model**: Outline reaction mechanisms using the `ReactionModel`.
-- **Assemble the KMC Model**: Integrate all components into a `KMCModel` for simulation.
-
-For detailed guidance on these steps, refer to the respective sections in the documentation.
-
----
-
-**Note:** The `LatticeModel` is a critical component of the KMC simulation setup. Ensure that the lattice parameters and neighboring structures accurately represent the physical system you are modeling.
-
----
-
-**Updates Based on Recent Changes:**
-
-- **New `from_file` Class Method**:
-  - You can now create a `LatticeModel` by reading an existing `lattice_input.dat` file.
-  - This feature enhances flexibility, allowing you to reuse lattice configurations or incorporate lattices provided by others.
-  - The method supports both `'default_choice'` and `'periodic_cell'` lattice types.
-
-- **Neighboring Structure Format Change**:
-  - The `neighboring_structure` can now accept multiple relationship keywords for the same site pair.
-  - This is especially useful when the same site pair has multiple interactions (e.g., both `'north'` and `'east'`).
-  - This change allows for more complex and precise definitions of neighboring relationships.
-
-- **Usage Implications**:
-  - When defining the `neighboring_structure` directly, ensure that the values are either a single string or a list of strings representing the relationship keywords.
-  - This format aligns with the requirements of the `lattice_input.dat` file and provides greater flexibility in modeling complex lattices.
-
----
-
-**Example of Defining Multiple Relationships for a Site Pair:**
+**Example of defining multiple relationships for a site pair:**
 
 ```python
 neighboring_structure = {
@@ -471,5 +413,3 @@ neighboring_structure = {
     '2-2': ['north', 'east']           # Site 2 has 'north' and 'east' neighbors of site 2
 }
 ```
-
-**Note:** This format allows for a comprehensive and detailed specification of neighboring interactions, which is essential for accurately modeling physical systems with complex geometries.
