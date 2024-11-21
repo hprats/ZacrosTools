@@ -262,5 +262,3 @@ With the `GasModel` defined, you can proceed to:
 - Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
-
----

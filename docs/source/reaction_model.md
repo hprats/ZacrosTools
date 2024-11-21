@@ -382,24 +382,3 @@ With the `ReactionModel` defined, you can proceed to:
 - Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
-
----
-
-## Additional Notes
-
-- **Vibrational energies**:
-  - Provide vibrational energies in millielectronvolts (meV) without including the zero-point energy (ZPE).
-  - Ensure that no vibrational energy is zero, as this can lead to calculation errors.
-
-- **Activation energies**:
-  - Activation energies should be provided in electronvolts (eV).
-
-- **Pre-exponential factors**:
-  - The `ReactionModel` calculates pre-exponential factors internally when writing the mechanism input file, based on the provided vibrational energies and temperature.
-
-- **Graph multiplicity**:
-  - Used to account for symmetry in reaction steps.
-  - The pre-exponential factor is divided by the `graph_multiplicity`.
-
-- **Manual scaling**:
-  - You can manually scale the pre-exponential factors of specific steps using the `manual_scaling` dictionary.

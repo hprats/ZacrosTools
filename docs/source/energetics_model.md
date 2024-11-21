@@ -273,22 +273,3 @@ With the `EnergeticsModel` defined, you can proceed to:
 - Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
-
-
----
-
-## Additional notes
-
-- **Cluster Definitions**:
-  - The `lattice_state` specifies the configuration of species on lattice sites, following Zacros syntax.
-  - The `site_types` correspond to the types of sites involved in the cluster.
-
-- **Neighboring and Angles**:
-  - The `neighboring` field defines connections between sites using site indices (e.g., `'1-2'`).
-  - The `angles` field can impose angle constraints between sites (e.g., `'1-2-3:180'` for a linear configuration).
-
-- **Graph Multiplicity**:
-  - The `graph_multiplicity` accounts for the symmetry of the cluster, affecting its statistical weight in simulations.
-
-- **Writing the Input File**:
-  - When writing the `energetics_input.dat` file, the clusters are defined in a format that Zacros can interpret directly.
