@@ -11,7 +11,7 @@ The `EnergeticsModel` contains the information about each cluster included in th
 
 ### Optional columns
 
-- **`site_types`** (`str`): Types of each site in the cluster pattern. Required if `lattice_type is 'periodic_cell'`.
+- **`site_types`** (`str`): Types of each site in the cluster pattern. Required if `lattice_type` is `'periodic_cell'`.
 - **`neighboring`** (`str`): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
 - **`angles`** (`str`): Angle constraints between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
 - **`graph_multiplicity`** (`int`): Symmetry number of the cluster. Default is `None`.
