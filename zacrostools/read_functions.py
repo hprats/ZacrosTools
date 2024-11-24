@@ -5,7 +5,16 @@ from zacrostools.custom_exceptions import KMCOutputError
 
 
 def parse_general_output(path):
-    dmatch = {
+    dmatch_v2x = {
+        'n_gas_species': 'Number of gas species:',
+        'gas_species_names': 'Gas species names:',
+        'n_surf_species': 'Number of surface species:',
+        'surf_species_names': 'Surface species names:',
+        'n_sites': 'Number of lattice sites:',   # different name in Zacros 2.x
+        'area': 'Surface area:',   # different name in Zacros 2.x
+        'site_types': 'Site type names and number of sites of that type:'   # different name in Zacros 2.x
+    }
+    dmatch_new = {
         'n_gas_species': 'Number of gas species:',
         'gas_species_names': 'Gas species names:',
         'n_surf_species': 'Number of surface species:',
@@ -18,6 +27,13 @@ def parse_general_output(path):
     num_matches = 0
     with open(f"{path}/general_output.txt", 'r') as file_object:
         line = file_object.readline()
+        while 'ZACROS' not in line:
+            line = file_object.readline()
+        zacros_version = float(line.split(' ')[3])
+        if zacros_version < 3.0:
+            dmatch = dmatch_v2x
+        else:
+            dmatch = dmatch_new
         while num_matches < len(dmatch):
             for key, pattern in dmatch.items():
                 if pattern in line:
