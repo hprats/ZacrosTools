@@ -2,7 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from glob import glob
-from zacrostools.kmc_output import KMCOutput, detect_issues
+from zacrostools.kmc_output import KMCOutput
+from zacrostools.detect_issues import detect_issues
 from zacrostools.read_functions import get_partial_pressures, parse_general_output, parse_simulation_input
 from zacrostools.custom_exceptions import *
 import matplotlib.pyplot as plt
