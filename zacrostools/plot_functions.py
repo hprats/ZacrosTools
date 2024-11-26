@@ -2,12 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 from glob import glob
+from typing import Union
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
 from zacrostools.read_functions import get_partial_pressures
 from zacrostools.parse_input_files import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file
-from zacrostools.custom_exceptions import *
+from zacrostools.custom_exceptions import PlotError, enforce_types
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
@@ -40,20 +41,20 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         Magnitude to plot on the y-axis ('pressure_Y' or 'temperature').
     z : str
         Magnitude to plot on the z-axis ('tof', 'tof_dif', 'selectivity', 'coverage', etc.).
-    levels : list, optional
-        Contour levels.
-    min_molec : int, optional
-        Minimum number of molecules required for TOF/selectivity plots.
-    scan_path_ref : str, optional
-        Path for reference scan jobs, required for 'tof_dif' plots.
     gas_spec : str, optional
         Gas species product for tof plots.
-    surf_spec : str or list
-        Surface species for coverage plots.
+    scan_path_ref : str, optional
+        Path for reference scan jobs, required for 'tof_dif' plots.
     main_product : str, optional
         Main product for selectivity plots.
     side_products : list, optional
         Side products for selectivity plots.
+    surf_spec : str or list
+        Surface species for coverage plots.
+    levels : list, optional
+        Contour levels.
+    min_molec : int, optional
+        Minimum number of molecules required for TOF/selectivity plots.
     site_type : str, optional
         Site type for coverage/phase diagrams. Default is 'default'.
     min_coverage : float, optional
@@ -87,14 +88,17 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
     validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec)
 
+    # Determine if x and y are logarithmic based on their names
+    x_is_log = True if "pressure" in x else False
+    y_is_log = True if "pressure" in y else False
+
     # Initialize lists and DataFrame to store data
-    log_x_list, log_y_list = [], []
+    x_value_list, y_value_list = [], []
     df = pd.DataFrame()
 
     # Parse all directories in scan_path and read x, y, and z values
-
     for simulation_path in glob(f"{scan_path}/*"):
-        folder_name = simulation_path.split('/')[-1]
+        folder_name = os.path.basename(simulation_path)
         if not os.path.isfile(f"{simulation_path}/general_output.txt"):
             print(f"Files not found: {folder_name}/general_output.txt")
             df.loc[folder_name, z] = float('NaN')
@@ -105,39 +109,49 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                                                             window_percent, window_type, weights)
 
         # Read and store x and y values
-        log_x = extract_log_value(x, simulation_path)
-        log_y = extract_log_value(y, simulation_path)
-        df.loc[folder_name, "log_x"] = log_x
-        df.loc[folder_name, "log_y"] = log_y
-        if log_x not in log_x_list:
-            log_x_list.append(log_x)
-        if log_y not in log_y_list:
-            log_y_list.append(log_y)
+        x_value = extract_value(x, simulation_path)
+        y_value = extract_value(y, simulation_path)
+        df.loc[folder_name, "x_value"] = x_value
+        df.loc[folder_name, "y_value"] = y_value
+        if x_value not in x_value_list:
+            x_value_list.append(x_value)
+        if y_value not in y_value_list:
+            y_value_list.append(y_value)
 
         # Read and store z values
         if site_type == 'default':
-            site_type = list(parse_general_output_file(output_file=f"{simulation_path}/general_output.txt")['site_types'].keys())[0]
+            general_output = parse_general_output_file(output_file=f"{simulation_path}/general_output.txt")
+            site_types = list(general_output['site_types'].keys())
+            site_type = site_types[0]
         df = process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product,
                              side_products, site_type, simulation_path, window_percent, verbose)
 
     # Handle plot default values
     if z in ["phase_diagram", "issues"]:
-        surf_spec_values = surf_spec_values or {species: i + 0.5 for i, species in enumerate(
-            sorted(parse_simulation_input_file(input_file=glob(f"{scan_path}/*/simulation_input.dat")[0])['surf_specs_names']))}
-
-        tick_labels = {"phase_diagram": tick_labels or sorted(surf_spec_values.keys()),
-                       "issues": tick_labels or ['Yes', 'No']}.get(z)
-        tick_values = {"phase_diagram": tick_values or [n + 0.5 for n in range(len(surf_spec_values))],
-                       "issues": tick_values or [-0.5, 0.5]}.get(z)
+        if surf_spec_values is None:
+            if z == "phase_diagram":
+                input_file = glob(f"{scan_path}/*/simulation_input.dat")[0]
+                surf_specs_names = parse_simulation_input_file(input_file=input_file)['surf_specs_names']
+                surf_spec_values = {species: i + 0.5 for i, species in enumerate(sorted(surf_specs_names))}
+            else:
+                surf_spec_values = {}
+        if tick_labels is None:
+            tick_labels = sorted(surf_spec_values.keys()) if z == "phase_diagram" else ['Yes', 'No']
+        if tick_values is None:
+            if z == "phase_diagram":
+                tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
+            else:
+                tick_values = [-0.5, 0.5]
 
     if levels is not None:
         levels = list(levels)  # to convert possible numpy arrays into lists
     if z in ['selectivity', 'coverage', 'energy_slope']:
-        levels = {
-            "selectivity": levels or np.linspace(0, 100, 11, dtype=int),
-            "coverage": levels or np.linspace(0, 100, 11, dtype=int),
-            "energy_slope": levels or np.logspace(-11, -8, num=7)
-        }.get(z)
+        if levels is None:
+            levels = {
+                "selectivity": np.linspace(0, 100, 11, dtype=int),
+                "coverage": np.linspace(0, 100, 11, dtype=int),
+                "energy_slope": np.logspace(-11, -8, num=7)
+            }[z]
         levels = list(levels)
 
     if cmap is None:
@@ -146,8 +160,59 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                 "issues": "RdYlGn"}.get(z)
 
     # Prepare plot data (z_axis)
-    x_list, y_list, z_axis, z_axis_pos, z_axis_neg = prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec,
-                                                                       min_coverage, surf_spec_values, levels)
+    x_value_list = np.sort(np.asarray(x_value_list))
+    y_value_list = np.sort(np.asarray(y_value_list))
+
+    # For plotting, convert log values back to actual values if they were logged
+    x_list = np.power(10, x_value_list) if x_is_log else x_value_list
+    y_list = np.power(10, y_value_list) if y_is_log else y_value_list
+
+    z_axis = np.full((len(y_value_list), len(x_value_list)), np.nan)
+    z_axis_pos = np.full((len(y_value_list), len(x_value_list)), np.nan)
+    z_axis_neg = np.full((len(y_value_list), len(x_value_list)), np.nan)
+
+    for i, x_val in enumerate(x_value_list):
+        for j, y_val in enumerate(y_value_list):
+
+            matching_indices = df[(df['x_value'] == x_val) & (df['y_value'] == y_val)].index
+
+            if len(matching_indices) > 1:
+                raise PlotError(
+                    f"Several folders have the same values of {x} ({x_val}) and {y} ({y_val})")
+            elif len(matching_indices) == 0:
+                print(f"Warning: folder for x = {x_val} and y = {y_val} missing, NaN assigned")
+            else:
+                folder_name = matching_indices[0]
+
+                if z == "tof":
+                    if levels:
+                        z_val = max(df.loc[folder_name, "tof"], min(levels))
+                    else:
+                        z_val = max(df.loc[folder_name, "tof"], 1.0e-6)
+                    if df.loc[folder_name, "total_production"] >= min_molec:
+                        z_axis[j, i] = z_val
+
+                elif z == "tof_dif":
+                    tof_dif = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
+                    z_val = max(abs(tof_dif), 1.0e-06) if not levels else abs(tof_dif)
+                    if tof_dif >= 0:
+                        z_axis_pos[j, i] = z_val
+                    else:
+                        z_axis_neg[j, i] = z_val
+
+                elif z == "selectivity":
+                    if df.loc[folder_name, "main_and_side_prod"] >= min_molec:
+                        z_axis[j, i] = df.loc[folder_name, "selectivity"]
+
+                elif z == "phase_diagram" and df.loc[folder_name, "coverage"] > min_coverage:
+                    z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
+
+                elif z == 'issues' and not np.isnan(df.loc[folder_name, "issues"]):
+                    z_axis[j, i] = -0.5 if df.loc[folder_name, "issues"] else 0.5
+
+                elif z in {"coverage", "final_time", "final_energy", "energy_slope"}:
+                    z_axis[j, i] = df.loc[folder_name, z]
+
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     plot_types = {
@@ -200,10 +265,10 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     ax.set_ylim(np.min(y_list), np.max(y_list))
 
     # Set axis scales, labels and facecolor
-    ax.set_xscale('log' if "pressure" in x else 'linear')
-    ax.set_yscale('log' if "pressure" in y else 'linear')
-    ax.set_xlabel(f"$p_{{{x.split('_')[-1]}}}$ (bar)" if "pressure" in x else "$T$ (K)")
-    ax.set_ylabel(f"$p_{{{y.split('_')[-1]}}}$ (bar)" if "pressure" in y else "$T$ (K)")
+    ax.set_xscale('log' if x_is_log else 'linear')
+    ax.set_yscale('log' if y_is_log else 'linear')
+    ax.set_xlabel(get_axis_label(x))
+    ax.set_ylabel(get_axis_label(y))
     ax.set_facecolor("lightgray")
 
     if auto_title:
@@ -211,11 +276,22 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         ax.set_title(title, y=1.0, pad=pad, color="w", path_effects=[pe.withStroke(linewidth=2, foreground="black")])
 
     if show_points:
-        for i in x_list:
-            for j in y_list:
-                ax.plot(i, j, marker='.', color='w', markersize=3)
+        ax.plot(x_axis.flatten(), y_axis.flatten(), 'w.', markersize=3)
 
     return cp
+
+
+def get_axis_label(magnitude):
+    if magnitude == 'temperature':
+        return "$T$ (K)"
+    elif magnitude == 'total_pressure':
+        return "$p_{\\mathrm{total}}$ (bar)"
+    elif "pressure" in magnitude:
+        gas_species = magnitude.split('_')[-1]
+        formatted_gas_species = convert_to_subscript(gas_species)
+        return f"$p_{{{formatted_gas_species}}}$ (bar)"
+    else:
+        return magnitude  # Default case
 
 
 def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec):
@@ -248,7 +324,7 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
         raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
 
     elif z == "coverage" and not surf_spec:
-        raise PlotError("'scan_path_ref' is required for 'tof_dif' plots")
+        raise PlotError("'surf_spec' is required for 'coverage' plots")
 
 
 def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
@@ -262,18 +338,25 @@ def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, 
     return kmc_output, kmc_output_ref
 
 
-def extract_log_value(magnitude, path):
-    """ Extracts the log10 value for a given magnitude from the simulation input. """
+def extract_value(magnitude, path):
+    """ Extracts the value for a given magnitude from the simulation input."""
     if magnitude == 'temperature':
         temperature = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")["temperature"]
-        return round(np.log10(temperature), 8)
+        return temperature
+    elif magnitude == 'total_pressure':
+        total_pressure = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")["pressure"]
+        if total_pressure <= 0:
+            raise PlotError(f"Total pressure is zero or negative in {path}")
+        log_total_pressure = np.log10(total_pressure)
+        return round(log_total_pressure, 8)
     elif "pressure" in magnitude:
         gas_species = magnitude.split('_')[-1]
         partial_pressures = get_partial_pressures(path)
         pressure = partial_pressures[gas_species]
-        if pressure == 0:
-            raise PlotError(f"Partial pressure of {gas_species} is zero in {path}")
-        return round(np.log10(pressure), 8)
+        if pressure <= 0:
+            raise PlotError(f"Partial pressure of {gas_species} is zero or negative in {path}")
+        log_pressure = np.log10(pressure)
+        return round(log_pressure, 8)
     else:
         raise PlotError(f"Incorrect value for {magnitude}")
 
@@ -295,10 +378,15 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
             kmc_output.total_production[prod] for prod in [main_product] + side_products)
 
     elif z == "coverage":
-        df.loc[folder_name, "coverage"] = (kmc_output.av_total_coverage_per_site_type[site_type]
-                                           if surf_spec == 'total' else
-                                           sum(kmc_output.av_coverage_per_site_type[site_type].get(ads, 0.0)
-                                               for ads in surf_spec))
+        if surf_spec == 'total':
+            df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
+        else:
+            coverage = 0.0
+            if isinstance(surf_spec, str):
+                surf_spec = [surf_spec]
+            for ads in surf_spec:
+                coverage += kmc_output.av_coverage_per_site_type[site_type].get(ads, 0.0)
+            df.loc[folder_name, "coverage"] = coverage
 
     elif z == "phase_diagram":
         df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
@@ -319,75 +407,24 @@ def get_plot_title(z, gas_spec, main_product, site_type):
     formated_gas_species = convert_to_subscript(chemical_formula=gas_spec) if z in ["tof", "tof_dif"] else ""
     formated_main_product = convert_to_subscript(chemical_formula=main_product) if z == "selectivity" else ""
 
-    title = {"tof": "TOF " + f"${formated_gas_species}$",
-             "tof_dif": "∆TOF " + f"${formated_gas_species}$",
-             "selectivity": f"${formated_main_product}$ selectivity (%)",
-             "coverage": f"coverage ${site_type}$",
-             "phase_diagram": f"phase diagram ${site_type}$",
-             "final_time": "final time ($s$)",
-             "final_energy": "final energy ($eV·Å^{-2}$)",
-             "energy_slope": "energy slope \n($eV·Å^{-2}·step^{-1}$)",
-             "issues": "issues"}.get(z)
+    # Escape underscores in site_type
+    formated_site_type = site_type.replace('_', r'\_')
+
+    title = {
+        "tof": "TOF " + f"${formated_gas_species}$",
+        "tof_dif": "∆TOF " + f"${formated_gas_species}$",
+        "selectivity": f"${formated_main_product}$ selectivity (%)",
+        "coverage": f"coverage ${formated_site_type}$",
+        "phase_diagram": f"phase diagram ${formated_site_type}$",
+        "final_time": "final time ($s$)",
+        "final_energy": "final energy ($eV·Å^{{-2}}$)",
+        "energy_slope": "energy slope \n($eV·Å^{{-2}}·step^{{-1}}$)",
+        "issues": "issues"
+    }.get(z)
 
     pad = -28 if z == "energy_slope" else -14
 
     return title, pad
-
-
-def prepare_plot_data(log_x_list, log_y_list, df, x, y, z, min_molec, min_coverage, surf_spec_values, levels):
-    # Prepare data for plotting
-    log_x_list = np.sort(np.asarray(log_x_list))
-    log_y_list = np.sort(np.asarray(log_y_list))
-    x_list = 10.0 ** log_x_list
-    y_list = 10.0 ** log_y_list
-
-    z_axis = np.full((len(x_list), len(y_list)), np.nan)
-    z_axis_pos = np.full((len(x_list), len(y_list)), np.nan)
-    z_axis_neg = np.full((len(x_list), len(y_list)), np.nan)
-
-    for i, log_x in enumerate(log_x_list):
-        for j, log_y in enumerate(log_y_list):
-
-            if len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) > 1:
-                raise PlotError(
-                    f"several folders have the same values of log_{x} ({log_x}) and log_{y} ({log_y})")
-
-            elif len(df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index) == 0:
-                print(f"Warning: folder for x = {x_list[i]} and y = {y_list[j]} missing, NaN assigned")
-
-            else:
-                folder_name = df[(df['log_x'] == log_x) & (df['log_y'] == log_y)].index[0]
-
-                if z == "tof":
-                    if levels:
-                        z_val = max(df.loc[folder_name, "tof"], min(levels))
-                    else:
-                        z_val = max(df.loc[folder_name, "tof"], 1.0e-6)
-                    if df.loc[folder_name, "total_production"] >= min_molec:
-                        z_axis[j, i] = z_val
-
-                elif z == "tof_dif":
-                    tof_dif = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
-                    z_val = max(abs(tof_dif), 1.0e-06) if not levels else abs(tof_dif)
-                    if tof_dif >= 0:
-                        z_axis_pos[j, i] = z_val
-                    else:
-                        z_axis_neg[j, i] = z_val
-
-                elif z == "selectivity":
-                    if df.loc[folder_name, "main_and_side_prod"] >= min_molec:
-                        z_axis[j, i] = df.loc[folder_name, "selectivity"]
-
-                elif z == "phase_diagram" and df.loc[folder_name, "coverage"] > min_coverage:
-                    z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
-
-                elif z == 'issues' and not np.isnan(df.loc[folder_name, "issues"]):
-                    z_axis[j, i] = -0.5 if df.loc[folder_name, "issues"] else 0.5
-
-                elif z in {"coverage", "final_time", "final_energy", "energy_slope"}:
-                    z_axis[j, i] = df.loc[folder_name, z]
-
-    return x_list, y_list, z_axis, z_axis_pos, z_axis_neg
 
 
 def convert_to_subscript(chemical_formula):
