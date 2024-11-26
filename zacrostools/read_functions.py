@@ -187,7 +187,6 @@ def parse_simulation_input(path):
     return data
 
 
-
 def get_partial_pressures(path):
     partial_pressures = {}
     simulation_data = parse_simulation_input(path)
