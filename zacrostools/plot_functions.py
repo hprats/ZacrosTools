@@ -4,7 +4,9 @@ import pandas as pd
 from glob import glob
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
-from zacrostools.read_functions import get_partial_pressures, parse_general_output, parse_simulation_input
+from zacrostools.read_functions import get_partial_pressures
+from zacrostools.parse_input_files import parse_simulation_input_file
+from zacrostools.parse_output_files import parse_general_output_file
 from zacrostools.custom_exceptions import *
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
@@ -114,14 +116,14 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
         # Read and store z values
         if site_type == 'default':
-            site_type = list(parse_general_output(simulation_path)['site_types'].keys())[0]
+            site_type = list(parse_general_output_file(output_file=f"{simulation_path}/general_output.txt")['site_types'].keys())[0]
         df = process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product,
                              side_products, site_type, simulation_path, window_percent, verbose)
 
     # Handle plot default values
     if z in ["phase_diagram", "issues"]:
         surf_spec_values = surf_spec_values or {species: i + 0.5 for i, species in enumerate(
-            sorted(parse_general_output(glob(f"{scan_path}/*")[0])['surf_species_names']))}
+            sorted(parse_simulation_input_file(input_file=glob(f"{scan_path}/*/simulation_input.dat")[0])['surf_specs_names']))}
 
         tick_labels = {"phase_diagram": tick_labels or sorted(surf_spec_values.keys()),
                        "issues": tick_labels or ['Yes', 'No']}.get(z)
@@ -263,7 +265,7 @@ def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, 
 def extract_log_value(magnitude, path):
     """ Extracts the log10 value for a given magnitude from the simulation input. """
     if magnitude == 'temperature':
-        temperature = parse_simulation_input(path)["temperature"]
+        temperature = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")["temperature"]
         return round(np.log10(temperature), 8)
     elif "pressure" in magnitude:
         gas_species = magnitude.split('_')[-1]

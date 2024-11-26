@@ -1,88 +1,14 @@
 import os
-import numpy as np
 from zacrostools.parse_input_files import parse_simulation_input_file
-from zacrostools.custom_exceptions import EnergeticsModelError, KMCOutputError
-
-
-def parse_general_output(path):
-    dmatch_v2x = {
-        'n_gas_species': 'Number of gas species:',
-        'gas_species_names': 'Gas species names:',
-        'n_surf_species': 'Number of surface species:',
-        'surf_species_names': 'Surface species names:',
-        'n_sites': 'Number of lattice sites:',   # different name in Zacros 2.x
-        'area': 'Surface area:',   # different name in Zacros 2.x
-        'site_types': 'Site type names and number of sites of that type:'   # different name in Zacros 2.x
-    }
-    dmatch_new = {
-        'n_gas_species': 'Number of gas species:',
-        'gas_species_names': 'Gas species names:',
-        'n_surf_species': 'Number of surface species:',
-        'surf_species_names': 'Surface species names:',
-        'n_sites': 'Total number of lattice sites:',
-        'area': 'Lattice surface area:',
-        'site_types': 'Site type names and total number of sites of that type:'
-    }
-    data = {}
-    num_matches = 0
-    with open(f"{path}/general_output.txt", 'r') as file_object:
-        line = file_object.readline()
-        while 'ZACROS' not in line:
-            line = file_object.readline()
-        zacros_version = float(line.split(' ')[3])
-        if zacros_version < 3.0:
-            dmatch = dmatch_v2x
-        else:
-            dmatch = dmatch_new
-        while num_matches < len(dmatch):
-            for key, pattern in dmatch.items():
-                if pattern in line:
-                    if key in ['n_gas_species', 'n_surf_species', 'n_sites']:
-                        data[key] = int(line.split()[-1])
-                    elif key == 'gas_species_names':
-                        data[key] = line.split(':')[-1].split()
-                    elif key == 'surf_species_names':
-                        data[key] = [ads[0:-1] for ads in line.split(':')[-1].split()]
-                    elif key == 'area':
-                        data[key] = float(line.split()[-1])
-                    elif key == 'site_types':
-                        line = file_object.readline()
-                        site_types = {}
-                        while line.strip():
-                            num_sites_of_given_type = int(line.strip().split(' ')[1].replace('(', '').replace(')', ''))
-                            site_types[line.strip().split(' ')[0]] = num_sites_of_given_type
-                            line = file_object.readline()
-                        data[key] = site_types
-                    num_matches += 1
-            line = file_object.readline()
-        return data
+from zacrostools.custom_exceptions import EnergeticsModelError
 
 
 def get_partial_pressures(path):
     partial_pressures = {}
-    simulation_data = parse_simulation_input_file(path)
+    simulation_data = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")
     for i, molecule in enumerate(simulation_data['gas_specs_names']):
         partial_pressures[molecule] = simulation_data['pressure'] * simulation_data['gas_molar_fracs'][i]
     return partial_pressures
-
-
-def get_data_specnum(path, window_percent, window_type):
-    if window_type == 'time':
-        column_index = 2
-    elif window_type == 'nevents':
-        column_index = 1
-    else:
-        raise KMCOutputError("'window_type' must be either 'time' or 'nevents'")
-
-    with open(f"{path}/specnum_output.txt", "r") as infile:
-        header = infile.readline().split()
-    data = np.loadtxt(f"{path}/specnum_output.txt", skiprows=1)
-    column = data[:, column_index]
-    final_value = column[-1]
-    value_initial_percent = window_percent[0] / 100.0 * final_value
-    value_final_percent = window_percent[1] / 100.0 * final_value
-    data_slice = data[(column >= value_initial_percent) & (column <= value_final_percent)]
-    return data_slice, header
 
 
 def get_step_names(path):
@@ -135,7 +61,7 @@ def get_stiffness_scalable_steps(path):
 def get_surf_specs_data(path):
 
     # Get data from simulation_input.dat
-    parsed_sim_data = parse_simulation_input_file(path)
+    parsed_sim_data = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")
     surf_specs_names = parsed_sim_data.get('surf_specs_names')
     surf_specs_dent = parsed_sim_data.get('surf_specs_dent')
     species_dentates = dict(zip(surf_specs_names, surf_specs_dent))
