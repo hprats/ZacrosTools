@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0] - 27-Nov-2024
+## [2.0] 27-Nov-2024
 
 ### Added
 - **New classes and methods**: create the following new classes from a Python dictionary, a Pandas DataFrame, or a `.csv` file.
@@ -23,7 +23,7 @@ All notable changes to this project will be documented in this file.
 - **Docstrings**: all docstrings have been updated using the Numpy format.
 - **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-## [1.3] - 07-Nov-2024
+## [1.3] 07-Nov-2024
 
 ### Added
 - **Comprehensive test suite with Pytest**: Implemented a suite of tests using Pytest to ensure code reliability and facilitate future development.
@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - **Documentation**:
   - Updated `README.md` with detailed installation instructions, usage examples, badges, and contributor guidelines.
 
-## [1.2] - 06-Nov-2024
+## [1.2] 06-Nov-2024
 
 ### Added
 - **New parameters in `KMCModel.create_job_dir`**: Introduced new parameters in anticipation of a future version of Zacros.
@@ -49,7 +49,7 @@ All notable changes to this project will be documented in this file.
 - **Keyword validation**: Added checks to ensure that the keywords provided in `stiffness_scaling_tags` are allowed.
 - **Documentation enhancements**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-## [1.1] - 13-Oct-2024
+## [1.1] 13-Oct-2024
 
 ### Added
 - **Data validation in `plot_result.py`**: Implemented data validation and error handling to improve robustness.
@@ -67,7 +67,7 @@ All notable changes to this project will be documented in this file.
 ### Improved
 - **Documentation**: Updated and expanded the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-## [1.0] - 06-Sep-2024
+## [1.0] 06-Sep-2024
 
 ### Initial Release
 - Launched ZacrosTools with core functionalities for preparing Zacros input files and parsing output data.
