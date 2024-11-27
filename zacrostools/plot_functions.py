@@ -25,7 +25,8 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                  surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
                  window_percent: list = None, window_type: str = 'time', verbose: bool = False,
                  weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True,
-                 auto_title: bool = False):
+                 auto_title: bool = False, show_max: bool = False):
+
     """
     Creates a contour or pcolormesh plot based on KMC simulation data.
 
@@ -79,6 +80,8 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         If True, show grid points as black dots. Default is False.
     show_colorbar : bool, optional
         If True, show the colorbar. Default is True.
+    show_max : bool, optional
+        If True and z = 'tof', display a green 'x' marker at the point with the highest TOF. Default is False.
     auto_title : bool, optional
         Automatically generates titles for subplots if True. Default is False.
     """
@@ -86,7 +89,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     if window_percent is None:
         window_percent = [30, 100] if z == "issues" else [0, 100]
 
-    validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec)
+    validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec, show_max)
 
     # Determine if x and y are logarithmic based on their names
     x_is_log = True if "pressure" in x else False
@@ -245,6 +248,14 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         elif z == "issues":
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
 
+    # Plot the maximum TOF marker if show_max is True
+    if show_max and z == 'tof':
+        max_index = np.nanargmax(z_axis)
+        max_j, max_i = np.unravel_index(max_index, z_axis.shape)
+        max_x = x_axis[max_j, max_i]
+        max_y = y_axis[max_j, max_i]
+        ax.plot(max_x, max_y, marker='x', color='g', markersize=8)
+
     # Plot colorbar
     if show_colorbar:
         if z == "tof_dif":
@@ -294,7 +305,7 @@ def get_axis_label(magnitude):
         return magnitude  # Default case
 
 
-def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec):
+def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec, show_max):
     """ Validates the input parameters based on the z value. """
 
     if not os.path.isdir(scan_path):
@@ -308,6 +319,9 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
 
     if z not in allowed_z_values:
         raise PlotError(f"Incorrect value for z: '{z}'. \nAllowed values are: {allowed_z_values}")
+
+    if show_max and z != 'tof':
+        raise PlotError("'show_max' parameter is only valid when z = 'tof'")
 
     if z == "tof" and not gas_spec:
         raise PlotError("'gas_spec' is required for 'tof' plots")
