@@ -23,7 +23,6 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 - **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
 - **Output file parsing**: Easily read, analyze and process data from Zacros output files.
 - **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
-- **Customizable workflows**: Create customised workflows to fit specific simulation needs.
 - **Documentation and examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
 <p align="center">
