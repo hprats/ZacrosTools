@@ -328,13 +328,26 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
 
 
 def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
-    """ Initializes the KMCOutput objects for the main and reference paths. """
-    kmc_output = None if z == 'issues' else KMCOutput(path=path, window_percent=window_percent,
-                                                      window_type=window_type, weights=weights)
+    """Initializes the KMCOutput objects for the main and reference paths, handling missing files gracefully."""
+    kmc_output = None
     kmc_output_ref = None
-    if z == "tof_dif":
-        kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
+
+    if z != 'issues':
+        try:
+            kmc_output = KMCOutput(path=path, window_percent=window_percent,
                                    window_type=window_type, weights=weights)
+        except Exception as e:
+            print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
+            kmc_output = None
+
+    if z == "tof_dif":
+        try:
+            kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
+                                       window_type=window_type, weights=weights)
+        except Exception as e:
+            print(f"Warning: Could not initialize reference KMCOutput for {folder_name}: {e}")
+            kmc_output_ref = None
+
     return kmc_output, kmc_output_ref
 
 
@@ -363,6 +376,15 @@ def extract_value(magnitude, path):
 
 def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product, side_products,
                     site_type, simulation_path, window_percent, verbose):
+    """Processes the z value for a given simulation, handling missing KMCOutput data."""
+    if kmc_output is None:
+        df.loc[folder_name, z] = float('NaN')
+        return df
+
+    if z == 'tof_dif' and kmc_output_ref is None:
+        df.loc[folder_name, z] = float('NaN')
+        return df
+
     if z in ['tof', 'tof_dif']:
         df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
         df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
