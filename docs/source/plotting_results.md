@@ -142,6 +142,7 @@ Mandatory:
 Optional:
 
 - **`min_molec`** (`int`): Minimum product molecules for TOF calculation. Default is `0`.
+- **`show_max`** (`bool`): Display a green 'x' marker at the point with the highest TOF. Default is `False`.
 - **`levels`** (`list`): Specifies the contour levels for the plot. If `None`, the levels are automatically determined, with any TOF below `1.0e-06` set to this threshold. If provided, TOF values below the lowest value in levels are set to `min(levels)`. Default is `None`.
 - **`window_percent`** (`list`): Specifies the percentage range of the simulation time or events to consider. Default is `[0, 100]`.
 - **`window_type`** (`str`): The type of window to apply. Default is `'time'`. Possible values:

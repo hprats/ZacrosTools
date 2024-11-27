@@ -12,7 +12,9 @@ All notable changes to this project will be documented in this file.
 - **Automatic neighboring structure generation**: use a distance criteria between site to automatically create the neighboring structure for a custom lattice model. 
 - **Use total pressure in heatmap axis**: now `total_pressure` can be chosen for the `x` or `y` axis in a heatmap plot to create pressure vs temperature heatmaps.
 - **New tests**: added a new test for continuous integration with GitHub Actions that generates all input files and compares them with reference files.
-- **New parameter**: added `sig_figs_lattice` parameter in `KMCModel.create_job_dir` to control the number of significant figures used when writing coordinates in `lattice_input.dat`.
+- **New parameters**: 
+  - added `sig_figs_lattice` parameter in `KMCModel.create_job_dir` to control the number of significant figures used when writing coordinates in `lattice_input.dat`.
+  - added `show_max` parameter in `plot_heatmap` to display a green 'x' marker at the point with the highest TOF. 
 
 ### Changed
 - **Building a `KMCModel`**: the `KMCModel` now is built from a `GasModel`, an `EnergeticsModel`, a `ReactionModel` and a `LatticeModel`.

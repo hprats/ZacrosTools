@@ -1,4 +1,4 @@
-# Welcome to ZacrosTools Documentation
+# Welcome to the ZacrosTools documentation
 
 [![PyPI](https://img.shields.io/pypi/v/zacrostools)](https://pypi.org/project/zacrostools/)
 [![License](https://img.shields.io/github/license/hprats/ZacrosTools)](https://github.com/hprats/ZacrosTools/blob/main/LICENSE)
@@ -8,7 +8,7 @@ Welcome to the ZacrosTools documentation! This guide provides comprehensive info
 
 ZacrosTools is a versatile toolkit designed to simplify the preparation and analysis of Kinetic Monte Carlo (KMC) simulations with **[Zacros](https://zacros.org/)**.
 
-## Key Features 
+## Key features 
 
 - **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
 - **Output file parsing**: Easily read, analyze, and process data from Zacros output files.
@@ -36,7 +36,7 @@ pip install zacrostools
 
 These dependencies will be installed automatically with `pip`.
 
-### Installing from Source
+### Installing from source
 
 To install the latest development version from GitHub:
 
@@ -46,7 +46,7 @@ cd ZacrosTools
 pip install .
 ```
 
-## Quick Start Guide
+## Quick start guide
 
 Get started with ZacrosTools by following these steps:
 
@@ -71,9 +71,9 @@ The ZacrosTools documentation is organized into the following sections:
 - **[Plotting results](plotting_results.md)**: Visualize simulation results using simple plots or heatmaps.
 - **[API reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
 
-## Recent Changes
+## Recent changes
 
-### [2.0] - 27-Nov-2024
+### [2.0] 27-Nov-2024
 
 #### Added
 - **New classes and methods**: create the following new classes from a Python dictionary, a Pandas DataFrame, or a `.csv` file.
@@ -83,7 +83,9 @@ The ZacrosTools documentation is organized into the following sections:
 - **Automatic neighboring structure generation**: use a distance criteria between site to automatically create the neighboring structure for a custom lattice model. 
 - **Use total pressure in heatmap axis**: now `total_pressure` can be chosen for the `x` or `y` axis in a heatmap plot to create pressure vs temperature heatmaps.
 - **New tests**: added a new test for continuous integration with GitHub Actions that generates all input files and compares them with reference files.
-- **New parameter**: added `sig_figs_lattice` parameter in `KMCModel.create_job_dir` to control the number of significant figures used when writing coordinates in `lattice_input.dat`.
+- **New parameters**: 
+  - added `sig_figs_lattice` parameter in `KMCModel.create_job_dir` to control the number of significant figures used when writing coordinates in `lattice_input.dat`.
+  - added `show_max` parameter in `plot_heatmap` to display a green 'x' marker at the point with the highest TOF. 
 
 #### Changed
 - **Building a `KMCModel`**: the `KMCModel` now is built from a `GasModel`, an `EnergeticsModel`, a `ReactionModel` and a `LatticeModel`.
@@ -96,7 +98,7 @@ The ZacrosTools documentation is organized into the following sections:
 
 Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 
-## What's Next
+## What's next
 
 We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities.
 
