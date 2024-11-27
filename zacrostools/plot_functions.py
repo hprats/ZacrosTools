@@ -391,7 +391,7 @@ def extract_value(magnitude, path):
 def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product, side_products,
                     site_type, simulation_path, window_percent, verbose):
     """Processes the z value for a given simulation, handling missing KMCOutput data."""
-    if kmc_output is None:
+    if kmc_output is None and z != 'issues':
         df.loc[folder_name, z] = float('NaN')
         return df
 
