@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0] 27-Nov-2024
+## [2.1] 27-Nov-2024
 
 ### Added
 - **New classes and methods**: create the following new classes from a Python dictionary, a Pandas DataFrame, or a `.csv` file.
