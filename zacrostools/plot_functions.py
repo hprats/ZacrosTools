@@ -81,7 +81,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     show_colorbar : bool, optional
         If True, show the colorbar. Default is True.
     show_max : bool, optional
-        If True and z = 'tof', display a green 'x' marker at the point with the highest TOF. Default is False.
+        If True and z = 'tof', display a golden '*' marker at the point with the highest TOF. Default is False.
     auto_title : bool, optional
         Automatically generates titles for subplots if True. Default is False.
     """
@@ -254,7 +254,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         max_j, max_i = np.unravel_index(max_index, z_axis.shape)
         max_x = x_axis[max_j, max_i]
         max_y = y_axis[max_j, max_i]
-        ax.plot(max_x, max_y, marker='x', color='g', markersize=8)
+        ax.plot(max_x, max_y, marker='*', color='gold', markersize=6)
 
     # Plot colorbar
     if show_colorbar:
