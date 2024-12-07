@@ -12,7 +12,9 @@ from zacrostools.custom_exceptions import PlotError, enforce_types
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, SymLogNorm, TwoSlopeNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 
 @enforce_types
@@ -21,6 +23,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
                  main_product: str = None, side_products: list = None,
                  surf_spec: Union[str, list] = None,
                  levels: Union[list, np.ndarray] = None, min_molec: int = 0,
+                 max_tof_dif: float = None, min_tof_dif: float = None,
                  site_type: str = 'default', min_coverage: Union[float, int] = 20.0,
                  surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
                  window_percent: list = None, window_type: str = 'time', verbose: bool = False,
@@ -60,6 +63,10 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         Site type for coverage/phase diagrams. Default is 'default'.
     min_coverage : float, optional
         Minimum total coverage (%) to plot the dominant surface species on a phase diagram. Default is 20.0.
+    max_tof_dif : float, optional
+        Maximum absolute value for TOF differences. If None, it is automatically determined.
+    min_tof_dif : float, optional
+        Minimum absolute value threshold for TOF differences. If None, it is set to max_tof_dif / 1.0e5.
     surf_spec_values : dict, optional
         Surface species values for phase diagrams.
     tick_values : list, optional
@@ -133,7 +140,10 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     if z in ["phase_diagram", "issues"]:
         if surf_spec_values is None:
             if z == "phase_diagram":
-                input_file = glob(f"{scan_path}/*/simulation_input.dat")[0]
+                input_files = glob(f"{scan_path}/*/simulation_input.dat")
+                if not input_files:
+                    raise PlotError("No 'simulation_input.dat' found in scan_path directories.")
+                input_file = input_files[0]
                 surf_specs_names = parse_simulation_input_file(input_file=input_file)['surf_specs_names']
                 surf_spec_values = {species: i + 0.5 for i, species in enumerate(sorted(surf_specs_names))}
             else:
@@ -158,7 +168,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
         levels = list(levels)
 
     if cmap is None:
-        cmap = {"tof": "inferno", "selectivity": "Greens", "coverage": "Oranges",
+        cmap = {"tof": "inferno", "tof_dif": "RdYlBu", "selectivity": "Greens", "coverage": "Oranges",
                 "phase_diagram": "bwr", "final_time": "inferno", "final_energy": "inferno", "energy_slope": None,
                 "issues": "RdYlGn"}.get(z)
 
@@ -171,8 +181,6 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     y_list = np.power(10, y_value_list) if y_is_log else y_value_list
 
     z_axis = np.full((len(y_value_list), len(x_value_list)), np.nan)
-    z_axis_pos = np.full((len(y_value_list), len(x_value_list)), np.nan)
-    z_axis_neg = np.full((len(y_value_list), len(x_value_list)), np.nan)
 
     for i, x_val in enumerate(x_value_list):
         for j, y_val in enumerate(y_value_list):
@@ -197,11 +205,9 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
                 elif z == "tof_dif":
                     tof_dif = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
-                    z_val = max(abs(tof_dif), 1.0e-06) if not levels else abs(tof_dif)
-                    if tof_dif >= 0:
-                        z_axis_pos[j, i] = z_val
-                    else:
-                        z_axis_neg[j, i] = z_val
+                    z_val = tof_dif
+                    if df.loc[folder_name, "total_production"] >= min_molec:
+                        z_axis[j, i] = z_val
 
                 elif z == "selectivity":
                     if df.loc[folder_name, "main_and_side_prod"] >= min_molec:
@@ -225,7 +231,7 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
     z_data_in_log = ['tof', 'tof_dif', 'final_time', 'energy_slope']
 
     # Plot results
-    cp, cp_neg, cp_pos = None, None, None
+    cp, cbar = None, None
 
     if z in plot_types['contourf']:
         if z in z_data_in_log:
@@ -237,30 +243,58 @@ def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
 
     elif z in plot_types['pcolormesh']:
         if z == "tof_dif":
-            vmin, vmax = (min(levels), max(levels)) if levels else (None, None)
-            cp_neg = ax.pcolormesh(x_axis, y_axis, z_axis_neg, cmap="Reds", norm=LogNorm(vmin=vmin, vmax=vmax))
-            cp_pos = ax.pcolormesh(x_axis, y_axis, z_axis_pos, cmap="Greens", norm=LogNorm(vmin=vmin, vmax=vmax))
+            if max_tof_dif is None:
+                # Compute the maximum absolute value of z_axis
+                max_val = np.nanmax(np.abs(z_axis))
+                exponent = np.ceil(np.log10(max_val))
+                max_tof_dif = 10 ** exponent  # Round up to nearest power of 10
+
+            if min_tof_dif is None:
+                min_tof_dif = max_tof_dif / 1.0e4  # Set min_tof_dif
+
+            # Ensure min_tof_dif is not greater than max_tof_dif
+            min_tof_dif = min(min_tof_dif, max_tof_dif)
+
+            abs_max = max_tof_dif
+
+            # Handle cases where all data might be positive or negative
+            if np.all(z_axis >= 0):
+                # All positive values
+                norm = LogNorm(vmin=max(z_axis[z_axis > 0].min(), min_tof_dif), vmax=abs_max)
+            elif np.all(z_axis <= 0):
+                # All negative values
+                norm = LogNorm(vmin=min(z_axis[z_axis < 0].max(), -abs_max), vmax=-min_tof_dif)
+            else:
+                # Symmetric log normalization
+                norm = SymLogNorm(linthresh=min_tof_dif, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+
+            cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
+
         elif z == "phase_diagram":
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
+
         elif z == "energy_slope":
             vmin, vmax = (min(levels), max(levels)) if levels else (None, None)
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
+
         elif z == "issues":
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=-1, vmax=1)
 
-    # Plot the maximum TOF marker if show_max is True
+    # Plot the maximum TOF marker if show_max is True and z is 'tof'
     if show_max and z == 'tof':
         max_index = np.nanargmax(z_axis)
         max_j, max_i = np.unravel_index(max_index, z_axis.shape)
         max_x = x_axis[max_j, max_i]
         max_y = y_axis[max_j, max_i]
-        ax.plot(max_x, max_y, marker='*', color='gold', markersize=6)
+        ax.plot(max_x, max_y, marker='*', color='gold', markersize=5)
 
     # Plot colorbar
     if show_colorbar:
         if z == "tof_dif":
-            cbar_neg = plt.colorbar(cp_neg, ax=ax)
-            cbar_pos = plt.colorbar(cp_pos, ax=ax)
+            # Create a divider for the axis to position the colorbar
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            cbar = plt.colorbar(cp, cax=cax)
         elif z == "phase_diagram":
             cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
                                 boundaries=[n for n in range(len(tick_labels) + 1)],
