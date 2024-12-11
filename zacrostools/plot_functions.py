@@ -3,18 +3,17 @@ import numpy as np
 import pandas as pd
 from glob import glob
 from typing import Union
+from pathlib import Path
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
-from zacrostools.read_functions import get_partial_pressures
 from zacrostools.parse_input_files import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file
 from zacrostools.custom_exceptions import PlotError, enforce_types
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
-from matplotlib.colors import LogNorm, SymLogNorm, TwoSlopeNorm
+from matplotlib.colors import LogNorm, SymLogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 
 
 @enforce_types
@@ -399,25 +398,54 @@ def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, 
     return kmc_output, kmc_output_ref
 
 
-def extract_value(magnitude, path):
+def extract_value(magnitude: str, path: str) -> float:
     """ Extracts the value for a given magnitude from the simulation input."""
+
+    input_file_path = Path(path) / "simulation_input.dat"
+    data = parse_simulation_input_file(input_file=input_file_path)
+
     if magnitude == 'temperature':
-        temperature = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")["temperature"]
+        temperature = data.get("temperature")
+        if temperature is None:
+            raise PlotError(f"Temperature not found in {input_file_path}")
         return temperature
+
     elif magnitude == 'total_pressure':
-        total_pressure = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")["pressure"]
+        total_pressure = data.get("pressure")
+        if total_pressure is None:
+            raise PlotError(f"Total pressure not found in {input_file_path}")
         if total_pressure <= 0:
             raise PlotError(f"Total pressure is zero or negative in {path}")
         log_total_pressure = np.log10(total_pressure)
         return round(log_total_pressure, 8)
-    elif "pressure" in magnitude:
+
+    elif magnitude.startswith("pressure_"):
         gas_species = magnitude.split('_')[-1]
-        partial_pressures = get_partial_pressures(path)
-        pressure = partial_pressures[gas_species]
-        if pressure <= 0:
-            raise PlotError(f"Partial pressure of {gas_species} is zero or negative in {path}")
-        log_pressure = np.log10(pressure)
-        return round(log_pressure, 8)
+        total_pressure = data.get("pressure")
+        if total_pressure is None:
+            raise PlotError(f"Total pressure not found in {input_file_path}")
+        if total_pressure <= 0:
+            raise PlotError(f"Total pressure is zero or negative in {path}")
+
+        gas_specs_names = data.get("gas_specs_names")
+        gas_molar_fracs = data.get("gas_molar_fracs")
+
+        if gas_specs_names is None or gas_molar_fracs is None:
+            raise PlotError(f"Gas specifications or molar fractions missing in {input_file_path}")
+
+        try:
+            index = gas_specs_names.index(gas_species)
+        except ValueError:
+            raise PlotError(f"Gas species '{gas_species}' not found in {input_file_path}")
+
+        molar_fraction = gas_molar_fracs[index]
+
+        partial_pressure = total_pressure * molar_fraction
+        if partial_pressure <= 0:
+            raise PlotError(f"Partial pressure for {gas_species} is zero or negative in {path}")
+        log_partial_pressure = np.log10(partial_pressure)
+        return round(log_partial_pressure, 8)
+
     else:
         raise PlotError(f"Incorrect value for {magnitude}")
 
