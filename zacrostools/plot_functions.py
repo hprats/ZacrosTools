@@ -2,13 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 from glob import glob
-from typing import Union
+from typing import Union, Optional
 from pathlib import Path
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
 from zacrostools.parse_input_files import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file
-from zacrostools.custom_exceptions import PlotError, enforce_types
+from zacrostools.custom_exceptions import PlotError
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
@@ -16,19 +16,35 @@ from matplotlib.colors import LogNorm, SymLogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-@enforce_types
-def plot_heatmap(ax, scan_path: str, x: str, y: str, z: str,
-                 gas_spec: str = None, scan_path_ref: str = None,
-                 main_product: str = None, side_products: list = None,
-                 surf_spec: Union[str, list] = None,
-                 levels: Union[list, np.ndarray] = None, min_molec: int = 0,
-                 max_tof_dif: float = None, min_tof_dif: float = None,
-                 site_type: str = 'default', min_coverage: Union[float, int] = 50.0,
-                 surf_spec_values: dict = None, tick_values: list = None, tick_labels: list = None,
-                 window_percent: list = None, window_type: str = 'time', verbose: bool = False,
-                 weights: str = None, cmap: str = None, show_points: bool = False, show_colorbar: bool = True,
-                 auto_title: bool = False, show_max: bool = False):
-
+def plot_heatmap(
+        ax,
+        scan_path: str,
+        x: str,
+        y: str,
+        z: str,
+        gas_spec: str = None,
+        scan_path_ref: str = None,
+        main_product: str = None,
+        side_products: list = None,
+        surf_spec: Union[str, list] = None,
+        levels: Optional[Union[list, np.ndarray]] = None,
+        min_molec: int = 0,
+        max_tof_dif: float = None,
+        min_tof_dif: float = None,
+        site_type: str = 'default',
+        min_coverage: Union[float, int] = 50.0,
+        surf_spec_values: dict = None,
+        tick_values: list = None,
+        tick_labels: list = None,
+        window_percent: list = None,
+        window_type: str = 'time',
+        verbose: bool = False,
+        weights: str = None,
+        cmap: str = None,
+        show_points: bool = False,
+        show_colorbar: bool = True,
+        auto_title: bool = False,
+        show_max: bool = False):
     """
     Creates a contour or pcolormesh plot based on KMC simulation data.
 
