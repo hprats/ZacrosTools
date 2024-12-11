@@ -356,8 +356,9 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
     if show_max and z != 'tof':
         raise PlotError("'show_max' parameter is only valid when z = 'tof'")
 
-    if z == "tof" and not gas_spec:
-        raise PlotError("'gas_spec' is required for 'tof' plots")
+    if z == "tof":
+        if not gas_spec:
+            raise PlotError("'gas_spec' is required for 'tof' plots")
 
     elif z == "tof_dif":
         if not gas_spec or not scan_path_ref:
@@ -367,11 +368,14 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
         if min_molec != 0:
             print("Warning: 'min_molec' is ignored if z = 'tof_dif'")
 
-    elif z == "selectivity" and (not main_product or not side_products):
-        raise PlotError("'main_product' and 'side_products' are required for 'selectivity' plots")
+    elif z == "selectivity":
+        if not main_product or side_products is None:
+            raise PlotError("'main_product' is required and 'side_products' must be provided (can be an empty list) "
+                            "for 'selectivity' plots")
 
-    elif z == "coverage" and not surf_spec:
-        raise PlotError("'surf_spec' is required for 'coverage' plots")
+    elif z == "coverage":
+        if not surf_spec:
+            raise PlotError("'surf_spec' is required for 'coverage' plots")
 
 
 def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
