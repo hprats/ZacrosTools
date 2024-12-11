@@ -124,9 +124,9 @@ class KMCOutput:
         self.av_energy = self.get_average(array=self.energy, weights=weights)
 
         # Compute production and TOF
-        self.production = {}        # in molecules
+        self.production = {}  # in molecules
         self.total_production = {}  # useful when calculating selectivity (i.e., set min_total_production)
-        self.tof = {}               # in molecules·s⁻¹·Å⁻²
+        self.tof = {}  # in molecules·s⁻¹·Å⁻²
         for i in range(5 + self.n_surf_species, len(header)):
             gas_spec = header[i]
             self.production[gas_spec] = data_specnum[:, i]
@@ -148,7 +148,7 @@ class KMCOutput:
             self.coverage[surf_spec] = data_specnum[:, i] * num_dentates / self.n_sites * 100
             self.av_coverage[surf_spec] = self.get_average(array=self.coverage[surf_spec], weights=weights)
         self.total_coverage = sum(self.coverage.values())
-        self.av_total_coverage = min(sum(self.av_coverage.values()), 100)   # prevent numerical errors over 100%
+        self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # prevent numerical errors over 100%
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
         # Compute partial coverages (per total number of sites of a given type)
@@ -162,7 +162,7 @@ class KMCOutput:
             site_type = surf_specs_data[surf_spec]['site_type']
             num_dentates = surf_specs_data[surf_spec]['surf_specs_dent']
             self.coverage_per_site_type[site_type][surf_spec] = (
-                data_specnum[:, i] * num_dentates / self.site_types[site_type] * 100
+                    data_specnum[:, i] * num_dentates / self.site_types[site_type] * 100
             )
             self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
                 array=self.coverage_per_site_type[site_type][surf_spec],
@@ -172,11 +172,17 @@ class KMCOutput:
         self.av_total_coverage_per_site_type = {}
         self.dominant_ads_per_site_type = {}
         for site_type in self.site_types:
-            self.total_coverage_per_site_type[site_type] = sum(self.coverage_per_site_type[site_type].values())
-            self.av_total_coverage_per_site_type[site_type] = min(sum(
-                self.av_coverage_per_site_type[site_type].values()), 100)  # prevent numerical errors over 100%
-            self.dominant_ads_per_site_type[site_type] = max(self.av_coverage_per_site_type[site_type],
-                                                             key=self.av_coverage_per_site_type[site_type].get)
+            if len(self.av_coverage_per_site_type[site_type]) > 0:
+                self.total_coverage_per_site_type[site_type] = sum(self.coverage_per_site_type[site_type].values())
+                self.av_total_coverage_per_site_type[site_type] = min(
+                    sum(self.av_coverage_per_site_type[site_type].values()), 100)  # prevent numerical errors over 100%
+                self.dominant_ads_per_site_type[site_type] = max(
+                    self.av_coverage_per_site_type[site_type],
+                    key=self.av_coverage_per_site_type[site_type].get)
+            else:  # No species are adsorbed on this site type
+                self.total_coverage_per_site_type[site_type] = np.zeros_like(self.time)
+                self.av_total_coverage_per_site_type[site_type] = 0.0
+                self.dominant_ads_per_site_type[site_type] = None
 
     def get_average(self, array, weights):
         """
