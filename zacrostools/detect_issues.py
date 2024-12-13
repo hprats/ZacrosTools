@@ -2,7 +2,7 @@ import numpy as np
 from zacrostools.kmc_output import KMCOutput
 
 
-def detect_issues(path, window_percent):
+def detect_issues(path, analysis_range):
 
     energy_slope_threshold = 5.0e-10  # eV/Å²/step
     time_linear_fit_threshold = 0.95
@@ -14,8 +14,8 @@ def detect_issues(path, window_percent):
             indices = np.round(np.linspace(0, len(nevents) - 1, size)).astype(int)
             return time[indices], energy[indices], nevents[indices]
 
-    kmc_output = KMCOutput(path=path, window_percent=window_percent,
-                           window_type='nevents', weights='nevents')
+    kmc_output = KMCOutput(path=path, analysis_range=analysis_range,
+                           range_type='nevents', weights='nevents')
 
     # Reduce arrays to 100 elements if necessary
     time_reduced, energy_reduced, nevents_reduced = reduce_size(time=kmc_output.time,

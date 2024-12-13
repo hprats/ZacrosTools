@@ -7,8 +7,8 @@ from zacrostools.custom_exceptions import KMCOutputError, PlotError
 
 
 def read_scan(scan_path: str,
-              window_percent: Union[list, None] = None,
-              window_type: str = 'time',
+              analysis_range: Union[list, None] = None,
+              range_type: str = 'time',
               weights: Union[str, None] = None) -> pd.DataFrame:
     """
     Reads the results of all KMC simulations in a given scan directory and returns a Pandas DataFrame
@@ -18,11 +18,11 @@ def read_scan(scan_path: str,
     ----------
     scan_path : str
         Path to the directory containing subfolders, each with a KMC simulation.
-    window_percent : list, optional
+    analysis_range : list, optional
         A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation.
         Values should be between 0 and 100 (percentage of total simulated time or events).
         Default is `[0.0, 100.0]`.
-    window_type : str, optional
+    range_type : str, optional
         The type of window to apply when calculating averages or TOF. Can be `'time'` or `'nevents'`.
         Default is `'time'`.
     weights : str, optional
@@ -64,8 +64,8 @@ def read_scan(scan_path: str,
 
         # Try initializing KMCOutput
         try:
-            kmc_output = KMCOutput(path=simulation_path, window_percent=window_percent,
-                                   window_type=window_type, weights=weights)
+            kmc_output = KMCOutput(path=simulation_path, analysis_range=analysis_range,
+                                   range_type=range_type, weights=weights)
         except (KMCOutputError, FileNotFoundError, Exception) as e:
             # If we cannot parse this simulation's output, store NaNs for it
             print(f"Warning: Could not process {folder_name}: {e}")

@@ -14,7 +14,7 @@ fig, axs = plt.subplots(1, 3, figsize=(10, 2.8))
 site_types = ['tC', 'tM', 'Pt']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
-                 z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
+                 z="phase_diagram", site_type=site_type, analysis_range=[50, 100], range_type="time",
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels,
                  auto_title=True)
 

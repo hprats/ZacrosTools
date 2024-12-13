@@ -63,7 +63,7 @@ Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hpr
 ### Changed
 - **`detect_issues` function**:
   - Adjusted the function to consider only the specified window percent.
-  - Changed default `window_percent` from `[50, 100]` to `[30, 100]`.
+  - Changed default `analysis_range` from `[50, 100]` to `[30, 100]`.
 
 ### Fixed
 - **Vibrational energies bug**: Fixed an issue where specifying vibrational energies of 0.0 could cause unexpected behavior.

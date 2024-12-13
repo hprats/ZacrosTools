@@ -9,8 +9,8 @@ import warnings
 
 
 def parse_procstat_output_file(output_file: Union[str, Path],
-                               window_percent: List[float],
-                               window_type: str) -> Tuple[pd.DataFrame, float, float]:
+                               analysis_range: List[float],
+                               range_type: str) -> Tuple[pd.DataFrame, float, float]:
     """
     Parses the procstat_output.txt file and extracts raw occurrence data within a specified window.
 
@@ -18,10 +18,10 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     ----------
     output_file : Union[str, Path]
         Path to the procstat_output.txt file.
-    window_percent : List[float]
+    analysis_range : List[float]
         A list containing the start and end percentages for the selected data slice
         (e.g., [50.0, 100.0]).
-    window_type : str
+    range_type : str
         Type of windowing to apply; must be either 'time' (slice based on simulation time)
         or 'nevents' (slice based on total number of KMC events).
 
@@ -44,7 +44,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     FileNotFoundError
         If the output file does not exist.
     ValueError
-        If the file format is incorrect or window_type is invalid.
+        If the file format is incorrect or range_type is invalid.
     """
 
     output_file = Path(output_file)
@@ -168,7 +168,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     times = np.array(times, dtype=float)
     cumulative_counts = np.array(cumulative_counts, dtype=int)  # shape: (Nblocks, Ncolumns_in_header)
 
-    # Now we must define the window slice based on window_type and window_percent
+    # Now we must define the window slice based on range_type and analysis_range
     # We have final simulation info (final time and final number of events) in the last entry:
     if len(times) == 0:
         raise ValueError("No data found in procstat_output.txt.")
@@ -176,13 +176,13 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     final_time = times[-1]
     final_nevents = total_events[-1]
 
-    start_percent = window_percent[0]
-    end_percent = window_percent[1]
+    start_percent = analysis_range[0]
+    end_percent = analysis_range[1]
 
-    if window_type not in ['time', 'nevents']:
-        raise ValueError("window_type must be either 'time' or 'nevents'.")
+    if range_type not in ['time', 'nevents']:
+        raise ValueError("range_type must be either 'time' or 'nevents'.")
 
-    if window_type == 'time':
+    if range_type == 'time':
         # Convert percent of time to actual time
         start_time = (start_percent / 100.0) * final_time
         end_time = (end_percent / 100.0) * final_time
@@ -197,7 +197,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
             end_idx = 0
         end_idx = min(end_idx, len(times) - 1)
 
-    else:  # window_type == 'nevents'
+    else:  # range_type == 'nevents'
         # Convert percent of events to actual number of events
         start_nevents = (start_percent / 100.0) * final_nevents
         end_nevents = (end_percent / 100.0) * final_nevents
@@ -253,8 +253,8 @@ def parse_procstat_output_file(output_file: Union[str, Path],
 
 def plot_procstat(ax: plt.Axes,
                   simulation_path: Union[str, Path],
-                  window_percent: List[float],
-                  window_type: str,
+                  analysis_range: List[float],
+                  range_type: str,
                   elementary_steps: Optional[List[str]] = None,
                   hide_zero_events: bool = False,
                   grouping: Optional[Dict[str, List[str]]] = None) -> plt.Axes:
@@ -268,9 +268,9 @@ def plot_procstat(ax: plt.Axes,
         The matplotlib axes on which to plot the data.
     simulation_path : Union[str, Path]
         The path to the simulation directory containing procstat_output.txt and general_output.txt.
-    window_percent : List[float]
+    analysis_range : List[float]
         [start_percent, end_percent] defining the slicing window in terms of simulation time or events.
-    window_type : str
+    range_type : str
         'time' or 'nevents', defining whether the slicing window is based on simulation time or number of events.
     elementary_steps : Optional[List[str]], default None
         If provided, only those steps are included in the plot. Otherwise, all steps are included.
@@ -292,8 +292,8 @@ def plot_procstat(ax: plt.Axes,
 
     # Parse data: now returns counts, delta_time, and area
     df_counts, delta_time, area = parse_procstat_output_file(output_file=procstat_file,
-                                                             window_percent=window_percent,
-                                                             window_type=window_type)
+                                                             analysis_range=analysis_range,
+                                                             range_type=range_type)
     if df_counts.empty:
         raise ValueError(f"No steps have occurred.")
 

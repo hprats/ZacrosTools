@@ -9,7 +9,7 @@ All the information about a finished *Zacros* simulation can be extracted by cre
 ```python
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='.', analysis_range=[50, 100], range_type='time', weights='time')
 ```
 
 ### Arguments
@@ -20,10 +20,10 @@ kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', w
 
 **Optional:**
 
-- **`window_percent`** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or the total number of events to be considered.
+- **`analysis_range`** (*list*): A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or the total number of events to be considered.
   - Default: `[0.0, 100.0]`
 
-- **`window_type`** (*str*): The type of window to apply when calculating averages (e.g., `av_coverage`) or TOF. Possible values:
+- **`range_type`** (*str*): The type of window to apply when calculating averages (e.g., `av_coverage`) or TOF. Possible values:
   - `'time'`: Apply a window over the simulated time.
   - `'nevents'`: Apply a window over the number of simulated events.
   - Default: `'time'`

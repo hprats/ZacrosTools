@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
 
-kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='./results_kmc', analysis_range=[0, 100], range_type='time', weights='time')
 
 fig, axs = plt.subplots(1, 2, figsize=(3 * len(kmc_output.site_types), 3), sharey='all')
 

@@ -66,8 +66,7 @@ class KMCOutput:
         Most dominant surface species per site type, used for plotting kinetic phase diagrams.
     """
 
-    @enforce_types
-    def __init__(self, path: str, window_percent: Union[list, None] = None, window_type: str = 'time',
+    def __init__(self, path: str, analysis_range: Union[list, None] = None, range_type: str = 'time',
                  weights: Union[str, None] = None):
         """
         Initialize the KMCOutput object by parsing simulation output files.
@@ -76,22 +75,24 @@ class KMCOutput:
         ----------
         path : str
             The path where the output files are located.
-        window_percent : List[float], optional
-            A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation.
-            The values should be between 0 and 100, representing the percentage of the total simulated time or the total
-            number of events to be considered. Default is `[0.0, 100.0]`.
-        window_type : str, optional
-            The type of window to apply when calculating averages (e.g., `av_coverage`) or TOF. Can be `'time'` or `'nevents'`.
-            - `'time'`: Apply a window over the simulated time.
-            - `'nevents'`: Apply a window over the number of simulated events.
+        analysis_range : List[float], optional
+            A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
+            to consider for analysis. The values should be between 0 and 100, representing percentages of the
+            total simulated time or the total number of events, depending on `range_type`. For example,
+            `[50, 100]` would analyze only the latter half of the simulation. Default is `[0.0, 100.0]`.
+        range_type : str, optional
+            Determines the dimension used when applying `analysis_range`:
+            - `'time'`: The percentages in `analysis_range` refer to segments of the total simulated time.
+            - `'nevents'`: The percentages in `analysis_range` refer to segments of the total number of simulated events.
             Default is `'time'`.
         weights : str, optional
-            Weights for calculating the weighted average. Possible values are `'time'`, `'nevents'`, or `None`.
+            Weights for calculating weighted averages. Possible values are `'time'`, `'nevents'`, or `None`.
             If `None`, all weights are set to 1. Default value is `None`.
         """
+
         self.path = path
-        if window_percent is None:
-            window_percent = [0.0, 100.0]
+        if analysis_range is None:
+            analysis_range = [0.0, 100.0]
 
         # Parse relevant data from the simulation_input.dat file
         data_simulation = parse_simulation_input_file(input_file=f'{path}/simulation_input.dat')
@@ -114,8 +115,8 @@ class KMCOutput:
 
         # Parse relevant data from the specnum_output.txt file
         data_specnum, header = parse_specnum_output_file(output_file=f'{path}/specnum_output.txt',
-                                                         window_percent=window_percent,
-                                                         window_type=window_type)
+                                                         analysis_range=analysis_range,
+                                                         range_type=range_type)
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2

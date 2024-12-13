@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
 
-kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='./results_kmc', analysis_range=[0, 100], range_type='time', weights='time')
 
 plt.figure(figsize=(5, 4))
 for gas_species in kmc_output.gas_species_names:

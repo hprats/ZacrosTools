@@ -12,7 +12,7 @@ In this example, we plot surface coverage as a function of simulation time for d
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='./results_kmc', analysis_range=[0, 100], range_type='time', weights='time')
 
 plt.figure(figsize=(5, 4))
 for surf_species in kmc_output.surf_species_names:
@@ -37,7 +37,7 @@ In the previous example, coverage is calculated by dividing the number of molecu
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='./results_kmc', window_percent=[0, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='./results_kmc', analysis_range=[0, 100], range_type='time', weights='time')
 
 fig, axs = plt.subplots(1, len(kmc_output.site_types), figsize=(3 * len(kmc_output.site_types), 4), sharey='all')
 
@@ -67,7 +67,7 @@ This example demonstrates how to plot the number of molecules produced over time
 import matplotlib.pyplot as plt
 from zacrostools.kmc_output import KMCOutput
 
-kmc_output = KMCOutput(path='.', window_percent=[50, 100], window_type='time', weights='time')
+kmc_output = KMCOutput(path='.', analysis_range=[50, 100], range_type='time', weights='time')
 
 plt.figure(figsize=(8, 6))
 
@@ -144,8 +144,8 @@ Optional:
 - **`min_molec`** (`int`): Minimum product molecules for TOF calculation. Default is `0`.
 - **`show_max`** (`bool`): Display a golden '*' marker at the point with the highest TOF. Default is `False`.
 - **`levels`** (`list`): Specifies the contour levels for the plot. If `None`, the levels are automatically determined, with any TOF below `1.0e-06` set to this threshold. If provided, TOF values below the lowest value in levels are set to `min(levels)`. Default is `None`.
-- **`window_percent`** (`list`): Specifies the percentage range of the simulation time or events to consider. Default is `[0, 100]`.
-- **`window_type`** (`str`): The type of window to apply. Default is `'time'`. Possible values:
+- **`analysis_range`** (`list`): Specifies the percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **`range_type`** (`str`): The type of window to apply. Default is `'time'`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
@@ -160,7 +160,7 @@ fig, ax = plt.subplots(figsize=(4.3, 3.5))
 
 plot_heatmap(ax=ax, scan_path="./scan_results_POM_1000K_PtHfC",
              x="pressure_CH4", y="pressure_O2", z="tof",
-             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True,
+             gas_spec="H2", analysis_range=[50, 100], range_type="time", auto_title=True,
              levels=np.logspace(-3, 4, num=15), min_molec=0)
 
 plt.tight_layout()
@@ -184,8 +184,8 @@ Mandatory:
 Optional:
 
 - **`levels`** (`list`): Defines the levels used in the colorbar. If `None`, the levels are automatically determined based on the data, with TOF differences below `1.0e-06` set to this value. If `levels` is provided, any TOF difference below the smallest value in levels is set to `min(levels)`. Default is `None`.
-- **`window_percent`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
-- **`window_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
+- **`analysis_range`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **`range_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
@@ -203,7 +203,7 @@ fig, ax = plt.subplots(figsize=(5, 3.5))
 plot_heatmap(ax=ax, scan_path="./scan_results_POM_1000K_PtHfC",
              scan_path_ref="./scan_results_POM_1000K_HfC",
              x="pressure_CH4", y="pressure_O2", z="tof_dif",
-             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True,
+             gas_spec="H2", analysis_range=[50, 100], range_type="time", auto_title=True,
              levels=np.logspace(-3, 4, num=15))
 
 plt.tight_layout()
@@ -228,8 +228,8 @@ Optional:
 
 - **`min_molec`** (`int`): Minimum value of main + side product molecules for selectivity calculation. Default is `None`.
 - **`levels`** (`list`): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`.
-- **`window_percent`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
-- **`window_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
+- **`analysis_range`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **`range_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
@@ -243,8 +243,8 @@ fig, ax = plt.subplots(figsize=(5.5, 4.5))
 
 plot_heatmap(ax=ax, scan_path="./scan_results_POM_1000K_PtHfC",
              x="pressure_CH4", y="pressure_O2", z="selectivity",
-             main_product="H2", side_products=["H2O"], window_percent=[50, 100],
-             window_type="time", min_molec=10, auto_title=True)
+             main_product="H2", side_products=["H2O"], analysis_range=[50, 100],
+             range_type="time", min_molec=10, auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanSelectivity.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -267,8 +267,8 @@ Optional:
 
 - **`site_type`** (`str`): Name of site type. Default is `'default'`.
 - **`levels`** (`list`): Defines the levels used in the colorbar. Default is `np.linspace(0, 100, 11, dtype=int)`.
-- **`window_percent`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
-- **`window_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
+- **`analysis_range`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **`range_type`** (`str`): Type of window to apply. Default is `'time'`. Possible values:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 - **`weights`** (`str`): Weights for the averages. Default is `None`. Possible values:
@@ -288,8 +288,8 @@ site_types = ['tC', 'tM']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC",
                  x="pressure_CH4", y="pressure_O2", z="coverage",
-                 surf_spec="total", site_type=site_type, window_percent=[50, 100],
-                 window_type="time", auto_title=True)
+                 surf_spec="total", site_type=site_type, analysis_range=[50, 100],
+                 range_type="time", auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanCoverageTotal.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -311,8 +311,8 @@ Optional:
 - **`surf_spec_values`** (`dict`): Dictionary mapping surface species to numerical values. If `None`, all species are included. Default is `None`.
 - **`tick_values`** (`list`): Tick marks for the colorbar. If `None`, they are determined automatically. Default is `None`.
 - **`tick_labels`** (`list`): Labels for the colorbar ticks. If `None`, they are determined automatically. Default is `None`.
-- **`window_percent`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
-- **`window_type`** (`str`): Type of window to apply. Default is `'time'`.
+- **`analysis_range`** (`list`): Percentage range of the simulation time or events to consider. Default is `[0, 100]`.
+- **`range_type`** (`str`): Type of window to apply. Default is `'time'`.
 - **`weights`** (`str`): Weights for averaging. Default is `None`.
 
 **Example:**
@@ -334,7 +334,7 @@ fig, axs = plt.subplots(1, 3, figsize=(10, 2.8))
 site_types = ['tC', 'tM', 'Pt']
 for n, site_type in enumerate(site_types):
     plot_heatmap(ax=axs[n], scan_path="./scan_results_POM_1000K_PtHfC", x="pressure_CH4", y="pressure_O2",
-                 z="phase_diagram", site_type=site_type, window_percent=[50, 100], window_type="time",
+                 z="phase_diagram", site_type=site_type, analysis_range=[50, 100], range_type="time",
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels, 
                  auto_title=True)
 
@@ -384,8 +384,8 @@ A high slope of the lattice energy indicates that the simulation might have not 
 Optional:
 
 - **`levels`** (`list`): Defines the levels used in the colorbar. Default is `np.logspace(-11, -8, num=7)`.
-- **`window_percent`** (`list`): Percentage range of the simulation time or events to consider. Default is `[50, 100]`.
-- **`window_type`** (`str`): Type of window to apply. Default is `'nevents'`.
+- **`analysis_range`** (`list`): Percentage range of the simulation time or events to consider. Default is `[50, 100]`.
+- **`range_type`** (`str`): Type of window to apply. Default is `'nevents'`.
 
 **Example:**
 
@@ -397,7 +397,7 @@ fig, ax = plt.subplots(figsize=(4.3, 3.5))
 
 plot_heatmap(ax=ax, scan_path="./scan_results_POM_1000K_PtHfC",
              x="pressure_CH4", y="pressure_O2", z="energy_slope",
-             window_percent=[50, 100], window_type='nevents', auto_title=True)
+             analysis_range=[50, 100], range_type='nevents', auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanEnergySlope.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -419,7 +419,7 @@ These issues often arise from simulations that are too short (i.e., the system h
 
 **Additional required parameters:**
 
-- **`window_percent`** (`list`): A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or the total number of events to be considered. Default is `[30, 100]`.
+- **`analysis_range`** (`list`): A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation. The values should be between 0 and 100, representing the percentage of the total simulated time or the total number of events to be considered. Default is `[30, 100]`.
 
 **Example:**
 
@@ -431,7 +431,7 @@ fig, ax = plt.subplots(figsize=(4.3, 3.5))
 
 plot_heatmap(ax=ax, scan_path="./scan_results_POM_1000K_PtHfC",
              x="pressure_CH4", y="pressure_O2", z="issues",
-             window_percent=[50, 100], auto_title=True)
+             analysis_range=[50, 100], auto_title=True)
 
 plt.tight_layout()
 plt.savefig('ScanIssues.png', dpi=200, bbox_inches='tight', transparent=False)
@@ -451,8 +451,8 @@ from zacrostools.plot_functions import plot_heatmap
 scan_path = "./scan_results_POM_1000K_PtHfC"
 x = "pressure_CH4"
 y = "pressure_O2"
-window_percent = [50, 100]
-window_type = "time"
+analysis_range = [50, 100]
+range_type = "time"
 min_molec = 10
 
 surf_spec_values = {
@@ -467,29 +467,29 @@ fig, axs = plt.subplots(4, 4, figsize=(11, 9), sharey='row', sharex='col')
 
 for n, product in enumerate(['CO', 'H2', 'H2O', 'CO2']):
     plot_heatmap(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z="tof", gas_spec=product,
-                 window_percent=window_percent, window_type=window_type, auto_title=True)
+                 analysis_range=analysis_range, range_type=range_type, auto_title=True)
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage", surf_spec="total",
-                 window_percent=window_percent, window_type=window_type,
+                 analysis_range=analysis_range, range_type=range_type,
                  site_type=site_type, weights="time", auto_title=True)
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(ax=axs[2, n], scan_path=scan_path, x=x, y=y, z="phase_diagram",
-                 window_percent=window_percent, window_type=window_type, site_type=site_type,
+                 analysis_range=analysis_range, range_type=range_type, site_type=site_type,
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels,
                  min_coverage=20, weights="time", auto_title=True)
 
 plot_heatmap(ax=axs[3, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product="H2",
-             side_products=["H2O"], window_percent=window_percent, window_type=window_type, min_molec=min_molec,
+             side_products=["H2O"], analysis_range=analysis_range, range_type=range_type, min_molec=min_molec,
              auto_title=True)
 
 plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_title=True)
 
-plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', window_percent=window_percent,
-             window_type='nevents', auto_title=True)
+plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', analysis_range=analysis_range,
+             range_type='nevents', auto_title=True)
 
-plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', window_percent=window_percent,
+plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', analysis_range=analysis_range,
              auto_title=True)
 
 # Hide empty axes:
@@ -517,7 +517,7 @@ fig, axs = plt.subplots(figsize=(4.3, 3.5))
 
 plot_heatmap(ax=axs, scan_path="./scan_results_POM_1000K_PtHfC",
              x="pressure_CH4", y="pressure_O2", z="tof",
-             gas_spec="H2", window_percent=[50, 100], window_type="time", auto_title=True)
+             gas_spec="H2", analysis_range=[50, 100], range_type="time", auto_title=True)
 
 # Adjust size of axis ticks
 axs.tick_params(axis='both', which='major', labelsize=14)

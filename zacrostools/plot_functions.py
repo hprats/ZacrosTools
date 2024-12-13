@@ -36,8 +36,8 @@ def plot_heatmap(
         surf_spec_values: dict = None,
         tick_values: list = None,
         tick_labels: list = None,
-        window_percent: list = None,
-        window_type: str = 'time',
+        analysis_range: list = None,
+        range_type: str = 'time',
         verbose: bool = False,
         weights: str = None,
         cmap: str = None,
@@ -88,9 +88,9 @@ def plot_heatmap(
         Tick values for phase diagram colorbar.
     tick_labels : list, optional
         Tick labels for phase diagram colorbar.
-    window_percent : list, optional
+    analysis_range : list, optional
         Window of the simulation to consider (percent). Default is [0, 100].
-    window_type : str, optional
+    range_type : str, optional
         Type of window to apply ('time' or 'nevents'). Default is 'time'.
     verbose : bool, optional
         If True, print paths of simulations with issues. Default is False.
@@ -108,8 +108,8 @@ def plot_heatmap(
         Automatically generates titles for subplots if True. Default is False.
     """
 
-    if window_percent is None:
-        window_percent = [30, 100] if z == "issues" else [0, 100]
+    if analysis_range is None:
+        analysis_range = [30, 100] if z == "issues" else [0, 100]
 
     validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_product, side_products, surf_spec, show_max)
 
@@ -131,7 +131,7 @@ def plot_heatmap(
 
         # Read simulation output
         kmc_output, kmc_output_ref = initialize_kmc_outputs(simulation_path, z, scan_path_ref, folder_name,
-                                                            window_percent, window_type, weights)
+                                                            analysis_range, range_type, weights)
 
         # Read and store x and y values
         x_value = extract_value(x, simulation_path)
@@ -149,7 +149,7 @@ def plot_heatmap(
             site_types = list(general_output['site_types'].keys())
             site_type = site_types[0]
         df = process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product,
-                             side_products, site_type, simulation_path, window_percent, verbose)
+                             side_products, site_type, simulation_path, analysis_range, verbose)
 
     # Handle plot default values
     if z in ["phase_diagram", "issues"]:
@@ -394,23 +394,23 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
             raise PlotError("'surf_spec' is required for 'coverage' plots")
 
 
-def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, window_percent, window_type, weights):
+def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, analysis_range, range_type, weights):
     """Initializes the KMCOutput objects for the main and reference paths, handling missing files gracefully."""
     kmc_output = None
     kmc_output_ref = None
 
     if z != 'issues':
         try:
-            kmc_output = KMCOutput(path=path, window_percent=window_percent,
-                                   window_type=window_type, weights=weights)
+            kmc_output = KMCOutput(path=path, analysis_range=analysis_range,
+                                   range_type=range_type, weights=weights)
         except Exception as e:
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
             kmc_output = None
 
     if z == "tof_dif":
         try:
-            kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", window_percent=window_percent,
-                                       window_type=window_type, weights=weights)
+            kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", analysis_range=analysis_range,
+                                       range_type=range_type, weights=weights)
         except Exception as e:
             print(f"Warning: Could not initialize reference KMCOutput for {folder_name}: {e}")
             kmc_output_ref = None
@@ -471,7 +471,7 @@ def extract_value(magnitude: str, path: str) -> float:
 
 
 def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, surf_spec, main_product, side_products,
-                    site_type, simulation_path, window_percent, verbose):
+                    site_type, simulation_path, analysis_range, verbose):
     """Processes the z value for a given simulation, handling missing KMCOutput data."""
     if kmc_output is None and z != 'issues':
         df.loc[folder_name, z] = float('NaN')
@@ -514,7 +514,7 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
         df.loc[folder_name, z] = getattr(kmc_output, z)
 
     elif z == 'issues':
-        df.loc[folder_name, "issues"] = detect_issues(path=simulation_path, window_percent=window_percent)
+        df.loc[folder_name, "issues"] = detect_issues(path=simulation_path, analysis_range=analysis_range)
         if df.loc[folder_name, "issues"] and verbose:
             print(f"Issue detected: {simulation_path}")
 

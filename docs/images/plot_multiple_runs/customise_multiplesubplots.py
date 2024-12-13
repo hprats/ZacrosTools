@@ -4,8 +4,8 @@ from zacrostools.plot_functions import plot_heatmap
 scan_path = "./scan_results_POM_1000K_PtHfC"
 x = "pressure_CH4"
 y = "pressure_O2"
-window_percent = [50, 100]
-window_type = "time"
+analysis_range = [50, 100]
+range_type = "time"
 min_molec = 10
 
 surf_spec_values = {
@@ -20,29 +20,29 @@ fig, axs = plt.subplots(4, 4, figsize=(11, 9), sharey='row', sharex='col')
 
 for n, product in enumerate(['CO', 'H2', 'H2O', 'CO2']):
     plot_heatmap(ax=axs[0, n], scan_path=scan_path, x=x, y=y, z="tof", gas_spec=product,
-                 window_percent=window_percent, window_type=window_type, auto_title=True)
+                 analysis_range=analysis_range, range_type=range_type, auto_title=True)
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(ax=axs[1, n], scan_path=scan_path, x=x, y=y, z="coverage", surf_spec="total",
-                 window_percent=window_percent, window_type=window_type,
+                 analysis_range=analysis_range, range_type=range_type,
                  site_type=site_type, weights="time", auto_title=True)
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(ax=axs[2, n], scan_path=scan_path, x=x, y=y, z="phase_diagram",
-                 window_percent=window_percent, window_type=window_type, site_type=site_type,
+                 analysis_range=analysis_range, range_type=range_type, site_type=site_type,
                  surf_spec_values=surf_spec_values, tick_values=tick_values, tick_labels=tick_labels,
                  min_coverage=20, weights="time", auto_title=True)
 
 plot_heatmap(ax=axs[3, 0], scan_path=scan_path, x=x, y=y, z='selectivity', main_product="H2",
-             side_products=["H2O"], window_percent=window_percent, window_type=window_type, min_molec=min_molec,
+             side_products=["H2O"], analysis_range=analysis_range, range_type=range_type, min_molec=min_molec,
              auto_title=True)
 
 plot_heatmap(ax=axs[3, 1], scan_path=scan_path, x=x, y=y, z='final_time', auto_title=True)
 
-plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', window_percent=window_percent,
-             window_type='nevents', auto_title=True)
+plot_heatmap(ax=axs[3, 2], scan_path=scan_path, x=x, y=y, z='energy_slope', analysis_range=analysis_range,
+             range_type='nevents', auto_title=True)
 
-plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', window_percent=window_percent,
+plot_heatmap(ax=axs[3, 3], scan_path=scan_path, x=x, y=y, z='issues', analysis_range=analysis_range,
              auto_title=True)
 
 # Hide empty axes:

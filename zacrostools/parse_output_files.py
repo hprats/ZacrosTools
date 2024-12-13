@@ -238,55 +238,50 @@ def parse_general_output_file(output_file: Union[str, Path]) -> Dict[str, Any]:
     return data
 
 
-def parse_specnum_output_file(output_file: Union[str, Path], window_percent: List[float], window_type: str):
+def parse_specnum_output_file(output_file: Union[str, Path], analysis_range: List[float], range_type: str):
     """
-    Parses the specnum_output.txt file and extracts data within a specified window.
+    Parses the specnum_output.txt file.
 
     Parameters
     ----------
     output_file : Union[str, Path]
         Path to the specnum_output.txt file.
-    window_percent : List[float]
-        A list containing the start and end percentages (e.g., [10.0, 90.0]).
-    window_type : str
-        Type of windowing to apply; must be either 'time' or 'nevents'.
-
+    analysis_range : List[float], optional
+        A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
+        to consider for analysis. The values should be between 0 and 100, representing percentages of the
+        total simulated time or the total number of events, depending on `range_type`. For example,
+        `[50, 100]` would analyze only the latter half of the simulation. Default is `[0.0, 100.0]`.
+    range_type : str, optional
+        Determines the dimension used when applying `analysis_range`:
+        - `'time'`: The percentages in `analysis_range` refer to segments of the total simulated time.
+        - `'nevents'`: The percentages in `analysis_range` refer to segments of the total number of simulated events.
+        Default is `'time'`.
     Returns
     -------
     Tuple[np.ndarray, List[str]]
         A tuple containing:
         - data_slice: The sliced data as a NumPy array.
         - header: List of header column names.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the output file does not exist.
-    ValueError
-        If 'window_type' is not 'time' or 'nevents'.
-    ValueError
-        If the data cannot be read or is empty.
     """
     output_file = Path(output_file)
     if not output_file.is_file():
         raise FileNotFoundError(f"Output file '{output_file}' does not exist.")
 
-    if window_type == 'time':
+    if range_type == 'time':
         column_index = 2
-    elif window_type == 'nevents':
+    elif range_type == 'nevents':
         column_index = 1
     else:
-        raise ValueError("'window_type' must be either 'time' or 'nevents'")
+        raise ValueError("'range_type' must be either 'time' or 'nevents'")
 
-    # Validate window_percent
-    if not (isinstance(window_percent, list) and len(window_percent) == 2):
-        raise ValueError("'window_percent' must be a list with two elements.")
-    if not all(isinstance(x, (int, float)) for x in window_percent):
-        raise ValueError("Both elements in 'window_percent' must be numbers (int or float).")
-    if not (0 <= window_percent[0] <= 100 and 0 <= window_percent[1] <= 100):
-        raise ValueError("Values in 'window_percent' must be between 0 and 100.")
-    if window_percent[0] > window_percent[1]:
-        raise ValueError("The first value in 'window_percent' must be less than or equal to the second value.")
+    if not (isinstance(analysis_range, list) and len(analysis_range) == 2):
+        raise ValueError("'analysis_range' must be a list with two elements.")
+    if not all(isinstance(x, (int, float)) for x in analysis_range):
+        raise ValueError("Both elements in 'analysis_range' must be numbers (int or float).")
+    if not (0 <= analysis_range[0] <= 100 and 0 <= analysis_range[1] <= 100):
+        raise ValueError("Values in 'analysis_range' must be between 0 and 100.")
+    if analysis_range[0] > analysis_range[1]:
+        raise ValueError("The first value in 'analysis_range' must be less than or equal to the second value.")
 
     # Read the header
     with output_file.open('r') as infile:
@@ -309,8 +304,8 @@ def parse_specnum_output_file(output_file: Union[str, Path], window_percent: Lis
     column = data[:, column_index]
     final_value = column[-1]
 
-    value_initial_percent = window_percent[0] / 100.0 * final_value
-    value_final_percent = window_percent[1] / 100.0 * final_value
+    value_initial_percent = analysis_range[0] / 100.0 * final_value
+    value_final_percent = analysis_range[1] / 100.0 * final_value
 
     data_slice = data[(column >= value_initial_percent) & (column <= value_final_percent)]
 
