@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union
-from zacrostools.parse_input_files import parse_simulation_input_file
+from zacrostools.simulation_input import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file, parse_specnum_output_file
 from zacrostools.read_functions import get_surf_specs_data
 from zacrostools.custom_exceptions import enforce_types, KMCOutputError

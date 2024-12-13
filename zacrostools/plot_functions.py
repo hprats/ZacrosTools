@@ -6,7 +6,7 @@ from typing import Union, Optional
 from pathlib import Path
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
-from zacrostools.parse_input_files import parse_simulation_input_file
+from zacrostools.simulation_input import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file
 from zacrostools.custom_exceptions import PlotError
 import matplotlib.pyplot as plt

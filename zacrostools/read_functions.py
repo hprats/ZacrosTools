@@ -1,5 +1,5 @@
 import os
-from zacrostools.parse_input_files import parse_simulation_input_file
+from zacrostools.simulation_input import parse_simulation_input_file
 from zacrostools.custom_exceptions import EnergeticsModelError
 
 
