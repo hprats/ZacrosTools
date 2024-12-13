@@ -62,16 +62,12 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     if not lines:
         raise ValueError("The output file is empty.")
 
-    # The first line is the header:
-    # Format: Overall elemstep1_fwd elemstep1_rev elemstep2_fwd elemstep2_rev ...
     header_line = lines[0]
     headers = header_line.split()
 
-    # The first header is 'Overall', followed by pairs of event_fwd, event_rev
     if headers[0].lower() != 'overall':
         raise ValueError("The first header in procstat_output.txt must be 'Overall'.")
 
-    # Identify the event names
     # headers looks like: ['Overall', 'elemstep1_fwd', 'elemstep1_rev', 'elemstep2_fwd', 'elemstep2_rev', ...]
     # Group them into events
     event_names = []
@@ -397,7 +393,6 @@ def plot_procstat(ax: plt.Axes,
         'Net (+)': bar_height * 1.1,
         'Net (-)': bar_height * 1.1
     }
-
 
     y_tick_positions = []
     y_tick_labels = []
