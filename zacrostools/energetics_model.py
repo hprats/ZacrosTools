@@ -2,7 +2,7 @@ import ast
 from typing import Union
 from pathlib import Path
 import pandas as pd
-from zacrostools.write_functions import write_header
+from zacrostools.header import write_header
 from zacrostools.custom_exceptions import EnergeticsModelError, enforce_types
 
 

@@ -2,7 +2,7 @@ import ast
 from pathlib import Path
 from typing import Union, Optional
 import pandas as pd
-from zacrostools.write_functions import write_header
+from zacrostools.header import write_header
 from zacrostools.calc_functions import calc_ads, calc_surf_proc
 from zacrostools.custom_exceptions import ReactionModelError, enforce_types
 from zacrostools.gas_model import GasModel

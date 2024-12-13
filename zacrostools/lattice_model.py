@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Union, Optional, List, Tuple, Dict, Any
 import numpy as np
-from zacrostools.write_functions import write_header
+from zacrostools.header import write_header
 from zacrostools.custom_exceptions import LatticeModelError
 
 

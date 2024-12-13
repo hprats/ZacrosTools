@@ -2,7 +2,7 @@ from random import randint
 from typing import Union, Optional
 from pathlib import Path
 
-from zacrostools.write_functions import write_header
+from zacrostools.header import write_header
 from zacrostools.lattice_model import LatticeModel
 from zacrostools.energetics_model import EnergeticsModel
 from zacrostools.reaction_model import ReactionModel
