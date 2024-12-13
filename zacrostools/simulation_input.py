@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Union, Dict, Any
-from zacrostools.custom_exceptions import LatticeModelError
 
 
 def parse_simulation_input_file(input_file: Union[str, Path]) -> Dict[str, Any]:
