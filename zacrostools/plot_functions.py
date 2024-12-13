@@ -89,9 +89,10 @@ def plot_heatmap(
     tick_labels : list, optional
         Tick labels for phase diagram colorbar.
     analysis_range : list, optional
-        Window of the simulation to consider (percent). Default is [0, 100].
+        Portion of the entire simulation to consider for analysis. Default is `[0.0, 100.0]`.
     range_type : str, optional
-        Type of window to apply ('time' or 'nevents'). Default is 'time'.
+        Determines the dimension used when applying `analysis_range`. Possible values are `'time'` and `'nevents'.
+        Default is `'time'`.
     verbose : bool, optional
         If True, print paths of simulations with issues. Default is False.
     weights : str, optional

@@ -18,12 +18,16 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     ----------
     output_file : Union[str, Path]
         Path to the procstat_output.txt file.
-    analysis_range : List[float]
-        A list containing the start and end percentages for the selected data slice
-        (e.g., [50.0, 100.0]).
-    range_type : str
-        Type of windowing to apply; must be either 'time' (slice based on simulation time)
-        or 'nevents' (slice based on total number of KMC events).
+    analysis_range : List[float], optional
+        A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
+        to consider for analysis. The values should be between 0 and 100, representing percentages of the
+        total simulated time or the total number of events, depending on `range_type`. For example,
+        `[50, 100]` would analyze only the latter half of the simulation. Default is `[0.0, 100.0]`.
+    range_type : str, optional
+        Determines the dimension used when applying `analysis_range`:
+        - `'time'`: The percentages in `analysis_range` refer to segments of the total simulated time.
+        - `'nevents'`: The percentages in `analysis_range` refer to segments of the total number of simulated events.
+        Default is `'time'`.
 
     Returns
     -------

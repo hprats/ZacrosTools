@@ -18,12 +18,15 @@ def read_scan(scan_path: str,
     ----------
     scan_path : str
         Path to the directory containing subfolders, each with a KMC simulation.
-    analysis_range : list, optional
-        A list of two elements `[initial_percent, final_percent]` specifying the window of the total simulation.
-        Values should be between 0 and 100 (percentage of total simulated time or events).
-        Default is `[0.0, 100.0]`.
+    analysis_range : List[float], optional
+        A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
+        to consider for analysis. The values should be between 0 and 100, representing percentages of the
+        total simulated time or the total number of events, depending on `range_type`. For example,
+        `[50, 100]` would analyze only the latter half of the simulation. Default is `[0.0, 100.0]`.
     range_type : str, optional
-        The type of window to apply when calculating averages or TOF. Can be `'time'` or `'nevents'`.
+        Determines the dimension used when applying `analysis_range`:
+        - `'time'`: The percentages in `analysis_range` refer to segments of the total simulated time.
+        - `'nevents'`: The percentages in `analysis_range` refer to segments of the total number of simulated events.
         Default is `'time'`.
     weights : str, optional
         Weights for calculating the weighted average of coverage and energy.

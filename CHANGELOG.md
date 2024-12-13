@@ -62,7 +62,7 @@ Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hpr
 
 ### Changed
 - **`detect_issues` function**:
-  - Adjusted the function to consider only the specified window percent.
+  - Adjusted the function to consider only the specified analysis range.
   - Changed default `analysis_range` from `[50, 100]` to `[30, 100]`.
 
 ### Fixed
