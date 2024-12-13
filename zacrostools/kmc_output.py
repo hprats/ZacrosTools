@@ -1,9 +1,9 @@
+import os
 import numpy as np
 from typing import Union
 from zacrostools.simulation_input import parse_simulation_input_file
 from zacrostools.parse_output_files import parse_general_output_file, parse_specnum_output_file
-from zacrostools.read_functions import get_surf_specs_data
-from zacrostools.custom_exceptions import enforce_types, KMCOutputError
+from zacrostools.custom_exceptions import enforce_types, KMCOutputError, EnergeticsModelError
 
 
 class KMCOutput:
@@ -95,7 +95,9 @@ class KMCOutput:
             analysis_range = [0.0, 100.0]
 
         # Parse relevant data from the simulation_input.dat file
-        data_simulation = parse_simulation_input_file(input_file=f'{path}/simulation_input.dat')
+        data_simulation = parse_simulation_input_file(
+            input_file=f'{path}/simulation_input.dat')
+
         self.random_seed = data_simulation['random_seed']
         self.temperature = data_simulation['temperature']
         self.pressure = data_simulation['pressure']
@@ -107,16 +109,20 @@ class KMCOutput:
         self.surf_specs_dent = data_simulation['surf_specs_dent']
 
         # Parse relevant data from the general_output.txt file
-        data_general = parse_general_output_file(output_file=f'{path}/general_output.txt')
+        data_general = parse_general_output_file(
+            output_file=f'{path}/general_output.txt')
+
         self.n_sites = data_general['n_sites']
         self.area = data_general['area']
         self.site_types = data_general['site_types']
         self.final_time = data_general['current_time_stopped']
 
         # Parse relevant data from the specnum_output.txt file
-        data_specnum, header = parse_specnum_output_file(output_file=f'{path}/specnum_output.txt',
-                                                         analysis_range=analysis_range,
-                                                         range_type=range_type)
+        data_specnum, header = parse_specnum_output_file(
+            output_file=f'{path}/specnum_output.txt',
+            analysis_range=analysis_range,
+            range_type=range_type)
+
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
@@ -250,3 +256,139 @@ class KMCOutput:
         if self.tof[main_product] + tof_side_products != 0:
             selectivity = self.tof[main_product] / (self.tof[main_product] + tof_side_products) * 100
         return selectivity
+
+
+def get_surf_specs_data(path):
+    """
+    Retrieve surface species data including the number of dentates and the associated site type for each species.
+
+    Parameters
+    ----------
+    path : str
+        The path to the directory containing the simulation input files (`simulation_input.dat` and `energetics_input.dat`).
+
+    Returns
+    -------
+    dict
+        A dictionary mapping each surface species name to its data, including:
+        - 'surf_specs_dent': int
+            Number of dentates required by the species.
+        - 'site_type': str
+            The site type on which the species adsorbs.
+    """
+
+    # Get data from simulation_input.dat
+    parsed_sim_data = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")
+    surf_specs_names = parsed_sim_data.get('surf_specs_names')
+    surf_specs_dent = parsed_sim_data.get('surf_specs_dent')
+    species_dentates = dict(zip(surf_specs_names, surf_specs_dent))
+    species_in_simulation = set(surf_specs_names)
+
+    surf_specs_data = {}
+
+    # Check if the user is using a default lattice or not
+    default_lattice = check_default_lattice(path)
+
+    if default_lattice:
+        for species in surf_specs_names:
+            surf_specs_data[species] = {
+                'surf_specs_dent': species_dentates[species],
+                'site_type': 'StTp1'
+            }
+
+    else:
+
+        with open(os.path.join(path, 'energetics_input.dat'), 'r') as f:
+            lines = f.readlines()
+
+        species_site_types = {}
+        num_lines = len(lines)
+        i = 0
+        while i < num_lines:
+            line = lines[i].strip()
+            if line.startswith('cluster'):
+                cluster_species = []
+                site_types = []
+                i += 1
+                while i < num_lines:
+                    line = lines[i].strip()
+                    if line.startswith('end_cluster'):
+                        break
+                    elif line.startswith('lattice_state'):
+                        # Process lattice_state block
+                        i += 1  # Move to the next line after 'lattice_state'
+                        while i < num_lines:
+                            line = lines[i].strip()
+                            if not line or line.startswith('#'):
+                                i += 1
+                                continue
+                            if line.startswith('site_types') or line.startswith('cluster_eng') or line.startswith(
+                                    'neighboring') or line.startswith('end_cluster'):
+                                break  # End of lattice_state block
+                            tokens = line.split()
+                            if tokens and tokens[0].isdigit():
+                                species_name = tokens[1].rstrip('*')
+                                cluster_species.append(species_name)
+                            i += 1
+                    elif line.startswith('site_types'):
+                        tokens = line.split()
+                        site_types = tokens[1:]
+                        i += 1  # Move to the next line after 'site_types'
+                        continue  # Continue to process other lines in the cluster
+                    else:
+                        i += 1
+                # After processing the cluster
+                if len(cluster_species) != len(site_types):
+                    raise EnergeticsModelError(f"Mismatch between number of species and site_types in a cluster in "
+                                               f"line {i + 1}."
+                                               f"\nCluster species: {cluster_species}"
+                                               f"\nSite types: {site_types}")
+                # Associate species with site types
+                for species, site_type in zip(cluster_species, site_types):
+                    if species not in species_in_simulation:
+                        raise EnergeticsModelError(
+                            f"Species '{species}' declared in energetics_input.dat but not in surf_specs_names.")
+                    if species in species_site_types:
+                        if species_site_types[species] != site_type:
+                            raise EnergeticsModelError(
+                                f"Species '{species}' is adsorbed on multiple site types: "
+                                f"'{species_site_types[species]}' and '{site_type}'")
+                    else:
+                        species_site_types[species] = site_type
+                i += 1  # Move past 'end_cluster'
+            else:
+                i += 1
+
+        for species in surf_specs_names:
+            if species not in species_site_types:
+                raise EnergeticsModelError(f"Species '{species}' declared in surf_specs_names but not found in "
+                                           f"energetics_input.dat.")
+            surf_specs_data[species] = {
+                'surf_specs_dent': species_dentates[species],
+                'site_type': species_site_types[species]
+            }
+    return surf_specs_data
+
+
+def check_default_lattice(path):
+    """
+    Check whether the simulation uses a default lattice configuration.
+
+    Parameters
+    ----------
+    path : str
+        The path to the directory containing the `lattice_input.dat` file.
+
+    Returns
+    -------
+    bool
+        True if the `lattice_input.dat` file indicates a default lattice configuration, False otherwise.
+    """
+
+    with open(os.path.join(path, 'lattice_input.dat'), 'r') as file:
+        for line in file:
+            # Check if both 'lattice' and 'default_choice' are in the same line
+            if 'lattice' in line and 'default_choice' in line:
+                return True
+
+    return False
