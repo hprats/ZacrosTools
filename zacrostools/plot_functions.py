@@ -7,7 +7,7 @@ from pathlib import Path
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.detect_issues import detect_issues
 from zacrostools.simulation_input import parse_simulation_input_file
-from zacrostools.parse_output_files import parse_general_output_file
+from zacrostools.general_output import parse_general_output_file
 from zacrostools.custom_exceptions import PlotError
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe

@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from zacrostools.parse_output_files import parse_general_output_file
+from zacrostools.general_output import parse_general_output_file
 from typing import Union, List, Tuple, Optional, Dict
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D

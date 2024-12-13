@@ -2,7 +2,8 @@ import os
 import numpy as np
 from typing import Union
 from zacrostools.simulation_input import parse_simulation_input_file
-from zacrostools.parse_output_files import parse_general_output_file, parse_specnum_output_file
+from zacrostools.general_output import parse_general_output_file
+from zacrostools.specnum_output import parse_specnum_output_file
 from zacrostools.custom_exceptions import enforce_types, KMCOutputError, EnergeticsModelError
 
 
