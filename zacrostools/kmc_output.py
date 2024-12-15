@@ -116,7 +116,6 @@ class KMCOutput:
         self.n_sites = data_general['n_sites']
         self.area = data_general['area']
         self.site_types = data_general['site_types']
-        self.final_time = data_general['current_time_stopped']
 
         # Parse relevant data from the specnum_output.txt file
         data_specnum, header = parse_specnum_output_file(
@@ -126,6 +125,7 @@ class KMCOutput:
 
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
+        self.final_time = data_specnum[-1, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
         self.energy_slope = abs(np.polyfit(self.nevents, self.energy, 1)[0])  # in eV/Å2/step
         self.final_energy = data_specnum[-1, 4] / self.area
