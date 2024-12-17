@@ -33,7 +33,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # Add the following lines to set the logo
-html_logo = "../images/logo.png"  # Path relative to the _static directory
+html_logo = "../images/logo_without_background.png"  # Path relative to the _static directory
 
 # Optional: Customize theme options (if needed)
 html_theme_options = {

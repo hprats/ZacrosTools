@@ -1,5 +1,5 @@
 <header style="text-align: center; padding: 20px;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/logo.png?raw=true" alt="ZacrosTools Logo" width="200"/>
+    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/logo_without_background.png?raw=true" alt="ZacrosTools Logo" width="200"/>
 </header>
 
 # Welcome to the ZacrosTools documentation
