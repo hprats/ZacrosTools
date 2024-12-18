@@ -263,7 +263,7 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 
 This example shows how to create a lattice model for a Pt4 cluster supported on a HfC(001) surface, as described in the image below:
 
-<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice_model_PtHfC.png?raw=true" alt="Molecules produced" width="700"/> </div>
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice_model_PtHfC.png?raw=true" alt="Molecules produced" width="600"/> </div>
 
 ```python
 from zacrostools.lattice_model import LatticeModel
