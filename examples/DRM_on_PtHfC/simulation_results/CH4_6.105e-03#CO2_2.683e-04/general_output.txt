@@ -1,0 +1,1494 @@
++---------------------------------------------------+
+|  ZACROS 5.0                                       |
+|  GRAPH-THEORETICAL KMC SIMULATION CODE            |
+|                                                   |
+|  Multiscale Computational Catalysis and           |
+|  Materials Science Research Group                 |
+|                                                   |
+|  Michail Stamatakis, Ph.D.                        |
+|  Department of Chemistry                          |
+|  University of Oxford                             |
++---------------------------------------------------+
+
+Compiler information:
+~~~~~~~~~~~~~~~~~~~~~~
+ /shared/ucl/apps/intel/2018.Update3/compilers_and_libraries_2018.3.222/linux/bin/intel64/ifort
+ Intel(R) Fortran Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 18.0.3.222 Build 20180410
+ -DCOMPILER_SUPPORTS_COMPILER2008 -DUSING_CMAKE -diag-disable=5462,6536 -O3 -c -o CMakeFiles/zacros_lib.dir/info_module_processed.F90.o
+ Zacros 4.0
+ Configured at git: NA
+
+Threading/multiprocessing information:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Serial run (no parallelism).
+
+Simulation setup:
+~~~~~~~~~~~~~~~~~
+
+    Random sequence with seed: 121116
+
+    Temperature: 1100.00000000000
+
+    Pressure: 6.373671876113299E-003
+
+    Number of gas species: 6
+
+
+    Gas species names: CH4 O2 CO H2 CO2 H2O 
+
+
+    Gas species energies: 0.000000000000000E+000 2.61300000000000 1.95400000000000 0.000000000000000E+000 0.000000000000000E+000 -1.22400000000000 
+
+
+    Gas species molecular weights: 16.0400000000000 32.0000000000000 28.0100000000000 2.02000000000000 44.0100000000000 18.0200000000000 
+
+
+    Gas species molar fractions: 0.957909728529740 0.000000000000000E+000 0.000000000000000E+000 0.000000000000000E+000 4.209027147026041E-002 0.000000000000000E+000 
+
+    Number of surface species: 26
+
+
+    Surface species names: C_Pt* CO_Pt* CO2* CHO_Pt* H* H_Pt* COH_Pt* COOH_Pt* OH_Pt* COH* O* CH_Pt* O_Pt* CO* C* CH3* COOH* CH2_Pt* CH3_Pt* CH2* CO2_Pt* CHO* H2O* CH* OH* H2O_Pt* 
+
+
+    Surface species dentation:  4  1  1  2  1  1  2  2  2  1  1  4  2  1  1  1  1  2  2  1  3  1  1  1  1  1
+
+    Snapshots will be reported in file history_output.txt at every 100000 events
+
+    Process statistics will be reported in file procstat_output.txt at every 100000 events
+
+    Species numbers will be reported in file specnum_output.txt at every 100000 events
+
+    Maximum number of steps: 9223372036854775807 (maximum allowed value)
+
+    Max simulated time: 5000000.00000000                
+
+    Allowed walltime in seconds: 172000
+
+    Keyword enable_stiffness_scaling (prats2024) parsed. Prats2024 dynamic scaling of rate constants will be enabled to treat time-scale separation (stiffness).
+
+    [Stiffness scaling] Frequency of stiffness checks: 500000                          
+
+    [Stiffness scaling] Minimum allowed separation of time-scales between fastest non-quasi-equilibrated step and slowest quasi-equilibrated one: 50.0000000000000                
+
+    [Stiffness scaling] Maximum allowed separation of time-scales between fastest non-quasi-equilibrated step and slowest quasi-equilibrated one: 100.000000000000                
+
+    [Stiffness scaling] Tolerance on partial-equilibrium ratio for detecting quasi-equilibrated steps: 5.000000000000000E-002          
+
+    [Stiffness scaling] Upscaling_factor is set as: 5.00000000000000                
+
+    [Stiffness scaling] Upscaling_limit is set as: 100.000000000000                
+
+    [Stiffness scaling] Downscaling_limit is set as: 2.00000000000000                
+
+    [Stiffness scaling] min_noccur enevnts: 10
+
+    The default Mersenne Twister 19937 random number generator will be used for this simulation.
+
+    Initializing the random number generator took 5.500000000000000E-005 seconds
+
+    The default first reaction method will be used for propagating the KMC state, with a binary heap for the event-queue
+
+    The default legacy-Zacros module will be used as a subgraph isomorphism solver for elementary events
+
+    The default legacy-Zacros module will be used as a subgraph isomorphism solver for energetic clusters
+
+    [Memory Management] Dynamic array sizes will be used during the simulation as per the default behavior.
+
+    [Stiffness scaling] Default maximum allowed separation of time-scales between fastest and slowest quasi-equilibrated steps: 5.00000000000000                
+
+    [Stiffness scaling] Default threshold on stiffness coefficient for applying scaling: 2.000000000000000E-002          
+
+    [Stiffness scaling] Default factor for scaling up/down the rate constants: 5.00000000000000                
+
+Finished reading simulation input.
+
+Lattice setup:
+~~~~~~~~~~~~~~
+
+    Parsing unit cell data for a periodic lattice.
+
+    Unit cell area: 171.086400000000
+
+    Unit cell tiling: 3 x 3
+
+    Lattice surface area: 1539.77760000000
+
+    Number of lattice sites per cell: 31
+
+    Total number of lattice sites: 279
+
+    Number of site types: 3
+
+    Site type names and total number of sites of that type:
+      tC (108)
+      tM (135)
+      Pt (36)
+
+    Maximum coordination number: 8
+
+Finished reading lattice input.
+
+Energetics setup:
+~~~~~~~~~~~~~~~~~
+
+    Number of clusters: 175
+
+    Maximum number of sites involved in a cluster: 4
+
+    Clusters:
+
+        1. C_Pt_point:            Mult = 4      ECI = 1.99000000000000          Entities:  C_Pt* 
+        2. CO_Pt_point:           Mult = 1      ECI = -0.523000000000000        Entities:  CO_Pt* 
+        3. CO2_point:             Mult = 1      ECI = -1.57200000000000         Entities:  CO2* 
+        4. CHO_Pt_point:          Mult = 2      ECI = -0.384000000000000        Entities:  CHO_Pt* 
+        5. H_point:               Mult = 1      ECI = -0.576000000000000        Entities:  H* 
+        6. H_Pt_point:            Mult = 1      ECI = -0.867000000000000        Entities:  H_Pt* 
+        7. COH_Pt_point:          Mult = 2      ECI = 0.541000000000000         Entities:  COH_Pt* 
+        8. COOH_Pt_point:         Mult = 2      ECI = -1.85000000000000         Entities:  COOH_Pt* 
+        9. OH_Pt_point:           Mult = 2      ECI = -2.12100000000000         Entities:  OH_Pt* 
+       10. COH_point:             Mult = 1      ECI = 0.619000000000000         Entities:  COH* 
+       11. O_point:               Mult = 1      ECI = -1.32600000000000         Entities:  O* 
+       12. CH_Pt_point:           Mult = 4      ECI = 1.36200000000000          Entities:  CH_Pt* 
+       13. O_Pt_point:            Mult = 2      ECI = -0.906000000000000        Entities:  O_Pt* 
+       14. CO_point:              Mult = 1      ECI = 0.231000000000000         Entities:  CO* 
+       15. C_point:               Mult = 1      ECI = 2.44300000000000          Entities:  C* 
+       16. CH3_point:             Mult = 1      ECI = 0.292000000000000         Entities:  CH3* 
+       17. COOH_point:            Mult = 1      ECI = -1.51300000000000         Entities:  COOH* 
+       18. CH2_Pt_point:          Mult = 2      ECI = 0.710000000000000         Entities:  CH2_Pt* 
+       19. CH3_Pt_point:          Mult = 2      ECI = -0.250000000000000        Entities:  CH3_Pt* 
+       20. CH2_point:             Mult = 1      ECI = 0.913000000000000         Entities:  CH2* 
+       21. CO2_Pt_point:          Mult = 2      ECI = -1.35500000000000         Entities:  CO2_Pt* 
+       22. CHO_point:             Mult = 1      ECI = -0.177000000000000        Entities:  CHO* 
+       23. H2O_point:             Mult = 1      ECI = -2.01300000000000         Entities:  H2O* 
+       24. CH_point:              Mult = 1      ECI = 1.55500000000000          Entities:  CH* 
+       25. OH_point:              Mult = 1      ECI = -1.48800000000000         Entities:  OH* 
+       26. H2O_Pt_point:          Mult = 1      ECI = -2.01300000000000         Entities:  H2O_Pt* 
+       27. COOH+CH2_pair:         Mult = 1      ECI = -2.300000000000000E-002   Entities:  COOH* CH2* 
+       28. COOH_Pt+O_Pt_pair:     Mult = 1      ECI = 0.171000000000000         Entities:  COOH_Pt* O_Pt* 
+       29. O+H_pair:              Mult = 1      ECI = -8.400000000000001E-002   Entities:  O* H* 
+       30. COH_Pt+H_Pt_pair:      Mult = 1      ECI = 0.285000000000000         Entities:  COH_Pt* H_Pt* 
+       31. CO2_Pt+H_Pt_pair:      Mult = 1      ECI = 0.751000000000000         Entities:  CO2_Pt* H_Pt* 
+       32. CO2+H2O_pair:          Mult = 1      ECI = -3.000000000000000E-002   Entities:  CO2* H2O* 
+       33. C+H_pair:              Mult = 1      ECI = 4.400000000000000E-002    Entities:  C* H* 
+       34. H_Pt+H_Pt_pair:        Mult = 2      ECI = 0.376000000000000         Entities:  H_Pt* H_Pt* 
+       35. O_Pt+H_Pt_pair:        Mult = 1      ECI = 0.122000000000000         Entities:  O_Pt* H_Pt* 
+       36. CHO_Pt+H2O_Pt_pair:    Mult = 1      ECI = -0.357000000000000        Entities:  CHO_Pt* H2O_Pt* 
+       37. CHO+CH3_pair:          Mult = 1      ECI = 1.500000000000000E-002    Entities:  CHO* CH3* 
+       38. CH2_Pt+OH_Pt_pair:     Mult = 1      ECI = 9.200000000000000E-002    Entities:  CH2_Pt* OH_Pt* 
+       39. CH2+C_pair:            Mult = 1      ECI = -0.139000000000000        Entities:  CH2* C* 
+       40. COH+CH3_pair:          Mult = 1      ECI = 1.000000000000000E-002    Entities:  COH* CH3* 
+       41. CH3+CH_pair:           Mult = 1      ECI = -3.500000000000000E-002   Entities:  CH3* CH* 
+       42. COH_Pt+CH2_Pt_pair:    Mult = 1      ECI = 0.208000000000000         Entities:  COH_Pt* CH2_Pt* 
+       43. CHO_Pt+COH_Pt_pair:    Mult = 1      ECI = 0.301000000000000         Entities:  CHO_Pt* COH_Pt* 
+       44. COOH+CO_pair:          Mult = 1      ECI = 5.400000000000000E-002    Entities:  COOH* CO* 
+       45. CHO_Pt+CO_Pt_pair:     Mult = 1      ECI = -2.000000000000000E-002   Entities:  CHO_Pt* CO_Pt* 
+       46. COH+CH_pair:           Mult = 1      ECI = -6.000000000000000E-003   Entities:  COH* CH* 
+       47. OH_Pt+H_Pt_pair:       Mult = 1      ECI = 7.500000000000000E-002    Entities:  OH_Pt* H_Pt* 
+       48. CHO+OH_pair:           Mult = 1      ECI = -0.141000000000000        Entities:  CHO* OH* 
+       49. CHO_Pt+CH3_Pt_pair:    Mult = 1      ECI = 0.135000000000000         Entities:  CHO_Pt* CH3_Pt* 
+       50. CH+CH_pair:            Mult = 2      ECI = -5.800000000000000E-002   Entities:  CH* CH* 
+       51. CH2+O_pair:            Mult = 1      ECI = -7.800000000000000E-002   Entities:  CH2* O* 
+       52. CH3_Pt+H_Pt_pair:      Mult = 1      ECI = 7.199999999999999E-002    Entities:  CH3_Pt* H_Pt* 
+       53. OH_Pt+OH_Pt_pair:      Mult = 2      ECI = -0.165000000000000        Entities:  OH_Pt* OH_Pt* 
+       54. CO+CH3_pair:           Mult = 1      ECI = 5.700000000000000E-002    Entities:  CO* CH3* 
+       55. CHO_Pt+CH2_Pt_pair:    Mult = 1      ECI = 0.215000000000000         Entities:  CHO_Pt* CH2_Pt* 
+       56. COH_Pt+COH_Pt_pair:    Mult = 2      ECI = 0.377000000000000         Entities:  COH_Pt* COH_Pt* 
+       57. CO_Pt+O_Pt_pair:       Mult = 1      ECI = 1.800000000000000E-002    Entities:  CO_Pt* O_Pt* 
+       58. CO+CH2_pair:           Mult = 1      ECI = -5.400000000000000E-002   Entities:  CO* CH2* 
+       59. H2O_Pt+O_Pt_pair:      Mult = 1      ECI = -5.000000000000000E-002   Entities:  H2O_Pt* O_Pt* 
+       60. COH_Pt+H2O_Pt_pair:    Mult = 1      ECI = -0.208000000000000        Entities:  COH_Pt* H2O_Pt* 
+       61. CH+O_pair:             Mult = 1      ECI = -4.100000000000000E-002   Entities:  CH* O* 
+       62. H2O+H2O_pair:          Mult = 2      ECI = -3.500000000000000E-002   Entities:  H2O* H2O* 
+       63. CO2+CO_pair:           Mult = 1      ECI = -0.183000000000000        Entities:  CO2* CO* 
+       64. COH+CH2_pair:          Mult = 1      ECI = 1.700000000000000E-002    Entities:  COH* CH2* 
+       65. H2O_Pt+H2O_Pt_pair:    Mult = 2      ECI = -0.151000000000000        Entities:  H2O_Pt* H2O_Pt* 
+       66. CHO+CH2_pair:          Mult = 1      ECI = -5.000000000000000E-002   Entities:  CHO* CH2* 
+       67. COH_Pt+CO_Pt_pair:     Mult = 1      ECI = 5.800000000000000E-002    Entities:  COH_Pt* CO_Pt* 
+       68. CH+C_pair:             Mult = 1      ECI = -2.200000000000000E-002   Entities:  CH* C* 
+       69. CH2_Pt+H_Pt_pair:      Mult = 1      ECI = 0.154000000000000         Entities:  CH2_Pt* H_Pt* 
+       70. CHO_Pt+H_Pt_pair:      Mult = 1      ECI = 0.197000000000000         Entities:  CHO_Pt* H_Pt* 
+       71. COOH+CH3_pair:         Mult = 1      ECI = 1.600000000000000E-002    Entities:  COOH* CH3* 
+       72. COH_Pt+CH3_Pt_pair:    Mult = 1      ECI = 0.257000000000000         Entities:  COH_Pt* CH3_Pt* 
+       73. CH2+CH_pair:           Mult = 1      ECI = -0.104000000000000        Entities:  CH2* CH* 
+       74. CH+H_pair:             Mult = 1      ECI = -4.000000000000000E-003   Entities:  CH* H* 
+       75. COH+CO2_pair:          Mult = 1      ECI = 8.400000000000001E-002    Entities:  COH* CO2* 
+       76. CHO+CO2_pair:          Mult = 1      ECI = 5.200000000000000E-002    Entities:  CHO* CO2* 
+       77. COOH+COH_pair:         Mult = 1      ECI = 9.800000000000000E-002    Entities:  COOH* COH* 
+       78. COOH+CHO_pair:         Mult = 1      ECI = 3.800000000000000E-002    Entities:  COOH* CHO* 
+       79. COOH_Pt+CH2_Pt_pair:   Mult = 1      ECI = 0.233000000000000         Entities:  COOH_Pt* CH2_Pt* 
+       80. COOH+COOH_pair:        Mult = 2      ECI = -6.900000000000001E-002   Entities:  COOH* COOH* 
+       81. CO2+CH_pair:           Mult = 1      ECI = -0.240000000000000        Entities:  CO2* CH* 
+       82. COOH_Pt+OH_Pt_pair:    Mult = 1      ECI = 4.400000000000000E-002    Entities:  COOH_Pt* OH_Pt* 
+       83. COOH+CH_pair:          Mult = 1      ECI = 3.000000000000000E-002    Entities:  COOH* CH* 
+       84. COOH_Pt+CH3_Pt_pair:   Mult = 1      ECI = 8.200000000000000E-002    Entities:  COOH_Pt* CH3_Pt* 
+       85. CHO+CHO_pair:          Mult = 2      ECI = -6.200000000000000E-002   Entities:  CHO* CHO* 
+       86. CH3+H2O_pair:          Mult = 1      ECI = -7.099999999999999E-002   Entities:  CH3* H2O* 
+       87. CH2+H2O_pair:          Mult = 1      ECI = 3.000000000000000E-003    Entities:  CH2* H2O* 
+       88. C+O_pair:              Mult = 1      ECI = -3.600000000000000E-002   Entities:  C* O* 
+       89. O+O_pair:              Mult = 2      ECI = 3.300000000000000E-002    Entities:  O* O* 
+       90. CO_Pt+OH_Pt_pair:      Mult = 1      ECI = -3.600000000000000E-002   Entities:  CO_Pt* OH_Pt* 
+       91. COOH+CO2_pair:         Mult = 1      ECI = -0.135000000000000        Entities:  COOH* CO2* 
+       92. COOH_Pt+COH_Pt_pair:   Mult = 1      ECI = 0.330000000000000         Entities:  COOH_Pt* COH_Pt* 
+       93. CHO+COH_pair:          Mult = 1      ECI = 1.800000000000000E-002    Entities:  CHO* COH* 
+       94. CO+OH_pair:            Mult = 1      ECI = -0.239000000000000        Entities:  CO* OH* 
+       95. CH2+H_pair:            Mult = 1      ECI = 5.000000000000000E-003    Entities:  CH2* H* 
+       96. COH+COH_pair:          Mult = 2      ECI = 5.700000000000000E-002    Entities:  COH* COH* 
+       97. C+C_pair:              Mult = 2      ECI = 9.300000000000000E-002    Entities:  C* C* 
+       98. COOH_Pt+H2O_Pt_pair:   Mult = 1      ECI = -0.351000000000000        Entities:  COOH_Pt* H2O_Pt* 
+       99. COH+CO_pair:           Mult = 1      ECI = 1.100000000000000E-002    Entities:  COH* CO* 
+      100. CHO+CO_pair:           Mult = 1      ECI = 8.000000000000000E-002    Entities:  CHO* CO* 
+      101. CO+H_pair:             Mult = 1      ECI = 6.900000000000001E-002    Entities:  CO* H* 
+      102. CO2+CO2_pair:          Mult = 2      ECI = 0.144000000000000         Entities:  CO2* CO2* 
+      103. COOH_Pt+CHO_Pt_pair:   Mult = 1      ECI = 0.240000000000000         Entities:  COOH_Pt* CHO_Pt* 
+      104. CO2+O_pair:            Mult = 1      ECI = -0.161000000000000        Entities:  CO2* O* 
+      105. CO+CH_pair:            Mult = 1      ECI = 3.000000000000000E-003    Entities:  CO* CH* 
+      106. CH3_Pt+O_Pt_pair:      Mult = 1      ECI = 2.000000000000000E-003    Entities:  CH3_Pt* O_Pt* 
+      107. OH_Pt+O_Pt_pair:       Mult = 1      ECI = 8.300000000000000E-002    Entities:  OH_Pt* O_Pt* 
+      108. CH3+O_pair:            Mult = 1      ECI = 3.400000000000000E-002    Entities:  CH3* O* 
+      109. CO_Pt+CH2_Pt_pair:     Mult = 1      ECI = 5.300000000000000E-002    Entities:  CO_Pt* CH2_Pt* 
+      110. COOH+H_pair:           Mult = 1      ECI = -7.800000000000000E-002   Entities:  COOH* H* 
+      111. H2O+H_pair:            Mult = 1      ECI = -7.700000000000000E-002   Entities:  H2O* H* 
+      112. COH+H_pair:            Mult = 1      ECI = 8.999999999999999E-003    Entities:  COH* H* 
+      113. CH2+CH2_pair:          Mult = 2      ECI = -0.120000000000000        Entities:  CH2* CH2* 
+      114. CH3+CH2_pair:          Mult = 1      ECI = 4.100000000000000E-002    Entities:  CH3* CH2* 
+      115. COH_Pt+O_Pt_pair:      Mult = 1      ECI = 0.194000000000000         Entities:  COH_Pt* O_Pt* 
+      116. CO_Pt+CO_Pt_pair:      Mult = 2      ECI = 2.900000000000000E-002    Entities:  CO_Pt* CO_Pt* 
+      117. O_Pt+O_Pt_pair:        Mult = 2      ECI = 0.183000000000000         Entities:  O_Pt* O_Pt* 
+      118. CO2+C_pair:            Mult = 1      ECI = -0.167000000000000        Entities:  CO2* C* 
+      119. CH3+C_pair:            Mult = 1      ECI = 2.200000000000000E-002    Entities:  CH3* C* 
+      120. COOH+OH_pair:          Mult = 1      ECI = -0.124000000000000        Entities:  COOH* OH* 
+      121. COOH_Pt+H_Pt_pair:     Mult = 1      ECI = 0.157000000000000         Entities:  COOH_Pt* H_Pt* 
+      122. OH+OH_pair:            Mult = 2      ECI = -8.799999999999999E-002   Entities:  OH* OH* 
+      123. CH2_Pt+O_Pt_pair:      Mult = 1      ECI = 0.195000000000000         Entities:  CH2_Pt* O_Pt* 
+      124. CO2+OH_pair:           Mult = 1      ECI = -0.106000000000000        Entities:  CO2* OH* 
+      125. C+OH_pair:             Mult = 1      ECI = -0.186000000000000        Entities:  C* OH* 
+      126. CO_Pt+CH3_Pt_pair:     Mult = 1      ECI = -2.000000000000000E-002   Entities:  CO_Pt* CH3_Pt* 
+      127. CHO_Pt+O_Pt_pair:      Mult = 1      ECI = 0.224000000000000         Entities:  CHO_Pt* O_Pt* 
+      128. CHO+O_pair:            Mult = 1      ECI = -3.000000000000000E-002   Entities:  CHO* O* 
+      129. CH3+CH3_pair:          Mult = 2      ECI = 0.212000000000000         Entities:  CH3* CH3* 
+      130. H2O_Pt+OH_Pt_pair:     Mult = 1      ECI = 3.000000000000000E-003    Entities:  H2O_Pt* OH_Pt* 
+      131. OH+H_pair:             Mult = 1      ECI = -0.272000000000000        Entities:  OH* H* 
+      132. CO_Pt+H2O_Pt_pair:     Mult = 1      ECI = -0.107000000000000        Entities:  CO_Pt* H2O_Pt* 
+      133. COOH_Pt+CO_Pt_pair:    Mult = 1      ECI = -3.800000000000000E-002   Entities:  COOH_Pt* CO_Pt* 
+      134. CHO+C_pair:            Mult = 1      ECI = 4.400000000000000E-002    Entities:  CHO* C* 
+      135. CH+H2O_pair:           Mult = 1      ECI = -2.300000000000000E-002   Entities:  CH* H2O* 
+      136. H2O_Pt+H_Pt_pair:      Mult = 1      ECI = -0.174000000000000        Entities:  H2O_Pt* H_Pt* 
+      137. CO_Pt+H_Pt_pair:       Mult = 1      ECI = 2.900000000000000E-002    Entities:  CO_Pt* H_Pt* 
+      138. OH+O_pair:             Mult = 1      ECI = -0.204000000000000        Entities:  OH* O* 
+      139. H+H_pair:              Mult = 2      ECI = 3.700000000000000E-002    Entities:  H* H* 
+      140. CH2+OH_pair:           Mult = 1      ECI = -0.220000000000000        Entities:  CH2* OH* 
+      141. CHO+H2O_pair:          Mult = 1      ECI = -3.200000000000000E-002   Entities:  CHO* H2O* 
+      142. CO2+CH3_pair:          Mult = 1      ECI = -0.362000000000000        Entities:  CO2* CH3* 
+      143. CH2_Pt+H2O_Pt_pair:    Mult = 1      ECI = -0.262000000000000        Entities:  CH2_Pt* H2O_Pt* 
+      144. COH+H2O_pair:          Mult = 1      ECI = 1.000000000000000E-003    Entities:  COH* H2O* 
+      145. CHO+H_pair:            Mult = 1      ECI = 2.400000000000000E-002    Entities:  CHO* H* 
+      146. COH_Pt+OH_Pt_pair:     Mult = 1      ECI = 0.216000000000000         Entities:  COH_Pt* OH_Pt* 
+      147. CH3_Pt+CH2_Pt_pair:    Mult = 1      ECI = 0.111000000000000         Entities:  CH3_Pt* CH2_Pt* 
+      148. CO+H2O_pair:           Mult = 1      ECI = -2.300000000000000E-002   Entities:  CO* H2O* 
+      149. C+H2O_pair:            Mult = 1      ECI = -1.900000000000000E-002   Entities:  C* H2O* 
+      150. COOH_Pt+COOH_Pt_pair:  Mult = 2      ECI = 0.224000000000000         Entities:  COOH_Pt* COOH_Pt* 
+      151. CH3+H_pair:            Mult = 1      ECI = -1.400000000000000E-002   Entities:  CH3* H* 
+      152. CO2+H_pair:            Mult = 1      ECI = -0.267000000000000        Entities:  CO2* H* 
+      153. CO+CO_pair:            Mult = 2      ECI = 0.177000000000000         Entities:  CO* CO* 
+      154. H2O+OH_pair:           Mult = 1      ECI = -4.200000000000000E-002   Entities:  H2O* OH* 
+      155. CH3_Pt+CH3_Pt_pair:    Mult = 2      ECI = 3.200000000000000E-002    Entities:  CH3_Pt* CH3_Pt* 
+      156. CH3_Pt+OH_Pt_pair:     Mult = 1      ECI = 1.000000000000000E-003    Entities:  CH3_Pt* OH_Pt* 
+      157. CH+OH_pair:            Mult = 1      ECI = -0.118000000000000        Entities:  CH* OH* 
+      158. COH+C_pair:            Mult = 1      ECI = 3.300000000000000E-002    Entities:  COH* C* 
+      159. COH+OH_pair:           Mult = 1      ECI = -8.300000000000000E-002   Entities:  COH* OH* 
+      160. COOH+C_pair:           Mult = 1      ECI = 3.300000000000000E-002    Entities:  COOH* C* 
+      161. CO+O_pair:             Mult = 1      ECI = -3.200000000000000E-002   Entities:  CO* O* 
+      162. CHO+CH_pair:           Mult = 1      ECI = 1.000000000000000E-002    Entities:  CHO* CH* 
+      163. CH2_Pt+CH2_Pt_pair:    Mult = 2      ECI = 0.259000000000000         Entities:  CH2_Pt* CH2_Pt* 
+      164. CHO_Pt+CHO_Pt_pair:    Mult = 2      ECI = 0.278000000000000         Entities:  CHO_Pt* CHO_Pt* 
+      165. CH3+OH_pair:           Mult = 1      ECI = -0.265000000000000        Entities:  CH3* OH* 
+      166. CH3_Pt+H2O_Pt_pair:    Mult = 1      ECI = -8.300000000000000E-002   Entities:  CH3_Pt* H2O_Pt* 
+      167. CO2_Pt+H2O_Pt_pair:    Mult = 1      ECI = -0.656000000000000        Entities:  CO2_Pt* H2O_Pt* 
+      168. CO2+CH2_pair:          Mult = 1      ECI = -0.217000000000000        Entities:  CO2* CH2* 
+      169. CHO_Pt+OH_Pt_pair:     Mult = 1      ECI = 9.000000000000000E-002    Entities:  CHO_Pt* OH_Pt* 
+      170. COH+O_pair:            Mult = 1      ECI = 9.400000000000000E-002    Entities:  COH* O* 
+      171. COOH+O_pair:           Mult = 1      ECI = -2.300000000000000E-002   Entities:  COOH* O* 
+      172. H2O+O_pair:            Mult = 1      ECI = -4.100000000000000E-002   Entities:  H2O* O* 
+      173. CO+C_pair:             Mult = 1      ECI = 0.117000000000000         Entities:  CO* C* 
+      174. CO2_Pt+CO_Pt_pair:     Mult = 1      ECI = 0.163000000000000         Entities:  CO2_Pt* CO_Pt* 
+      175. COOH+H2O_pair:         Mult = 1      ECI = -2.300000000000000E-002   Entities:  COOH* H2O* 
+
+Finished reading energetics input.
+
+Mechanism setup:
+~~~~~~~~~~~~~~~~
+
+    Number of elementary steps: 238
+
+    Maximum number of sites involved in a step: 6
+
+    Reaction network:
+
+        1. aCH4_HfC_fwd:          A(Tini) =  8.6269E+03    Ea       =  0.95    k(Tini) =  3.9128E-01    Reaction: CH4  +  *(tC)  +  *(tC)  ->  CH3*(tC)  +  H*(tC)
+        2. aCH4_HfC_rev:          A(Tini) =  1.4799E+13  [ Ea-ideal =  1.23    k(Tini) =  3.3549E+07 ]  Reaction: CH3*(tC)  +  H*(tC)  ->  CH4  +  *(tC)  +  *(tC)
+        3. aCH4_Pt-1_fwd:         A(Tini) =  1.5789E+05    Ea       =  0.03    k(Tini) =  1.1627E+05    Reaction: CH4  +  *(Pt)  +  *(Pt)  +  *(Pt)  ->  CH3_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+        4. aCH4_Pt-1_rev:         A(Tini) =  4.5560E+13  [ Ea-ideal =  1.02    k(Tini) =  9.5667E+08 ]  Reaction: CH3_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  CH4  +  *(Pt)  +  *(Pt)  +  *(Pt)
+        5. aCH4_Pt-2_fwd:         A(Tini) =  1.5789E+05    Ea       =  0.03    k(Tini) =  1.1627E+05    Reaction: CH4  +  *(Pt)  +  *(Pt)  +  *(Pt)  ->  CH3_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+        6. aCH4_Pt-2_rev:         A(Tini) =  4.5560E+13  [ Ea-ideal =  1.02    k(Tini) =  9.5667E+08 ]  Reaction: CH3_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  CH4  +  *(Pt)  +  *(Pt)  +  *(Pt)
+        7. aCH4_in-1_fwd:         A(Tini) =  1.5789E+05    Ea       =  0.03    k(Tini) =  1.1627E+05    Reaction: CH4  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH3_Pt*(Pt,Pt)  +  H*(tC)
+        8. aCH4_in-1_rev:         A(Tini) =  2.5783E+13  [ Ea-ideal =  0.73    k(Tini) =  1.1661E+10 ]  Reaction: CH3_Pt*(Pt,Pt)  +  H*(tC)  ->  CH4  +  *(Pt)  +  *(Pt)  +  *(tC)
+        9. aCH4_in-2_fwd:         A(Tini) =  1.5789E+05    Ea       =  0.03    k(Tini) =  1.1627E+05    Reaction: CH4  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH3_Pt*(Pt,Pt)  +  H*(tC)
+       10. aCH4_in-2_rev:         A(Tini) =  2.5783E+13  [ Ea-ideal =  0.73    k(Tini) =  1.1661E+10 ]  Reaction: CH3_Pt*(Pt,Pt)  +  H*(tC)  ->  CH4  +  *(Pt)  +  *(Pt)  +  *(tC)
+       11. aO2_HfC_fwd:           A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: O2  +  *(tC)  +  *(tC)  ->  O*(tC)  +  O*(tC)
+       12. aO2_HfC_rev:           A(Tini) =  1.2142E+17  [ Ea-ideal =  5.27    k(Tini) =  9.1645E-08 ]  Reaction: O*(tC)  +  O*(tC)  ->  O2  +  *(tC)  +  *(tC)
+       13. aO2_Pt-1_fwd:          A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: O2  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  ->  O_Pt*(Pt,Pt)  +  O_Pt*(Pt,Pt)
+       14. aO2_Pt-1_rev:          A(Tini) =  9.1912E+16  [ Ea-ideal =  3.52    k(Tini) =  6.9291E+00 ]  Reaction: O_Pt*(Pt,Pt)  +  O_Pt*(Pt,Pt)  ->  O2  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)
+       15. aO2_Pt-2_fwd:          A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: O2  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  ->  O_Pt*(Pt,Pt)  +  O_Pt*(Pt,Pt)
+       16. aO2_Pt-2_rev:          A(Tini) =  9.1912E+16  [ Ea-ideal =  3.52    k(Tini) =  6.9291E+00 ]  Reaction: O_Pt*(Pt,Pt)  +  O_Pt*(Pt,Pt)  ->  O2  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)
+       17. aCO_HfC_fwd:           A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO  +  *(tC)  ->  CO*(tC)
+       18. aCO_HfC_rev:           A(Tini) =  8.7055E+15  [ Ea-ideal =  1.72    k(Tini) =  1.1109E+08 ]  Reaction: CO*(tC)  ->  CO  +  *(tC)
+       19. aCO_Pt_fwd:            A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: CO  +  *(Pt)  ->  CO_Pt*(Pt)
+       20. aCO_Pt_rev:            A(Tini) =  2.0080E+16  [ Ea-ideal =  2.48    k(Tini) =  8.9974E+04 ]  Reaction: CO_Pt*(Pt)  ->  CO  +  *(Pt)
+       21. aH2_HfC_fwd:           A(Tini) =  0.0000E+00    Ea       =  0.49    k(Tini) =  0.0000E+00    Reaction: H2  +  *(tC)  +  *(tC)  ->  H*(tC)  +  H*(tC)
+       22. aH2_HfC_rev:           A(Tini) =  3.5131E+12  [ Ea-ideal =  1.65    k(Tini) =  1.0101E+05 ]  Reaction: H*(tC)  +  H*(tC)  ->  H2  +  *(tC)  +  *(tC)
+       23. aH2_Pt_fwd:            A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(Pt)  +  *(Pt)  ->  H_Pt*(Pt)  +  H_Pt*(Pt)
+       24. aH2_Pt_rev:            A(Tini) =  2.3441E+15  [ Ea-ideal =  1.73    k(Tini) =  2.6635E+07 ]  Reaction: H_Pt*(Pt)  +  H_Pt*(Pt)  ->  H2  +  *(Pt)  +  *(Pt)
+       25. aH2_in_fwd:            A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  *(Pt)  +  *(tC)  ->  H_Pt*(Pt)  +  H*(tC)
+       26. aH2_in_rev:            A(Tini) =  1.3262E+15  [ Ea-ideal =  1.44    k(Tini) =  3.2460E+08 ]  Reaction: H_Pt*(Pt)  +  H*(tC)  ->  H2  +  *(Pt)  +  *(tC)
+       27. aH2_in_CH-1_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       28. aH2_in_CH-1_rev:       A(Tini) =  5.7942E+14  [ Ea-ideal =  1.15    k(Tini) =  3.0547E+09 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       29. aH2_in_CH-2_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       30. aH2_in_CH-2_rev:       A(Tini) =  5.7942E+14  [ Ea-ideal =  1.15    k(Tini) =  3.0547E+09 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       31. aH2_in_CH-3_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       32. aH2_in_CH-3_rev:       A(Tini) =  5.7942E+14  [ Ea-ideal =  1.15    k(Tini) =  3.0547E+09 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       33. aH2_in_CH-4_fwd:       A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       34. aH2_in_CH-4_rev:       A(Tini) =  5.7942E+14  [ Ea-ideal =  1.15    k(Tini) =  3.0547E+09 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       35. aH2_in_C-1_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       36. aH2_in_C-1_rev:        A(Tini) =  1.2918E+14  [ Ea-ideal =  1.15    k(Tini) =  6.8104E+08 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       37. aH2_in_C-2_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       38. aH2_in_C-2_rev:        A(Tini) =  1.2918E+14  [ Ea-ideal =  1.15    k(Tini) =  6.8104E+08 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       39. aH2_in_C-3_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       40. aH2_in_C-3_rev:        A(Tini) =  1.2918E+14  [ Ea-ideal =  1.15    k(Tini) =  6.8104E+08 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       41. aH2_in_C-4_fwd:        A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)
+       42. aH2_in_C-4_rev:        A(Tini) =  1.2918E+14  [ Ea-ideal =  1.15    k(Tini) =  6.8104E+08 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  +  H*(tC)  ->  H2  +  C_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  +  *(tC)
+       43. aCO2_HfC_fwd:          A(Tini) =  1.7156E+04    Ea       =  0.00    k(Tini) =  1.7156E+04    Reaction: CO2  +  *(tC)  ->  CO2*(tC)
+       44. aCO2_HfC_rev:          A(Tini) =  8.0542E+16  [ Ea-ideal =  1.57    k(Tini) =  5.0551E+09 ]  Reaction: CO2*(tC)  ->  CO2  +  *(tC)
+       45. aCO2_Pt_fwd:           A(Tini) =  8.5766E+04    Ea       =  0.00    k(Tini) =  8.5766E+04    Reaction: CO2  +  *(Pt)  +  *(Pt)  +  *(Pt)  ->  CO2_Pt*(Pt,Pt,Pt)
+       46. aCO2_Pt_rev:           A(Tini) =  5.9347E+16  [ Ea-ideal =  0.68    k(Tini) =  4.6704E+13 ]  Reaction: CO2_Pt*(Pt,Pt,Pt)  ->  CO2  +  *(Pt)  +  *(Pt)  +  *(Pt)
+       47. aH2O_HfC_fwd:          A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2O  +  *(tM)  ->  H2O*(tM)
+       48. aH2O_HfC_rev:          A(Tini) =  1.0522E+15  [ Ea-ideal =  0.79    k(Tini) =  2.5540E+11 ]  Reaction: H2O*(tM)  ->  H2O  +  *(tM)
+       49. aH2O_Pt_fwd:           A(Tini) =  0.0000E+00    Ea       =  0.00    k(Tini) =  0.0000E+00    Reaction: H2O  +  *(Pt)  ->  H2O_Pt*(Pt)
+       50. aH2O_Pt_rev:           A(Tini) =  5.1246E+15  [ Ea-ideal =  0.79    k(Tini) =  1.2439E+12 ]  Reaction: H2O_Pt*(Pt)  ->  H2O  +  *(Pt)
+       51. bCH3_HfC_fwd:          A(Tini) =  6.1590E+13    Ea       =  0.88    k(Tini) =  5.7239E+09    Reaction: CH3*(tC)  +  *(tC)  ->  CH2*(tC)  +  H*(tC)
+       52. bCH3_HfC_rev:          A(Tini) =  3.7624E+11  [ Ea-ideal =  0.83    k(Tini) =  5.6210E+07 ]  Reaction: CH2*(tC)  +  H*(tC)  ->  CH3*(tC)  +  *(tC)
+       53. bCH3_Pt-1_fwd:         A(Tini) =  1.5640E+13    Ea       =  0.47    k(Tini) =  1.1340E+11    Reaction: CH3_Pt*(Pt,Pt)  +  *(Pt)  ->  CH2_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+       54. bCH3_Pt-1_rev:         A(Tini) =  5.2571E+12  [ Ea-ideal =  0.85    k(Tini) =  6.4277E+08 ]  Reaction: CH2_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  CH3_Pt*(Pt,Pt)  +  *(Pt)
+       55. bCH3_Pt-2_fwd:         A(Tini) =  1.5640E+13    Ea       =  0.47    k(Tini) =  1.1340E+11    Reaction: CH3_Pt*(Pt,Pt)  +  *(Pt)  ->  CH2_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+       56. bCH3_Pt-2_rev:         A(Tini) =  5.2571E+12  [ Ea-ideal =  0.85    k(Tini) =  6.4277E+08 ]  Reaction: CH2_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  CH3_Pt*(Pt,Pt)  +  *(Pt)
+       57. bCH3_in-1_fwd:         A(Tini) =  1.5640E+13    Ea       =  0.47    k(Tini) =  1.1340E+11    Reaction: CH3_Pt*(Pt,Pt)  +  *(tC)  ->  CH2_Pt*(Pt,Pt)  +  H*(tC)
+       58. bCH3_in-1_rev:         A(Tini) =  2.9745E+12  [ Ea-ideal =  0.56    k(Tini) =  7.8337E+09 ]  Reaction: CH2_Pt*(Pt,Pt)  +  H*(tC)  ->  CH3_Pt*(Pt,Pt)  +  *(tC)
+       59. bCH3_in-2_fwd:         A(Tini) =  1.5640E+13    Ea       =  0.47    k(Tini) =  1.1340E+11    Reaction: CH3_Pt*(Pt,Pt)  +  *(tC)  ->  CH2_Pt*(Pt,Pt)  +  H*(tC)
+       60. bCH3_in-2_rev:         A(Tini) =  2.9745E+12  [ Ea-ideal =  0.56    k(Tini) =  7.8337E+09 ]  Reaction: CH2_Pt*(Pt,Pt)  +  H*(tC)  ->  CH3_Pt*(Pt,Pt)  +  *(tC)
+       61. bCH2_HfC_fwd:          A(Tini) =  3.5190E+12    Ea       =  0.72    k(Tini) =  1.6778E+09    Reaction: CH2*(tC)  +  *(tC)  ->  CH*(tC)  +  H*(tC)
+       62. bCH2_HfC_rev:          A(Tini) =  3.7384E+12  [ Ea-ideal =  0.66    k(Tini) =  3.5761E+09 ]  Reaction: CH*(tC)  +  H*(tC)  ->  CH2*(tC)  +  *(tC)
+       63. bCH2_in-1_fwd:         A(Tini) =  1.8800E+13    Ea       =  0.51    k(Tini) =  8.5695E+10    Reaction: CH2_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       64. bCH2_in-1_rev:         A(Tini) =  3.7562E+12  [ Ea-ideal =  1.10    k(Tini) =  3.3737E+07 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH2_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       65. bCH2_in-2_fwd:         A(Tini) =  1.8800E+13    Ea       =  0.51    k(Tini) =  8.5695E+10    Reaction: CH2_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       66. bCH2_in-2_rev:         A(Tini) =  3.7562E+12  [ Ea-ideal =  1.10    k(Tini) =  3.3737E+07 ]  Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH2_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       67. bCH_HfC_fwd:           A(Tini) =  4.0910E+13    Ea       =  1.28    k(Tini) =  5.3585E+07    Reaction: CH*(tC)  +  *(tC)  ->  C*(tC)  +  H*(tC)
+       68. bCH_HfC_rev:           A(Tini) =  1.5322E+12  [ Ea-ideal =  0.97    k(Tini) =  5.3950E+07 ]  Reaction: C*(tC)  +  H*(tC)  ->  CH*(tC)  +  *(tC)
+       69. bCH_in-1_fwd:          A(Tini) =  2.0040E+14    Ea       =  0.85    k(Tini) =  2.4762E+10    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       70. bCH_in-1_rev:          A(Tini) =  2.9497E+13  [ Ea-ideal =  1.27    k(Tini) =  4.3849E+07 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+       71. bCH_in-2_fwd:          A(Tini) =  2.0040E+14    Ea       =  0.85    k(Tini) =  2.4762E+10    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       72. bCH_in-2_rev:          A(Tini) =  2.9497E+13  [ Ea-ideal =  1.27    k(Tini) =  4.3849E+07 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+       73. bCH_in-3_fwd:          A(Tini) =  2.0040E+14    Ea       =  0.85    k(Tini) =  2.4762E+10    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       74. bCH_in-3_rev:          A(Tini) =  2.9497E+13  [ Ea-ideal =  1.27    k(Tini) =  4.3849E+07 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+       75. bCH_in-4_fwd:          A(Tini) =  2.0040E+14    Ea       =  0.85    k(Tini) =  2.4762E+10    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)
+       76. bCH_in-4_rev:          A(Tini) =  2.9497E+13  [ Ea-ideal =  1.27    k(Tini) =  4.3849E+07 ]  Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  H*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+       77. fCO_HfC_fwd:           A(Tini) =  9.3720E+12    Ea       =  1.32    k(Tini) =  7.9652E+06    Reaction: C*(tC)  +  O*(tC)  ->  CO*(tC)  +  *(tC)
+       78. fCO_HfC_rev:           A(Tini) =  4.8812E+12  [ Ea-ideal =  2.21    k(Tini) =  3.6190E+02 ]  Reaction: CO*(tC)  +  *(tC)  ->  C*(tC)  +  O*(tC)
+       79. fCO_in-1_fwd:          A(Tini) =  1.4000E+13    Ea       =  1.67    k(Tini) =  3.1249E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       80. fCO_in-1_rev:          A(Tini) =  1.5366E+12  [ Ea-ideal =  1.36    k(Tini) =  8.6090E+05 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       81. fCO_in-2_fwd:          A(Tini) =  1.4000E+13    Ea       =  1.67    k(Tini) =  3.1249E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       82. fCO_in-2_rev:          A(Tini) =  1.5366E+12  [ Ea-ideal =  1.36    k(Tini) =  8.6090E+05 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       83. fCO_in-3_fwd:          A(Tini) =  1.4000E+13    Ea       =  1.67    k(Tini) =  3.1249E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       84. fCO_in-3_rev:          A(Tini) =  1.5366E+12  [ Ea-ideal =  1.36    k(Tini) =  8.6090E+05 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       85. fCO_in-4_fwd:          A(Tini) =  1.4000E+13    Ea       =  1.67    k(Tini) =  3.1249E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       86. fCO_in-4_rev:          A(Tini) =  1.5366E+12  [ Ea-ideal =  1.36    k(Tini) =  8.6090E+05 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       87. CHtoCHO_HfC_fwd:       A(Tini) =  2.5670E+13    Ea       =  1.42    k(Tini) =  8.3534E+06    Reaction: CH*(tC)  +  O*(tC)  ->  CHO*(tC)  +  *(tC)
+       88. CHtoCHO_HfC_rev:       A(Tini) =  2.2617E+13  [ Ea-ideal =  1.82    k(Tini) =  1.0156E+05 ]  Reaction: CHO*(tC)  +  *(tC)  ->  CH*(tC)  +  O*(tC)
+       89. CHtoCHO_in-1_fwd:      A(Tini) =  8.1020E+12    Ea       =  1.46    k(Tini) =  1.6058E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       90. CHtoCHO_in-1_rev:      A(Tini) =  1.3414E+13  [ Ea-ideal =  0.67    k(Tini) =  1.1486E+10 ]  Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       91. CHtoCHO_in-2_fwd:      A(Tini) =  8.1020E+12    Ea       =  1.46    k(Tini) =  1.6058E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       92. CHtoCHO_in-2_rev:      A(Tini) =  1.3414E+13  [ Ea-ideal =  0.67    k(Tini) =  1.1486E+10 ]  Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       93. CHtoCHO_in-3_fwd:      A(Tini) =  8.1020E+12    Ea       =  1.46    k(Tini) =  1.6058E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       94. CHtoCHO_in-3_rev:      A(Tini) =  1.3414E+13  [ Ea-ideal =  0.67    k(Tini) =  1.1486E+10 ]  Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       95. CHtoCHO_in-4_fwd:      A(Tini) =  8.1020E+12    Ea       =  1.46    k(Tini) =  1.6058E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)
+       96. CHtoCHO_in-4_rev:      A(Tini) =  1.3414E+13  [ Ea-ideal =  0.67    k(Tini) =  1.1486E+10 ]  Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  O*(tC)
+       97. CHOtoCO_HfC_fwd:       A(Tini) =  4.4610E+14    Ea       =  1.29    k(Tini) =  5.2029E+08    Reaction: CHO*(tC)  +  *(tC)  ->  CO*(tC)  +  H*(tC)
+       98. CHOtoCO_HfC_rev:       A(Tini) =  9.8782E+12  [ Ea-ideal =  1.46    k(Tini) =  1.9579E+06 ]  Reaction: CO*(tC)  +  H*(tC)  ->  CHO*(tC)  +  *(tC)
+       99. CHOtoCO_Pt-1_fwd:      A(Tini) =  1.9170E+14    Ea       =  0.94    k(Tini) =  9.6621E+09    Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  ->  CO_Pt*(Pt)  +  *(Pt)  +  H_Pt*(Pt)
+      100. CHOtoCO_Pt-1_rev:      A(Tini) =  3.3063E+12  [ Ea-ideal =  2.14    k(Tini) =  5.4078E+02 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  H_Pt*(Pt)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)
+      101. CHOtoCO_Pt-2_fwd:      A(Tini) =  1.9170E+14    Ea       =  0.94    k(Tini) =  9.6621E+09    Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  ->  CO_Pt*(Pt)  +  *(Pt)  +  H_Pt*(Pt)
+      102. CHOtoCO_Pt-2_rev:      A(Tini) =  3.3063E+12  [ Ea-ideal =  2.14    k(Tini) =  5.4078E+02 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  H_Pt*(Pt)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)
+      103. CHOtoCO_in-1_fwd:      A(Tini) =  1.9170E+14    Ea       =  0.94    k(Tini) =  9.6621E+09    Reaction: CHO_Pt*(Pt,Pt)  +  *(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  H*(tC)
+      104. CHOtoCO_in-1_rev:      A(Tini) =  1.8702E+12  [ Ea-ideal =  1.84    k(Tini) =  6.5891E+03 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  H*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(tC)
+      105. CHOtoCO_in-2_fwd:      A(Tini) =  1.9170E+14    Ea       =  0.94    k(Tini) =  9.6621E+09    Reaction: CHO_Pt*(Pt,Pt)  +  *(tC)  ->  CO_Pt*(Pt)  +  *(Pt)  +  H*(tC)
+      106. CHOtoCO_in-2_rev:      A(Tini) =  1.8702E+12  [ Ea-ideal =  1.84    k(Tini) =  6.5891E+03 ]  Reaction: CO_Pt*(Pt)  +  *(Pt)  +  H*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(tC)
+      107. CtoCOH_HfC_fwd:        A(Tini) =  1.9170E+11    Ea       =  0.65    k(Tini) =  2.1033E+08    Reaction: C*(tC)  +  OH*(tM)  ->  COH*(tC)  +  *(tM)
+      108. CtoCOH_HfC_rev:        A(Tini) =  3.5033E+13  [ Ea-ideal =  0.98    k(Tini) =  1.1100E+09 ]  Reaction: COH*(tC)  +  *(tM)  ->  C*(tC)  +  OH*(tM)
+      109. CtoCOH_in-1_fwd:       A(Tini) =  2.5400E+11    Ea       =  1.26    k(Tini) =  4.2405E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  OH*(tM)  ->  COH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tM)
+      110. CtoCOH_in-1_rev:       A(Tini) =  1.0986E+13  [ Ea-ideal =  0.00    k(Tini) =  1.0986E+13 ]  Reaction: COH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tM)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  OH*(tM)
+      111. CtoCOH_in-2_fwd:       A(Tini) =  2.5400E+11    Ea       =  1.26    k(Tini) =  4.2405E+05    Reaction: C_Pt*(Pt,Pt,Pt,Pt)  +  OH*(tM)  ->  COH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tM)
+      112. CtoCOH_in-2_rev:       A(Tini) =  1.0986E+13  [ Ea-ideal =  0.00    k(Tini) =  1.0986E+13 ]  Reaction: COH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  +  *(tM)  ->  C_Pt*(Pt,Pt,Pt,Pt)  +  OH*(tM)
+      113. COHtoCHO_HfC_fwd:      A(Tini) =  2.6720E+15    Ea       =  1.56    k(Tini) =  1.9854E+08    Reaction: COH*(tC)  ->  CHO*(tC)
+      114. COHtoCHO_HfC_rev:      A(Tini) =  2.4787E+15  [ Ea-ideal =  2.35    k(Tini) =  4.1521E+04 ]  Reaction: CHO*(tC)  ->  COH*(tC)
+      115. COHtoCHO_Pt_fwd:       A(Tini) =  4.3510E+13    Ea       =  0.86    k(Tini) =  4.7369E+09    Reaction: COH_Pt*(Pt,Pt)  ->  CHO_Pt*(Pt,Pt)
+      116. COHtoCHO_Pt_rev:       A(Tini) =  8.1540E+13  [ Ea-ideal =  1.33    k(Tini) =  6.7497E+07 ]  Reaction: CHO_Pt*(Pt,Pt)  ->  COH_Pt*(Pt,Pt)
+      117. bCO2_HfC_fwd:          A(Tini) =  9.5470E+13    Ea       =  1.69    k(Tini) =  1.6719E+06    Reaction: CO2*(tC)  +  *(tC)  ->  CO*(tC)  +  O*(tC)
+      118. bCO2_HfC_rev:          A(Tini) =  3.8265E+12  [ Ea-ideal =  1.22    k(Tini) =  1.0270E+07 ]  Reaction: CO*(tC)  +  O*(tC)  ->  CO2*(tC)  +  *(tC)
+      119. bCO2_Pt_fwd:           A(Tini) =  6.6420E+13    Ea       =  0.64    k(Tini) =  7.6016E+10    Reaction: CO2_Pt*(Pt,Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  CO_Pt*(Pt)  +  O_Pt*(Pt,Pt)
+      120. bCO2_Pt_rev:           A(Tini) =  3.2416E+12  [ Ea-ideal =  0.94    k(Tini) =  1.5913E+08 ]  Reaction: *(Pt)  +  CO_Pt*(Pt)  +  O_Pt*(Pt,Pt)  ->  CO2_Pt*(Pt,Pt,Pt)  +  *(Pt)
+      121. bCO2_in_fwd:           A(Tini) =  3.6050E+14    Ea       =  1.04    k(Tini) =  6.3269E+09    Reaction: CO2_Pt*(Pt,Pt,Pt)  +  *(tC)  ->  *(Pt)  +  CO_Pt*(Pt)  +  *(Pt)  +  O*(tC)
+      122. bCO2_in_rev:           A(Tini) =  4.5221E+13  [ Ea-ideal =  2.21    k(Tini) =  3.4062E+03 ]  Reaction: *(Pt)  +  CO_Pt*(Pt)  +  *(Pt)  +  O*(tC)  ->  CO2_Pt*(Pt,Pt,Pt)  +  *(tC)
+      123. fOH_HfC_fwd:           A(Tini) =  1.0030E+13    Ea       =  1.40    k(Tini) =  3.7437E+06    Reaction: O*(tC)  +  *(tM)  +  H*(tC)  ->  *(tC)  +  OH*(tM)  +  *(tC)
+      124. fOH_HfC_rev:           A(Tini) =  1.3917E+12  [ Ea-ideal =  0.99    k(Tini) =  4.0957E+07 ]  Reaction: *(tC)  +  OH*(tM)  +  *(tC)  ->  O*(tC)  +  *(tM)  +  H*(tC)
+      125. fOH_Pt-1_fwd:          A(Tini) =  2.9310E+13    Ea       =  0.80    k(Tini) =  6.4019E+09    Reaction: O_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  OH_Pt*(Pt,Pt)  +  *(Pt)
+      126. fOH_Pt-1_rev:          A(Tini) =  1.0024E+14  [ Ea-ideal =  0.54    k(Tini) =  3.3827E+11 ]  Reaction: OH_Pt*(Pt,Pt)  +  *(Pt)  ->  O_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+      127. fOH_Pt-2_fwd:          A(Tini) =  2.9310E+13    Ea       =  0.80    k(Tini) =  6.4019E+09    Reaction: O_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  OH_Pt*(Pt,Pt)  +  *(Pt)
+      128. fOH_Pt-2_rev:          A(Tini) =  1.0024E+14  [ Ea-ideal =  0.54    k(Tini) =  3.3827E+11 ]  Reaction: OH_Pt*(Pt,Pt)  +  *(Pt)  ->  O_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+      129. fOH_in_a-1_fwd:        A(Tini) =  8.4440E+12    Ea       =  1.03    k(Tini) =  1.6296E+08    Reaction: O_Pt*(Pt,Pt)  +  H*(tC)  ->  OH_Pt*(Pt,Pt)  +  *(tC)
+      130. fOH_in_a-1_rev:        A(Tini) =  5.1052E+13  [ Ea-ideal =  1.06    k(Tini) =  7.0666E+08 ]  Reaction: OH_Pt*(Pt,Pt)  +  *(tC)  ->  O_Pt*(Pt,Pt)  +  H*(tC)
+      131. fOH_in_a-2_fwd:        A(Tini) =  8.4440E+12    Ea       =  1.03    k(Tini) =  1.6296E+08    Reaction: O_Pt*(Pt,Pt)  +  H*(tC)  ->  OH_Pt*(Pt,Pt)  +  *(tC)
+      132. fOH_in_a-2_rev:        A(Tini) =  5.1052E+13  [ Ea-ideal =  1.06    k(Tini) =  7.0666E+08 ]  Reaction: OH_Pt*(Pt,Pt)  +  *(tC)  ->  O_Pt*(Pt,Pt)  +  H*(tC)
+      133. fOH_in_b-1_fwd:        A(Tini) =  3.5980E+12    Ea       =  0.56    k(Tini) =  1.0095E+10    Reaction: O_Pt*(Pt,Pt)  +  *(tM)  +  H*(tC)  ->  *(Pt)  +  *(Pt)  +  OH*(tM)  +  *(tC)
+      134. fOH_in_b-1_rev:        A(Tini) =  1.2832E+12  [ Ea-ideal =  1.02    k(Tini) =  2.8403E+07 ]  Reaction: *(Pt)  +  *(Pt)  +  OH*(tM)  +  *(tC)  ->  O_Pt*(Pt,Pt)  +  *(tM)  +  H*(tC)
+      135. fH2O_HfC_fwd:          A(Tini) =  4.6340E+11    Ea       =  0.58    k(Tini) =  1.0418E+09    Reaction: OH*(tM)  +  H*(tC)  ->  H2O*(tM)  +  *(tC)
+      136. fH2O_HfC_rev:          A(Tini) =  6.7858E+12  [ Ea-ideal =  0.53    k(Tini) =  2.6127E+10 ]  Reaction: H2O*(tM)  +  *(tC)  ->  OH*(tM)  +  H*(tC)
+      137. fH2O_Pt-1_fwd:         A(Tini) =  2.8810E+13    Ea       =  1.44    k(Tini) =  7.4334E+06    Reaction: OH_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  *(Pt)  +  H2O_Pt*(Pt)  +  *(Pt)
+      138. fH2O_Pt-1_rev:         A(Tini) =  1.3713E+13  [ Ea-ideal =  1.52    k(Tini) =  1.4356E+06 ]  Reaction: *(Pt)  +  H2O_Pt*(Pt)  +  *(Pt)  ->  OH_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+      139. fH2O_Pt-2_fwd:         A(Tini) =  2.8810E+13    Ea       =  1.44    k(Tini) =  7.4334E+06    Reaction: OH_Pt*(Pt,Pt)  +  H_Pt*(Pt)  ->  *(Pt)  +  H2O_Pt*(Pt)  +  *(Pt)
+      140. fH2O_Pt-2_rev:         A(Tini) =  1.3713E+13  [ Ea-ideal =  1.52    k(Tini) =  1.4356E+06 ]  Reaction: *(Pt)  +  H2O_Pt*(Pt)  +  *(Pt)  ->  OH_Pt*(Pt,Pt)  +  H_Pt*(Pt)
+      141. fH2O_in-1_fwd:         A(Tini) =  4.0760E+13    Ea       =  1.67    k(Tini) =  9.4901E+05    Reaction: OH_Pt*(Pt,Pt)  +  H*(tC)  ->  *(Pt)  +  H2O_Pt*(Pt)  +  *(tC)
+      142. fH2O_in-1_rev:         A(Tini) =  3.4281E+13  [ Ea-ideal =  2.04    k(Tini) =  1.5035E+04 ]  Reaction: *(Pt)  +  H2O_Pt*(Pt)  +  *(tC)  ->  OH_Pt*(Pt,Pt)  +  H*(tC)
+      143. fH2O_in-2_fwd:         A(Tini) =  4.0760E+13    Ea       =  1.67    k(Tini) =  9.4901E+05    Reaction: OH_Pt*(Pt,Pt)  +  H*(tC)  ->  *(Pt)  +  H2O_Pt*(Pt)  +  *(tC)
+      144. fH2O_in-2_rev:         A(Tini) =  3.4281E+13  [ Ea-ideal =  2.04    k(Tini) =  1.5035E+04 ]  Reaction: *(Pt)  +  H2O_Pt*(Pt)  +  *(tC)  ->  OH_Pt*(Pt,Pt)  +  H*(tC)
+      145. CO2toCOOH_HfC_fwd:     A(Tini) =  2.6340E+12    Ea       =  1.57    k(Tini) =  1.7427E+05    Reaction: CO2*(tC)  +  H*(tC)  ->  COOH*(tC)  +  *(tC)
+      146. CO2toCOOH_HfC_rev:     A(Tini) =  1.6972E+13  [ Ea-ideal =  0.93    k(Tini) =  9.1130E+08 ]  Reaction: COOH*(tC)  +  *(tC)  ->  CO2*(tC)  +  H*(tC)
+      147. CO2toCOOH_Pt_fwd:      A(Tini) =  7.6590E+13    Ea       =  1.17    k(Tini) =  3.2355E+08    Reaction: CO2_Pt*(Pt,Pt,Pt)  +  H_Pt*(Pt)  ->  COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)
+      148. CO2toCOOH_Pt_rev:      A(Tini) =  2.8815E+14  [ Ea-ideal =  0.55    k(Tini) =  8.3887E+11 ]  Reaction: COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(Pt)  ->  CO2_Pt*(Pt,Pt,Pt)  +  H_Pt*(Pt)
+      149. CO2toCOOH_in-1_fwd:    A(Tini) =  4.3340E+13    Ea       =  1.63    k(Tini) =  1.4293E+06    Reaction: CO2_Pt*(Pt,Pt,Pt)  +  H*(tC)  ->  COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(tC)
+      150. CO2toCOOH_in-1_rev:    A(Tini) =  2.8816E+14  [ Ea-ideal =  1.30    k(Tini) =  3.0404E+08 ]  Reaction: COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(tC)  ->  CO2_Pt*(Pt,Pt,Pt)  +  H*(tC)
+      151. CO2toCOOH_in-2_fwd:    A(Tini) =  4.3340E+13    Ea       =  1.63    k(Tini) =  1.4293E+06    Reaction: CO2_Pt*(Pt,Pt,Pt)  +  H*(tC)  ->  COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(tC)
+      152. CO2toCOOH_in-2_rev:    A(Tini) =  2.8816E+14  [ Ea-ideal =  1.30    k(Tini) =  3.0404E+08 ]  Reaction: COOH_Pt*(Pt,Pt)  +  *(Pt)  +  *(tC)  ->  CO2_Pt*(Pt,Pt,Pt)  +  H*(tC)
+      153. COOHtoCO_HfC_fwd:      A(Tini) =  8.8070E+13    Ea       =  0.47    k(Tini) =  6.2525E+11    Reaction: COOH*(tC)  +  *(tM)  ->  CO*(tC)  +  OH*(tM)
+      154. COOHtoCO_HfC_rev:      A(Tini) =  7.5988E+10  [ Ea-ideal =  0.21    k(Tini) =  8.0327E+09 ]  Reaction: CO*(tC)  +  OH*(tM)  ->  COOH*(tC)  +  *(tM)
+      155. COOHtoCO_Pt-1_fwd:     A(Tini) =  3.8850E+14    Ea       =  1.04    k(Tini) =  6.8183E+09    Reaction: *(Pt)  +  COOH_Pt*(Pt,Pt)  ->  OH_Pt*(Pt,Pt)  +  CO_Pt*(Pt)
+      156. COOHtoCO_Pt-1_rev:     A(Tini) =  1.7236E+13  [ Ea-ideal =  1.70    k(Tini) =  2.9089E+05 ]  Reaction: OH_Pt*(Pt,Pt)  +  CO_Pt*(Pt)  ->  *(Pt)  +  COOH_Pt*(Pt,Pt)
+      157. COOHtoCO_Pt-2_fwd:     A(Tini) =  3.8850E+14    Ea       =  1.04    k(Tini) =  6.8183E+09    Reaction: *(Pt)  +  COOH_Pt*(Pt,Pt)  ->  OH_Pt*(Pt,Pt)  +  CO_Pt*(Pt)
+      158. COOHtoCO_Pt-2_rev:     A(Tini) =  1.7236E+13  [ Ea-ideal =  2.62    k(Tini) =  1.6817E+01 ]  Reaction: OH_Pt*(Pt,Pt)  +  CO_Pt*(Pt)  ->  *(Pt)  +  COOH_Pt*(Pt,Pt)
+      159. COOHtoCO_in-1_fwd:     A(Tini) =  3.8850E+14    Ea       =  1.04    k(Tini) =  6.8183E+09    Reaction: COOH_Pt*(Pt,Pt)  +  *(tM)  ->  *(Pt)  +  CO_Pt*(Pt)  +  OH*(tM)
+      160. COOHtoCO_in-1_rev:     A(Tini) =  1.0170E+12  [ Ea-ideal =  2.12    k(Tini) =  1.8879E+02 ]  Reaction: *(Pt)  +  CO_Pt*(Pt)  +  OH*(tM)  ->  COOH_Pt*(Pt,Pt)  +  *(tM)
+      161. COOHtoCO_in-2_fwd:     A(Tini) =  3.8850E+14    Ea       =  1.04    k(Tini) =  6.8183E+09    Reaction: COOH_Pt*(Pt,Pt)  +  *(tM)  ->  *(Pt)  +  CO_Pt*(Pt)  +  OH*(tM)
+      162. COOHtoCO_in-2_rev:     A(Tini) =  1.0170E+12  [ Ea-ideal =  2.12    k(Tini) =  1.8879E+02 ]  Reaction: *(Pt)  +  CO_Pt*(Pt)  +  OH*(tM)  ->  COOH_Pt*(Pt,Pt)  +  *(tM)
+      163. dO_HfC_fwd:            A(Tini) =  5.6600E+12    Ea       =  1.22    k(Tini) =  1.4410E+07    Reaction: O*(tC)  +  *(tC)  ->  *(tC)  +  O*(tC)
+      164. dO_HfC_rev:            A(Tini) =  5.6600E+12  [ Ea-ideal =  1.22    k(Tini) =  1.4410E+07 ]  Reaction: *(tC)  +  O*(tC)  ->  O*(tC)  +  *(tC)
+      165. dO_Pt_fwd:             A(Tini) =  6.6600E+12    Ea       =  0.40    k(Tini) =  9.7911E+10    Reaction: O_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  O_Pt*(Pt,Pt)
+      166. dO_Pt_rev:             A(Tini) =  6.6600E+12  [ Ea-ideal =  0.40    k(Tini) =  9.7911E+10 ]  Reaction: *(Pt)  +  O_Pt*(Pt,Pt)  ->  O_Pt*(Pt,Pt)  +  *(Pt)
+      167. dO_in-1_fwd:           A(Tini) =  6.3190E+12    Ea       =  0.51    k(Tini) =  2.9418E+10    Reaction: O_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  O*(tC)
+      168. dO_in-1_rev:           A(Tini) =  1.6240E+13  [ Ea-ideal =  1.38    k(Tini) =  7.5648E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  O*(tC)  ->  O_Pt*(Pt,Pt)  +  *(tC)
+      169. dO_in-2_fwd:           A(Tini) =  6.3190E+12    Ea       =  0.51    k(Tini) =  2.9418E+10    Reaction: O_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  O*(tC)
+      170. dO_in-2_rev:           A(Tini) =  1.6240E+13  [ Ea-ideal =  1.38    k(Tini) =  7.5648E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  O*(tC)  ->  O_Pt*(Pt,Pt)  +  *(tC)
+      171. dH_HfC_fwd:            A(Tini) =  1.9320E+12    Ea       =  1.18    k(Tini) =  7.6610E+06    Reaction: H*(tC)  +  *(tC)  ->  *(tC)  +  H*(tC)
+      172. dH_HfC_rev:            A(Tini) =  1.9320E+12  [ Ea-ideal =  1.18    k(Tini) =  7.6610E+06 ]  Reaction: *(tC)  +  H*(tC)  ->  H*(tC)  +  *(tC)
+      173. dH_Pt_fwd:             A(Tini) =  1.7520E+13    Ea       =  0.40    k(Tini) =  2.5757E+11    Reaction: H_Pt*(Pt)  +  *(Pt)  ->  *(Pt)  +  H_Pt*(Pt)
+      174. dH_Pt_rev:             A(Tini) =  1.7520E+13  [ Ea-ideal =  0.40    k(Tini) =  2.5757E+11 ]  Reaction: *(Pt)  +  H_Pt*(Pt)  ->  H_Pt*(Pt)  +  *(Pt)
+      175. dH_in_fwd:             A(Tini) =  1.1370E+13    Ea       =  0.99    k(Tini) =  3.2079E+08    Reaction: H_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  H*(tC)
+      176. dH_in_rev:             A(Tini) =  6.4346E+12  [ Ea-ideal =  0.70    k(Tini) =  3.9105E+09 ]  Reaction: *(Pt)  +  H*(tC)  ->  H_Pt*(Pt)  +  *(tC)
+      177. dCO_HfC_fwd:           A(Tini) =  4.2770E+12    Ea       =  1.16    k(Tini) =  2.1617E+07    Reaction: CO*(tC)  +  *(tC)  ->  *(tC)  +  CO*(tC)
+      178. dCO_HfC_rev:           A(Tini) =  4.2770E+12  [ Ea-ideal =  1.16    k(Tini) =  2.1617E+07 ]  Reaction: *(tC)  +  CO*(tC)  ->  CO*(tC)  +  *(tC)
+      179. dCO_Pt_fwd:            A(Tini) =  3.9110E+12    Ea       =  0.55    k(Tini) =  1.2194E+10    Reaction: CO_Pt*(Pt)  +  *(Pt)  ->  *(Pt)  +  CO_Pt*(Pt)
+      180. dCO_Pt_rev:            A(Tini) =  3.9110E+12  [ Ea-ideal =  0.55    k(Tini) =  1.2194E+10 ]  Reaction: *(Pt)  +  CO_Pt*(Pt)  ->  CO_Pt*(Pt)  +  *(Pt)
+      181. dCO_in_fwd:            A(Tini) =  3.2540E+12    Ea       =  1.73    k(Tini) =  3.8568E+04    Reaction: CO_Pt*(Pt)  +  *(tC)  ->  *(Pt)  +  CO*(tC)
+      182. dCO_in_rev:            A(Tini) =  7.0540E+12  [ Ea-ideal =  0.98    k(Tini) =  2.3811E+08 ]  Reaction: *(Pt)  +  CO*(tC)  ->  CO_Pt*(Pt)  +  *(tC)
+      183. dOH_HfC_fwd:           A(Tini) =  1.7370E+11    Ea       =  0.40    k(Tini) =  2.5536E+09    Reaction: OH*(tM)  +  *(tM)  ->  *(tM)  +  OH*(tM)
+      184. dOH_HfC_rev:           A(Tini) =  1.7370E+11  [ Ea-ideal =  0.40    k(Tini) =  2.5536E+09 ]  Reaction: *(tM)  +  OH*(tM)  ->  OH*(tM)  +  *(tM)
+      185. dOH_Pt_fwd:            A(Tini) =  3.5950E+13    Ea       =  0.40    k(Tini) =  5.2851E+11    Reaction: OH_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  OH_Pt*(Pt,Pt)
+      186. dOH_Pt_rev:            A(Tini) =  3.5950E+13  [ Ea-ideal =  0.40    k(Tini) =  5.2851E+11 ]  Reaction: *(Pt)  +  OH_Pt*(Pt,Pt)  ->  OH_Pt*(Pt,Pt)  +  *(Pt)
+      187. dOH_in_fwd:            A(Tini) =  1.2680E+13    Ea       =  0.97    k(Tini) =  4.7564E+08    Reaction: OH_Pt*(Pt,Pt)  +  *(tM)  ->  *(Pt)  +  *(Pt)  +  OH*(tM)
+      188. dOH_in_rev:            A(Tini) =  7.4808E+11  [ Ea-ideal =  1.39    k(Tini) =  3.0866E+05 ]  Reaction: *(Pt)  +  *(Pt)  +  OH*(tM)  ->  OH_Pt*(Pt,Pt)  +  *(tM)
+      189. dH2O_HfC_fwd:          A(Tini) =  8.8400E+12    Ea       =  0.40    k(Tini) =  1.2996E+11    Reaction: H2O*(tM)  +  *(tM)  ->  *(tM)  +  H2O*(tM)
+      190. dH2O_HfC_rev:          A(Tini) =  8.8400E+12  [ Ea-ideal =  0.40    k(Tini) =  1.2996E+11 ]  Reaction: *(tM)  +  H2O*(tM)  ->  H2O*(tM)  +  *(tM)
+      191. dH2O_Pt_fwd:           A(Tini) =  2.4390E+12    Ea       =  0.40    k(Tini) =  3.5856E+10    Reaction: H2O_Pt*(Pt)  +  *(Pt)  ->  *(Pt)  +  H2O_Pt*(Pt)
+      192. dH2O_Pt_rev:           A(Tini) =  2.4390E+12  [ Ea-ideal =  0.40    k(Tini) =  3.5856E+10 ]  Reaction: *(Pt)  +  H2O_Pt*(Pt)  ->  H2O_Pt*(Pt)  +  *(Pt)
+      193. dH2O_in_fwd:           A(Tini) =  4.4940E+13    Ea       =  0.52    k(Tini) =  1.8629E+11    Reaction: H2O_Pt*(Pt)  +  *(tM)  ->  *(Pt)  +  H2O*(tM)
+      194. dH2O_in_rev:           A(Tini) =  4.6144E+13  [ Ea-ideal =  0.52    k(Tini) =  1.9128E+11 ]  Reaction: *(Pt)  +  H2O*(tM)  ->  H2O_Pt*(Pt)  +  *(tM)
+      195. dCH3_HfC_fwd:          A(Tini) =  4.4470E+13    Ea       =  1.27    k(Tini) =  6.8958E+07    Reaction: CH3*(tC)  +  *(tC)  ->  *(tC)  +  CH3*(tC)
+      196. dCH3_HfC_rev:          A(Tini) =  4.4470E+13  [ Ea-ideal =  1.27    k(Tini) =  6.8958E+07 ]  Reaction: *(tC)  +  CH3*(tC)  ->  CH3*(tC)  +  *(tC)
+      197. dCH3_Pt_fwd:           A(Tini) =  1.5400E+13    Ea       =  0.40    k(Tini) =  2.2640E+11    Reaction: CH3_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  CH3_Pt*(Pt,Pt)
+      198. dCH3_Pt_rev:           A(Tini) =  1.5400E+13  [ Ea-ideal =  0.40    k(Tini) =  2.2640E+11 ]  Reaction: *(Pt)  +  CH3_Pt*(Pt,Pt)  ->  CH3_Pt*(Pt,Pt)  +  *(Pt)
+      199. dCH3_in-1_fwd:         A(Tini) =  3.5840E+13    Ea       =  2.19    k(Tini) =  3.2469E+03    Reaction: CH3_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CH3*(tC)
+      200. dCH3_in-1_rev:         A(Tini) =  3.7655E+14  [ Ea-ideal =  1.78    k(Tini) =  2.7763E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  CH3*(tC)  ->  CH3_Pt*(Pt,Pt)  +  *(tC)
+      201. dCH3_in-2_fwd:         A(Tini) =  3.5840E+13    Ea       =  2.19    k(Tini) =  3.2469E+03    Reaction: CH3_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CH3*(tC)
+      202. dCH3_in-2_rev:         A(Tini) =  3.7655E+14  [ Ea-ideal =  1.78    k(Tini) =  2.7763E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  CH3*(tC)  ->  CH3_Pt*(Pt,Pt)  +  *(tC)
+      203. dCH2_HfC_fwd:          A(Tini) =  1.8420E+11    Ea       =  1.28    k(Tini) =  2.5976E+05    Reaction: CH2*(tC)  +  *(tC)  ->  *(tC)  +  CH2*(tC)
+      204. dCH2_HfC_rev:          A(Tini) =  1.8420E+11  [ Ea-ideal =  1.28    k(Tini) =  2.5976E+05 ]  Reaction: *(tC)  +  CH2*(tC)  ->  CH2*(tC)  +  *(tC)
+      205. dCH2_Pt_fwd:           A(Tini) =  1.5540E+13    Ea       =  0.40    k(Tini) =  2.2846E+11    Reaction: CH2_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  CH2_Pt*(Pt,Pt)
+      206. dCH2_Pt_rev:           A(Tini) =  1.5540E+13  [ Ea-ideal =  0.40    k(Tini) =  2.2846E+11 ]  Reaction: *(Pt)  +  CH2_Pt*(Pt,Pt)  ->  CH2_Pt*(Pt,Pt)  +  *(Pt)
+      207. dCH2_in-1_fwd:         A(Tini) =  6.5550E+12    Ea       =  0.94    k(Tini) =  3.3389E+08    Reaction: CH2_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CH2*(tC)
+      208. dCH2_in-1_rev:         A(Tini) =  2.2123E+12  [ Ea-ideal =  0.38    k(Tini) =  4.0589E+10 ]  Reaction: *(Pt)  +  *(Pt)  +  CH2*(tC)  ->  CH2_Pt*(Pt,Pt)  +  *(tC)
+      209. dCH2_in-2_fwd:         A(Tini) =  6.5550E+12    Ea       =  0.94    k(Tini) =  3.3389E+08    Reaction: CH2_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CH2*(tC)
+      210. dCH2_in-2_rev:         A(Tini) =  2.2123E+12  [ Ea-ideal =  0.38    k(Tini) =  4.0589E+10 ]  Reaction: *(Pt)  +  *(Pt)  +  CH2*(tC)  ->  CH2_Pt*(Pt,Pt)  +  *(tC)
+      211. dCH_HfC_fwd:           A(Tini) =  5.3770E+12    Ea       =  0.69    k(Tini) =  3.7878E+09    Reaction: CH*(tC)  +  *(tC)  ->  *(tC)  +  CH*(tC)
+      212. dCH_HfC_rev:           A(Tini) =  5.3770E+12  [ Ea-ideal =  0.69    k(Tini) =  3.7878E+09 ]  Reaction: *(tC)  +  CH*(tC)  ->  CH*(tC)  +  *(tC)
+      213. dCH_in-1_fwd:          A(Tini) =  6.7400E+12    Ea       =  1.43    k(Tini) =  1.9737E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)
+      214. dCH_in-1_rev:          A(Tini) =  1.2096E+13  [ Ea-ideal =  0.21    k(Tini) =  1.2991E+12 ]  Reaction: *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+      215. dCH_in-2_fwd:          A(Tini) =  6.7400E+12    Ea       =  1.43    k(Tini) =  1.9737E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)
+      216. dCH_in-2_rev:          A(Tini) =  1.2096E+13  [ Ea-ideal =  0.21    k(Tini) =  1.2991E+12 ]  Reaction: *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+      217. dCH_in-3_fwd:          A(Tini) =  6.7400E+12    Ea       =  1.43    k(Tini) =  1.9737E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)
+      218. dCH_in-3_rev:          A(Tini) =  1.2096E+13  [ Ea-ideal =  0.21    k(Tini) =  1.2991E+12 ]  Reaction: *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+      219. dCH_in-4_fwd:          A(Tini) =  6.7400E+12    Ea       =  1.43    k(Tini) =  1.9737E+06    Reaction: CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)
+      220. dCH_in-4_rev:          A(Tini) =  1.2096E+13  [ Ea-ideal =  0.21    k(Tini) =  1.2991E+12 ]  Reaction: *(Pt)  +  *(Pt)  +  *(Pt)  +  *(Pt)  +  CH*(tC)  ->  CH_Pt*(Pt,Pt,Pt,Pt)  +  *(tC)
+      221. dC_HfC_fwd:            A(Tini) =  2.7140E+12    Ea       =  1.45    k(Tini) =  6.2353E+05    Reaction: C*(tC)  +  *(tC)  ->  *(tC)  +  C*(tC)
+      222. dC_HfC_rev:            A(Tini) =  2.7140E+12  [ Ea-ideal =  1.45    k(Tini) =  6.2353E+05 ]  Reaction: *(tC)  +  C*(tC)  ->  C*(tC)  +  *(tC)
+      223. dCHO_HfC_fwd:          A(Tini) =  3.1510E+12    Ea       =  1.53    k(Tini) =  3.0159E+05    Reaction: CHO*(tC)  +  *(tC)  ->  *(tC)  +  CHO*(tC)
+      224. dCHO_HfC_rev:          A(Tini) =  3.1510E+12  [ Ea-ideal =  1.53    k(Tini) =  3.0159E+05 ]  Reaction: *(tC)  +  CHO*(tC)  ->  CHO*(tC)  +  *(tC)
+      225. dCHO_Pt_fwd:           A(Tini) =  1.8490E+13    Ea       =  0.42    k(Tini) =  2.2961E+11    Reaction: CHO_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  CHO_Pt*(Pt,Pt)
+      226. dCHO_Pt_rev:           A(Tini) =  1.8490E+13  [ Ea-ideal =  0.42    k(Tini) =  2.2961E+11 ]  Reaction: *(Pt)  +  CHO_Pt*(Pt,Pt)  ->  CHO_Pt*(Pt,Pt)  +  *(Pt)
+      227. dCHO_in-1_fwd:         A(Tini) =  9.7020E+12    Ea       =  1.46    k(Tini) =  1.9639E+06    Reaction: CHO_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CHO*(tC)
+      228. dCHO_in-1_rev:         A(Tini) =  9.2665E+12  [ Ea-ideal =  1.45    k(Tini) =  2.1974E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  CHO*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(tC)
+      229. dCHO_in-2_fwd:         A(Tini) =  9.7020E+12    Ea       =  1.46    k(Tini) =  1.9639E+06    Reaction: CHO_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  CHO*(tC)
+      230. dCHO_in-2_rev:         A(Tini) =  9.2665E+12  [ Ea-ideal =  1.45    k(Tini) =  2.1974E+06 ]  Reaction: *(Pt)  +  *(Pt)  +  CHO*(tC)  ->  CHO_Pt*(Pt,Pt)  +  *(tC)
+      231. dCOH_HfC_fwd:          A(Tini) =  6.3980E+12    Ea       =  1.29    k(Tini) =  8.0339E+06    Reaction: COH*(tC)  +  *(tC)  ->  *(tC)  +  COH*(tC)
+      232. dCOH_HfC_rev:          A(Tini) =  6.3980E+12  [ Ea-ideal =  1.29    k(Tini) =  8.0339E+06 ]  Reaction: *(tC)  +  COH*(tC)  ->  COH*(tC)  +  *(tC)
+      233. dCOH_Pt_fwd:           A(Tini) =  8.3140E+12    Ea       =  0.40    k(Tini) =  1.2223E+11    Reaction: COH_Pt*(Pt,Pt)  +  *(Pt)  ->  *(Pt)  +  COH_Pt*(Pt,Pt)
+      234. dCOH_Pt_rev:           A(Tini) =  8.3140E+12  [ Ea-ideal =  0.40    k(Tini) =  1.2223E+11 ]  Reaction: *(Pt)  +  COH_Pt*(Pt,Pt)  ->  COH_Pt*(Pt,Pt)  +  *(Pt)
+      235. dCOH_in-1_fwd:         A(Tini) =  2.3220E+13    Ea       =  1.37    k(Tini) =  1.2020E+07    Reaction: COH_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  COH*(tC)
+      236. dCOH_in-1_rev:         A(Tini) =  4.4809E+13  [ Ea-ideal =  1.02    k(Tini) =  9.1640E+08 ]  Reaction: *(Pt)  +  *(Pt)  +  COH*(tC)  ->  COH_Pt*(Pt,Pt)  +  *(tC)
+      237. dCOH_in-2_fwd:         A(Tini) =  2.3220E+13    Ea       =  1.37    k(Tini) =  1.2020E+07    Reaction: COH_Pt*(Pt,Pt)  +  *(tC)  ->  *(Pt)  +  *(Pt)  +  COH*(tC)
+      238. dCOH_in-2_rev:         A(Tini) =  4.4809E+13  [ Ea-ideal =  1.02    k(Tini) =  9.1640E+08 ]  Reaction: *(Pt)  +  *(Pt)  +  COH*(tC)  ->  COH_Pt*(Pt,Pt)  +  *(tC)
+
+    Stiffness scaling (non-symmetric) enabled for the following elementary steps:
+        Fwd/Rev: 1/2 - aCH4_HfC_fwd/aCH4_HfC_rev
+        Fwd/Rev: 3/4 - aCH4_Pt-1_fwd/aCH4_Pt-1_rev
+        Fwd/Rev: 5/6 - aCH4_Pt-2_fwd/aCH4_Pt-2_rev
+        Fwd/Rev: 7/8 - aCH4_in-1_fwd/aCH4_in-1_rev
+        Fwd/Rev: 9/10 - aCH4_in-2_fwd/aCH4_in-2_rev
+        Fwd/Rev: 43/44 - aCO2_HfC_fwd/aCO2_HfC_rev
+        Fwd/Rev: 45/46 - aCO2_Pt_fwd/aCO2_Pt_rev
+        Fwd/Rev: 51/52 - bCH3_HfC_fwd/bCH3_HfC_rev
+        Fwd/Rev: 53/54 - bCH3_Pt-1_fwd/bCH3_Pt-1_rev
+        Fwd/Rev: 55/56 - bCH3_Pt-2_fwd/bCH3_Pt-2_rev
+        Fwd/Rev: 57/58 - bCH3_in-1_fwd/bCH3_in-1_rev
+        Fwd/Rev: 59/60 - bCH3_in-2_fwd/bCH3_in-2_rev
+        Fwd/Rev: 61/62 - bCH2_HfC_fwd/bCH2_HfC_rev
+        Fwd/Rev: 63/64 - bCH2_in-1_fwd/bCH2_in-1_rev
+        Fwd/Rev: 65/66 - bCH2_in-2_fwd/bCH2_in-2_rev
+        Fwd/Rev: 67/68 - bCH_HfC_fwd/bCH_HfC_rev
+        Fwd/Rev: 69/70 - bCH_in-1_fwd/bCH_in-1_rev
+        Fwd/Rev: 71/72 - bCH_in-2_fwd/bCH_in-2_rev
+        Fwd/Rev: 73/74 - bCH_in-3_fwd/bCH_in-3_rev
+        Fwd/Rev: 75/76 - bCH_in-4_fwd/bCH_in-4_rev
+        Fwd/Rev: 77/78 - fCO_HfC_fwd/fCO_HfC_rev
+        Fwd/Rev: 79/80 - fCO_in-1_fwd/fCO_in-1_rev
+        Fwd/Rev: 81/82 - fCO_in-2_fwd/fCO_in-2_rev
+        Fwd/Rev: 83/84 - fCO_in-3_fwd/fCO_in-3_rev
+        Fwd/Rev: 85/86 - fCO_in-4_fwd/fCO_in-4_rev
+        Fwd/Rev: 87/88 - CHtoCHO_HfC_fwd/CHtoCHO_HfC_rev
+        Fwd/Rev: 89/90 - CHtoCHO_in-1_fwd/CHtoCHO_in-1_rev
+        Fwd/Rev: 91/92 - CHtoCHO_in-2_fwd/CHtoCHO_in-2_rev
+        Fwd/Rev: 93/94 - CHtoCHO_in-3_fwd/CHtoCHO_in-3_rev
+        Fwd/Rev: 95/96 - CHtoCHO_in-4_fwd/CHtoCHO_in-4_rev
+        Fwd/Rev: 97/98 - CHOtoCO_HfC_fwd/CHOtoCO_HfC_rev
+        Fwd/Rev: 99/100 - CHOtoCO_Pt-1_fwd/CHOtoCO_Pt-1_rev
+        Fwd/Rev: 101/102 - CHOtoCO_Pt-2_fwd/CHOtoCO_Pt-2_rev
+        Fwd/Rev: 103/104 - CHOtoCO_in-1_fwd/CHOtoCO_in-1_rev
+        Fwd/Rev: 105/106 - CHOtoCO_in-2_fwd/CHOtoCO_in-2_rev
+        Fwd/Rev: 107/108 - CtoCOH_HfC_fwd/CtoCOH_HfC_rev
+        Fwd/Rev: 109/110 - CtoCOH_in-1_fwd/CtoCOH_in-1_rev
+        Fwd/Rev: 111/112 - CtoCOH_in-2_fwd/CtoCOH_in-2_rev
+        Fwd/Rev: 113/114 - COHtoCHO_HfC_fwd/COHtoCHO_HfC_rev
+        Fwd/Rev: 115/116 - COHtoCHO_Pt_fwd/COHtoCHO_Pt_rev
+        Fwd/Rev: 117/118 - bCO2_HfC_fwd/bCO2_HfC_rev
+        Fwd/Rev: 119/120 - bCO2_Pt_fwd/bCO2_Pt_rev
+        Fwd/Rev: 121/122 - bCO2_in_fwd/bCO2_in_rev
+        Fwd/Rev: 123/124 - fOH_HfC_fwd/fOH_HfC_rev
+        Fwd/Rev: 125/126 - fOH_Pt-1_fwd/fOH_Pt-1_rev
+        Fwd/Rev: 127/128 - fOH_Pt-2_fwd/fOH_Pt-2_rev
+        Fwd/Rev: 129/130 - fOH_in_a-1_fwd/fOH_in_a-1_rev
+        Fwd/Rev: 131/132 - fOH_in_a-2_fwd/fOH_in_a-2_rev
+        Fwd/Rev: 133/134 - fOH_in_b-1_fwd/fOH_in_b-1_rev
+        Fwd/Rev: 135/136 - fH2O_HfC_fwd/fH2O_HfC_rev
+        Fwd/Rev: 137/138 - fH2O_Pt-1_fwd/fH2O_Pt-1_rev
+        Fwd/Rev: 139/140 - fH2O_Pt-2_fwd/fH2O_Pt-2_rev
+        Fwd/Rev: 141/142 - fH2O_in-1_fwd/fH2O_in-1_rev
+        Fwd/Rev: 143/144 - fH2O_in-2_fwd/fH2O_in-2_rev
+        Fwd/Rev: 145/146 - CO2toCOOH_HfC_fwd/CO2toCOOH_HfC_rev
+        Fwd/Rev: 147/148 - CO2toCOOH_Pt_fwd/CO2toCOOH_Pt_rev
+        Fwd/Rev: 149/150 - CO2toCOOH_in-1_fwd/CO2toCOOH_in-1_rev
+        Fwd/Rev: 151/152 - CO2toCOOH_in-2_fwd/CO2toCOOH_in-2_rev
+        Fwd/Rev: 153/154 - COOHtoCO_HfC_fwd/COOHtoCO_HfC_rev
+        Fwd/Rev: 155/156 - COOHtoCO_Pt-1_fwd/COOHtoCO_Pt-1_rev
+        Fwd/Rev: 157/158 - COOHtoCO_Pt-2_fwd/COOHtoCO_Pt-2_rev
+        Fwd/Rev: 159/160 - COOHtoCO_in-1_fwd/COOHtoCO_in-1_rev
+        Fwd/Rev: 161/162 - COOHtoCO_in-2_fwd/COOHtoCO_in-2_rev
+        Fwd/Rev: 167/168 - dO_in-1_fwd/dO_in-1_rev
+        Fwd/Rev: 169/170 - dO_in-2_fwd/dO_in-2_rev
+        Fwd/Rev: 175/176 - dH_in_fwd/dH_in_rev
+        Fwd/Rev: 181/182 - dCO_in_fwd/dCO_in_rev
+        Fwd/Rev: 187/188 - dOH_in_fwd/dOH_in_rev
+        Fwd/Rev: 193/194 - dH2O_in_fwd/dH2O_in_rev
+        Fwd/Rev: 207/208 - dCH2_in-1_fwd/dCH2_in-1_rev
+        Fwd/Rev: 209/210 - dCH2_in-2_fwd/dCH2_in-2_rev
+        Fwd/Rev: 213/214 - dCH_in-1_fwd/dCH_in-1_rev
+        Fwd/Rev: 215/216 - dCH_in-2_fwd/dCH_in-2_rev
+        Fwd/Rev: 217/218 - dCH_in-3_fwd/dCH_in-3_rev
+        Fwd/Rev: 219/220 - dCH_in-4_fwd/dCH_in-4_rev
+        Fwd/Rev: 227/228 - dCHO_in-1_fwd/dCHO_in-1_rev
+        Fwd/Rev: 229/230 - dCHO_in-2_fwd/dCHO_in-2_rev
+        Fwd/Rev: 235/236 - dCOH_in-1_fwd/dCOH_in-1_rev
+        Fwd/Rev: 237/238 - dCOH_in-2_fwd/dCOH_in-2_rev
+
+    Stiffness scaling (symmetric) enabled for the following elementary steps:
+        Fwd/Rev: 163/164 - dO_HfC_fwd/dO_HfC_rev
+        Fwd/Rev: 165/166 - dO_Pt_fwd/dO_Pt_rev
+        Fwd/Rev: 171/172 - dH_HfC_fwd/dH_HfC_rev
+        Fwd/Rev: 173/174 - dH_Pt_fwd/dH_Pt_rev
+        Fwd/Rev: 177/178 - dCO_HfC_fwd/dCO_HfC_rev
+        Fwd/Rev: 179/180 - dCO_Pt_fwd/dCO_Pt_rev
+        Fwd/Rev: 183/184 - dOH_HfC_fwd/dOH_HfC_rev
+        Fwd/Rev: 185/186 - dOH_Pt_fwd/dOH_Pt_rev
+        Fwd/Rev: 189/190 - dH2O_HfC_fwd/dH2O_HfC_rev
+        Fwd/Rev: 191/192 - dH2O_Pt_fwd/dH2O_Pt_rev
+        Fwd/Rev: 195/196 - dCH3_HfC_fwd/dCH3_HfC_rev
+        Fwd/Rev: 197/198 - dCH3_Pt_fwd/dCH3_Pt_rev
+        Fwd/Rev: 203/204 - dCH2_HfC_fwd/dCH2_HfC_rev
+        Fwd/Rev: 205/206 - dCH2_Pt_fwd/dCH2_Pt_rev
+        Fwd/Rev: 211/212 - dCH_HfC_fwd/dCH_HfC_rev
+        Fwd/Rev: 221/222 - dC_HfC_fwd/dC_HfC_rev
+        Fwd/Rev: 223/224 - dCHO_HfC_fwd/dCHO_HfC_rev
+        Fwd/Rev: 225/226 - dCHO_Pt_fwd/dCHO_Pt_rev
+        Fwd/Rev: 231/232 - dCOH_HfC_fwd/dCOH_HfC_rev
+        Fwd/Rev: 233/234 - dCOH_Pt_fwd/dCOH_Pt_rev
+
+Finished reading mechanism input.
+
+Preparing simulation:
+~~~~~~~~~~~~~~~~~~~~~
+
+    Constructing requested lattice structure.
+
+        Lattice structure written to lattice_output.txt
+
+
+    Pre-allocating KMC-simulation-handling datastructures... done!
+
+
+    Pre-allocating lattice-handling datastructures... done!
+
+
+    Pre-allocating event-rate-handling datastructures... done!
+
+    Initializing lattice state.
+
+        All lattice sites are vacant.
+
+    Initializing energetics.
+
+        Total adlayer energy: 0.000000000000000E+000
+
+    Initializing lattice events.
+
+
+        2295 lattice events found and stored in binary heap.
+
+Commencing simulation:
+~~~~~~~~~~~~~~~~~~~~~~
+
+Stiffness scaling module settings for prats2024 algorithm:
+
+    check_every = 500000
+    min_separation = 50.0000000000000
+    max_separation = 100.000000000000
+    tol_part_equil_ratio = 5.000000000000000E-002
+    upscaling_factor = 5.00000000000000
+    upscaling_limit = 100.000000000000
+    downscaling_limit = 2.00000000000000
+    min_noccur = 10
+
+Stiffness scaling module invoked at time t = 2.126585741967279E-003 and number of steps = 1000000:
+    Fastest non-equilibrated step: Elementary steps 59/60 (bCH3_in-2). Occurred 58/46 times (fwd/rev), 2.080000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 177/178 (dCO_HfC). Occurred 7/5 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 208556/208809 times (fwd/rev), 83.4730000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 208809/208556 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 6.269695431427159E-003 and number of steps = 1500000:
+    Fastest non-equilibrated step: Elementary steps 209/210 (dCH2_in-2). Occurred 59/47 times (fwd/rev), 2.120000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 1/7 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 114043/114202 times (fwd/rev), 45.6490000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 180/179 (dCO_Pt): Occurred 114202/114043 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.500000000000000
+        Elementary steps 179/180 (dCO_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 1.404168662556082E-002 and number of steps = 2000000:
+    Fastest non-equilibrated step: Elementary steps 55/56 (bCH3_Pt-2). Occurred 44/36 times (fwd/rev), 1.600000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 4/2 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 95321/95945 times (fwd/rev), 38.2532000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 95945/95321 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.250000000000000
+        Elementary steps 179/180 (dCO_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 1.787784517564842E-002 and number of steps = 2500000:
+    Fastest non-equilibrated step: Elementary steps 81/82 (fCO_in-2). Occurred 33/41 times (fwd/rev), 1.480000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 1/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 112330/113012 times (fwd/rev), 45.0684000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 180/179 (dCO_Pt): Occurred 113012/112330 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.250000000000000
+        Elementary steps 179/180 (dCO_Pt): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 2.637669868436879E-002 and number of steps = 3000000:
+    Fastest non-equilibrated step: Elementary steps 53/54 (bCH3_Pt-1). Occurred 44/35 times (fwd/rev), 1.580000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 103557/104174 times (fwd/rev), 41.5462000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 104174/103557 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.125000000000000
+        Elementary steps 179/180 (dCO_Pt): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 4.307453075207423E-002 and number of steps = 3500000:
+    Fastest non-equilibrated step: Elementary steps 209/210 (dCH2_in-2). Occurred 171/136 times (fwd/rev), 6.140000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 10/3 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 88402/89001 times (fwd/rev), 35.4806000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 180/179 (dCO_Pt): Occurred 89001/88402 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 0.125000000000000
+        Elementary steps 179/180 (dCO_Pt): 0.125000000000000
+
+Stiffness scaling module invoked at time t = 5.986457501856324E-002 and number of steps = 4000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/57 times (fwd/rev), 1.140000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 65978/66230 times (fwd/rev), 26.4416000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 66230/65978 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 6.250000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 0.125000000000000
+
+Stiffness scaling module invoked at time t = 7.859655828372968E-002 and number of steps = 4500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/73 times (fwd/rev), 1.460000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 7/5 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 49433/49439 times (fwd/rev), 19.7744000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 49439/49433 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 0.125000000000000
+
+Stiffness scaling module invoked at time t = 9.259950660321585E-002 and number of steps = 5000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/58 times (fwd/rev), 1.160000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 16/14 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 74368/74311 times (fwd/rev), 29.7358000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 179/180 (dCO_Pt): Occurred 74368/74311 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 6.250000000000000E-002
+
+Stiffness scaling module invoked at time t = 0.114672383955250 and number of steps = 5500000:
+    Fastest non-equilibrated step: Elementary steps 53/54 (bCH3_Pt-1). Occurred 86/64 times (fwd/rev), 3.000000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 4/4 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 163/164 (dO_HfC). Occurred 65610/66064 times (fwd/rev), 26.3348000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 164/163 (dO_HfC): Occurred 66064/65610 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 163/164 (dO_HfC): 0.500000000000000
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 6.250000000000000E-002
+
+Stiffness scaling module invoked at time t = 0.139823865998398 and number of steps = 6000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/95 times (fwd/rev), 1.900000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 43/44 (aCO2_HfC). Occurred 46637/46588 times (fwd/rev), 18.6450000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 43/44 (aCO2_HfC): Occurred 46637/46588 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.500000000000000
+        Elementary steps 163/164 (dO_HfC): 0.500000000000000
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 6.250000000000000E-002
+
+Stiffness scaling module invoked at time t = 0.170695921046384 and number of steps = 6500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/116 times (fwd/rev), 2.320000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 1/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 163/164 (dO_HfC). Occurred 44789/44717 times (fwd/rev), 17.9012000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 163/164 (dO_HfC): Occurred 44789/44717 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.500000000000000
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 6.250000000000000E-002
+
+Stiffness scaling module invoked at time t = 0.208974171008549 and number of steps = 7000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/132 times (fwd/rev), 2.640000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 49870/49996 times (fwd/rev), 19.9732000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 180/179 (dCO_Pt): Occurred 49996/49870 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.500000000000000
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+
+Stiffness scaling module invoked at time t = 0.240055422874636 and number of steps = 7500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/124 times (fwd/rev), 2.480000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 205/206 (dCH2_Pt). Occurred 62562/62567 times (fwd/rev), 25.0258000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 206/205 (dCH2_Pt): Occurred 62567/62562 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.500000000000000
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 3.125000000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.275539607378687 and number of steps = 8000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/148 times (fwd/rev), 2.960000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 4/7 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 48358/48609 times (fwd/rev), 19.3934000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 48609/48358 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.500000000000000
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.324757345795845 and number of steps = 8500000:
+    Fastest non-equilibrated step: Elementary steps 67/68 (bCH_HfC). Occurred 368/300 times (fwd/rev), 0.133600000000000% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 12/5 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 43/44 (aCO2_HfC). Occurred 45607/45523 times (fwd/rev), 18.2260000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 43/44 (aCO2_HfC): Occurred 45607/45523 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.570559991836011
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.373379021353102 and number of steps = 9000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/174 times (fwd/rev), 3.480000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 189/190 (dH2O_HfC). Occurred 16/15 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 50207/49185 times (fwd/rev), 19.8784000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 221/222 (dC_HfC): Occurred 50207/49185 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.422400959984715 and number of steps = 9500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/162 times (fwd/rev), 3.240000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 2/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 205/206 (dCH2_Pt). Occurred 49053/49025 times (fwd/rev), 19.6156000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 205/206 (dCH2_Pt): Occurred 49053/49025 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.471572367055616 and number of steps = 10000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/184 times (fwd/rev), 3.680000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 211/212 (dCH_HfC). Occurred 48112/48353 times (fwd/rev), 19.2930000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 212/211 (dCH_HfC): Occurred 48353/48112 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 3.125000000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.534640127922804 and number of steps = 10500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/217 times (fwd/rev), 4.340000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 203/204 (dCH2_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 36895/36973 times (fwd/rev), 14.7736000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 180/179 (dCO_Pt): Occurred 36973/36895 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.250000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.589689286089192 and number of steps = 11000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/199 times (fwd/rev), 3.980000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 163/164 (dO_HfC). Occurred 51457/51815 times (fwd/rev), 20.6544000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 164/163 (dO_HfC): Occurred 51815/51457 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 1.562500000000000E-002
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.649743735003880 and number of steps = 11500000:
+    Fastest non-equilibrated step: Elementary steps 53/54 (bCH3_Pt-1). Occurred 262/213 times (fwd/rev), 9.500000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 39563/39624 times (fwd/rev), 15.8374000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 174/173 (dH_Pt): Occurred 39624/39563 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.500000000000000
+
+Stiffness scaling module invoked at time t = 0.713827817743115 and number of steps = 12000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/263 times (fwd/rev), 5.260000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 203/204 (dCH2_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 43426/43667 times (fwd/rev), 17.4186000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 222/221 (dC_HfC): Occurred 43667/43426 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.250000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 0.799979705353995 and number of steps = 12500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/272 times (fwd/rev), 5.440000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 107/108 (CtoCOH_HfC). Occurred 19/19 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 205/206 (dCH2_Pt). Occurred 46966/46966 times (fwd/rev), 18.7864000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 206/205 (dCH2_Pt): Occurred 46966/46966 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.285279995918005
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.125000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 0.880784898105178 and number of steps = 13000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/284 times (fwd/rev), 5.680000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 3/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 43/44 (aCO2_HfC). Occurred 42635/42480 times (fwd/rev), 17.0230000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 43/44 (aCO2_HfC): Occurred 42635/42480 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.500000000000000
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.125000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.500000000000000
+        Elementary steps 221/222 (dC_HfC): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 0.971946259564518 and number of steps = 13500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/321 times (fwd/rev), 6.419999999999999E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 211/212 (dCH_HfC). Occurred 39499/39637 times (fwd/rev), 15.8272000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 212/211 (dCH_HfC): Occurred 39637/39499 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.572649990566596
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 1.562500000000000E-002
+        Elementary steps 205/206 (dCH2_Pt): 0.125000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 1.05135774339061 and number of steps = 14000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/332 times (fwd/rev), 6.640000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 2/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 179/180 (dCO_Pt). Occurred 40945/40890 times (fwd/rev), 16.3670000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 179/180 (dCO_Pt): Occurred 40945/40890 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.573353159980300
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 0.125000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.250000000000000
+
+Stiffness scaling module invoked at time t = 1.15599910029711 and number of steps = 14500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/372 times (fwd/rev), 7.439999999999999E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 37488/37532 times (fwd/rev), 15.0040000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 222/221 (dC_HfC): Occurred 37532/37488 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.700851866677490
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 0.125000000000000
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.175212966669373
+
+Stiffness scaling module invoked at time t = 1.25898841581300 and number of steps = 15000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/351 times (fwd/rev), 7.020000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 205/206 (dCH2_Pt). Occurred 42872/42966 times (fwd/rev), 17.1676000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 206/205 (dCH2_Pt): Occurred 42966/42872 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.577653214626631
+        Elementary steps 221/222 (dC_HfC): Occurred 17421/17424 times (fwd/rev), too slow. StiffCoeffNew/Old = 1.42444031334067
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 0.125000000000000
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.36876598931451 and number of steps = 15500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/383 times (fwd/rev), 7.660000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 185/186 (dOH_Pt). Occurred 2/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 163/164 (dO_HfC). Occurred 40464/39944 times (fwd/rev), 16.0816000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 163/164 (dO_HfC): Occurred 40464/39944 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.669290967760102
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.48550201478106 and number of steps = 16000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/388 times (fwd/rev), 7.760000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 34267/34258 times (fwd/rev), 13.7050000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.59462727071932 and number of steps = 16500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/397 times (fwd/rev), 7.940000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 4/3 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 32698/32859 times (fwd/rev), 13.1114000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.70246618617328 and number of steps = 17000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/397 times (fwd/rev), 7.940000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 32370/32493 times (fwd/rev), 12.9726000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.81883693799396 and number of steps = 17500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/398 times (fwd/rev), 7.960000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 3/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 30828/30558 times (fwd/rev), 12.2772000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 1.92451420329996 and number of steps = 18000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/410 times (fwd/rev), 8.200000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 203/204 (dCH2_HfC). Occurred 1/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 163/164 (dO_HfC). Occurred 31731/31477 times (fwd/rev), 12.6416000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.03794195684359 and number of steps = 18500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/380 times (fwd/rev), 7.600000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 2/2 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 34414/33989 times (fwd/rev), 13.6806000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.15692423662022 and number of steps = 19000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/398 times (fwd/rev), 7.960000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 1/4 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 34307/34248 times (fwd/rev), 13.7110000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.26794594919661 and number of steps = 19500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/405 times (fwd/rev), 8.100000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 203/204 (dCH2_HfC). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 32157/32726 times (fwd/rev), 12.9766000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.37056091110763 and number of steps = 20000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/368 times (fwd/rev), 7.360000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 0/2 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 34632/34446 times (fwd/rev), 13.8156000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.47642745837461 and number of steps = 20500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/380 times (fwd/rev), 7.600000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 7/6 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 31246/31570 times (fwd/rev), 12.5632000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.58832766666729 and number of steps = 21000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/372 times (fwd/rev), 7.439999999999999E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 1/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 36872/36776 times (fwd/rev), 14.7296000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.67853804136487 and number of steps = 21500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/375 times (fwd/rev), 7.500000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 6/4 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 32404/32503 times (fwd/rev), 12.9814000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.249580413143869
+
+Stiffness scaling module invoked at time t = 2.78831604169801 and number of steps = 22000000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/381 times (fwd/rev), 7.620000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 195/196 (dCH3_HfC). Occurred 1/0 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 221/222 (dC_HfC). Occurred 39489/39400 times (fwd/rev), 15.7778000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        Elementary steps 221/222 (dC_HfC): Occurred 39489/39400 times (fwd/rev), too fast. StiffCoeffNew/Old = 0.682234758115107
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.170272432791476
+
+Stiffness scaling module invoked at time t = 2.89824706274036 and number of steps = 22500000:
+    Fastest non-equilibrated step: Elementary steps 17/18 (aCO_HfC). Occurred 0/419 times (fwd/rev), 8.380000000000000E-002% of total events.
+    Slowest equilibrated step: Elementary steps 165/166 (dO_Pt). Occurred 2/1 times (fwd/rev).
+    Fastest equilibrated step: Elementary steps 173/174 (dH_Pt). Occurred 37187/37184 times (fwd/rev), 14.8742000000000% of total events.
+
+    At least one non-equilibrated step has occurred (Case 1):
+        No equilibrated steps are too fast.
+        No equilibrated steps are too slow.
+
+    Updated list of downscaled steps:
+        Elementary steps 43/44 (aCO2_HfC): 0.142639997959003
+        Elementary steps 163/164 (dO_HfC): 8.366137097001276E-002
+        Elementary steps 173/174 (dH_Pt): 7.812500000000000E-003
+        Elementary steps 179/180 (dCO_Pt): 8.958643124692186E-003
+        Elementary steps 205/206 (dCH2_Pt): 7.220665182832885E-002
+        Elementary steps 211/212 (dCH_HfC): 0.286324995283298
+        Elementary steps 221/222 (dC_HfC): 0.170272432791476
+
+
+Simulation stopped:
+~~~~~~~~~~~~~~~~~~~
+ Current KMC time: 2.984253
+ Events occurred:  22863234
+ Event frequency:  7661293.
+
+Performance facts:
+~~~~~~~~~~~~~~~~~~
+
+Elapsed CPU time:         171310.5 seconds
+Elapsed clock time:       172000.0 seconds
+Setup clock time:         1.964488 seconds
+Simulation clock time:    171998.0 seconds
+
+Simulation clock time per KMC event: 7.5229094E-03 seconds
+Simulation clock time per KMC time:  57635.21 seconds/KMCTimeUnits
+
+Events per simulation clock hour:    478538
+KMC Dt per simulation clock hour:    6.2461812E-02 KMCTimeUnits
+
+Execution queue statistics:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Number of insertions:            539450157
+Number of removals:              539448673
+Number of updates:              5076756438
+
+Memory usage statistics:
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Used capacity of process queue:                    2295
+       ...out of max-allocated:                    4464  (  51.41% utilization )
+       ...with cap of:                            13950
+
+Used capacity of process-participation list:         66
+       ...out of max-allocated:                     128  (  51.56% utilization )
+       ...with cap of:                              200
+
+Used capacity of cluster list:                       29
+       ...out of max-allocated:                    1116  (   2.60% utilization )
+       ...with cap of:                            13950
+
+Used capacity of cluster-participation list:          7
+       ...out of max-allocated:                       8  (  87.50% utilization )
+       ...with cap of:                               60
+
+Used capacity of largest temporary array:           411
+       ...out of max-allocated:                     767  (  53.59% utilization )
+       ...with cap of:                             1250
+
+Restart information successfully written in file restart.inf.
+
+> Normal termination <
