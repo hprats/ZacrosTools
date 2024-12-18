@@ -66,10 +66,6 @@ plot_heatmap(
     ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='final_time',
     levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
-plot_heatmap(
-    ax=axs[3, 2], scan_path=scan_path, x=x_variable, y=y_variable, z='issues',
-    verbose=True, auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
-
 # Hide axis labels of intermediate subplots
 for i in range(3):
     for j in range(3):
@@ -77,6 +73,9 @@ for i in range(3):
 for i in range(3):
     for j in range(1, 3):
         axs[i, j].set_ylabel('')
+
+# Hide blank subplots
+axs[3, 2].axis('off')
 
 plt.tight_layout()
 plt.savefig('multiple_heatmaps.png', dpi=300, bbox_inches='tight', transparent=False)
