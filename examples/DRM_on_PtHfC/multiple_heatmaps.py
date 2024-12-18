@@ -31,7 +31,7 @@ for n, product in enumerate(['CO', 'H2', 'H2O']):
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(
         ax=axs[1, n], scan_path=scan_path, x=x_variable, y=y_variable, z="coverage",
-        surf_spec="total", site_type=site_type,
+        surf_spec='all', site_type=site_type,
         analysis_range=analysis_range, range_type=range_type, weights=weights,
         auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 

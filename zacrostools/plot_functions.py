@@ -69,7 +69,7 @@ def plot_heatmap(
     side_products : list, optional
         Side products for selectivity plots.
     surf_spec : str or list
-        Surface species for coverage plots.
+        Surface species for coverage plots. If 'all', the total coverage is computed.
     levels : list, optional
         Contour levels.
     min_molec : int, optional
@@ -373,11 +373,11 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
     if show_max and z != 'tof':
         raise PlotError("'show_max' parameter is only valid when z = 'tof'")
 
-    if z == "tof":
+    if z == 'tof':
         if not gas_spec:
             raise PlotError("'gas_spec' is required for 'tof' plots")
 
-    elif z == "dtof":
+    elif z == 'dtof':
         if not gas_spec or not scan_path_ref:
             raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'dtof' plots")
         if not os.path.isdir(scan_path_ref):
@@ -385,12 +385,12 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
         if min_molec != 0:
             print("Warning: 'min_molec' is ignored if z = 'dtof'")
 
-    elif z == "selectivity":
+    elif z == 'selectivity':
         if not main_product or side_products is None:
             raise PlotError("'main_product' is required and 'side_products' must be provided (can be an empty list) "
                             "for 'selectivity' plots")
 
-    elif z == "coverage":
+    elif z == 'coverage':
         if not surf_spec:
             raise PlotError("'surf_spec' is required for 'coverage' plots")
 
@@ -408,7 +408,7 @@ def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, analysis_range, 
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
             kmc_output = None
 
-    if z == "dtof":
+    if z == 'dtof':
         try:
             kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", analysis_range=analysis_range,
                                        range_type=range_type, weights=weights)
@@ -448,8 +448,8 @@ def extract_value(magnitude: str, path: str) -> float:
         if total_pressure <= 0:
             raise PlotError(f"Total pressure is zero or negative in {path}")
 
-        gas_specs_names = data.get("gas_specs_names")
-        gas_molar_fracs = data.get("gas_molar_fracs")
+        gas_specs_names = data.get('gas_specs_names')
+        gas_molar_fracs = data.get('gas_molar_fracs')
 
         if gas_specs_names is None or gas_molar_fracs is None:
             raise PlotError(f"Gas specifications or molar fractions missing in {input_file_path}")
@@ -497,7 +497,7 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
             kmc_output.total_production[prod] for prod in [main_product] + side_products)
 
     elif z == "coverage":
-        if surf_spec == 'total':
+        if surf_spec == 'all':
             df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
         else:
             coverage = 0.0

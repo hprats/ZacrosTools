@@ -9,7 +9,7 @@ plot_heatmap(
     x='pressure_CH4',
     y='pressure_CO2',
     z='coverage',
-    surf_spec="total",
+    surf_spec='all',
     site_type='tC',
     analysis_range=[50, 100],
     range_type='time',
