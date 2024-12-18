@@ -25,11 +25,7 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 - **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
 - **Documentation and examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
 
-<p align="center">
-  <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanTof.png?raw=true" alt="ScanTof" width="400"/>
-  <br/>
-  Example of turnover frequency heatmap generated using ZacrosTools.
-</p>
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap.png?raw=true" alt="TOF heatmap" width="500"/> </div>
 
 ## Installation
 
