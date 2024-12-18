@@ -9,7 +9,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='final_time',
+    z='finaltime',
     levels=np.logspace(-5, 7, num=13),
     verbose=True,
     auto_title=True,

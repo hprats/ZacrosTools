@@ -126,13 +126,13 @@ When running a set of KMC simulations at various operating conditions, 2D heatma
 
 - **`z`** (`str`): Magnitude to plot on the z-axis. Possible values:
   - `'tof'`: log₁₀ TOF (molec·s⁻¹·Å⁻²).
-  - `'tof_dif'`: Difference in log₁₀ TOF between two systems.
+  - `'dtof'`: Difference in log₁₀ TOF between two systems.
   - `'selectivity'`: Selectivity (%).
   - `'coverage'`: Coverage (%).
-  - `'phase_diagram'`: Most dominant surface species.
-  - `'final_time'`: log₁₀ Final time (s).
+  - `'phasediagram'`: Most dominant surface species.
+  - `'finaltime'`: log₁₀ Final time (s).
   - `'final_energy'`: Final energy (eV·Å⁻²).
-  - `'energy_slope'`: Energy slope (eV·Å⁻²·step⁻¹).
+  - `'energyslope'`: Energy slope (eV·Å⁻²·step⁻¹).
   - `'issues'`: To check for issues.
 
 Depending on the type of plot (`z`), some additional parameters might be needed (see below).
@@ -200,7 +200,7 @@ plt.show()
 
 #### TOF difference
 
-`z = 'tof_dif'`, plot the TOF difference (∆TOF, in molec·s⁻¹·Å⁻²) of a given gas-phase species between two simulations.
+`z = 'dtof'`, plot the TOF difference (∆TOF, in molec·s⁻¹·Å⁻²) of a given gas-phase species between two simulations.
 
 **Additional parameters:**
 
@@ -217,7 +217,7 @@ Optional:
   - `'time'` (based on simulated time)
   - `'nevents'` (based on the number of events)
 
-**Note:** The `min_molec` parameter is not allowed in `z = 'tof_dif'` plots.
+**Note:** The `min_molec` parameter is not allowed in `z = 'dtof'` plots.
 
 **Example:**
 
@@ -234,7 +234,7 @@ plot_heatmap(
     scan_path_ref='simulation_results_reference',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='tof_dif',
+    z='dtof',
     gas_spec='H2',
     min_molec=0,
     analysis_range=[50, 100],
@@ -359,7 +359,7 @@ plt.show()
 
 #### Phase diagram
 
-`z = 'phase_diagram'`, plot the most dominant surface species.
+`z = 'phasediagram'`, plot the most dominant surface species.
 
 **Additional parameters:**
 
@@ -387,7 +387,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='phase_diagram',
+    z='phasediagram',
     min_coverage=50.0,
     site_type='tC',
     surf_spec_values={
@@ -421,7 +421,7 @@ plt.show()
 
 #### Final time
 
-`z = 'final_time'`, plot the final time of the simulation (in s).
+`z = 'finaltime'`, plot the final time of the simulation (in s).
 
 **Additional parameters:**
 
@@ -443,7 +443,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='final_time',
+    z='finaltime',
     levels=np.logspace(-5, 7, num=13),
     verbose=True,
     auto_title=True,
@@ -460,7 +460,7 @@ plt.show()
 
 #### Energy slope
 
-`z = 'energy_slope'`, plot the slope of the lattice energy (in eV·Å⁻²·step⁻¹).
+`z = 'energyslope'`, plot the slope of the lattice energy (in eV·Å⁻²·step⁻¹).
 
 A high slope of the lattice energy indicates that the simulation might have not reached the steady state.
 
@@ -485,7 +485,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='energy_slope',
+    z='energyslope',
     range_type='nevents',
     auto_title=True,
     show_points=False,
@@ -585,7 +585,7 @@ for n, site_type in enumerate(['tC', 'tM', 'Pt']):
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(
-        ax=axs[2, n], scan_path=scan_path, x=x_variable, y=y_variable, z="phase_diagram",
+        ax=axs[2, n], scan_path=scan_path, x=x_variable, y=y_variable, z="phasediagram",
         min_coverage=min_coverage, site_type=site_type,
         surf_spec_values={
             'CH3': 0.5, 'CH3_Pt': 0.5, 'CH2': 0.5, 'CH2_Pt': 0.5, 'CH': 0.5, 'CH_Pt': 0.5, 'C': 0.5,
@@ -611,7 +611,7 @@ plot_heatmap(
     auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 plot_heatmap(
-    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='final_time',
+    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='finaltime',
     levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 # Hide axis labels of intermediate subplots

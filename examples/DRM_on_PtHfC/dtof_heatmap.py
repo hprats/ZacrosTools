@@ -10,7 +10,7 @@ plot_heatmap(
     scan_path_ref='simulation_results_reference',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='tof_dif',
+    z='dtof',
     gas_spec='H2',
     min_molec=0,
     analysis_range=[50, 100],

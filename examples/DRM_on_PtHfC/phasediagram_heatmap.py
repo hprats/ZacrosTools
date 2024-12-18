@@ -8,7 +8,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='phase_diagram',
+    z='phasediagram',
     min_coverage=50.0,
     site_type='tC',
     surf_spec_values={

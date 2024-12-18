@@ -29,8 +29,8 @@ def plot_heatmap(
         surf_spec: Union[str, list] = None,
         levels: Optional[Union[list, np.ndarray]] = None,
         min_molec: int = 0,
-        max_tof_dif: float = None,
-        min_tof_dif: float = None,
+        max_dtof: float = None,
+        min_dtof: float = None,
         site_type: str = 'default',
         min_coverage: Union[float, int] = 50.0,
         surf_spec_values: dict = None,
@@ -59,11 +59,11 @@ def plot_heatmap(
     y : str
         Magnitude to plot on the y-axis ('pressure_Y' or 'temperature').
     z : str
-        Magnitude to plot on the z-axis ('tof', 'tof_dif', 'selectivity', 'coverage', etc.).
+        Magnitude to plot on the z-axis ('tof', 'dtof', 'selectivity', 'coverage', etc.).
     gas_spec : str, optional
         Gas species product for tof plots.
     scan_path_ref : str, optional
-        Path for reference scan jobs, required for 'tof_dif' plots.
+        Path for reference scan jobs, required for 'dtof' plots.
     main_product : str, optional
         Main product for selectivity plots.
     side_products : list, optional
@@ -78,10 +78,10 @@ def plot_heatmap(
         Site type for coverage/phase diagrams. Default is 'default'.
     min_coverage : float, optional
         Minimum total coverage (%) to plot the dominant surface species on a phase diagram. Default is 20.0.
-    max_tof_dif : float, optional
+    max_dtof : float, optional
         Maximum absolute value for TOF differences. If None, it is automatically determined.
-    min_tof_dif : float, optional
-        Minimum absolute value threshold for TOF differences. If None, it is set to max_tof_dif / 1.0e5.
+    min_dtof : float, optional
+        Minimum absolute value threshold for TOF differences. If None, it is set to max_dtof / 1.0e5.
     surf_spec_values : dict, optional
         Surface species values for phase diagrams.
     tick_values : list, optional
@@ -153,9 +153,9 @@ def plot_heatmap(
                              side_products, site_type, simulation_path, analysis_range, verbose)
 
     # Handle plot default values
-    if z in ["phase_diagram", "issues"]:
+    if z in ["phasediagram", "issues"]:
         if surf_spec_values is None:
-            if z == "phase_diagram":
+            if z == "phasediagram":
                 input_files = glob(f"{scan_path}/*/simulation_input.dat")
                 if not input_files:
                     raise PlotError("No 'simulation_input.dat' found in scan_path directories.")
@@ -165,27 +165,27 @@ def plot_heatmap(
             else:
                 surf_spec_values = {}
         if tick_labels is None:
-            tick_labels = sorted(surf_spec_values.keys()) if z == "phase_diagram" else ['Yes', 'No']
+            tick_labels = sorted(surf_spec_values.keys()) if z == "phasediagram" else ['Yes', 'No']
         if tick_values is None:
-            if z == "phase_diagram":
+            if z == "phasediagram":
                 tick_values = [n + 0.5 for n in range(len(surf_spec_values))]
             else:
                 tick_values = [-0.5, 0.5]
 
     if levels is not None:
         levels = list(levels)  # to convert possible numpy arrays into lists
-    if z in ['selectivity', 'coverage', 'energy_slope']:
+    if z in ['selectivity', 'coverage', 'energyslope']:
         if levels is None:
             levels = {
                 "selectivity": np.linspace(0, 100, 11, dtype=int),
                 "coverage": np.linspace(0, 100, 11, dtype=int),
-                "energy_slope": np.logspace(-11, -8, num=7)
+                "energyslope": np.logspace(-11, -8, num=7)
             }[z]
         levels = list(levels)
 
     if cmap is None:
-        cmap = {"tof": "inferno", "tof_dif": "RdYlBu", "selectivity": "Greens", "coverage": "Oranges",
-                "phase_diagram": "bwr", "final_time": "inferno", "final_energy": "inferno", "energy_slope": None,
+        cmap = {"tof": "inferno", "dtof": "RdYlBu", "selectivity": "Greens", "coverage": "Oranges",
+                "phasediagram": "bwr", "finaltime": "inferno", "final_energy": "inferno", "energyslope": None,
                 "issues": "RdYlGn"}.get(z)
 
     # Prepare plot data (z_axis)
@@ -219,9 +219,9 @@ def plot_heatmap(
                     if df.loc[folder_name, "total_production"] >= min_molec:
                         z_axis[j, i] = z_val
 
-                elif z == "tof_dif":
-                    tof_dif = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
-                    z_val = tof_dif
+                elif z == "dtof":
+                    dtof = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
+                    z_val = dtof
                     if df.loc[folder_name, "total_production"] >= min_molec:
                         z_axis[j, i] = z_val
 
@@ -229,22 +229,22 @@ def plot_heatmap(
                     if df.loc[folder_name, "main_and_side_prod"] >= min_molec:
                         z_axis[j, i] = df.loc[folder_name, "selectivity"]
 
-                elif z == "phase_diagram" and df.loc[folder_name, "coverage"] > min_coverage:
+                elif z == "phasediagram" and df.loc[folder_name, "coverage"] > min_coverage:
                     z_axis[j, i] = surf_spec_values[df.loc[folder_name, "dominant_ads"]]
 
                 elif z == 'issues' and not np.isnan(df.loc[folder_name, "issues"]):
                     z_axis[j, i] = -0.5 if df.loc[folder_name, "issues"] else 0.5
 
-                elif z in {"coverage", "final_time", "final_energy", "energy_slope"}:
+                elif z in {"coverage", "finaltime", "final_energy", "energyslope"}:
                     z_axis[j, i] = df.loc[folder_name, z]
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     plot_types = {
-        'contourf': ['tof', 'selectivity', 'coverage', 'final_time'],
-        'pcolormesh': ['tof_dif', 'phase_diagram', 'energy_slope', 'issues']
+        'contourf': ['tof', 'selectivity', 'coverage', 'finaltime'],
+        'pcolormesh': ['dtof', 'phasediagram', 'energyslope', 'issues']
     }
-    z_data_in_log = ['tof', 'tof_dif', 'final_time', 'energy_slope']
+    z_data_in_log = ['tof', 'dtof', 'finaltime', 'energyslope']
 
     # Plot results
     cp, cbar = None, None
@@ -258,38 +258,38 @@ def plot_heatmap(
                              vmin=min(levels) if levels else None, vmax=max(levels) if levels else None)
 
     elif z in plot_types['pcolormesh']:
-        if z == "tof_dif":
-            if max_tof_dif is None:
+        if z == "dtof":
+            if max_dtof is None:
                 # Compute the maximum absolute value of z_axis
                 max_val = np.nanmax(np.abs(z_axis))
                 exponent = np.ceil(np.log10(max_val))
-                max_tof_dif = 10 ** exponent  # Round up to nearest power of 10
+                max_dtof = 10 ** exponent  # Round up to nearest power of 10
 
-            if min_tof_dif is None:
-                min_tof_dif = max_tof_dif / 1.0e4  # Set min_tof_dif
+            if min_dtof is None:
+                min_dtof = max_dtof / 1.0e4  # Set min_dtof
 
-            # Ensure min_tof_dif is not greater than max_tof_dif
-            min_tof_dif = min(min_tof_dif, max_tof_dif)
+            # Ensure min_dtof is not greater than max_dtof
+            min_dtof = min(min_dtof, max_dtof)
 
-            abs_max = max_tof_dif
+            abs_max = max_dtof
 
             # Handle cases where all data might be positive or negative
             if np.all(z_axis >= 0):
                 # All positive values
-                norm = LogNorm(vmin=max(z_axis[z_axis > 0].min(), min_tof_dif), vmax=abs_max)
+                norm = LogNorm(vmin=max(z_axis[z_axis > 0].min(), min_dtof), vmax=abs_max)
             elif np.all(z_axis <= 0):
                 # All negative values
-                norm = LogNorm(vmin=min(z_axis[z_axis < 0].max(), -abs_max), vmax=-min_tof_dif)
+                norm = LogNorm(vmin=min(z_axis[z_axis < 0].max(), -abs_max), vmax=-min_dtof)
             else:
                 # Symmetric log normalization
-                norm = SymLogNorm(linthresh=min_tof_dif, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+                norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
 
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
 
-        elif z == "phase_diagram":
+        elif z == "phasediagram":
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, vmin=0, vmax=len(tick_labels))
 
-        elif z == "energy_slope":
+        elif z == "energyslope":
             vmin, vmax = (min(levels), max(levels)) if levels else (None, None)
             cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
 
@@ -306,12 +306,12 @@ def plot_heatmap(
 
     # Plot colorbar
     if show_colorbar:
-        if z == "tof_dif":
+        if z == "dtof":
             # Create a divider for the axis to position the colorbar
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("right", size="5%", pad=0.05)
             cbar = plt.colorbar(cp, cax=cax)
-        elif z == "phase_diagram":
+        elif z == "phasediagram":
             cbar = plt.colorbar(cp, ax=ax, ticks=tick_values, spacing='proportional',
                                 boundaries=[n for n in range(len(tick_labels) + 1)],
                                 format=mticker.FixedFormatter(tick_labels))
@@ -364,8 +364,8 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
     if len(glob(f"{scan_path}/*")) == 0:
         raise PlotError(f"Scan path folder is empty: {scan_path}")
 
-    allowed_z_values = ["tof", "tof_dif", "selectivity", "coverage", "phase_diagram", "final_time", "final_energy",
-                        "energy_slope", "issues"]
+    allowed_z_values = ["tof", "dtof", "selectivity", "coverage", "phasediagram", "finaltime", "final_energy",
+                        "energyslope", "issues"]
 
     if z not in allowed_z_values:
         raise PlotError(f"Incorrect value for z: '{z}'. \nAllowed values are: {allowed_z_values}")
@@ -377,13 +377,13 @@ def validate_params(z, gas_spec, scan_path, scan_path_ref, min_molec, main_produ
         if not gas_spec:
             raise PlotError("'gas_spec' is required for 'tof' plots")
 
-    elif z == "tof_dif":
+    elif z == "dtof":
         if not gas_spec or not scan_path_ref:
-            raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'tof_dif' plots")
+            raise PlotError("'gas_spec' and 'scan_path_ref' are required for 'dtof' plots")
         if not os.path.isdir(scan_path_ref):
             raise PlotError(f"{scan_path_ref}: 'scan_path_ref' directory does not exist")
         if min_molec != 0:
-            print("Warning: 'min_molec' is ignored if z = 'tof_dif'")
+            print("Warning: 'min_molec' is ignored if z = 'dtof'")
 
     elif z == "selectivity":
         if not main_product or side_products is None:
@@ -408,7 +408,7 @@ def initialize_kmc_outputs(path, z, scan_path_ref, folder_name, analysis_range, 
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
             kmc_output = None
 
-    if z == "tof_dif":
+    if z == "dtof":
         try:
             kmc_output_ref = KMCOutput(path=f"{scan_path_ref}/{folder_name}", analysis_range=analysis_range,
                                        range_type=range_type, weights=weights)
@@ -478,15 +478,15 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
         df.loc[folder_name, z] = float('NaN')
         return df
 
-    if z == 'tof_dif' and kmc_output_ref is None:
+    if z == 'dtof' and kmc_output_ref is None:
         df.loc[folder_name, z] = float('NaN')
         return df
 
-    if z in ['tof', 'tof_dif']:
+    if z in ['tof', 'dtof']:
         df.loc[folder_name, "tof"] = kmc_output.tof[gas_spec]
         df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
 
-        if z == "tof_dif":
+        if z == "dtof":
             df.loc[folder_name, "tof_ref"] = kmc_output_ref.tof[gas_spec]
             df.loc[folder_name, "total_production_ref"] = kmc_output_ref.total_production[gas_spec]
 
@@ -507,11 +507,11 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
                 coverage += kmc_output.av_coverage_per_site_type[site_type].get(ads, 0.0)
             df.loc[folder_name, "coverage"] = coverage
 
-    elif z == "phase_diagram":
+    elif z == "phasediagram":
         df.loc[folder_name, "dominant_ads"] = kmc_output.dominant_ads_per_site_type[site_type]
         df.loc[folder_name, "coverage"] = kmc_output.av_total_coverage_per_site_type[site_type]
 
-    elif z in ['final_time', 'final_energy', 'energy_slope']:
+    elif z in ['finaltime', 'final_energy', 'energyslope']:
         df.loc[folder_name, z] = getattr(kmc_output, z)
 
     elif z == 'issues':
@@ -523,7 +523,7 @@ def process_z_value(z, df, folder_name, kmc_output, kmc_output_ref, gas_spec, su
 
 
 def get_plot_title(z, gas_spec, main_product, site_type):
-    formated_gas_species = convert_to_subscript(chemical_formula=gas_spec) if z in ["tof", "tof_dif"] else ""
+    formated_gas_species = convert_to_subscript(chemical_formula=gas_spec) if z in ["tof", "dtof"] else ""
     formated_main_product = convert_to_subscript(chemical_formula=main_product) if z == "selectivity" else ""
 
     # Escape underscores in site_type
@@ -531,17 +531,17 @@ def get_plot_title(z, gas_spec, main_product, site_type):
 
     title = {
         "tof": "TOF " + f"${formated_gas_species}$",
-        "tof_dif": "∆TOF " + f"${formated_gas_species}$",
+        "dtof": "∆TOF " + f"${formated_gas_species}$",
         "selectivity": f"${formated_main_product}$ selectivity (%)",
         "coverage": f"coverage ${formated_site_type}$",
-        "phase_diagram": f"phase diagram ${formated_site_type}$",
-        "final_time": "final time ($s$)",
+        "phasediagram": f"phase diagram ${formated_site_type}$",
+        "finaltime": "final time ($s$)",
         "final_energy": "final energy ($eV·Å^{{-2}}$)",
-        "energy_slope": "energy slope \n($eV·Å^{{-2}}·step^{{-1}}$)",
+        "energyslope": "energy slope \n($eV·Å^{{-2}}·step^{{-1}}$)",
         "issues": "issues"
     }.get(z)
 
-    pad = -28 if z == "energy_slope" else -14
+    pad = -28 if z == "energyslope" else -14
 
     return title, pad
 

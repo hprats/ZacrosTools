@@ -31,7 +31,7 @@ class KMCOutput:
         Number of events occurred.
     time : np.ndarray
         Simulated time (in seconds).
-    final_time : float
+    finaltime : float
         Final simulated time (in seconds).
     energy : np.ndarray
         Lattice energy (in eV·Å⁻²).
@@ -125,9 +125,9 @@ class KMCOutput:
 
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
-        self.final_time = data_specnum[-1, 2]
+        self.finaltime = data_specnum[-1, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
-        self.energy_slope = abs(np.polyfit(self.nevents, self.energy, 1)[0])  # in eV/Å2/step
+        self.energyslope = abs(np.polyfit(self.nevents, self.energy, 1)[0])  # in eV/Å2/step
         self.final_energy = data_specnum[-1, 4] / self.area
         self.av_energy = self.get_average(array=self.energy, weights=weights)
 

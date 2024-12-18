@@ -8,7 +8,7 @@ plot_heatmap(
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='energy_slope',
+    z='energyslope',
     range_type='nevents',
     auto_title=True,
     show_points=False,

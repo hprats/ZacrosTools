@@ -4,7 +4,7 @@ from zacrostools.kmc_output import KMCOutput
 
 def detect_issues(path, analysis_range):
 
-    energy_slope_threshold = 5.0e-10  # eV/Å²/step
+    energyslope_threshold = 5.0e-10  # eV/Å²/step
     time_linear_fit_threshold = 0.95
 
     def reduce_size(time, energy, nevents, size=100):
@@ -25,7 +25,7 @@ def detect_issues(path, analysis_range):
     # Check for a positive or negative trend in energy using linear regression
     coeffs_energy = np.polyfit(nevents_reduced, energy_reduced, 1)
     slope_energy = coeffs_energy[0]
-    energy_trend = abs(slope_energy) > energy_slope_threshold
+    energy_trend = abs(slope_energy) > energyslope_threshold
 
     # Perform linear regression on time vs. nevents
     coeffs_time = np.polyfit(nevents_reduced, time_reduced, 1)

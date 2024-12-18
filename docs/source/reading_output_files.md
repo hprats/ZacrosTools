@@ -59,14 +59,14 @@ All KMC results can be obtained from the different `KMCOutput` attributes.
 ### Simulated time
 
 - **`time`** (*np.ndarray*): Simulated time (in seconds).
-- **`final_time`** (*float*): Final simulated time (in seconds).
+- **`finaltime`** (*float*): Final simulated time (in seconds).
 
 ### Lattice energy
 
 - **`energy`** (*np.ndarray*): Lattice energy (in eV·Å⁻²).
 - **`av_energy`** (*float*): Average lattice energy (in eV·Å⁻²).
 - **`final_energy`** (*float*): Final lattice energy (in eV·Å⁻²).
-- **`energy_slope`** (*float*): Slope of the lattice energy over the number of events (in eV·Å⁻²·step⁻¹). A high value may indicate that the simulation has not reached steady-state.
+- **`energyslope`** (*float*): Slope of the lattice energy over the number of events (in eV·Å⁻²·step⁻¹). A high value may indicate that the simulation has not reached steady-state.
 
 ### Molecules consumed/produced and TOF
 
@@ -158,5 +158,5 @@ for site_type in kmc_output.site_types:
 ### Energy slope
 
 ```python
-print(f"Energy slope: {kmc_output.energy_slope:.3e} eV·Å⁻²·step⁻¹")
+print(f"Energy slope: {kmc_output.energyslope:.3e} eV·Å⁻²·step⁻¹")
 ```

@@ -173,7 +173,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     if len(times) == 0:
         raise ValueError("No data found in procstat_output.txt.")
 
-    final_time = times[-1]
+    finaltime = times[-1]
     final_nevents = total_events[-1]
 
     start_percent = analysis_range[0]
@@ -184,8 +184,8 @@ def parse_procstat_output_file(output_file: Union[str, Path],
 
     if range_type == 'time':
         # Convert percent of time to actual time
-        start_time = (start_percent / 100.0) * final_time
-        end_time = (end_percent / 100.0) * final_time
+        start_time = (start_percent / 100.0) * finaltime
+        end_time = (end_percent / 100.0) * finaltime
 
         # Find indices that bracket start_time and end_time
         # We want the block that is just before or at start_time and the block at or just after end_time

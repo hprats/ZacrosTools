@@ -37,7 +37,7 @@ for n, site_type in enumerate(['tC', 'tM', 'Pt']):
 
 for n, site_type in enumerate(['tC', 'tM', 'Pt']):
     plot_heatmap(
-        ax=axs[2, n], scan_path=scan_path, x=x_variable, y=y_variable, z="phase_diagram",
+        ax=axs[2, n], scan_path=scan_path, x=x_variable, y=y_variable, z="phasediagram",
         min_coverage=min_coverage, site_type=site_type,
         surf_spec_values={
             'CH3': 0.5, 'CH3_Pt': 0.5, 'CH2': 0.5, 'CH2_Pt': 0.5, 'CH': 0.5, 'CH_Pt': 0.5, 'C': 0.5,
@@ -63,7 +63,7 @@ plot_heatmap(
     auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 plot_heatmap(
-    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='final_time',
+    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='finaltime',
     levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 # Hide axis labels of intermediate subplots
