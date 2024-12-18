@@ -19,9 +19,9 @@ auto_title = True
 show_points = False
 show_colorbar = True
 
-fig, axs = plt.subplots(4, 4, figsize=(11, 8), sharey='row', sharex='col')
+fig, axs = plt.subplots(4, 3, figsize=(8.8, 8), sharey='row', sharex='col')
 
-for n, product in enumerate(['CO', 'H2', 'H2O', 'O2']):
+for n, product in enumerate(['CO', 'H2', 'H2O']):
     plot_heatmap(
         ax=axs[0, n], scan_path=scan_path, x=x_variable, y=y_variable, z="tof",
         gas_spec=product, min_molec=min_molec_tof,
@@ -63,29 +63,20 @@ plot_heatmap(
     auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 plot_heatmap(
-    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='energy_slope',
-    analysis_range=analysis_range, range_type='nevents',
-    auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
+    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable, z='final_time',
+    levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 plot_heatmap(
     ax=axs[3, 2], scan_path=scan_path, x=x_variable, y=y_variable, z='issues',
     verbose=True, auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
-plot_heatmap(
-    ax=axs[3, 3], scan_path=scan_path, x=x_variable, y=y_variable, z='final_time',
-    levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
-
 # Hide axis labels of intermediate subplots
 for i in range(3):
-    for j in range(4):
+    for j in range(3):
         axs[i, j].set_xlabel('')
 for i in range(3):
-    for j in range(1, 4):
+    for j in range(1, 3):
         axs[i, j].set_ylabel('')
-
-# Hide blank subplots
-axs[1, 3].axis('off')
-axs[2, 3].axis('off')
 
 plt.tight_layout()
 plt.savefig('multiple_heatmaps.png', dpi=300, bbox_inches='tight', transparent=False)
