@@ -9,7 +9,7 @@
 ```
 
 ```{eval-rst}
-.. autofunction:: zacrostools.lattice_input.LatticeModel
+.. autofunction:: zacrostools.lattice_model.LatticeModel
 ```
 
 ```{eval-rst}
