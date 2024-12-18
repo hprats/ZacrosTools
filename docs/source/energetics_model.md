@@ -18,11 +18,18 @@ The `EnergeticsModel` contains the information about each cluster included in th
 
 ### Example data table
 
-| index            | cluster_eng | site_types | lattice_state                  | neighboring | angles | graph_multiplicity |
-|------------------|-------------|------------|-------------------------------|-------------|--------|--------------------|
-| CO_on_site1      | -1.50       | 1          | ['1 CO* 1']                   | NaN         | NaN    | NaN                |
-| O2_dissociation  | -2.00       | 1 1        | ['1 O* 1', '2 O* 1']          | 1-2         | NaN    | NaN                |
-| CO2_formation    | -3.50       | 1 1 1      | ['1 CO* 1', '2 O* 1', '3 O* 1'] | 1-2 2-3     | 1-2-3:180 | 2                 |
+| index          | cluster_eng              | site_types | lattice_state                            | neighboring | angles | graph_multiplicity |
+|----------------|--------------------------|------------|------------------------------------------|-------------|--------|--------------------|
+| CO_point       | 0.2308527000000104       | tC         | ['1 CO* 1']                              | NaN         | NaN    | NaN                |
+| O_point        | -1.3260536999999744      | tC         | ['1 O* 1']                               | NaN         | NaN    | NaN                |
+| CO2_point      | -1.5718709999999767      | tC         | ['1 CO2* 1']                             | NaN         | NaN    | NaN                |
+| C_point        | 2.442806399999977        | tC         | ['1 C* 1']                               | NaN         | NaN    | NaN                |
+| CO2+CO2_pair   | 0.1439299999999548       | tC tC      | ['1 CO2* 1', '2 CO2* 1']                 | 1-2         | NaN    | 2.0                |
+| CO2+CO_pair    | -0.1832200000000057      | tC tC      | ['1 CO2* 1', '2 CO* 1']                  | 1-2         | NaN    | NaN                |
+| CO2+O_pair     | -0.1612800000000334      | tC tC      | ['1 CO2* 1', '2 O* 1']                   | 1-2         | NaN    | NaN                |
+| CO+CO_pair     | 0.1771099999999705       | tC tC      | ['1 CO* 1', '2 CO* 1']                   | 1-2         | NaN    | 2.0                |
+| CO+O_pair      | -0.0324900000000525      | tC tC      | ['1 CO* 1', '2 O* 1']                    | 1-2         | NaN    | NaN                |
+| O+O_pair       | 0.0333200000000033       | tC tC      | ['1 O* 1', '2 O* 1']                     | 1-2         | NaN    | 2.0                |
 
 ---
 
@@ -45,24 +52,64 @@ from zacrostools.energetics_model import EnergeticsModel
 
 # Define the energetics data
 clusters_data = {
-    'CO_on_site1': {
-        'cluster_eng': -1.50,
-        'site_types': '1',
+    'CO_point': {
+        'cluster_eng': 0.2308527000000104,
+        'site_types': 'tC',
         'lattice_state': ['1 CO* 1']
     },
-    'O2_dissociation': {
-        'cluster_eng': -2.00,
-        'site_types': '1 1',
-        'lattice_state': ['1 O* 1', '2 O* 1'],
+    'O_point': {
+        'cluster_eng': -1.3260536999999744,
+        'site_types': 'tC',
+        'lattice_state': ['1 O* 1']
+    },
+    'CO2_point': {
+        'cluster_eng': -1.5718709999999767,
+        'site_types': 'tC',
+        'lattice_state': ['1 CO2* 1']
+    },
+    'C_point': {
+        'cluster_eng': 2.442806399999977,
+        'site_types': 'tC',
+        'lattice_state': ['1 C* 1']
+    },
+    'CO2+CO2_pair': {
+        'cluster_eng': 0.1439299999999548,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 CO2* 1', '2 CO2* 1'],
+        'neighboring': '1-2',
+        'graph_multiplicity': 2.0
+    },
+    'CO2+CO_pair': {
+        'cluster_eng': -0.1832200000000057,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 CO2* 1', '2 CO* 1'],
         'neighboring': '1-2'
     },
-    'CO2_formation': {
-        'cluster_eng': -3.50,
-        'site_types': '1 1 1',
-        'lattice_state': ['1 CO* 1', '2 O* 1', '3 O* 1'],
-        'neighboring': '1-2 2-3',
-        'angles': '1-2-3:180',
-        'graph_multiplicity': 2
+    'CO2+O_pair': {
+        'cluster_eng': -0.1612800000000334,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 CO2* 1', '2 O* 1'],
+        'neighboring': '1-2'
+    },
+    'CO+CO_pair': {
+        'cluster_eng': 0.1771099999999705,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 CO* 1', '2 CO* 1'],
+        'neighboring': '1-2',
+        'graph_multiplicity': 2.0
+    },
+    'CO+O_pair': {
+        'cluster_eng': -0.0324900000000525,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 CO* 1', '2 O* 1'],
+        'neighboring': '1-2'
+    },
+    'O+O_pair': {
+        'cluster_eng': 0.0333200000000033,
+        'site_types': 'tC tC',
+        'lattice_state': ['1 O* 1', '2 O* 1'],
+        'neighboring': '1-2',
+        'graph_multiplicity': 2.0
     }
 }
 
@@ -77,10 +124,17 @@ You can load cluster energetics data from a CSV file. The CSV should have the re
 #### Example CSV (`energetics_data.csv`)
 
 ```text
-,index,cluster_eng,site_types,lattice_state,neighboring,angles,graph_multiplicity
-CO_on_site1,-1.50,1,"['1 CO* 1']",,,
-O2_dissociation,-2.00,"1 1","['1 O* 1', '2 O* 1']","1-2",,
-CO2_formation,-3.50,"1 1 1","['1 CO* 1', '2 O* 1', '3 O* 1']","1-2 2-3","1-2-3:180",2
+,index,cluster_eng,graph_multiplicity,lattice_state,neighboring,site_types
+CO_point,0.2308527000000104,,['1 CO* 1'],,tC
+O_point,-1.3260536999999744,,['1 O* 1'],,tC
+CO2_point,-1.5718709999999767,,['1 CO2* 1'],,tC
+C_point,2.442806399999977,,['1 C* 1'],,tC
+CO2+CO2_pair,0.1439299999999548,2.0,"['1 CO2* 1', '2 CO2* 1']",1-2,"tC tC"
+CO2+CO_pair,-0.1832200000000057,,"['1 CO2* 1', '2 CO* 1']",1-2,"tC tC"
+CO2+O_pair,-0.1612800000000334,,"['1 CO2* 1', '2 O* 1']",1-2,"tC tC"
+CO+CO_pair,0.1771099999999705,2.0,"['1 CO* 1', '2 CO* 1']",1-2,"tC tC"
+CO+O_pair,-0.0324900000000525,,"['1 CO* 1', '2 O* 1']",1-2,"tC tC"
+O+O_pair,0.0333200000000033,2.0,"['1 O* 1', '2 O* 1']",1-2,"tC tC"
 ```
 
 #### Loading from CSV
@@ -104,18 +158,81 @@ from zacrostools.energetics_model import EnergeticsModel
 
 # Create a DataFrame
 data = {
-    'cluster_eng': [-1.50, -2.00, -3.50],
-    'site_types': ['1', '1 1', '1 1 1'],
+    'cluster_eng': [
+        0.2308527000000104,
+        -1.3260536999999744,
+        -1.5718709999999767,
+        2.442806399999977,
+        0.1439299999999548,
+        -0.1832200000000057,
+        -0.1612800000000334,
+        0.1771099999999705,
+        -0.0324900000000525,
+        0.0333200000000033
+    ],
+    'graph_multiplicity': [
+        None,
+        None,
+        None,
+        None,
+        2.0,
+        None,
+        None,
+        2.0,
+        None,
+        2.0
+    ],
     'lattice_state': [
         ['1 CO* 1'],
-        ['1 O* 1', '2 O* 1'],
-        ['1 CO* 1', '2 O* 1', '3 O* 1']
+        ['1 O* 1'],
+        ['1 CO2* 1'],
+        ['1 C* 1'],
+        ['1 CO2* 1', '2 CO2* 1'],
+        ['1 CO2* 1', '2 CO* 1'],
+        ['1 CO2* 1', '2 O* 1'],
+        ['1 CO* 1', '2 CO* 1'],
+        ['1 CO* 1', '2 O* 1'],
+        ['1 O* 1', '2 O* 1']
     ],
-    'neighboring': [None, '1-2', '1-2 2-3'],
-    'angles': [None, None, '1-2-3:180'],
-    'graph_multiplicity': [None, None, 2]
+    'neighboring': [
+        None,
+        None,
+        None,
+        None,
+        '1-2',
+        '1-2',
+        '1-2',
+        '1-2',
+        '1-2',
+        '1-2'
+    ],
+    'site_types': [
+        'tC',
+        'tC',
+        'tC',
+        'tC',
+        'tC tC',
+        'tC tC',
+        'tC tC',
+        'tC tC',
+        'tC tC',
+        'tC tC'
+    ],
+    'angles': [None]*10
 }
-df = pd.DataFrame(data, index=['CO_on_site1', 'O2_dissociation', 'CO2_formation'])
+
+df = pd.DataFrame(data, index=[
+    'CO_point',
+    'O_point',
+    'CO2_point',
+    'C_point',
+    'CO2+CO2_pair',
+    'CO2+CO_pair',
+    'CO2+O_pair',
+    'CO+CO_pair',
+    'CO+O_pair',
+    'O+O_pair'
+])
 
 # Create the EnergeticsModel instance
 energetics_model = EnergeticsModel.from_df(df)
@@ -136,13 +253,11 @@ Use the `add_cluster` method to add a new cluster.
 ```python
 # Define the new cluster data
 new_cluster = {
-    'cluster_name': 'CO2_adsorption',
-    'cluster_eng': -4.00,
-    'site_types': '1 1 1',
-    'lattice_state': ['1 CO2* 1', '2 O* 1', '3 O* 1'],
-    'neighboring': '1-2 2-3',
-    'angles': '1-2-3:120',
-    'graph_multiplicity': 1
+    'cluster_name': 'new_cluster',
+    'cluster_eng': 1.0,
+    'site_types': 'tC tC',
+    'lattice_state': ['1 CO* 1', '2 C* 1'],
+    'neighboring': '1-2'
 }
 
 # Add the cluster to the EnergeticsModel
@@ -157,7 +272,7 @@ Use the `remove_clusters` method to remove clusters by name.
 
 ```python
 # List of clusters to remove
-clusters_to_remove = ['O2_dissociation']
+clusters_to_remove = ['CO2_point']
 
 # Remove clusters from the EnergeticsModel
 energetics_model.remove_clusters(clusters_to_remove)
@@ -203,15 +318,17 @@ print(energetics_model.df)
 **Output:**
 
 ```
-                 cluster_eng site_types                           lattice_state  \
-CO_on_site1            -1.50          1                         [1 CO* 1]   
-CO2_formation          -3.50      1 1 1  [1 CO* 1, 2 O* 1, 3 O* 1]   
-CO2_adsorption         -4.00      1 1 1  [1 CO2* 1, 2 O* 1, 3 O* 1]   
-
-              neighboring         angles  graph_multiplicity  
-CO_on_site1          None           None                None  
-CO2_formation      1-2 2-3  1-2-3:180                    2  
-CO2_adsorption     1-2 2-3  1-2-3:120                    1  
+                cluster_eng  graph_multiplicity                      lattice_state neighboring angles site_types
+CO_point          0.2308527                NaN                         [1 CO* 1]        None   None        tC
+O_point          -1.3260537                NaN                          [1 O* 1]        None   None        tC
+CO2_point        -1.5718710                NaN                       [1 CO2* 1]        None   None        tC
+C_point           2.4428064                NaN                         [1 C* 1]         None   None        tC
+CO2+CO2_pair      0.1439300                2.0       [1 CO2* 1, 2 CO2* 1]         1-2    None     tC tC
+CO2+CO_pair      -0.1832200                NaN         [1 CO2* 1, 2 CO* 1]         1-2    None     tC tC
+CO2+O_pair       -0.1612800                NaN         [1 CO2* 1, 2 O* 1]          1-2    None     tC tC
+CO+CO_pair        0.1771100                2.0         [1 CO* 1, 2 CO* 1]          1-2    None     tC tC
+CO+O_pair        -0.0324900                NaN         [1 CO* 1, 2 O* 1]           1-2    None     tC tC
+O+O_pair          0.0333200                2.0          [1 O* 1, 2 O* 1]           1-2    None     tC tC
 ```
 
 ---
@@ -225,16 +342,15 @@ from zacrostools.energetics_model import EnergeticsModel
 
 # Initial cluster data
 clusters_data = {
-    'CO_on_site1': {
-        'cluster_eng': -1.50,
-        'site_types': '1',
+    'CO_point': {
+        'cluster_eng': 0.2308527000000104,
+        'site_types': 'tC',
         'lattice_state': ['1 CO* 1']
     },
-    'O2_dissociation': {
-        'cluster_eng': -2.00,
-        'site_types': '1 1',
-        'lattice_state': ['1 O* 1', '2 O* 1'],
-        'neighboring': '1-2'
+    'O_point': {
+        'cluster_eng': -1.3260536999999744,
+        'site_types': 'tC',
+        'lattice_state': ['1 O* 1']
     }
 }
 
@@ -243,17 +359,14 @@ energetics_model = EnergeticsModel.from_dict(clusters_data)
 
 # Add a new cluster
 energetics_model.add_cluster(cluster_info={
-    'cluster_name': 'CO2_formation',
-    'cluster_eng': -3.50,
-    'site_types': '1 1 1',
-    'lattice_state': ['1 CO* 1', '2 O* 1', '3 O* 1'],
-    'neighboring': '1-2 2-3',
-    'angles': '1-2-3:180',
-    'graph_multiplicity': 2
+    'cluster_name': 'CO2_point',
+    'cluster_eng': -1.5718709999999767,
+    'site_types': 'tC',
+    'lattice_state': ['1 CO2* 1']
 })
 
 # Remove an existing cluster
-energetics_model.remove_clusters(['O2_dissociation'])
+energetics_model.remove_clusters(['O_point'])
 
 # Write the energetics input file
 energetics_model.write_energetics_input(output_dir='kmc_simulation')

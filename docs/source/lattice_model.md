@@ -65,16 +65,13 @@ This method allows you to define a custom lattice by specifying the unit cell ve
   - If providing a dictionary, it maps site pairs to a list of relationship keywords.
 - **`max_distances`** (`Dict[str, float]`, required if `neighboring_structure='from_distances'`): Defines maximum distances for neighbor pairs.
 
-#### Neighboring structure format
+#### Example 
 
-When specifying the `neighboring_structure` directly as a dictionary:
+The following examples show two different ways to create the lattice model for a HfC(001) surface, as described in the image below:
 
-- **Keys**: Site pairs in the format `'1-2'`, where numbers represent site indices.
-- **Values**: A list of relationship keywords (e.g., `['north', 'east']`).
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice_model_HfC.png?raw=true" alt="Molecules produced" width="500"/> </div>
 
-This allows multiple relationships to be specified for the same site pair.
-
-#### Example with direct neighboring structure
+##### Specifying a neighboring structure
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -107,7 +104,7 @@ lattice_model = LatticeModel(
 )
 ```
 
-#### Example with automatic neighboring structure generation
+##### Generating the neighboring structure automatically
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -262,137 +259,38 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 
 ---
 
-## Full examples
+## Full example
 
-### Example 1: Creating a default triangular lattice
+This example shows how to create a lattice model for a Pt4 cluster supported on a HfC(001) surface, as described in the image below:
 
-```python
-from zacrostools.lattice_model import LatticeModel
-
-# Create a default triangular lattice
-lattice_model = LatticeModel(
-    lattice_type='default_choice',
-    default_lattice_type='triangular_periodic',
-    lattice_constant=2.5,
-    copies=[20, 20]
-)
-
-# Write the lattice input file
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
-```
-
-### Example 2: Defining a custom periodic cell with direct neighboring structure
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice_model_PtHfC.png?raw=true" alt="Molecules produced" width="700"/> </div>
 
 ```python
 from zacrostools.lattice_model import LatticeModel
 
-# Define cell vectors (in Ångströms)
-cell_vectors = ((3.27, 0.0), (0.0, 3.27))
-
-# Define site positions
-sites = {
-    'tC': [(0.25, 0.25)],
-    'tM': [(0.75, 0.75)]
-}
-
-# Define neighboring structure directly
-neighboring_structure = {
-    '1-2': ['self'],
-    '1-1': ['north', 'east'],
-    '2-1': ['north', 'east', 'northeast'],
-    '2-2': ['north', 'east']
-}
-
-# Create the LatticeModel instance
+# Create a unit cell for PtHfC unit cell from a 4x4 cell of HfC
 lattice_model = LatticeModel(
     lattice_type='periodic_cell',
-    cell_vectors=cell_vectors,
-    sites=sites,
-    coordinate_type='direct',
-    copies=[10, 10],
-    neighboring_structure=neighboring_structure
-)
-
-# Write the lattice input file
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
-```
-
-**Generated `lattice_input.dat`:**
-
-```
-lattice periodic_cell
-
-  cell_vectors
-    3.27000000 0.00000000
-    0.00000000 3.27000000
-  repeat_cell 10 10
-  n_cell_sites 2
-  n_site_types 2
-  site_type_names tC tM
-  site_types tC tM
-  site_coordinates
-    0.25000000 0.25000000
-    0.75000000 0.75000000
-  neighboring_structure
-    1-2 self
-    1-1 north
-    1-1 east
-    2-1 north
-    2-1 east
-    2-1 northeast
-    2-2 north
-    2-2 east
-  end_neighboring_structure
-
-end_lattice
-```
-
-### Example 3: Defining a custom periodic cell with automatic neighboring structure generation
-
-```python
-from zacrostools.lattice_model import LatticeModel
-
-# Define cell vectors (in Ångströms)
-cell_vectors = ((2.5, 0.0), (0.0, 2.5))
-
-# Define site positions
-sites = {
-    'A': [(0.0, 0.0), (0.5, 0.5)],
-    'B': [(0.25, 0.25), (0.75, 0.75)]
-}
-
-# Define maximum distances for neighbor pairs (in Ångströms)
-max_distances = {
-    'A-A': 3.0,
-    'A-B': 3.0,
-    'B-B': 3.0
-}
-
-# Create the LatticeModel instance
-lattice_model = LatticeModel(
-    lattice_type='periodic_cell',
-    cell_vectors=cell_vectors,
-    sites=sites,
-    coordinate_type='direct',
+    cell_vectors=((3.27, 0), (0, 3.27)),
+    sites={'tC': (0.25, 0.25), 'tM': (0.75, 0.75)},
     copies=[10, 10],
     neighboring_structure='from_distances',
-    max_distances=max_distances
+    max_distances={'tC-tC': 4.0, 'tC-tM': 4.0, 'tM-tM': 4.0, 'Pt-Pt': 4.0, 'Pt-tC': 4.0, 'Pt-tM': 4.0},
 )
+lattice_model.repeat_lattice_model(4, 4)
 
-# Write the lattice input file
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
-```
+# Replace four tC sites by Pt sites
+for coordinates in [(0.3125, 0.3125), (0.3125, 0.5625), (0.5625, 0.3125), (0.5625, 0.5625)]:
+    lattice_model.change_site_type(direct_coords=coordinates, new_site_type='Pt') 
 
-### Example 4: Loading a `LatticeModel` from an existing lattice input file
+# Remove the tM site in the middle of the four Pt sites
+lattice_model.remove_site(direct_coords=(0.4375, 0.4375)) 
 
-```python
-from zacrostools.lattice_model import LatticeModel
+# Define the number of copies of the unit cell for the simulation
+lattice_model.copies = [3, 3]
 
-# Load a LatticeModel from an existing lattice_input.dat file
-lattice_model = LatticeModel.from_file(input_file='lattice_input_Cu111.dat')
-
-# Optionally, you can modify the lattice or write it to a new location
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
+# Write the lattice_input.dat file in a folder named 'PtHfC'
+lattice_model.write_lattice_input(output_dir='PtHfC')
 ```
 
 ---
@@ -400,16 +298,3 @@ lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ## Next steps
 
 - Assemble the `KMCModel`
-
----
-
-**Example of defining multiple relationships for a site pair:**
-
-```python
-neighboring_structure = {
-    '1-1': ['north', 'east'],          # Site 1 has 'north' and 'east' neighbors of site 1
-    '1-2': ['self'],                   # Site 1 and Site 2 are neighbors in 'self' (within the unit cell)
-    '2-1': ['north', 'east', 'northeast'],  # Site 2 has multiple relationships with Site 1
-    '2-2': ['north', 'east']           # Site 2 has 'north' and 'east' neighbors of site 2
-}
-```
