@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/hprats/ZacrosTools)](https://github.com/hprats/ZacrosTools/blob/main/LICENSE)
 [![CI](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml/badge.svg)](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml)
 
-Welcome to the ZacrosTools documentation! This guide provides comprehensive information on using the ZacrosTools Python library.
+This guide provides comprehensive information on using the ZacrosTools Python library.
 
 ZacrosTools is a versatile toolkit designed to simplify the preparation and analysis of Kinetic Monte Carlo (KMC) simulations with **[Zacros](https://zacros.org/)**.
 

@@ -1,3 +1,4 @@
+```markdown
 # Gas Model
 
 ## Overview
@@ -21,13 +22,11 @@ The `GasModel` contains the information about each gas-phase molecule involved i
 
 ### Example data table
 
-| index | type       | gas_molec_weight | sym_number | degeneracy | inertia_moments             | gas_energy |
-|-------|------------|------------------|------------|------------|-----------------------------|------------|
-| CO    | linear     | 28.01            | 1          | 1          | [8.973619026272551]         | -1.16      |
-| O2    | linear     | 32.00            | 2          | 3          | [12.178379354326061]        | 0.00       |
-| CO2   | non_linear | 44.01            | 2          | 1          | [44.317229117708344,        | -3.94      |
-|       |            |                  |            |            | 22.158614558854172,         |            |
-|       |            |                  |            |            | 22.158614558854172]         |            |
+| index | type    | gas_molec_weight | sym_number | degeneracy | inertia_moments            | gas_energy |
+|-------|---------|------------------|------------|------------|----------------------------|------------|
+| CO    | linear  | 28.01            | 1          | 1          | [8.973618976566065]        | 1.9544267  |
+| O2    | linear  | 32.00            | 2          | 3          | [12.178373934770187]       | 2.6131292  |
+| CO2   | linear  | 44.01            | 2          | 1          | [44.317204709218686]       | 0.00       |
 
 ---
 
@@ -55,24 +54,24 @@ species_data = {
         'gas_molec_weight': 28.01,
         'sym_number': 1,
         'degeneracy': 1,
-        'inertia_moments': [8.973619026272551],
-        'gas_energy': -1.16
+        'inertia_moments': [8.973618976566065],
+        'gas_energy': 1.9544267
     },
     'O2': {
         'type': 'linear',
         'gas_molec_weight': 32.00,
         'sym_number': 2,
         'degeneracy': 3,
-        'inertia_moments': [12.178379354326061],
-        'gas_energy': 0.00
+        'inertia_moments': [12.178373934770187],
+        'gas_energy': 2.6131292
     },
     'CO2': {
-        'type': 'non_linear',
+        'type': 'linear',
         'gas_molec_weight': 44.01,
         'sym_number': 2,
         'degeneracy': 1,
-        'inertia_moments': [44.317229117708344, 22.158614558854172, 22.158614558854172],
-        'gas_energy': -3.94
+        'inertia_moments': [44.317204709218686],
+        'gas_energy': 0.00
     }
 }
 
@@ -88,9 +87,9 @@ The CSV should have the required columns and use the species names as the index.
 
 ```csv
 ,index,type,gas_molec_weight,sym_number,degeneracy,inertia_moments,gas_energy
-CO,linear,28.01,1,1,"[8.973619026272551]",-1.16
-O2,linear,32.00,2,3,"[12.178379354326061]",0.00
-CO2,non_linear,44.01,2,1,"[44.317229117708344, 22.158614558854172, 22.158614558854172]",-3.94
+CO,linear,28.01,1,1,"[8.973618976566065]",1.9544267
+O2,linear,32.00,2,3,"[12.178373934770187]",2.6131292
+CO2,linear,44.01,2,1,"[44.317204709218686]",0.00
 ```
 
 #### Loading from CSV
@@ -114,16 +113,16 @@ from zacrostools.gas_model import GasModel
 
 # Create a DataFrame
 data = {
-    'type': ['linear', 'linear', 'non_linear'],
+    'type': ['linear', 'linear', 'linear'],
     'gas_molec_weight': [28.01, 32.00, 44.01],
     'sym_number': [1, 2, 2],
     'degeneracy': [1, 3, 1],
     'inertia_moments': [
-        [8.973619026272551],
-        [12.178379354326061],
-        [44.317229117708344, 22.158614558854172, 22.158614558854172]
+        [8.973618976566065],
+        [12.178373934770187],
+        [44.317204709218686]
     ],
-    'gas_energy': [-1.16, 0.00, -3.94]
+    'gas_energy': [1.9544267, 2.6131292, 0.00]
 }
 df = pd.DataFrame(data, index=['CO', 'O2', 'CO2'])
 
@@ -191,13 +190,11 @@ print(gas_model.df)
 ```
      type  gas_molec_weight  sym_number  degeneracy  \
 CO  linear            28.010           1           1   
-O2  linear            32.000           2           3   
-N2  linear            28.013           2           1   
+CO2 linear            44.010           2           1   
 
-                      inertia_moments  gas_energy  
-CO            [8.973619026272551]        -1.16  
-O2          [12.178379354326061]         0.00  
-N2                        [10.822]         0.00  
+                     inertia_moments  gas_energy  
+CO           [8.973618976566065]     1.9544267  
+CO2         [44.317204709218686]     0.00  
 ```
 
 ---
@@ -216,16 +213,16 @@ species_data = {
         'gas_molec_weight': 28.01,
         'sym_number': 1,
         'degeneracy': 1,
-        'inertia_moments': [8.973619026272551],
-        'gas_energy': -1.16
+        'inertia_moments': [8.973618976566065],
+        'gas_energy': 1.9544267
     },
     'O2': {
         'type': 'linear',
         'gas_molec_weight': 32.00,
         'sym_number': 2,
         'degeneracy': 3,
-        'inertia_moments': [12.178379354326061],
-        'gas_energy': 0.00
+        'inertia_moments': [12.178373934770187],
+        'gas_energy': 2.6131292
     }
 }
 
@@ -235,12 +232,12 @@ gas_model = GasModel.from_dict(species_data)
 # Add a new species
 gas_model.add_species(species_info={
     'species_name': 'CO2',
-    'type': 'non_linear',
+    'type': 'linear',
     'gas_molec_weight': 44.01,
     'sym_number': 2,
     'degeneracy': 1,
-    'inertia_moments': [44.317229117708344, 22.158614558854172, 22.158614558854172],
-    'gas_energy': -3.94
+    'inertia_moments': [44.317204709218686],
+    'gas_energy': 0.00
 })
 
 # Remove an existing species
@@ -262,3 +259,4 @@ With the `GasModel` defined, you can proceed to:
 - Assemble the `KMCModel`
 
 For detailed guidance on these steps, refer to the respective sections in the documentation.
+```
