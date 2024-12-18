@@ -34,7 +34,8 @@ plt.savefig('coverage_per_totalsites.png', dpi=300, bbox_inches='tight', transpa
 plt.show()
 ```
 
-![CoverageAllSites](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_totalsites.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_totalsites.png?raw=true" alt="Coverage per total sites" width="500"/> </div>
+
 
 In the previous example, coverage is calculated by dividing the number of molecules of a given adsorbate by the total number of sites. However, it is often more meaningful to calculate coverage as the number of molecules of a specific adsorbate on a particular site type, divided by the total number of sites of that type. The following example demonstrates how to do this:
 
@@ -69,7 +70,7 @@ plt.savefig('coverage_per_sitetype.png', dpi=300, bbox_inches='tight', transpare
 plt.show()
 ```
 
-![CoveragePerType](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_sitetype.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_sitetype.png?raw=true" alt="Coverage per site type" width="700"/> </div>
 
 ### Plotting the number of molecules produced
 
@@ -99,7 +100,7 @@ plt.savefig('molecules_produced.png', dpi=300, bbox_inches='tight', transparent=
 plt.show()
 ```
 
-![MoleculesProduced](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/molecules_produced.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/molecules_produced.png?raw=true" alt="Molecules produced" width="500"/> </div>
 
 ---
 
@@ -195,7 +196,7 @@ plt.savefig('tof_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-![ScanTof](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap.png?raw=true" alt="TOF heatmap" width="500"/> </div>
 
 #### TOF difference
 
@@ -249,7 +250,7 @@ plt.savefig('dtof_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-![ScanTofDif](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/dtof_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/dtof_heatmap.png?raw=true" alt="∆TOF heatmap" width="500"/> </div>
 
 #### Selectivity
 
@@ -300,7 +301,7 @@ plt.savefig('selectivity_heatmap.png', dpi=300, bbox_inches='tight', transparent
 plt.show()
 ```
 
-![ScanSelectivity](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/selectivity_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/selectivity_heatmap.png?raw=true" alt="Selectivity heatmap" width="500"/> </div>
 
 #### Coverage
 
@@ -354,7 +355,7 @@ plt.savefig('coverage_heatmap.png', dpi=300, bbox_inches='tight', transparent=Fa
 plt.show()
 ```
 
-![ScanCoverageTotal](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_heatmap.png?raw=true" alt="Coverage heatmap" width="500"/> </div>
 
 #### Phase diagram
 
@@ -416,7 +417,7 @@ plt.savefig('phasediagram_heatmap.png', dpi=300, bbox_inches='tight', transparen
 plt.show()
 ```
 
-![ScanPhaseDiagram](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/phasediagram_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/phasediagram_heatmap.png?raw=true" alt="Phase diagram heatmap" width="500"/> </div>
 
 #### Final time
 
@@ -455,7 +456,7 @@ plt.savefig('finaltime_heatmap.png', dpi=300, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanFinalTime](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/finaltime_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/finaltime_heatmap.png?raw=true" alt="Final time heatmap" width="500"/> </div>
 
 #### Energy slope
 
@@ -496,7 +497,7 @@ plt.savefig('energyslope_heatmap.png', dpi=300, bbox_inches='tight', transparent
 plt.show()
 ```
 
-![ScanEnergySlope](https://github.com/hprats/ZacrosTools/blob/main/docs/images/plot_multiple_runs/ScanEnergySlope.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/energyslope_heatmap.png?raw=true" alt="Energy slope heatmap" width="500"/> </div>
 
 #### Simulation issues
 
@@ -538,7 +539,7 @@ plt.savefig('issues_heatmap.png', dpi=300, bbox_inches='tight', transparent=Fals
 plt.show()
 ```
 
-![ScanIssues](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/issues_heatmap.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/issues_heatmap.png?raw=true" alt="Issues heatmap" width="500"/> </div>
 
 ### Multiple types of plots
 
@@ -639,7 +640,7 @@ plt.savefig('multiple_heatmaps.png', dpi=300, bbox_inches='tight', transparent=F
 plt.show()
 ```
 
-![ScanMultipleTypes](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/multiple_heatmaps.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/multiple_heatmaps.png?raw=true" alt="Multiple heatmaps" width="700"/> </div>
 
 ### Customizing the plots
 
@@ -689,7 +690,7 @@ plt.savefig('tof_heatmap_custom.png', dpi=300, bbox_inches='tight', transparent=
 plt.show()
 ```
 
-![CustomiseSingle](https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap_custom.png?raw=true)
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap_custom.png?raw=true" alt="TOF heatmap custom" width="500"/> </div>
 
 
 ## Note on axis options
