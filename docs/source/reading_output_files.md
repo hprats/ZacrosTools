@@ -2,13 +2,13 @@
 
 ## Overview
 
-After completing a Zacros simulation, you can use `zacrostools` to parse and analyze the results. The `KMCOutput` class provides a convenient interface to load simulation data from output files, compute averages and coverages, and extract key performance indicators like turnover frequencies (TOFs) and selectivities. This unified approach simplifies the post-processing workflow, making it straightforward to analyze multiple simulations or perform parametric studies.
+After completing a Zacros simulation, you can use `zacrostools` to parse and analyze the results. The `KMCOutput` class provides a convenient interface to load simulation data from output files, compute averages and coverages, and extract key performance indicators like turnover frequencies (TOFs) and selectivities.
 
 ---
 
 ## Creating a `KMCOutput` object
 
-To extract simulation results, instantiate a `KMCOutput` object by pointing it to the directory containing the Zacros output files. You can also specify analysis ranges and weighting schemes for averaging results, giving you fine-grained control over the portion of the simulation data you want to analyze.
+To extract simulation results, instantiate a `KMCOutput` object by pointing it to the directory containing the Zacros output files. You can also specify analysis ranges and weighting schemes for averaging results.
 
 ### Example
 
@@ -43,7 +43,7 @@ kmc_output = KMCOutput(path='.', analysis_range=[50, 100], range_type='time', we
 
 ## Accessing simulation data
 
-Once you have created a `KMCOutput` object, you can access a variety of data fields. These data fields include simulation conditions, reaction outcomes, coverage profiles, and calculated averages. The attributes and their meanings are summarized below.
+Once you have created a `KMCOutput` object, you can access a variety of data fields, as summarized below.
 
 ### General simulation data
 
@@ -164,10 +164,4 @@ for stype in kmc_output.site_types:
     for sps in kmc_output.av_coverage_per_site_type[stype]:
         avg_cov = kmc_output.av_coverage_per_site_type[stype][sps]
         print(f"Average coverage of {sps} on {stype} sites: {avg_cov:.3f} %")
-```
-
-### Energy slope
-
-```python
-print(f"Energy slope: {kmc_output.energyslope:.3e} eV·Å⁻²·step⁻¹")
 ```
