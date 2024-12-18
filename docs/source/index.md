@@ -115,7 +115,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Contributors
 
-- **Hector Prats** - [hector.pratsgarcia@chem.ox.ac.uk](mailto:hector.pratsgarcia@chem.ox.ac.uk)
+- **Hector Prats** - [hector.prats@tuwien.ac.at](mailto:hector.prats@tuwien.ac.at)
 
 ## Acknowledgements
 
