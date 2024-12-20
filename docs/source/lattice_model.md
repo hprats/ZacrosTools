@@ -110,19 +110,19 @@ lattice_model = LatticeModel(
 from zacrostools.lattice_model import LatticeModel
 
 # Define cell vectors
-cell_vectors = ((2.5, 0.0), (0.0, 2.5))
+cell_vectors = ((3.27, 0.0), (0.0, 3.27))
 
 # Define site positions
 sites = {
-    'A': [(0.0, 0.0)],
-    'B': [(0.5, 0.5)]
+    'tC': [(0.25, 0.25)],
+    'tM': [(0.75, 0.75)]
 }
 
 # Define maximum distances for neighbor pairs
 max_distances = {
-    'A-A': 3.0,
-    'A-B': 3.0,
-    'B-B': 3.0
+    'tC-tC': 3.0,
+    'tM-tM': 3.0,
+    'tC-tM': 3.0
 }
 
 # Create the LatticeModel instance
