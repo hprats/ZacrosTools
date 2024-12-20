@@ -72,6 +72,8 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_sitetype.png?raw=true" alt="Coverage per site type" width="700"/> </div>
 
+---
+
 ### Plotting the number of molecules produced
 
 This example demonstrates how to plot the number of molecules produced over time for different gas-phase species in a single KMC simulation.
@@ -101,6 +103,54 @@ plt.show()
 ```
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/molecules_produced.png?raw=true" alt="Molecules produced" width="500"/> </div>
+
+---
+
+## Plotting stiffness scaling coefficients
+
+In simulations where stiffness scaling is employed, it's often useful to visualize how the stiffness coefficients evolve over time. Stiffness coefficients may remain constant for a while and then abruptly change at specific times. Using a step plot makes it easy to highlight these jumps:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from zacrostools.kmc_output import parse_general_output_file
+
+data = parse_general_output_file(
+    output_file="simulation_results/CH4_5.179e-04#CO2_6.105e-04/general_output.txt",
+    parse_stiffness_coefficients=True)
+
+stiffness_df = data['stiffness_scaling_coefficients']
+
+# Identify columns corresponding to stiffness steps
+step_columns = [col for col in stiffness_df.columns if col not in ['time', 'nevents']]
+
+# Filter out steps where all coefficients are 1.0 (no change)
+filtered_steps = [col for col in step_columns if not np.all(np.isclose(stiffness_df[col], 1.0))]
+
+plt.figure(figsize=(8, 6))
+for step in filtered_steps:
+    plt.step(
+        stiffness_df['time'],
+        stiffness_df[step],
+        where='post',
+        label=step,
+        linewidth=1.5
+    )
+
+plt.yscale('log')
+plt.xlabel('Simulated time (s)', fontsize=14)
+plt.ylabel('Stiffness coefficient', fontsize=14)
+plt.legend(fontsize=12, title_fontsize=12)
+plt.grid(True, which="both", ls="--", linewidth=0.5)
+
+plt.tight_layout()
+plt.savefig('stiffness_coefficients.png', dpi=300, bbox_inches='tight', transparent=False)
+plt.show()
+```
+
+The `parse_general_output_file` function extracts stiffness scaling coefficients from the general output file of a simulation. After filtering out steps that do not change (remain at a factor of 1.0), the code creates a step plot showing how the coefficients evolve over time. 
+
+<div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/stiffness_coefficients.png?raw=true" alt="Stiffness coefficients" width="600"/> </div>
 
 ---
 

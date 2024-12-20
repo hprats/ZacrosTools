@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from zacrostools.kmc_output import parse_general_output_file
 
 data = parse_general_output_file(
-    output_file="simulation_results/CH4_3.728e-01#CO2_4.394e-01/general_output.txt",
+    output_file="simulation_results/CH4_5.179e-04#CO2_6.105e-04/general_output.txt",
     parse_stiffness_coefficients=True)
 
 stiffness_df = data['stiffness_scaling_coefficients']
@@ -14,12 +14,11 @@ filtered_steps = [col for col in step_columns if not np.all(np.isclose(stiffness
 
 plt.figure(figsize=(8, 6))
 for step in filtered_steps:
-    plt.plot(
+    plt.step(
         stiffness_df['time'],
         stiffness_df[step],
+        where='post',
         label=step,
-        marker='o',
-        linestyle='-',
         linewidth=1.5
     )
 
