@@ -1,6 +1,6 @@
-<header style="text-align: center; padding: 20px;">
-    <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/logo_without_background.png?raw=true" alt="ZacrosTools Logo" width="200"/>
-</header>
+<p align="center">
+  <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/logo_without_background.png?raw=true" alt="ZacrosTools Logo" width="200"/>
+</p>
 
 # ZacrosTools
 
@@ -26,10 +26,10 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation of **[Za
 
 ## Key Features
 
-- **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
-- **Output file parsing**: Easily read, analyze and process data from Zacros output files.
+- **Automatic input file generation**: Easily create Zacros input files, reducing errors.
+- **Output file parsing**: Quickly read, analyze, and process Zacros output data.
 - **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
-- **Documentation and examples:** Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
+- **Documentation and examples:** Extensive documentation with detailed examples to help users get started and make full use of ZacrosTools.
 
 ## Installation
 
@@ -63,15 +63,15 @@ Comprehensive documentation is available at [zacrostools.readthedocs.io](https:/
 
 ## Changelog
 
-You can view the full list of changes in [CHANGELOG.md](./CHANGELOG.md).
+For a detailed list of changes, see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Contributing
 
 Contributions are welcome!
 
-- **Report Bugs**: Use the [issue tracker](https://github.com/hprats/ZacrosTools/issues) to report bugs.
-- **Request Features**: Suggest new features or improvements.
-- **Submit Pull Requests**: Fork the repository and submit pull requests for your contributions.
+- **Report bugs**: Use the [issue tracker](https://github.com/hprats/ZacrosTools/issues) to report bugs.
+- **Request features**: Suggest new features or improvements.
+- **Submit pull requests**: Fork the repository and submit pull requests for your contributions.
 
 ## License
 
