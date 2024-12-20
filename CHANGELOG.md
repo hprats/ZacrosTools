@@ -5,10 +5,11 @@ All notable changes to this project are documented in this file.
 ## [2.2] 20-Dec-2024
 
 ### Added
-- **Stiffness coefficients parsing**: added to ability to parse stiffness coefficient information from `general_output.txt` using `zacrostools.parse_general_output_file`.
+- **Plot event frequencies**: added to ability to parse the event frequencies from `procstat_output.txt` using `zacrostools.procstat_output` and plot them.
+- **Plot stiffness coefficients**: added to ability to parse stiffness coefficient information from `general_output.txt` using `zacrostools.parse_general_output_file` and plot them.
 - **Examples:**  
-  - **`DRM_on_PtHfC`**: Demonstrates how to analyze hundreds of output files to generate heatmaps.
-  - **`custom_lattice_models`**: Illustrates how to create custom lattice models for Zacros simulations..
+  - **`DRM_on_PtHfC`**: Demonstrates how to analyze hundreds of output files to generate heatmaps and plot the event frequencies and stiffness coefficients.
+  - **`custom_lattice_models`**: Illustrates how to create custom lattice models for Zacros simulations.
 
 ### Changed
 - **Analysis of output files:**  
