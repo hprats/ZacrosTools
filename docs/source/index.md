@@ -63,13 +63,14 @@ Detailed instructions for each step are provided in the documentation sections b
 
 The ZacrosTools documentation is organized into the following sections:
 
-- **[Gas Model](gas_model.md)**: Learn how to define the gas-phase molecular data.
-- **[Energetics Model](energetics_model.md)**: Define all the terms used in the cluster expansion.
-- **[Reaction Model](reaction_model.md)**: Specify the elementary steps included in the reaction mechanism.
-- **[Lattice Model](lattice_model.md)**: Understand how to set up a lattice model.
+- **[Gas model](gas_model.md)**: Learn how to define the gas-phase molecular data.
+- **[Energetics model](energetics_model.md)**: Define all the terms used in the cluster expansion.
+- **[Reaction model](reaction_model.md)**: Specify the elementary steps included in the reaction mechanism.
+- **[Lattice model](lattice_model.md)**: Understand how to set up a lattice model.
 - **[Writing_input_files](writing_input_files.md)**: Integrate all components into a KMC model and write the Zacros input files.
 - **[Reading output files](reading_output_files.md)**: Parse and analyze data from Zacros output files.
-- **[Plotting results](plotting_results.md)**: Visualize simulation results using simple plots or heatmaps.
+- **[Plotting single simulation results](plotting_single_simulation.md)**: Plot the simulation results, such as surface coverage, molecules produced, or event frequencies. 
+- **[Plotting heatmaps](plotting_heatmaps.md)**: Draw heatmap plots from a set of KMC simulations at various operating conditions.
 - **[API reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
 
 ## Recent changes
@@ -126,6 +127,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
    lattice_model.md
    writing_input_files.md
    reading_output_files.md
-   plotting_results.md
+   plotting_single_simulation.md
+   plotting_heatmaps.md
    api_reference.md
 ```

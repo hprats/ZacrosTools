@@ -1,4 +1,4 @@
-# Energetics Model
+# Energetics model
 
 ## Overview
 

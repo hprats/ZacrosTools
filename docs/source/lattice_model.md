@@ -1,4 +1,4 @@
-# Lattice Model
+# Lattice model
 
 ## Overview
 

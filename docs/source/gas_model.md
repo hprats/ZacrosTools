@@ -1,4 +1,4 @@
-# Gas Model
+# Gas model
 
 ## Overview
 

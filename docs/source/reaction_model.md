@@ -1,4 +1,4 @@
-# Reaction Model
+# Reaction model
 
 ## Overview
 
