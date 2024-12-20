@@ -14,10 +14,10 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 
 ## Key features 
 
-- **Automatic input file generation**: Simplify the creation of Zacros input files, reducing the risk of errors and speeding up the setup process.
-- **Output file parsing**: Easily read, analyze, and process data from Zacros output files.
-- **Pressure and temperature scans**: Run scans over different pressures and temperatures and easily create heatmap plots with the results.
-- **Documentation and examples**: Extensive documentation is available, including detailed examples to help users quickly get started and make the most of ZacrosTools.
+- **Automatic input file generation**: Easily create Zacros input files, reducing errors.
+- **Output file parsing**: Quickly read, analyze, and process Zacros output data.
+- **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
+- **Documentation and examples:** Extensive documentation with detailed examples to help users get started and make full use of ZacrosTools.
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/multiple_heatmaps.png?raw=true" alt="Multiple heatmaps" width="700"/> </div>
 
