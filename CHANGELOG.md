@@ -1,6 +1,22 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project are documented in this file.
+
+## [2.2] 20-Dec-2024
+
+### Added
+- **Stiffness coefficients parsing**: added to ability to parse stiffness coefficient information from `general_output.txt` using `zacrostools.parse_general_output_file`.
+- **Examples:**  
+  - **`DRM_on_PtHfC`**: Demonstrates how to analyze hundreds of output files to generate heatmaps.
+  - **`custom_lattice_models`**: Illustrates how to create custom lattice models for Zacros simulations..
+
+### Changed
+- **Analysis of output files:**  
+  - Renamed `window_percent` to `analysis_range` 
+  - Renamed `window_type` to `range_type`
+
+### Improved
+- **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
 ## [2.1] 27-Nov-2024
 
@@ -24,8 +40,6 @@ All notable changes to this project will be documented in this file.
 - **Parameter validation**: improved the parsing and validation of selected parameters across all modules to prevent errors. 
 - **Docstrings**: updated all docstrings to adhere to the NumPy format for better clarity and consistency.
 - **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
-
-Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 
 ## [1.3] 07-Nov-2024
 
