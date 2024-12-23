@@ -228,10 +228,35 @@ class KMCModel:
             reporting_scheme = {key: reporting_scheme.get(key, default_reporting_scheme[key])
                                 for key in allowed_reporting_keys}
 
+        if stopping_criteria is not None:
+            # Validate max_steps
+            if 'max_steps' in stopping_criteria:
+                ms = stopping_criteria['max_steps']
+                if ms != 'infinity' and not isinstance(ms, int):
+                    raise KMCModelError(
+                        f"'max_steps' must be either 'infinity' or an integer, got {ms}."
+                    )
+
+            # Validate max_time
+            if 'max_time' in stopping_criteria:
+                mt = stopping_criteria['max_time']
+                if mt != 'infinity' and not isinstance(mt, float):
+                    raise KMCModelError(
+                        f"'max_time' must be either 'infinity' or a float, got {mt}."
+                    )
+
+            # Validate wall_time
+            if 'wall_time' in stopping_criteria:
+                wt = stopping_criteria['wall_time']
+                if not isinstance(wt, int):
+                    raise KMCModelError(
+                        f"'wall_time' must be an integer, got {wt}."
+                    )
+
         allowed_stopping_keys = {'max_steps', 'max_time', 'wall_time'}
         default_stopping_criteria = {
             'max_steps': 'infinity',
-            'max_time': 'infinity',
+            'max_time': float(1.0e+10),  # capped at this value to avoid numerical issues in Zacros
             'wall_time': 86400
         }
 
