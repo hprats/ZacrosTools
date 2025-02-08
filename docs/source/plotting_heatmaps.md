@@ -25,7 +25,6 @@ When running a set of KMC simulations at various operating conditions, 2D heatma
   - `'coverage'`: Coverage (%).
   - `'phasediagram'`: Most dominant surface species.
   - `'finaltime'`: log₁₀ Final time (s).
-  - `'final_energy'`: Final energy (eV·Å⁻²).
   - `'energyslope'`: Energy slope (eV·Å⁻²·step⁻¹).
   - `'issues'`: To check for issues.
 
