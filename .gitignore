@@ -33,6 +33,7 @@ docs/*
 examples/*
 tests/*
 zacrostools/*
+!zacrostools/heatmaps/
 # -------------------------------------
 # 7) Re-unignore the file types to track
 !docs/**/*.py
