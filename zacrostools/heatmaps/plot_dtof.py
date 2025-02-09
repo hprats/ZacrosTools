@@ -8,7 +8,7 @@ import matplotlib.patheffects as pe
 
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.custom_exceptions import PlotError
-from zacrostools.heatmaps.heatmap_functions import get_axis_label, convert_to_subscript
+from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value, convert_to_subscript
 
 
 def plot_dtof(
@@ -103,6 +103,17 @@ def plot_dtof(
         folder_name = os.path.basename(sim_path)
         ref_path = os.path.join(scan_path_ref, folder_name)
 
+        # Extract x and y values
+        x_value = extract_value(x, sim_path)
+        y_value = extract_value(y, sim_path)
+        df.loc[folder_name, "x_value"] = x_value
+        df.loc[folder_name, "y_value"] = y_value
+        if x_value not in x_value_list:
+            x_value_list.append(x_value)
+        if y_value not in y_value_list:
+            y_value_list.append(y_value)
+
+        # Initialize KMCOutputs and retrieve TOF and total production for the given gas_spec
         try:
             kmc_output = KMCOutput(
                 path=sim_path,
@@ -203,6 +214,6 @@ def plot_dtof(
         )
 
     if show_points:
-        ax.plot(x_axis.flatten(), y_axis.flatten(), 'k.', markersize=3)
+        ax.plot(x_axis.flatten(), y_axis.flatten(), 'w.', markersize=3)
 
     return cp

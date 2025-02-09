@@ -194,6 +194,6 @@ def plot_tof(
         )
 
     if show_points:
-        ax.plot(x_axis.flatten(), y_axis.flatten(), 'k.', markersize=3)
+        ax.plot(x_axis.flatten(), y_axis.flatten(), 'w.', markersize=3)
 
     return cp
