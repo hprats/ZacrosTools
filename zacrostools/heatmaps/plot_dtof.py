@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm, SymLogNorm
+from matplotlib.colors import LogNorm, SymLogNorm, Normalize
 import matplotlib.patheffects as pe
 
 from zacrostools.kmc_output import KMCOutput
@@ -21,6 +21,8 @@ def plot_dtof(
         gas_spec: str = None,
         scan_path_ref: str = None,
         # plot-specific optional parameters
+        difference_type: str = 'absolute',
+        scale: str = 'log',
         min_molec: int = 1,
         max_dtof: float = None,
         min_dtof: float = None,
@@ -33,44 +35,77 @@ def plot_dtof(
         show_colorbar: bool = True,
         auto_title: bool = False):
     """
-    Plots a ∆TOF (delta TOF) heatmap using pcolormesh.
+    Plot a ∆TOF (delta TOF) heatmap using pcolormesh.
+
+    This function computes the difference in turnover frequencies (TOF) between a main simulation
+    and a reference simulation for a specified gas species. It builds a heatmap where ∆TOF is defined as
+    the difference between the TOF of the main simulation and that of the reference simulation. Only
+    simulations that meet the minimum total production threshold in both datasets are considered.
+    The heatmap normalization is determined based on the absolute ∆TOF values, using logarithmic or
+    symmetric logarithmic normalization as appropriate.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
-        Axis object for the plot.
+        Axis object where the plot is drawn.
+    x : str
+        Parameter name for the x-axis.
+    y : str
+        Parameter name for the y-axis.
     scan_path : str
         Path to the main simulation directories.
-    scan_path_ref : str
+    gas_spec : str, optional
+        Gas species for which the TOF is computed.
+    scan_path_ref : str, optional
         Path to the reference simulation directories.
-    x : str
-        Parameter for the x-axis.
-    y : str
-        Parameter for the y-axis.
-    gas_spec : str
-        Gas species for which TOF is computed.
-    min_dtof : float, optional
-        Minimum absolute value threshold for TOF differences.
+    difference_type : str, optional
+        Type of TOF difference to compute. Must be either 'absolute' (default) or 'relative'.
+        - 'absolute': ∆TOF = TOF (main) - TOF (reference).
+        - 'relative': ∆TOF = 100 * (TOF (main) - TOF (reference)) / |TOF (reference)|
+                      (if TOF (reference) is 0, NaN is assigned).
+    scale : str, optional
+        Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used
+        (with LogNorm or SymLogNorm depending on the data). If 'lin', linear normalization is used
+        (with Normalize).
+    min_molec : int, optional
+        Minimum total production required for both the main and reference simulations (default: 1).
     max_dtof : float, optional
-        Maximum absolute value for TOF differences.
-    analysis_range : list, optional
-        Portion of the simulation to analyze (default: [0, 100]).
-    range_type : str, optional
-        Type of range ('time' or 'nevents').
+        Maximum absolute value for TOF differences. If provided, values above this threshold are clipped.
+    min_dtof : float, optional
+        Minimum absolute value threshold for TOF differences. If not provided, it is determined as max_dtof/1.0e3.
     weights : str, optional
-        Weighting method.
+        Weighting method (e.g., 'time', 'events', or None).
+    analysis_range : list, optional
+        Portion of the simulation data to analyze (default: [0, 100]).
+    range_type : str, optional
+        Type of range to consider in the analysis ('time' or 'nevents').
     cmap : str, optional
-        Colormap (default: 'RdYlBu').
+        Colormap to be used for the heatmap (default: 'RdYlBu').
     show_points : bool, optional
-        If True, overlay grid points.
+        If True, overlay grid points on the heatmap.
     show_colorbar : bool, optional
-        If True, display a colorbar.
+        If True, display a colorbar alongside the heatmap.
+    auto_title : bool, optional
+        If True, automatically set a title for the plot.
 
-    Returns
-    -------
-    cp : QuadMesh
-        The pcolormesh object.
+    Notes
+    -----
+    - The function reads simulation data from the provided main and reference directories. It computes the TOF
+      for a given gas species in both sets of simulations and calculates ∆TOF as the difference between them.
+      When `difference_type` is 'relative', the difference is computed in percent.
+    - Only simulations meeting the minimum total production threshold (min_molec) in both the main and reference
+      datasets are used.
+    - Normalization for the heatmap is determined based on the absolute values of the ∆TOF:
+        * For absolute differences, if max_dtof is not provided it is computed from the data (rounded up to the nearest power
+          of 10) and min_dtof defaults to max_dtof/1.0e3.
+        * For relative differences, max_dtof defaults to 100 and min_dtof to 1, with clipping applied on both positive
+          and negative sides.
+    - When `scale` is 'log', logarithmic (or symmetric logarithmic) normalization is applied. When 'lin' is chosen,
+      linear normalization is applied.
+    - The x and y axes are set to logarithmic scale if their parameter names contain the substring "pressure".
+    - If auto_title is True, the plot title is set automatically using the gas species (formatted as a subscript).
     """
+
 
     # Set default analysis range if needed
     if analysis_range is None:
@@ -120,7 +155,8 @@ def plot_dtof(
                 analysis_range=analysis_range,
                 range_type=range_type,
                 weights=weights)
-            df.loc[folder_name, "tof"] = max(kmc_output.tof[gas_spec], 0.0)  # only consider positive TOF
+            tof = max(kmc_output.tof[gas_spec], 0.0)  # only consider positive TOF
+            df.loc[folder_name, "tof"] = tof
             df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
 
             kmc_output_ref = KMCOutput(
@@ -128,10 +164,21 @@ def plot_dtof(
                 analysis_range=analysis_range,
                 range_type=range_type,
                 weights=weights)
-            df.loc[folder_name, "tof_ref"] = max(kmc_output_ref.tof[gas_spec], 0.0)  # only consider positive TOF
+            tof_ref = max(kmc_output_ref.tof[gas_spec], 0.0)  # only consider positive TOF
+            df.loc[folder_name, "tof_ref"] = tof_ref
             df.loc[folder_name, "total_production_ref"] = kmc_output_ref.total_production[gas_spec]
 
-            df.loc[folder_name, "dtof"] = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
+            # Compute difference according to the chosen difference_type.
+            if difference_type == 'absolute':
+                df.loc[folder_name, "dtof"] = tof - tof_ref
+            elif difference_type == 'relative':
+                # if the reference TOF is zero, assign NaN (as in the example)
+                if tof_ref != 0:
+                    df.loc[folder_name, "dtof"] = 100.0 * (tof - tof_ref) / abs(tof_ref)
+                else:
+                    df.loc[folder_name, "dtof"] = np.nan
+            else:
+                raise ValueError("difference_type parameter must be either 'absolute' or 'relative'")
 
         except Exception as e:
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
@@ -165,6 +212,8 @@ def plot_dtof(
                     if max_dtof is not None:
                         if df.loc[folder_name, "dtof"] > max_dtof:
                             z_axis[j, i] = max_dtof
+                        elif df.loc[folder_name, "dtof"] < -max_dtof:
+                            z_axis[j, i] = -max_dtof
                         else:
                             z_axis[j, i] = df.loc[folder_name, "dtof"]
                     else:
@@ -172,24 +221,42 @@ def plot_dtof(
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
-    # Determine normalization parameters based on the absolute values in the grid
-    if max_dtof is None:
-        max_val = np.nanmax(np.abs(z_axis))
-        exponent = np.ceil(np.log10(max_val))
-        max_dtof = 10 ** exponent  # Round up to nearest power of 10
-
-    if min_dtof is None:
-        min_dtof = max_dtof / 1.0e3
+    # Determine normalization parameters based on the absolute values in the grid.
+    if difference_type == 'absolute':
+        if max_dtof is None:
+            max_val = np.nanmax(np.abs(z_axis))
+            exponent = np.ceil(np.log10(max_val))
+            max_dtof = 10 ** exponent  # Round up to nearest power of 10
+        if min_dtof is None:
+            min_dtof = max_dtof / 1.0e3
+    elif difference_type == 'relative':
+        if max_dtof is None:
+            max_dtof = 100  # default to 100%
+        if min_dtof is None:
+            min_dtof = 1   # default to 1%
+    else:
+        raise ValueError("difference_type must be 'absolute' or 'relative'")
 
     min_dtof = min(min_dtof, max_dtof)
     abs_max = max_dtof
 
-    if np.all(z_axis >= 0):
-        norm = LogNorm(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
-    elif np.all(z_axis <= 0):
-        norm = LogNorm(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
+    # Choose the normalization based on the user's choice of scale.
+    if scale == 'log':
+        if np.all(z_axis >= 0):
+            norm = LogNorm(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
+        elif np.all(z_axis <= 0):
+            norm = LogNorm(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
+        else:
+            norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+    elif scale == 'lin':
+        if np.all(z_axis >= 0):
+            norm = Normalize(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
+        elif np.all(z_axis <= 0):
+            norm = Normalize(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
+        else:
+            norm = Normalize(vmin=-abs_max, vmax=abs_max)
     else:
-        norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+        raise ValueError("scale parameter must be either 'log' or 'lin'")
 
     cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
 
@@ -205,8 +272,12 @@ def plot_dtof(
     ax.set_facecolor("lightgray")
 
     if auto_title:
+        if difference_type == 'absolute':
+            label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$"
+        else:
+            label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$ (%)"
         ax.set_title(
-            label="∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$",
+            label=label,
             y=1.0,
             pad=-14,
             color="w",
