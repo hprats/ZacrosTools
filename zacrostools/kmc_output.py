@@ -127,7 +127,13 @@ class KMCOutput:
         self.time = data_specnum[:, 2]
         self.finaltime = data_specnum[-1, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
-        self.energyslope = abs(np.polyfit(self.nevents, self.energy, 1)[0])  # in eV/Å2/step
+
+        # If the energy is constant, avoid numerical noise in polyfit by setting slope to zero.
+        if np.ptp(self.energy) > 1e-12:
+            self.energyslope = abs(np.polyfit(self.nevents, self.energy, 1)[0])  # in eV/Å²/step
+        else:
+            self.energyslope = 0.0
+
         self.final_energy = data_specnum[-1, 4] / self.area
         self.av_energy = self.get_average(array=self.energy, weights=weights)
 
@@ -139,12 +145,17 @@ class KMCOutput:
             gas_spec = header[i]
             self.production[gas_spec] = data_specnum[:, i]
             self.total_production[gas_spec] = data_specnum[-1, i] - data_specnum[0, i]
-            if len(data_specnum) > 1 and data_specnum[-1, i] != 0:
-                # If the catalyst is poisoned, it could be that the last ∆t is very high and the time window only
-                # contains one row. In that case (len(data_specnum) == 1), set tof = 0
-                self.tof[header[i]] = np.polyfit(data_specnum[:, 2], data_specnum[:, i], 1)[0] / self.area
+
+            gas_data = data_specnum[:, i]
+            # Check if production is constant using the peak-to-peak difference.
+            if len(gas_data) > 1 and np.ptp(gas_data) > 1e-18:
+                slope = np.polyfit(data_specnum[:, 2], gas_data, 1)[0]
+                # Force slope to zero if it is within a small tolerance.
+                if np.isclose(slope, 0, atol=1e-18):
+                    slope = 0.0
+                self.tof[gas_spec] = slope / self.area
             else:
-                self.tof[header[i]] = 0.00
+                self.tof[gas_spec] = 0.0
 
         # Compute coverages (per total number of sites)
         surf_specs_data = get_surf_specs_data(self.path)
@@ -216,8 +227,8 @@ class KMCOutput:
 
         if len(array) == 1:
             # If the catalyst is poisoned, it could be that the last ∆t is very high and the time window only
-            # contains one row. In that case (len(array) == 1), do not compute the average
-            return array
+            # contains one row. In that case, do not compute the average
+            return float(array[0])
         else:
             if weights is None:
                 return np.average(array)
