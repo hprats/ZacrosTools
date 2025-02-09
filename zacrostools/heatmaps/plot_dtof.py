@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm, SymLogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.patheffects as pe
 
 from zacrostools.kmc_output import KMCOutput
-from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value
+from zacrostools.custom_exceptions import PlotError
+from zacrostools.heatmaps.heatmap_functions import get_axis_label, convert_to_subscript
 
 
 def plot_dtof(
@@ -20,6 +21,7 @@ def plot_dtof(
         gas_spec: str = None,
         scan_path_ref: str = None,
         # plot-specific optional parameters
+        min_molec: int = 1,
         max_dtof: float = None,
         min_dtof: float = None,
         weights: str = None,
@@ -96,81 +98,78 @@ def plot_dtof(
     x_value_list, y_value_list = [], []
     df = pd.DataFrame()
 
-
     # Loop over simulation directories (using matching folder names in the reference directory)
-    for sim_path in sim_dirs:
+    for sim_path in simulation_dirs:
         folder_name = os.path.basename(sim_path)
         ref_path = os.path.join(scan_path_ref, folder_name)
-        if not os.path.isfile(os.path.join(sim_path, "general_output.txt")):
-            print(f"Files not found: {folder_name}/general_output.txt")
-            continue
-        if not os.path.isfile(os.path.join(ref_path, "general_output.txt")):
-            print(f"Reference files not found for: {folder_name}")
-            continue
 
         try:
-            kmc_output = KMCOutput(path=sim_path, analysis_range=analysis_range, range_type=range_type, weights=weights)
-            kmc_output_ref = KMCOutput(path=ref_path, analysis_range=analysis_range, range_type=range_type,
-                                       weights=weights)
+            kmc_output = KMCOutput(
+                path=sim_path,
+                analysis_range=analysis_range,
+                range_type=range_type,
+                weights=weights)
+            df.loc[folder_name, "tof"] = max(kmc_output.tof[gas_spec], 0.0)  # only consider positive TOF
+            df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
+
+            kmc_output_ref = KMCOutput(
+                path=ref_path,
+                analysis_range=analysis_range,
+                range_type=range_type,
+                weights=weights)
+            df.loc[folder_name, "tof_ref"] = max(kmc_output_ref.tof[gas_spec], 0.0)  # only consider positive TOF
+            df.loc[folder_name, "total_production_ref"] = kmc_output_ref.total_production[gas_spec]
+
+            df.loc[folder_name, "dtof"] = df.loc[folder_name, "tof"] - df.loc[folder_name, "tof_ref"]
+
         except Exception as e:
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
-            continue
+            df.loc[folder_name, "tof"] = float('NaN')
+            df.loc[folder_name, "tof_ref"] = float('NaN')
 
-        try:
-            x_val = extract_value(x, sim_path)
-            y_val = extract_value(y, sim_path)
-        except Exception as e:
-            print(f"Warning: {e}")
-            continue
+    # Build sorted arrays for x and y axis values
+    x_value_list = np.sort(np.asarray(x_value_list))
+    y_value_list = np.sort(np.asarray(y_value_list))
+    x_list = np.power(10, x_value_list) if x_is_log else x_value_list
+    y_list = np.power(10, y_value_list) if y_is_log else y_value_list
 
-        if x_val not in x_values:
-            x_values.append(x_val)
-        if y_val not in y_values:
-            y_values.append(y_val)
-
-        try:
-            tof = kmc_output.tof[gas_spec]
-            tof_ref = kmc_output_ref.tof[gas_spec]
-        except Exception as e:
-            print(f"Warning: Issue accessing TOF data for {folder_name}: {e}")
-            continue
-
-        dtof = tof - tof_ref
-        data[folder_name] = {"x_value": x_val, "y_value": y_val, "dtof": dtof}
-
-    if not data:
-        raise ValueError("No valid simulation data found for delta TOF plotting.")
-
-    x_array = np.sort(np.array(x_values))
-    y_array = np.sort(np.array(y_values))
-    x_list = np.power(10, x_array) if x_is_log else x_array
-    y_list = np.power(10, y_array) if y_is_log else y_array
-
-    # Build the grid for the ∆TOF values
-    z_axis = np.full((len(y_array), len(x_array)), np.nan)
-    df = pd.DataFrame.from_dict(data, orient="index")
-    for i, xv in enumerate(x_array):
-        for j, yv in enumerate(y_array):
-            matching = df[(df['x_value'] == xv) & (df['y_value'] == yv)]
-            if len(matching) > 1:
-                raise ValueError(f"Multiple simulations for x = {xv} and y = {yv}")
-            elif len(matching) == 1:
-                z_axis[j, i] = matching.iloc[0]['dtof']
+    # Create a 2D grid
+    z_axis = np.full((len(y_value_list), len(x_value_list)), np.nan)
+    for i, x_val in enumerate(x_value_list):
+        for j, y_val in enumerate(y_value_list):
+            matching_indices = df[(df['x_value'] == x_val) & (df['y_value'] == y_val)].index
+            if len(matching_indices) > 1:
+                raise PlotError(
+                    f"Several folders have the same values of {x} ({x_val}) and {y} ({y_val})")
+            elif len(matching_indices) == 0:
+                print(f"Warning: folder for x = {x_val} and y = {y_val} missing, NaN assigned")
             else:
-                print(f"Warning: No simulation for x = {xv} and y = {yv}")
+                folder_name = matching_indices[0]
+
+                # Only assign the dtof if total production meets the threshold
+                if (df.loc[folder_name, "total_production"] >= min_molec and
+                        df.loc[folder_name, "total_production_ref"] >= min_molec):
+
+                    # Apply a maximum value if max_dtof is provided
+                    if max_dtof is not None:
+                        if df.loc[folder_name, "dtof"] > max_dtof:
+                            z_axis[j, i] = max_dtof
+                        else:
+                            z_axis[j, i] = df.loc[folder_name, "dtof"]
+                    else:
+                        z_axis[j, i] = df.loc[folder_name, "dtof"]
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
     # Determine normalization parameters based on the absolute values in the grid
     if max_dtof is None:
         max_val = np.nanmax(np.abs(z_axis))
-        if max_val == 0:
-            max_dtof = 1.0
-        else:
-            exponent = np.ceil(np.log10(max_val))
-            max_dtof = 10 ** exponent
+        exponent = np.ceil(np.log10(max_val))
+        max_dtof = 10 ** exponent  # Round up to nearest power of 10
+
     if min_dtof is None:
-        min_dtof = max_dtof / 1.0e4
+        min_dtof = max_dtof / 1.0e3
+
     min_dtof = min(min_dtof, max_dtof)
     abs_max = max_dtof
 
@@ -184,15 +183,24 @@ def plot_dtof(
     cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
 
     if show_colorbar:
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        plt.colorbar(cp, cax=cax)
+        cbar = plt.colorbar(cp, ax=ax)
 
+    ax.set_xlim(np.min(x_list), np.max(x_list))
+    ax.set_ylim(np.min(y_list), np.max(y_list))
     ax.set_xscale('log' if x_is_log else 'linear')
     ax.set_yscale('log' if y_is_log else 'linear')
     ax.set_xlabel(get_axis_label(x))
     ax.set_ylabel(get_axis_label(y))
     ax.set_facecolor("lightgray")
+
+    if auto_title:
+        ax.set_title(
+            label="∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$",
+            y=1.0,
+            pad=-14,
+            color="w",
+            path_effects=[pe.withStroke(linewidth=2, foreground="black")]
+        )
 
     if show_points:
         ax.plot(x_axis.flatten(), y_axis.flatten(), 'k.', markersize=3)
