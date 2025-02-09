@@ -67,24 +67,22 @@ class KMCModel:
 
     @enforce_types
     def create_job_dir(self,
-                       # Mandatory arguments
                        job_path: str,
                        temperature: Union[float, int],
                        pressure: dict,
-                       # Optional arguments
-                       reporting_scheme: Union[dict, None] = None,
-                       stopping_criteria: Union[dict, None] = None,
-                       manual_scaling: Union[dict, None] = None,
-                       stiffness_scaling_algorithm: Union[str, None] = None,
-                       stiffness_scalable_steps: Union[list, None] = None,
-                       stiffness_scalable_symmetric_steps: Union[list, None] = None,
-                       stiffness_scaling_tags: Union[dict, None] = None,
+                       reporting_scheme: Optional[dict] = None,
+                       stopping_criteria: Optional[dict] = None,
+                       manual_scaling: Optional[dict] = None,
+                       stiffness_scaling_algorithm: Optional[str] = None,
+                       stiffness_scalable_steps: Union[list, str, None] = None,
+                       stiffness_scalable_symmetric_steps: Optional[list] = None,
+                       stiffness_scaling_tags: Optional[dict] = None,
                        sig_figs_energies: int = 8,
                        sig_figs_pe: int = 8,
                        sig_figs_lattice: int = 8,
-                       random_seed: Union[int, None] = None):
+                       random_seed: Optional[int] = None):
         """
-        Create a job directory and write necessary input files for the KMC simulation.
+        Create a job directory and write the necessary input files for the KMC simulation.
 
         Parameters
         ----------
@@ -93,52 +91,54 @@ class KMCModel:
         temperature : float or int
             Reaction temperature (in K).
         pressure : dict
-            Partial pressures of all gas species (in bar), e.g., `{'CO': 1.0, 'O2': 0.001}`.
+            Partial pressures of all gas species (in bar), e.g., {'CO': 1.0, 'O2': 0.001}.
         reporting_scheme : dict, optional
             Reporting scheme in Zacros format. Must contain the following keys:
-            `'snapshots'`, `'process_statistics'`, and `'species_numbers'`.
-            Default is `{'snapshots': 'on event 10000', 'process_statistics': 'on event 10000', 'species_numbers': 'on event 10000'}`.
+            'snapshots', 'process_statistics', and 'species_numbers'.
+            Default is {'snapshots': 'on event 10000',
+                        'process_statistics': 'on event 10000',
+                        'species_numbers': 'on event 10000'}.
         stopping_criteria : dict, optional
             Stopping criteria in Zacros format. Must contain the following keys:
-            `'max_steps'`, `'max_time'`, and `'wall_time'`.
-            Default is `{'max_steps': 'infinity', 'max_time': 'infinity', 'wall_time': 86400}`.
+            'max_steps', 'max_time', and 'wall_time'.
+            Default is {'max_steps': 'infinity',
+                        'max_time': 'infinity',
+                        'wall_time': 86400}.
         manual_scaling : dict, optional
-            Step names (keys) and their corresponding manual scaling factors (values), e.g.,
-            `{'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}`.
-            Default is `{}`.
+            Dictionary mapping step names to their corresponding manual scaling factors, e.g.,
+            {'CO_diffusion': 1.0e-1, 'O_diffusion': 1.0e-2}. Default is {}.
         stiffness_scaling_algorithm : str, optional
-            Algorithm used for stiffness scaling. Possible values are `None` (default), `'legacy'`, or `'prats2024'`.
-            Default is `None`.
-        stiffness_scalable_steps : list of str, optional
-            Steps that will be marked as `'stiffness_scalable'` in `mechanism_input.dat`.
-            Default is `[]`.
+            Algorithm used for stiffness scaling. Allowed values are None (default), 'legacy', or 'prats2024'.
+        stiffness_scalable_steps : list of str or 'all', optional
+            Steps that will be marked as 'stiffness_scalable' in mechanism_input.dat.
+            Can be provided as a list of step names or the string 'all' to indicate that all steps
+            (except those specified in stiffness_scalable_symmetric_steps) are stiffness scalable.
+            Default is [].
         stiffness_scalable_symmetric_steps : list of str, optional
-            Steps that will be marked as `'stiffness_scalable_symmetric'` in `mechanism_input.dat`.
-            Default is `[]`.
+            Steps that will be marked as 'stiffness_scalable_symmetric' in mechanism_input.dat.
+            Default is [].
         stiffness_scaling_tags : dict, optional
-            Keywords controlling the dynamic scaling algorithm and their corresponding values, e.g.,
-            `{'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}`.
-            Default is `{}`.
+            Keywords controlling the dynamic stiffness scaling algorithm and their corresponding values, e.g.,
+            {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}.
+            Default is {}.
         sig_figs_energies : int, optional
-            Number of significant figures used when writing `'cluster_eng'` in `energetics_input.dat`,
-            `'activ_eng'` in `mechanism_input.dat`, and `'gas_energies'` in `simulation_input.dat`.
-            Default is `8`.
+            Number of significant figures for energy values in input files.
+            Default is 8.
         sig_figs_pe : int, optional
-            Number of significant figures used when writing `'pre_expon'` and `'pe_ratio'` in `mechanism_input.dat`.
-            Default is `8`.
+            Number of significant figures for pre-exponential factors in mechanism_input.dat.
+            Default is 8.
         sig_figs_lattice : int, optional
-            Number of significant figures used when writing coordinates in `lattice_input.dat`.
-            Default is `8`.
+            Number of significant figures for coordinates in lattice_input.dat.
+            Default is 8.
         random_seed : int, optional
-            The integer seed of the random number generator. If not specified, ZacrosTools will generate one.
-            Default is `None`.
+            The seed for the random number generator. If not specified, a random seed will be generated.
+            Default is None.
 
         Raises
         ------
         KMCModelError
-            If there are inconsistencies in the stiffness scaling configuration or during file writing.
+            If there are inconsistencies in the stiffness scaling configuration or errors during file writing.
         """
-
         # Parse and validate parameters
         parsed_params = self._parse_parameters(
             reporting_scheme=reporting_scheme,
@@ -212,82 +212,86 @@ class KMCModel:
         KMCModelError
             If any of the parameters fail validation.
         """
-
-        # Define allowed keys and defaults for reporting_scheme
+        # [Reporting scheme and stopping criteria processing as before...]
         allowed_reporting_keys = {'snapshots', 'process_statistics', 'species_numbers'}
         default_reporting_scheme = {
             'snapshots': 'on event 10000',
             'process_statistics': 'on event 10000',
             'species_numbers': 'on event 10000'
         }
-
         if reporting_scheme is None:
             reporting_scheme = default_reporting_scheme
         else:
-            # Filter out invalid keys and apply defaults
             reporting_scheme = {key: reporting_scheme.get(key, default_reporting_scheme[key])
                                 for key in allowed_reporting_keys}
-
-        if stopping_criteria is not None:
-            # Validate max_steps
-            if 'max_steps' in stopping_criteria:
-                ms = stopping_criteria['max_steps']
-                if ms != 'infinity' and not isinstance(ms, int):
-                    raise KMCModelError(
-                        f"'max_steps' must be either 'infinity' or an integer, got {ms}."
-                    )
-
-            # Validate max_time
-            if 'max_time' in stopping_criteria:
-                mt = stopping_criteria['max_time']
-                if mt != 'infinity' and not isinstance(mt, float):
-                    raise KMCModelError(
-                        f"'max_time' must be either 'infinity' or a float, got {mt}."
-                    )
-
-            # Validate wall_time
-            if 'wall_time' in stopping_criteria:
-                wt = stopping_criteria['wall_time']
-                if not isinstance(wt, int):
-                    raise KMCModelError(
-                        f"'wall_time' must be an integer, got {wt}."
-                    )
 
         allowed_stopping_keys = {'max_steps', 'max_time', 'wall_time'}
         default_stopping_criteria = {
             'max_steps': 'infinity',
-            'max_time': float(1.0e+10),  # capped at this value to avoid numerical issues in Zacros
+            'max_time': float(1.0e+10),
             'wall_time': 86400
         }
-
         if stopping_criteria is None:
             stopping_criteria = default_stopping_criteria
         else:
-            # Filter out invalid keys and apply defaults
             stopping_criteria = {key: stopping_criteria.get(key, default_stopping_criteria[key])
                                  for key in allowed_stopping_keys}
 
+        # Validate 'max_steps', 'max_time' and 'wall_time'
+        if 'max_steps' in stopping_criteria:
+            ms = stopping_criteria['max_steps']
+            if ms != 'infinity' and not isinstance(ms, int):
+                raise KMCModelError(
+                    f"'max_steps' must be either 'infinity' or an integer, got {ms}."
+                )
+        if 'max_time' in stopping_criteria:
+            mt = stopping_criteria['max_time']
+            if mt != 'infinity' and not isinstance(mt, float):
+                raise KMCModelError(
+                    f"'max_time' must be either 'infinity' or a float, got {mt}."
+                )
+        if 'wall_time' in stopping_criteria:
+            wt = stopping_criteria['wall_time']
+            if not isinstance(wt, int):
+                raise KMCModelError(
+                    f"'wall_time' must be an integer, got {wt}."
+                )
+
+        # Manual scaling
         if manual_scaling is None:
             manual_scaling = {}
 
+        # Stiffness scaling algorithm and steps
         allowed_scaling_algorithms = {'legacy', 'prats2024'}
         if stiffness_scaling_algorithm is not None:
             if stiffness_scaling_algorithm not in allowed_scaling_algorithms:
                 raise KMCModelError(
                     f"Invalid stiffness_scaling_algorithm '{stiffness_scaling_algorithm}'. "
-                    f"Allowed values are 'legacy' or 'prats2024'.")
-
+                    f"Allowed values are 'legacy' or 'prats2024'."
+                )
         if stiffness_scaling_algorithm is None:
             if stiffness_scalable_steps or stiffness_scalable_symmetric_steps or stiffness_scaling_tags:
                 stiffness_scaling_algorithm = 'legacy'
             else:
                 stiffness_scaling_algorithm = None
 
+        # Default for stiffness_scalable_steps and stiffness_scalable_symmetric_steps
         if stiffness_scalable_steps is None:
             stiffness_scalable_steps = []
-
         if stiffness_scalable_symmetric_steps is None:
             stiffness_scalable_symmetric_steps = []
+
+        # *** NEW FUNCTIONALITY: allow stiffness_scalable_steps to be 'all' ***
+        if isinstance(stiffness_scalable_steps, str):
+            if stiffness_scalable_steps.lower() == 'all':
+                # Assign all step names from the reaction model except those in stiffness_scalable_symmetric_steps
+                all_steps = list(self.reaction_model.df.index)
+                stiffness_scalable_steps = [step for step in all_steps
+                                            if step not in stiffness_scalable_symmetric_steps]
+            else:
+                raise KMCModelError(
+                    "Invalid value for stiffness_scalable_steps: if provided as a string, only 'all' is allowed."
+                )
 
         if stiffness_scaling_tags is None:
             stiffness_scaling_tags = {}
@@ -319,17 +323,20 @@ class KMCModel:
         if stiffness_scaling_tags:
             if stiffness_scaling_algorithm is None:
                 raise KMCModelError(
-                    "stiffness_scaling_tags provided but no stiffness_scaling_algorithm selected.")
+                    "stiffness_scaling_tags provided but no stiffness_scaling_algorithm selected."
+                )
             invalid_tags = set(stiffness_scaling_tags.keys()) - allowed_tags
             if invalid_tags:
                 raise KMCModelError(
                     f"Invalid stiffness_scaling_tags keys for algorithm '{stiffness_scaling_algorithm}': "
-                    f"{invalid_tags}. Allowed keys are: {allowed_tags}.")
+                    f"{invalid_tags}. Allowed keys are: {allowed_tags}."
+                )
 
         if stiffness_scaling_algorithm in allowed_scaling_algorithms:
             if not stiffness_scalable_steps and not stiffness_scalable_symmetric_steps:
                 raise KMCModelError(
-                    "stiffness_scaling_algorithm selected but no steps are stiffness scalable.")
+                    "stiffness_scaling_algorithm selected but no steps are stiffness scalable."
+                )
 
         return {
             'reporting_scheme': reporting_scheme,
