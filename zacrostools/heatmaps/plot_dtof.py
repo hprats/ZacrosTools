@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm, SymLogNorm, Normalize
+from matplotlib.ticker import FuncFormatter
 import matplotlib.patheffects as pe
+import matplotlib.colors as colors
 
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.custom_exceptions import PlotError
@@ -26,6 +28,7 @@ def plot_dtof(
         min_molec: int = 1,
         max_dtof: float = None,
         min_dtof: float = None,
+        nlevels: int = 0,
         weights: str = None,
         analysis_range: list = None,
         range_type: str = 'time',
@@ -38,11 +41,12 @@ def plot_dtof(
     Plot a ∆TOF (delta TOF) heatmap using pcolormesh.
 
     This function computes the difference in turnover frequencies (TOF) between a main simulation
-    and a reference simulation for a specified gas species. It builds a heatmap where ∆TOF is defined as
+    and that of a reference simulation for a specified gas species. It builds a heatmap where ∆TOF is defined as
     the difference between the TOF of the main simulation and that of the reference simulation. Only
     simulations that meet the minimum total production threshold in both datasets are considered.
-    The heatmap normalization is determined based on the absolute ∆TOF values, using logarithmic or
-    symmetric logarithmic normalization as appropriate.
+    The normalization is determined based on the absolute ∆TOF values and can be either continuous or discretized.
+    When discretized (if nlevels is a positive odd integer ≥ 3), the colorbar is segmented into that many distinct
+    intervals (with zero centered). If nlevels is 0 (the default), continuous normalization is used.
 
     Parameters
     ----------
@@ -64,15 +68,16 @@ def plot_dtof(
         - 'relative': ∆TOF = 100 * (TOF (main) - TOF (reference)) / |TOF (reference)|
                       (if TOF (reference) is 0, NaN is assigned).
     scale : str, optional
-        Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used
-        (with LogNorm or SymLogNorm depending on the data). If 'lin', linear normalization is used
-        (with Normalize).
+        Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used.
     min_molec : int, optional
         Minimum total production required for both the main and reference simulations (default: 1).
     max_dtof : float, optional
-        Maximum absolute value for TOF differences. If provided, values above this threshold are clipped.
+        Maximum absolute value for TOF differences. For relative differences, the default is set to 100.
     min_dtof : float, optional
-        Minimum absolute value threshold for TOF differences. If not provided, it is determined as max_dtof/1.0e3.
+        Minimum nonzero absolute value threshold for TOF differences. If not provided, it defaults to abs_max/1.0e3.
+    nlevels : int, optional
+        If 0 (the default), continuous normalization is used. Otherwise, nlevels must be a positive odd integer
+        (3 or higher) that defines the number of discrete boundaries (ensuring zero is centered).
     weights : str, optional
         Weighting method (e.g., 'time', 'events', or None).
     analysis_range : list, optional
@@ -95,17 +100,13 @@ def plot_dtof(
       When `difference_type` is 'relative', the difference is computed in percent.
     - Only simulations meeting the minimum total production threshold (min_molec) in both the main and reference
       datasets are used.
-    - Normalization for the heatmap is determined based on the absolute values of the ∆TOF:
-        * For absolute differences, if max_dtof is not provided it is computed from the data (rounded up to the nearest power
-          of 10) and min_dtof defaults to max_dtof/1.0e3.
-        * For relative differences, max_dtof defaults to 100 and min_dtof to 1, with clipping applied on both positive
-          and negative sides.
-    - When `scale` is 'log', logarithmic (or symmetric logarithmic) normalization is applied. When 'lin' is chosen,
-      linear normalization is applied.
-    - The x and y axes are set to logarithmic scale if their parameter names contain the substring "pressure".
+    - For both absolute and relative differences, the color range is set symmetrically from –abs_max to +abs_max so that
+      zero is centered.
+    - When `scale` is 'log', if discretization is enabled (nlevels ≠ 0) the positive boundaries are generated using
+      logarithmic spacing (and mirrored for negative values). If discretization is disabled (nlevels=0), a continuous
+      normalization is used (via SymLogNorm if data include both positive and negative values).
     - If auto_title is True, the plot title is set automatically using the gas species (formatted as a subscript).
     """
-
 
     # Set default analysis range if needed
     if analysis_range is None:
@@ -221,47 +222,80 @@ def plot_dtof(
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
-    # Determine normalization parameters based on the absolute values in the grid.
+    # --- Determine normalization parameters ---
+    # Compute a symmetric maximum value from the grid.
+    computed_abs_max = max(np.abs(np.nanmin(z_axis)), np.abs(np.nanmax(z_axis)))
     if difference_type == 'absolute':
         if max_dtof is None:
-            max_val = np.nanmax(np.abs(z_axis))
-            exponent = np.ceil(np.log10(max_val))
-            max_dtof = 10 ** exponent  # Round up to nearest power of 10
+            exponent = np.ceil(np.log10(computed_abs_max))
+            max_dtof = 10 ** exponent
         if min_dtof is None:
             min_dtof = max_dtof / 1.0e3
+        abs_max = max_dtof
     elif difference_type == 'relative':
         if max_dtof is None:
-            max_dtof = 100  # default to 100%
+            max_dtof = 100  # default to 100 for relative differences
         if min_dtof is None:
-            min_dtof = 1   # default to 1%
+            min_dtof = 1
+        abs_max = max_dtof
     else:
         raise ValueError("difference_type must be 'absolute' or 'relative'")
 
-    min_dtof = min(min_dtof, max_dtof)
-    abs_max = max_dtof
+    # --- Choose normalization: continuous if nlevels == 0, discrete otherwise ---
+    levels = None
 
-    # Choose the normalization based on the user's choice of scale.
-    if scale == 'log':
-        if np.all(z_axis >= 0):
-            norm = LogNorm(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
-        elif np.all(z_axis <= 0):
-            norm = LogNorm(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
-        else:
-            norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
-    elif scale == 'lin':
-        if np.all(z_axis >= 0):
-            norm = Normalize(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
-        elif np.all(z_axis <= 0):
-            norm = Normalize(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
-        else:
+    if nlevels == 0:
+        # Continuous normalization.
+        if scale == 'lin':
             norm = Normalize(vmin=-abs_max, vmax=abs_max)
+        elif scale == 'log':
+            # For log scale, if all values are positive or all negative, use LogNorm;
+            # otherwise, use SymLogNorm with a linear threshold.
+            if np.all(z_axis > 0):
+                norm = LogNorm(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
+            elif np.all(z_axis < 0):
+                norm = LogNorm(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
+            else:
+                norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+        else:
+            raise ValueError("scale parameter must be either 'log' or 'lin'")
     else:
-        raise ValueError("scale parameter must be either 'log' or 'lin'")
+        # Discrete normalization is requested.
+        # nlevels must be a positive odd integer (at least 3).
+        if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
+            raise ValueError("nlevels must be either 0 or a positive odd integer (>=3)")
+        if scale == 'lin':
+            levels = np.linspace(-abs_max, abs_max, nlevels)
+        elif scale == 'log':
+            positive_levels = np.logspace(np.log10(min_dtof), np.log10(abs_max), (nlevels - 1) // 2)
+            levels = np.concatenate((-positive_levels[::-1], [0], positive_levels))
+        else:
+            raise ValueError("scale parameter must be either 'log' or 'lin'")
+        norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
 
+    # --- Create pcolormesh plot ---
     cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
 
     if show_colorbar:
-        cbar = plt.colorbar(cp, ax=ax)
+        if levels is not None:
+            cbar = plt.colorbar(cp, ax=ax, boundaries=levels, ticks=levels)
+        else:
+            cbar = plt.colorbar(cp, ax=ax)
+        # --- Custom formatter for colorbar tick labels ---
+        if scale == 'log':
+            def log_formatter(x, pos):
+                if np.isclose(x, 0):
+                    return '0'
+                exponent_cb = int(np.floor(np.log10(abs(x))))
+                if np.isclose(abs(x), 10 ** exponent_cb, rtol=1e-5, atol=1e-8):
+                    return r'$+10^{%d}$' % exponent_cb if x > 0 else r'$-10^{%d}$' % exponent_cb
+                else:
+                    return r'$%+1.1e$' % x
+            formatter = FuncFormatter(log_formatter)
+        else:
+            formatter = FuncFormatter(lambda x, pos: f'+{x:.1f}' if x > 0 else f'{x:.1f}')
+        cbar.ax.yaxis.set_major_formatter(formatter)
+        # ---------------------------------------------------
 
     ax.set_xlim(np.min(x_list), np.max(x_list))
     ax.set_ylim(np.min(y_list), np.max(y_list))
