@@ -28,8 +28,8 @@ def plot_phasediagram(
         weights: str = None,
         analysis_range: list = None,
         range_type: str = 'time',
-        cmap: str = "bwr",
         # general optional parameters
+        cmap: str = "bwr",
         show_points: bool = False,
         show_colorbar: bool = True,
         auto_title: bool = False):

@@ -22,8 +22,8 @@ def plot_energyslope(
         levels: Optional[Union[list, np.ndarray]] = np.logspace(-11, -8, num=7),
         analysis_range: list = None,
         range_type: str = 'time',
-        cmap: str = "viridis",
         # general optional parameters
+        cmap: str = "viridis",
         show_points: bool = False,
         show_colorbar: bool = True,
         auto_title: bool = False):
@@ -154,7 +154,7 @@ def plot_energyslope(
         ax.set_title(
             label="energy slope \n($eV·Å^{{-2}}·step^{{-1}}$)",
             y=1.0,
-            pad=-14,
+            pad=-28,
             color="w",
             path_effects=[pe.withStroke(linewidth=2, foreground="black")]
         )

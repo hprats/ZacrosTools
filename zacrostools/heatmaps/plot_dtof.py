@@ -10,8 +10,26 @@ from zacrostools.kmc_output import KMCOutput
 from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value
 
 
-def plot_dtof(ax, scan_path, scan_path_ref, x, y, gas_spec, min_dtof=None, max_dtof=None,
-              analysis_range=None, range_type='time', weights=None, cmap=None, show_points=False, show_colorbar=True):
+def plot_dtof(
+        # general mandatory parameters
+        ax,
+        x: str,
+        y: str,
+        scan_path: str,
+        # plot-specific mandatory parameters
+        gas_spec: str = None,
+        scan_path_ref: str = None,
+        # plot-specific optional parameters
+        max_dtof: float = None,
+        min_dtof: float = None,
+        weights: str = None,
+        analysis_range: list = None,
+        range_type: str = 'time',
+        # general optional parameters
+        cmap: str = "RdYlBu",
+        show_points: bool = False,
+        show_colorbar: bool = True,
+        auto_title: bool = False):
     """
     Plots a ∆TOF (delta TOF) heatmap using pcolormesh.
 
@@ -51,28 +69,33 @@ def plot_dtof(ax, scan_path, scan_path_ref, x, y, gas_spec, min_dtof=None, max_d
     cp : QuadMesh
         The pcolormesh object.
     """
+
+    # Set default analysis range if needed
     if analysis_range is None:
         analysis_range = [0, 100]
 
+    # Validate scan_path and scan_path_ref
     if not os.path.isdir(scan_path):
         raise ValueError(f"Scan path folder does not exist: {scan_path}")
     if not os.path.isdir(scan_path_ref):
         raise ValueError(f"Reference scan path folder does not exist: {scan_path_ref}")
-    if not gas_spec:
-        raise ValueError("'gas_spec' is required for delta TOF plots")
-    if cmap is None:
-        cmap = "RdYlBu"
 
+    simulation_dirs = glob.glob(os.path.join(scan_path, "*"))
+    if len(simulation_dirs) == 0:
+        raise ValueError(f"Scan path folder is empty: {scan_path}")
+
+    simulation_ref_dirs = glob.glob(os.path.join(scan_path_ref, "*"))
+    if len(simulation_ref_dirs) == 0:
+        raise ValueError(f"Scan path folder is empty: {scan_path_ref}")
+
+    # Determine whether x and y values are logarithmic (based on presence of 'pressure' in the variable name)
     x_is_log = "pressure" in x
     y_is_log = "pressure" in y
 
-    x_values = []
-    y_values = []
-    data = {}
+    # Initialize lists and DataFrame to store data
+    x_value_list, y_value_list = [], []
+    df = pd.DataFrame()
 
-    sim_dirs = glob.glob(os.path.join(scan_path, "*"))
-    if len(sim_dirs) == 0:
-        raise ValueError(f"Scan path folder is empty: {scan_path}")
 
     # Loop over simulation directories (using matching folder names in the reference directory)
     for sim_path in sim_dirs:

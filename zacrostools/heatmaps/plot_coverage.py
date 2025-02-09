@@ -25,8 +25,8 @@ def plot_coverage(
         levels: Optional[Union[list, np.ndarray]] = np.linspace(0, 100, 11, dtype=int),
         analysis_range: list = None,
         range_type: str = 'time',
-        cmap: str = "Oranges",
         # general optional parameters
+        cmap: str = "Oranges",
         show_points: bool = False,
         show_colorbar: bool = True,
         auto_title: bool = False):

@@ -26,12 +26,12 @@ def plot_tof(
         levels: Optional[Union[list, np.ndarray]] = None,
         analysis_range: list = None,
         range_type: str = 'time',
-        cmap: str = "inferno",
         show_max: bool = False,
         # general optional parameters
+        cmap: str = "inferno",
         show_points: bool = False,
         show_colorbar: bool = True,
-        auto_title: bool = False,):
+        auto_title: bool = False):
     """
     Plot a Turnover Frequency (TOF) heatmap using a contourf plot.
 

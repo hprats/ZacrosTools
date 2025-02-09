@@ -26,8 +26,8 @@ def plot_selectivity(
         levels: Optional[Union[list, np.ndarray]] = np.linspace(0, 100, 11, dtype=int),
         analysis_range: list = None,
         range_type: str = 'time',
-        cmap: str = "Greens",
         # general optional parameters
+        cmap: str = "Greens",
         show_points: bool = False,
         show_colorbar: bool = True,
         auto_title: bool = False):

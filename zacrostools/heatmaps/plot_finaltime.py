@@ -20,8 +20,8 @@ def plot_finaltime(
         scan_path: str,
         # plot-specific optional parameters
         levels: Optional[Union[list, np.ndarray]] = np.linspace(0, 100, 11, dtype=int),
-        cmap: str = "inferno",
         # general optional parameters
+        cmap: str = "inferno",
         show_points: bool = False,
         show_colorbar: bool = True,
         auto_title: bool = False):
