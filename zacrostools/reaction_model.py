@@ -268,6 +268,20 @@ class ReactionModel:
         if missing_columns:
             raise ReactionModelError(f"Missing required columns: {missing_columns}")
 
+        # Pre-process the 'vib_energies_ts' column:
+        # For non-activated adsorption steps (i.e. those with a defined gas-phase 'molecule'
+        # and an activation energy of 0.0), if the cell is missing (i.e. not a list and is NaN),
+        # replace it with an empty list.
+        if 'vib_energies_ts' in df.columns:
+            for idx, row in df.iterrows():
+                val = row['vib_energies_ts']
+                # Only check for NaN if 'val' is not already a list.
+                if not isinstance(val, list) and pd.isna(val):
+                    # Check if this is an adsorption step (has a molecule) with zero activation energy.
+                    if ('molecule' in row and pd.notna(row['molecule'])
+                            and row['activ_eng'] == 0.0):
+                        df.at[idx, 'vib_energies_ts'] = []
+
         # Validate data types for list columns
         for col in self.LIST_COLUMNS:
             if col in df.columns:
