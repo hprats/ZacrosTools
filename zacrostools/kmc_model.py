@@ -119,8 +119,9 @@ class KMCModel:
             Default is [].
         stiffness_scaling_tags : dict, optional
             Keywords controlling the dynamic stiffness scaling algorithm and their corresponding values, e.g.,
-            {'check_every': 500, 'min_separation': 400.0, 'max_separation': 600.0}.
-            Default is {}.
+            {'check_every': 500, 'min_separation': 400.0, ...}.
+            The correct types are: integer for 'check_every' and 'min_noccur', and float for all others.
+            Default is {}
         sig_figs_energies : int, optional
             Number of significant figures for energy values in input files.
             Default is 8.
@@ -330,6 +331,19 @@ class KMCModel:
                     f"Invalid stiffness_scaling_tags keys for algorithm '{stiffness_scaling_algorithm}': "
                     f"{invalid_tags}. Allowed keys are: {allowed_tags}."
                 )
+
+            # Type checking: 'check_every' and 'min_noccur' must be integers; all others must be floats.
+            for tag, value in stiffness_scaling_tags.items():
+                if tag in ['check_every', 'min_noccur']:
+                    if not isinstance(value, int):
+                        raise KMCModelError(
+                            f"Invalid type for stiffness_scaling_tags '{tag}': expected int, got {type(value).__name__}."
+                        )
+                else:
+                    if not isinstance(value, float):
+                        raise KMCModelError(
+                            f"Invalid type for stiffness_scaling_tags '{tag}': expected float, got {type(value).__name__}."
+                        )
 
         if stiffness_scaling_algorithm in allowed_scaling_algorithms:
             if not stiffness_scalable_steps and not stiffness_scalable_symmetric_steps:
