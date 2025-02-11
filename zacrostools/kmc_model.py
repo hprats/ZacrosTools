@@ -281,7 +281,6 @@ class KMCModel:
         if stiffness_scalable_symmetric_steps is None:
             stiffness_scalable_symmetric_steps = []
 
-        # *** NEW FUNCTIONALITY: allow stiffness_scalable_steps to be 'all' ***
         if isinstance(stiffness_scalable_steps, str):
             if stiffness_scalable_steps.lower() == 'all':
                 # Assign all step names from the reaction model except those in stiffness_scalable_symmetric_steps
