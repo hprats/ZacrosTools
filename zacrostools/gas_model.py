@@ -17,17 +17,18 @@ class GasModel:
         **Required columns**:
 
         - **type** (str): 'non_linear' or 'linear'.
-        - **gas_molec_weight** (float): Molecular weight (in amu) of the gas species.
         - **sym_number** (int): Symmetry number of the molecule.
         - **inertia_moments** (list): Moments of inertia for the gas-phase molecule (in amu·Å²).
             - 1 element for linear molecules, 3 elements for non-linear molecules.
             - Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
         - **gas_energy** (float): Formation energy (in eV). Do not include the ZPE.
 
-        Optional columns:
+        **Optional columns**:
 
         - **degeneracy** (int): Degeneracy of the ground state, for the calculation of the electronic partition function.
             - Default value: 1.
+        - **gas_molec_weight** (float): Molecular weight (in amu) of the gas species.
+            - Default value: 1.0.
 
     Raises
     ------
@@ -48,13 +49,12 @@ class GasModel:
 
     REQUIRED_COLUMNS = {
         'type',
-        'gas_molec_weight',
         'sym_number',
         'inertia_moments',
         'gas_energy'
     }
 
-    OPTIONAL_COLUMNS = {'degeneracy'}
+    OPTIONAL_COLUMNS = {'degeneracy', 'gas_molec_weight'}
     LIST_COLUMNS = ['inertia_moments']
 
     @enforce_types
@@ -249,6 +249,10 @@ class GasModel:
             if not df[col].apply(lambda x: isinstance(x, list)).all():
                 invalid_species = df[~df[col].apply(lambda x: isinstance(x, list))].index.tolist()
                 raise GasModelError(f"Column '{col}' must contain lists. Invalid species: {invalid_species}")
+
+        # Validate gas_molec_weight column
+        if 'gas_molec_weight' not in df.columns:
+            df['gas_molec_weight'] = 1.0
 
         # Validate 'degeneracy' column
         if 'degeneracy' not in df.columns:
