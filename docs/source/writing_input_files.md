@@ -71,6 +71,7 @@ Once the `KMCModel` is created, you can generate the Zacros input files by calli
 - **`stiffness_scaling_tags`** (`dict`, optional): Parameters controlling the dynamic scaling algorithm.
 - **`sig_figs_energies`** (`int`, optional): Significant figures for energies written to input files.
 - **`sig_figs_pe`** (`int`, optional): Significant figures for pre-exponential factors.
+- **`sig_figs_lattice`** (`int`, optional): Significant figures for coordinates.
 - **`random_seed`** (`int`, optional): Seed for Zacros's random number generator.
 
 These parameters can be tailored to suit your simulation needs, ensuring that the generated files are both accurate and easy to reproduce.
@@ -106,25 +107,24 @@ The specified directory (`kmc_simulation`) will be created, containing all four 
 This example automates the creation of multiple sets of input files across a parameter grid, enabling high-throughput studies of reaction conditions.
 
 ```python
-import numpy as np
+from zacrostools.kmc_model import KMCModel
 
-for pX in np.logspace(-4, 0, 10):
-    for pY in np.logspace(-4, 0, 10):
-        kmc_model.create_job_dir(
-            job_path=f'pressure_scan/CO_{pX:.3e}#O2_{pY:.3e}',
-            temperature=1000,
-            pressure={'CO': pX, 'O2': pY, 'CO2': 0.0},
-            reporting_scheme={'snapshots': 'on event 10000', 
-                              'process_statistics': 'on event 10000', 
-                              'species_numbers': 'on event 10000'},
-            stopping_criteria={'max_steps': 'infinity', 
-                               'max_time': 'infinity', 
-                               'wall_time': 86400},
-            manual_scaling={'CO_diffusion': 1.0e-1, 
-                            'O_diffusion': 1.0e-2},
-            sig_figs_energies=3,
-            sig_figs_pe=3
-        )
+# Create the KMC model here
+
+for temperature in [600, 700, 800]: # in K
+    kmc_model.create_job_dir(
+        job_path=f'temp_{temperature}K',
+        temperature=temperature,
+        pressure={'CO': 1}, # in bar
+        reporting_scheme={
+            'snapshots': 'on event 100000',
+            'process_statistics': 'on event 100000',
+            'species_numbers': 'on event 100000'},
+        stopping_criteria={
+            'max_steps': 'infinity',
+            'max_time': 5.0e+06,
+            'wall_time': 250000}
+    )
 ```
 ---
 
