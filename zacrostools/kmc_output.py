@@ -67,15 +67,16 @@ class KMCOutput:
         Most dominant surface species per site type, used for plotting kinetic phase diagrams.
     """
 
-    def __init__(self, path: str, analysis_range: Union[list, None] = None, range_type: str = 'time',
-                 weights: Union[str, None] = None):
+    def __init__(self, job_path: str = None, analysis_range: Union[list, None] = None, range_type: str = 'time',
+                 weights: Union[str, None] = None, **kwargs):
         """
         Initialize the KMCOutput object by parsing simulation output files.
 
         Parameters
         ----------
-        path : str
-            The path where the output files are located.
+        job_path : str, optional
+            The path where the output files are located. (Previously named 'path'.)
+            For backward compatibility, you can still pass this value using the keyword 'path'.
         analysis_range : List[float], optional
             A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
             to consider for analysis. The values should be between 0 and 100, representing percentages of the
@@ -90,14 +91,19 @@ class KMCOutput:
             Weights for calculating weighted averages. Possible values are `'time'`, `'nevents'`, or `None`.
             If `None`, all weights are set to 1. Default value is `None`.
         """
+        # Support backward compatibility: if job_path is not provided, check for 'path'
+        if job_path is None:
+            job_path = kwargs.pop('path', None)
+        if job_path is None:
+            raise TypeError("Missing required argument: job_path (or 'path' for backwards compatibility)")
+        self.job_path = job_path
 
-        self.path = path
         if analysis_range is None:
             analysis_range = [0.0, 100.0]
 
         # Parse relevant data from the simulation_input.dat file
         data_simulation = parse_simulation_input_file(
-            input_file=f'{path}/simulation_input.dat')
+            input_file=f'{self.job_path}/simulation_input.dat')
 
         self.random_seed = data_simulation['random_seed']
         self.temperature = data_simulation['temperature']
@@ -111,7 +117,7 @@ class KMCOutput:
 
         # Parse relevant data from the general_output.txt file
         data_general = parse_general_output_file(
-            output_file=f'{path}/general_output.txt')
+            output_file=f'{self.job_path}/general_output.txt')
 
         self.n_sites = data_general['n_sites']
         self.area = data_general['area']
@@ -119,7 +125,7 @@ class KMCOutput:
 
         # Parse relevant data from the specnum_output.txt file
         data_specnum, header = parse_specnum_output_file(
-            output_file=f'{path}/specnum_output.txt',
+            output_file=f'{self.job_path}/specnum_output.txt',
             analysis_range=analysis_range,
             range_type=range_type)
 
@@ -158,7 +164,7 @@ class KMCOutput:
                 self.tof[gas_spec] = 0.0
 
         # Compute coverages (per total number of sites)
-        surf_specs_data = get_surf_specs_data(self.path)
+        surf_specs_data = get_surf_specs_data(job_path=self.job_path)
         self.coverage = {}
         self.av_coverage = {}
         for i in range(5, 5 + self.n_surf_species):
@@ -270,14 +276,15 @@ class KMCOutput:
         return selectivity
 
 
-def get_surf_specs_data(path):
+def get_surf_specs_data(job_path: str = None, **kwargs):
     """
     Retrieve surface species data including the number of dentates and the associated site type for each species.
 
     Parameters
     ----------
-    path : str
-        The path to the directory containing the simulation input files (`simulation_input.dat` and `energetics_input.dat`).
+    job_path : str, optional
+        The path to the directory containing the simulation input files (simulation_input.dat and energetics_input.dat).
+        (Previously named 'path'.) For backward compatibility, you can pass 'path' instead.
 
     Returns
     -------
@@ -288,9 +295,13 @@ def get_surf_specs_data(path):
         - 'site_type': str
             The site type on which the species adsorbs.
     """
+    if job_path is None:
+        job_path = kwargs.pop('path', None)
+    if job_path is None:
+        raise TypeError("Missing required argument: job_path (or 'path' for backwards compatibility)")
 
     # Get data from simulation_input.dat
-    parsed_sim_data = parse_simulation_input_file(input_file=f"{path}/simulation_input.dat")
+    parsed_sim_data = parse_simulation_input_file(input_file=f"{job_path}/simulation_input.dat")
     surf_specs_names = parsed_sim_data.get('surf_specs_names')
     surf_specs_dent = parsed_sim_data.get('surf_specs_dent')
     species_dentates = dict(zip(surf_specs_names, surf_specs_dent))
@@ -299,8 +310,7 @@ def get_surf_specs_data(path):
     surf_specs_data = {}
 
     # Check if the user is using a default lattice or not
-    default_lattice = check_default_lattice(path)
-
+    default_lattice = check_default_lattice(job_path=job_path)
     if default_lattice:
         for species in surf_specs_names:
             surf_specs_data[species] = {
@@ -310,7 +320,7 @@ def get_surf_specs_data(path):
 
     else:
 
-        with open(os.path.join(path, 'energetics_input.dat'), 'r') as f:
+        with open(os.path.join(job_path, 'energetics_input.dat'), 'r') as f:
             lines = f.readlines()
 
         species_site_types = {}
@@ -382,14 +392,15 @@ def get_surf_specs_data(path):
     return surf_specs_data
 
 
-def check_default_lattice(path):
+def check_default_lattice(job_path: str = None, **kwargs):
     """
     Check whether the simulation uses a default lattice configuration.
 
     Parameters
     ----------
-    path : str
+    job_path : str, optional
         The path to the directory containing the `lattice_input.dat` file.
+        (Previously named 'path'.) For backward compatibility, you can pass 'path' instead.
 
     Returns
     -------
@@ -397,10 +408,13 @@ def check_default_lattice(path):
         True if the `lattice_input.dat` file indicates a default lattice configuration, False otherwise.
     """
 
-    with open(os.path.join(path, 'lattice_input.dat'), 'r') as file:
+    if job_path is None:
+        job_path = kwargs.pop('path', None)
+    if job_path is None:
+        raise TypeError("Missing required argument: job_path (or 'path' for backwards compatibility)")
+
+    with open(os.path.join(job_path, 'lattice_input.dat'), 'r') as file:
         for line in file:
-            # Check if both 'lattice' and 'default_choice' are in the same line
             if 'lattice' in line and 'default_choice' in line:
                 return True
-
     return False
