@@ -7,6 +7,7 @@ The `GasModel` contains the information about each gas-phase molecule involved i
 ### Required columns
 
 - **`type`** (`str`): Specifies whether the molecule is `'linear'` or `'non_linear'`.
+- **`gas_molec_weight`** (`float`): Molecular weight in atomic mass units (amu).
 - **`sym_number`** (`int`): Symmetry number of the molecule.
 - **`inertia_moments`** (`list` of `float`): Moments of inertia in amu·Å².
   - Linear molecules: Provide 1 moment of inertia.
@@ -17,8 +18,6 @@ The `GasModel` contains the information about each gas-phase molecule involved i
 
 - **`degeneracy`** (`int`): Degeneracy of the ground state, used in calculating the electronic partition function.
   - Default value: `1`.
-- **`gas_molec_weight`** (`float`): Molecular weight in atomic mass units (amu). It is currently not used by Zacros.
-  - Default value: `1.0`.
 
 ### Example data table
 
