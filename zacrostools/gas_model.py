@@ -22,39 +22,23 @@ class GasModel:
             - 1 element for linear molecules, 3 elements for non-linear molecules.
             - Can be obtained from `ase.Atoms.get_moments_of_inertia()`.
         - **gas_energy** (float): Formation energy (in eV). Do not include the ZPE.
+        - **gas_molec_weight** (float): Molecular weight (in amu) of the gas species.
 
         **Optional columns**:
 
         - **degeneracy** (int): Degeneracy of the ground state, for the calculation of the electronic partition function.
             - Default value: 1.
-        - **gas_molec_weight** (float): Molecular weight (in amu) of the gas species.
-            - Default value: 1.0.
-
-    Raises
-    ------
-    GasModelError
-        If `gas_data` is not provided, contains duplicates, or is invalid.
-
-    Examples
-    --------
-    Example DataFrame:
-
-    | index | type       | gas_molec_weight | sym_number | degeneracy | inertia_moments        | gas_energy |
-    |-------|------------|------------------|------------|------------|------------------------|------------|
-    | CO    | linear     | 28.01            | 1          | 1          | [8.973619026272551]    | 1.96       |
-    | O2    | linear     | 32.0             | 2          | 3          | [12.178379354326061]   | 2.6        |
-    | CO2   | non_linear | 44.01            | 2          | 1          | [44.317229117708344]   | 0.0        |
-
     """
 
     REQUIRED_COLUMNS = {
         'type',
         'sym_number',
         'inertia_moments',
-        'gas_energy'
+        'gas_energy',
+        'gas_molec_weight'
     }
 
-    OPTIONAL_COLUMNS = {'degeneracy', 'gas_molec_weight'}
+    OPTIONAL_COLUMNS = {'degeneracy'}
     LIST_COLUMNS = ['inertia_moments']
 
     @enforce_types
@@ -209,7 +193,6 @@ class GasModel:
         ------
         GasModelError
             If the cell cannot be parsed into a list.
-
         """
         if pd.isna(cell) or cell.strip() == '':
             return []
@@ -250,28 +233,19 @@ class GasModel:
                 invalid_species = df[~df[col].apply(lambda x: isinstance(x, list))].index.tolist()
                 raise GasModelError(f"Column '{col}' must contain lists. Invalid species: {invalid_species}")
 
-        # Validate gas_molec_weight column
-        if 'gas_molec_weight' not in df.columns:
-            df['gas_molec_weight'] = 1.0
-
         # Validate 'degeneracy' column
         if 'degeneracy' not in df.columns:
             df['degeneracy'] = 1  # Default value
         else:
-            # Fill missing or NaN values with default
             df['degeneracy'] = df['degeneracy'].fillna(1)
-            # Convert to numeric (integer)
             df['degeneracy'] = pd.to_numeric(df['degeneracy'], errors='coerce')
-            # Replace NaN after conversion with default
             df['degeneracy'] = df['degeneracy'].fillna(1)
-            # Ensure all values are integers
             if not df['degeneracy'].apply(lambda x: isinstance(x, (int, float)) and float(x).is_integer()).all():
                 invalid_species = df[~df['degeneracy'].apply(lambda x: isinstance(x, (int, float)) and float(x).is_integer())].index.tolist()
                 raise GasModelError(f"Column 'degeneracy' must contain integer values. Invalid species: {invalid_species}")
-            # Convert to integer type
             df['degeneracy'] = df['degeneracy'].astype(int)
 
-        # Validate data types for numeric columns
+        # Validate data types for numeric columns (gas_molec_weight, sym_number, gas_energy)
         numeric_columns = ['gas_molec_weight', 'sym_number', 'gas_energy']
         for col in numeric_columns:
             if not pd.api.types.is_numeric_dtype(df[col]):
