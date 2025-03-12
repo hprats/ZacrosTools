@@ -225,8 +225,11 @@ def plot_periodic_lattice(filename, site_styles, ax=None, line_width=1.0):
 
     # Set plot limits
     all_coords = np.array([site['cartesian_coord'] for site in sites.values()])
-    min_x, max_x = all_coords[:, 0].min() - 1, all_coords[:, 0].max() + 1
-    min_y, max_y = all_coords[:, 1].min() - 1, all_coords[:, 1].max() + 1
+    unit_cell_corners = np.array([origin, corner_a, corner_b, corner_c])
+    min_x = min(all_coords[:, 0].min(), unit_cell_corners[:, 0].min()) - 1
+    max_x = max(all_coords[:, 0].max(), unit_cell_corners[:, 0].max()) + 1
+    min_y = min(all_coords[:, 1].min(), unit_cell_corners[:, 1].min()) - 1
+    max_y = max(all_coords[:, 1].max(), unit_cell_corners[:, 1].max()) + 1
     ax.set_xlim(min_x, max_x)
     ax.set_ylim(min_y, max_y)
 
