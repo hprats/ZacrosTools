@@ -73,23 +73,33 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     event_names = []
     event_fwd_indices = []
     event_rev_indices = []
-    i = 1
+
+    i = 1  # Skip the "Overall" column
     while i < len(headers):
-        h_fwd = headers[i]
-        if not h_fwd.endswith('_fwd'):
-            raise ValueError(f"Expected header ending with '_fwd', got '{h_fwd}'")
-        base_name = h_fwd.replace('_fwd', '')
-        event_names.append(base_name)
-        event_fwd_indices.append(i)
-        # Check for corresponding '_rev' header
-        if (i + 1) >= len(headers):
-            raise ValueError(f"Reverse event for '{base_name}' not found.")
-        h_rev = headers[i + 1]
-        expected_rev = f"{base_name}_rev"
-        if h_rev != expected_rev:
-            raise ValueError(f"Expected reverse header '{expected_rev}', got '{h_rev}'")
-        event_rev_indices.append(i + 1)
-        i += 2  # Move to the next pair
+        col_name = headers[i]
+        if col_name.endswith('_fwd'):
+            base_name = col_name.replace('_fwd', '')
+            # Check if the next header exists and is the reverse counterpart
+            if i + 1 < len(headers) and headers[i + 1] == f"{base_name}_rev":
+                event_names.append(base_name)
+                event_fwd_indices.append(i)
+                event_rev_indices.append(i + 1)
+                i += 2  # Skip the next column as well
+            else:
+                # Treat as an irreversible step even though labeled _fwd
+                event_names.append(base_name)
+                event_fwd_indices.append(i)
+                event_rev_indices.append(None)
+                i += 1
+        elif col_name.endswith('_rev'):
+            # Option: raise an error because a reverse column without a forward is unexpected
+            raise ValueError(f"Found a reverse column '{col_name}' without a matching forward column.")
+        else:
+            # Irreversible step with no suffix
+            event_names.append(col_name)
+            event_fwd_indices.append(i)
+            event_rev_indices.append(None)
+            i += 1
 
     # From line 1 onwards, the file has appended blocks of 3 lines each time the file is updated:
     # 1) "configuration int1 int2 real1"
@@ -227,10 +237,28 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     # cumulative_counts[end_idx] - cumulative_counts[start_idx]
     delta_counts = cumulative_counts[end_idx] - cumulative_counts[start_idx]
 
-    # Extract forward and reverse counts for each event
-    noccur_fwd = delta_counts[event_fwd_indices]
-    noccur_rev = delta_counts[event_rev_indices]
-    noccur_net = noccur_fwd - noccur_rev  # Raw net counts
+    # Create lists to store counts
+    noccur_fwd_list = []
+    noccur_rev_list = []
+
+    for fwd_idx, rev_idx in zip(event_fwd_indices, event_rev_indices):
+        fwd_count = delta_counts[fwd_idx]
+        if rev_idx is None:
+            rev_count = 0  # Irreversible: no reverse events
+        else:
+            rev_count = delta_counts[rev_idx]
+        noccur_fwd_list.append(fwd_count)
+        noccur_rev_list.append(rev_count)
+
+    # Compute net occurrences
+    noccur_net = np.array(noccur_fwd_list) - np.array(noccur_rev_list)
+
+    # Create a DataFrame with raw counts
+    df = pd.DataFrame({
+        'noccur_fwd': noccur_fwd_list,
+        'noccur_rev': noccur_rev_list,
+        'noccur_net': noccur_net
+    }, index=event_names)
 
     # Parse general_output.txt to get area
     # Assuming general_output.txt is in the same directory as procstat_output.txt
@@ -241,12 +269,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     except Exception as e:
         raise ValueError(f"Error parsing 'general_output.txt': {e}")
 
-    # Create a DataFrame with raw counts
-    df = pd.DataFrame({
-        'noccur_fwd': noccur_fwd,
-        'noccur_rev': noccur_rev,
-        'noccur_net': noccur_net
-    }, index=event_names)
 
     return df, float(delta_time), float(area)
 
