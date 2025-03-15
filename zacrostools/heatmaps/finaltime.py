@@ -19,7 +19,7 @@ def plot_finaltime(
         y: str,
         scan_path: str,
         # plot-specific optional parameters
-        levels: Optional[Union[list, np.ndarray]] = np.linspace(0, 100, 11, dtype=int),
+        levels: Optional[Union[list, np.ndarray]] = None,
         # general optional parameters
         cmap: str = "inferno",
         show_points: bool = False,
@@ -43,7 +43,7 @@ def plot_finaltime(
         Path to the directory containing simulation subdirectories.
     levels : list or np.ndarray, optional
         Contour levels for the plot. If provided, normalization uses
-        vmin=min(levels) and vmax=max(levels). Default is np.linspace(0, 100, 11, dtype=int).
+        vmin=min(levels) and vmax=max(levels). Default is None.
     cmap : str, optional
         Colormap to be used for the plot (default is 'inferno').
     show_points : bool, optional
