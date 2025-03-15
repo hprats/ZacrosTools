@@ -273,13 +273,14 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     return df, float(delta_time), float(area)
 
 
-def plot_procstat(ax: plt.Axes,
-                  simulation_path: Union[str, Path],
-                  analysis_range: List[float],
-                  range_type: str,
-                  elementary_steps: Optional[List[str]] = None,
-                  hide_zero_events: bool = False,
-                  grouping: Optional[Dict[str, List[str]]] = None) -> plt.Axes:
+def plot_event_frequency(
+        ax: plt.Axes,
+        simulation_path: Union[str, Path],
+        analysis_range: List[float],
+        range_type: str,
+        elementary_steps: Optional[List[str]] = None,
+        hide_zero_events: bool = False,
+        grouping: Optional[Dict[str, List[str]]] = None) -> plt.Axes:
     """
     Parse the procstat_output.txt file from a given simulation path and produce a
     horizontal bar plot of event frequencies on the given Axes object, with optional grouping of elementary steps.
