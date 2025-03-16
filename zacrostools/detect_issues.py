@@ -2,7 +2,7 @@ import numpy as np
 from zacrostools.kmc_output import KMCOutput
 
 
-def detect_issues(path,
+def detect_issues(job_path,
                   analysis_range,
                   range_type='time',
                   energy_slope_thr=5.0e-10,
@@ -15,7 +15,7 @@ def detect_issues(path,
 
     Parameters
     ----------
-    path : str
+    job_path : str
         Path to the directory containing KMC simulation output.
     analysis_range : List[float], optional
         A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
@@ -52,7 +52,7 @@ def detect_issues(path,
         return time[indices], energy[indices], nevents[indices]
 
     # Get simulation data
-    kmc_output = KMCOutput(path=path, analysis_range=analysis_range, range_type=range_type)
+    kmc_output = KMCOutput(job_path=job_path, analysis_range=analysis_range, range_type=range_type)
 
     # Reduce arrays if necessary
     time_reduced, energy_reduced, nevents_reduced = reduce_size(kmc_output.time,
