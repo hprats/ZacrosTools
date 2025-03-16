@@ -93,7 +93,7 @@ def plot_issues(
             y_value_list.append(y_value)
 
         # Retrieve issues
-        df.loc[folder_name, "issues"] = detect_issues(path=sim_path, analysis_range=analysis_range)
+        df.loc[folder_name, "issues"] = detect_issues(job_path=sim_path, analysis_range=analysis_range)
         if df.loc[folder_name, "issues"] and verbose:
             print(f"Issue detected: {sim_path}")
 
