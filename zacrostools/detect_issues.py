@@ -4,27 +4,33 @@ from zacrostools.kmc_output import KMCOutput
 
 def detect_issues(path,
                   analysis_range,
-                  energyslope_threshold=5.0e-10,
-                  time_linear_fit_threshold=0.95,
+                  range_type='time',
+                  energy_slope_thr=5.0e-10,
+                  time_r2_thr=0.95,
                   max_points=100):
     """
-    Detect issues in a KMC simulation by analyzing the energy slope and
-    the linearity of time with respect to the number of events.
-
-    A simulation that has reached a steady state is characterized by:
-    - A low absolute energy slope over KMC events (energy fluctuates around a stable value).
-    - A strong linear correlation between simulated time and the number of KMC events.
+    Detect potential issues in a KMC simulation by analyzing the lattice energy slope
+    and the linearity of time with respect to the number of events. If has_issues = True,
+    the simulation probably needs to run for longer in order to reach steady-state.
 
     Parameters
     ----------
     path : str
         Path to the directory containing KMC simulation output.
-    analysis_range : tuple or list of int
-        Range of KMC events to analyze (e.g., (0, 10000)).
-    energyslope_threshold : float, optional
+    analysis_range : List[float], optional
+        A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
+        to consider for analysis. The values should be between 0 and 100, representing percentages of the
+        total simulated time or the total number of events, depending on `range_type`. For example,
+        `[50, 100]` would analyze only the latter half of the simulation. Default is `[0.0, 100.0]`.
+    range_type : str, optional
+        Determines the dimension used when applying `analysis_range`:
+        - `'time'`: The percentages in `analysis_range` refer to segments of the total simulated time.
+        - `'nevents'`: The percentages in `analysis_range` refer to segments of the total number of simulated events.
+        Default is `'time'`.
+    energy_slope_thr : float, optional
         Threshold for the absolute energy slope (in eV/Å²/step) above
         which the simulation is considered to have an issue, by default 5.0e-10.
-    time_linear_fit_threshold : float, optional
+   time_r2_thr : float, optional
         Threshold for the R² value in the time vs. KMC events regression,
         by default 0.95. If the R² is below this value, the simulation is
         considered to have an issue.
@@ -46,8 +52,7 @@ def detect_issues(path,
         return time[indices], energy[indices], nevents[indices]
 
     # Get simulation data
-    kmc_output = KMCOutput(path=path, analysis_range=analysis_range,
-                           range_type='nevents', weights='nevents')
+    kmc_output = KMCOutput(path=path, analysis_range=analysis_range, range_type=range_type)
 
     # Reduce arrays if necessary
     time_reduced, energy_reduced, nevents_reduced = reduce_size(kmc_output.time,
@@ -63,7 +68,7 @@ def detect_issues(path,
     # Check for trend in energy using linear regression
     coeffs_energy = np.polyfit(nevents_reduced, energy_reduced, 1)
     slope_energy = coeffs_energy[0]
-    energy_trend = abs(slope_energy) > energyslope_threshold
+    energy_trend = abs(slope_energy) > energy_slope_thr
 
     # Perform linear regression on time vs. nevents
     coeffs_time = np.polyfit(nevents_reduced, time_reduced, 1)
@@ -73,7 +78,7 @@ def detect_issues(path,
 
     # Compute R² for the time vs. nevents regression
     r_squared_time = np.corrcoef(time_reduced, time_predicted)[0, 1] ** 2
-    time_not_linear = r_squared_time < time_linear_fit_threshold
+    time_not_linear = r_squared_time < time_r2_thr
 
     # If either the energy slope is too large or time is not linear, flag issues
     has_issues = energy_trend or time_not_linear
