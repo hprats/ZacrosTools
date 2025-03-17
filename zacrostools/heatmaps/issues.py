@@ -19,6 +19,8 @@ def plot_issues(
         scan_path: str,
         # plot-specific mandatory parameters
         analysis_range: list,
+        # plot-specific optional parameters
+        range_type: str = 'time',
         # general optional parameters
         cmap: str = "RdYlGn",
         show_points: bool = False,
@@ -40,6 +42,8 @@ def plot_issues(
         Path to the directory containing simulation subdirectories.
     analysis_range : list
         Portion of the simulation data to analyze (e.g., [0, 100]). If None, defaults to [0, 100].
+    range_type : str, optional
+        Type of range to consider in the analysis ('time' or 'nevents').
     cmap : str, optional
         Colormap for the heatmap (default is "RdYlGn").
     show_points : bool, optional
@@ -93,7 +97,10 @@ def plot_issues(
             y_value_list.append(y_value)
 
         # Retrieve issues
-        df.loc[folder_name, "issues"] = detect_issues(job_path=sim_path, analysis_range=analysis_range)
+        df.loc[folder_name, "issues"] = detect_issues(
+            job_path=sim_path,
+            analysis_range=analysis_range,
+            range_type=range_type)
         if df.loc[folder_name, "issues"] and verbose:
             print(f"Issue detected: {sim_path}")
 
