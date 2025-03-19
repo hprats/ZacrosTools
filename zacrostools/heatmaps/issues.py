@@ -97,12 +97,16 @@ def plot_issues(
             y_value_list.append(y_value)
 
         # Retrieve issues
-        df.loc[folder_name, "issues"] = detect_issues(
-            job_path=sim_path,
-            analysis_range=analysis_range,
-            range_type=range_type)
-        if df.loc[folder_name, "issues"] and verbose:
-            print(f"Issue detected: {sim_path}")
+        try:
+            df.loc[folder_name, "issues"] = detect_issues(
+                job_path=sim_path,
+                analysis_range=analysis_range,
+                range_type=range_type)
+            if df.loc[folder_name, "issues"] and verbose:
+                print(f"Issue detected: {sim_path}")
+        except Exception as e:
+            print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
+            df.loc[folder_name, "issues"] = float('NaN')
 
     # Build sorted arrays for x and y axis values
     x_value_list = np.sort(np.asarray(x_value_list))

@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from zacrostools.kmc_output import KMCOutput
 
@@ -62,8 +63,8 @@ def detect_issues(job_path,
 
     # Edge-case check: Need at least 2 data points to perform any linear regression
     if len(nevents_reduced) < 2:
-        raise ValueError("Not enough data points to perform regression. "
-                         f"Got {len(nevents_reduced)} points.")
+        warnings.warn(f"Not enough data points to perform regression for {job_path}. Got {len(nevents_reduced)} points. Marking simulation as having issues.", UserWarning)
+        return True
 
     # Check for trend in energy using linear regression
     coeffs_energy = np.polyfit(nevents_reduced, energy_reduced, 1)
