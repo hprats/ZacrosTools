@@ -25,11 +25,6 @@ class KMCModel:
         An instance containing information about the energetic model.
     lattice_model : LatticeModel
         An instance containing information about the lattice model.
-
-    Raises
-    ------
-    KMCModelError
-        If there are inconsistencies in the model configurations.
     """
 
     @enforce_types
@@ -80,7 +75,8 @@ class KMCModel:
                        sig_figs_energies: int = 8,
                        sig_figs_pe: int = 8,
                        sig_figs_lattice: int = 8,
-                       random_seed: Optional[int] = None):
+                       random_seed: Optional[int] = None,
+                       version: Union[float, int] = 5.0):
         """
         Create a job directory and write the necessary input files for the KMC simulation.
 
@@ -134,11 +130,8 @@ class KMCModel:
         random_seed : int, optional
             The seed for the random number generator. If not specified, a random seed will be generated.
             Default is None.
-
-        Raises
-        ------
-        KMCModelError
-            If there are inconsistencies in the stiffness scaling configuration or errors during file writing.
+        version : float or int, optional
+            The Zacros version. Can be a single integer (e.g. 4) or float (e.g. 4.2 or 5.1).
         """
         # Parse and validate parameters
         parsed_params = self._parse_parameters(
@@ -148,7 +141,8 @@ class KMCModel:
             stiffness_scaling_algorithm=stiffness_scaling_algorithm,
             stiffness_scalable_steps=stiffness_scalable_steps,
             stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
-            stiffness_scaling_tags=stiffness_scaling_tags
+            stiffness_scaling_tags=stiffness_scaling_tags,
+            version=version
         )
 
         # Unpack parsed parameters
@@ -173,7 +167,8 @@ class KMCModel:
                 stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
                 stiffness_scaling_tags=stiffness_scaling_tags,
                 sig_figs_energies=sig_figs_energies,
-                random_seed=random_seed)
+                random_seed=random_seed,
+                version=version)
             self.reaction_model.write_mechanism_input(
                 output_dir=self.job_dir,
                 temperature=temperature,
@@ -199,19 +194,10 @@ class KMCModel:
                           stiffness_scaling_algorithm,
                           stiffness_scalable_steps,
                           stiffness_scalable_symmetric_steps,
-                          stiffness_scaling_tags):
+                          stiffness_scaling_tags,
+                          version):
         """
         Parse and validate the parameters provided to create_job_dir.
-
-        Returns
-        -------
-        dict
-            A dictionary containing parsed and validated parameters.
-
-        Raises
-        ------
-        KMCModelError
-            If any of the parameters fail validation.
         """
         # [Reporting scheme and stopping criteria processing as before...]
         allowed_reporting_keys = {'snapshots', 'process_statistics', 'species_numbers'}
@@ -262,41 +248,76 @@ class KMCModel:
         if manual_scaling is None:
             manual_scaling = {}
 
-        # Stiffness scaling algorithm and steps
-        allowed_scaling_algorithms = {'legacy', 'prats2024'}
-        if stiffness_scaling_algorithm is not None:
-            if stiffness_scaling_algorithm not in allowed_scaling_algorithms:
-                raise KMCModelError(
-                    f"Invalid stiffness_scaling_algorithm '{stiffness_scaling_algorithm}'. "
-                    f"Allowed values are 'legacy' or 'prats2024'."
-                )
-        if stiffness_scaling_algorithm is None:
-            if stiffness_scalable_steps or stiffness_scalable_symmetric_steps or stiffness_scaling_tags:
-                stiffness_scaling_algorithm = 'legacy'
-            else:
-                stiffness_scaling_algorithm = None
-
-        # Default for stiffness_scalable_steps and stiffness_scalable_symmetric_steps
+        # --- Version-specific stiffness scaling validation ---
         if stiffness_scalable_steps is None:
             stiffness_scalable_steps = []
         if stiffness_scalable_symmetric_steps is None:
             stiffness_scalable_symmetric_steps = []
-
-        if isinstance(stiffness_scalable_steps, str):
-            if stiffness_scalable_steps.lower() == 'all':
-                # Assign all step names from the reaction model except those in stiffness_scalable_symmetric_steps
-                all_steps = list(self.reaction_model.df.index)
-                stiffness_scalable_steps = [step for step in all_steps
-                                            if step not in stiffness_scalable_symmetric_steps]
-            else:
-                raise KMCModelError(
-                    "Invalid value for stiffness_scalable_steps: if provided as a string, only 'all' is allowed."
-                )
-
         if stiffness_scaling_tags is None:
             stiffness_scaling_tags = {}
 
-        if stiffness_scaling_algorithm == 'legacy':
+        if float(version) < 3.0:
+            if (stiffness_scaling_algorithm is not None or
+                    (stiffness_scalable_steps not in (None, []) and len(stiffness_scalable_steps) > 0) or
+                    (stiffness_scalable_symmetric_steps not in (None, []) and len(
+                        stiffness_scalable_symmetric_steps) > 0) or
+                    (stiffness_scaling_tags not in (None, {}) and len(stiffness_scaling_tags) > 0)):
+                raise KMCModelError("Stiffness scaling is not implemented for Zacros versions lower than 3.")
+        elif 3.0 <= float(version) < 5.0:
+            if stiffness_scaling_algorithm is not None:
+                print(
+                    "Warning: 'stiffness_scaling_algorithm' parameter is not allowed for Zacros versions lower than 5. Ignoring it.")
+                stiffness_scaling_algorithm = None
+            if stiffness_scalable_symmetric_steps not in (None, []) and len(stiffness_scalable_symmetric_steps) > 0:
+                print(
+                    "Warning: 'stiffness_scalable_symmetric_steps' parameter is not allowed for Zacros versions lower than 5. Ignoring it.")
+                stiffness_scalable_symmetric_steps = []
+        else:
+            allowed_scaling_algorithms = {'legacy', 'prats2024'}
+            if stiffness_scaling_algorithm is not None:
+                if stiffness_scaling_algorithm not in allowed_scaling_algorithms:
+                    raise KMCModelError(
+                        f"Invalid stiffness_scaling_algorithm '{stiffness_scaling_algorithm}'. "
+                        f"Allowed values are 'legacy' or 'prats2024'."
+                    )
+            if stiffness_scaling_algorithm is None:
+                if stiffness_scalable_steps or stiffness_scalable_symmetric_steps or stiffness_scaling_tags:
+                    stiffness_scaling_algorithm = 'legacy'
+                else:
+                    stiffness_scaling_algorithm = None
+
+        if float(version) >= 5.0:
+            if stiffness_scaling_algorithm in {'legacy', 'prats2024'}:
+                if not stiffness_scalable_steps and not stiffness_scalable_symmetric_steps:
+                    raise KMCModelError(
+                        "stiffness_scaling_algorithm selected but no steps are stiffness scalable."
+                    )
+        # Validate stiffness scaling tags
+        if float(version) >= 5.0:
+            if stiffness_scaling_algorithm == 'legacy':
+                allowed_tags = {
+                    'check_every',
+                    'min_separation',
+                    'max_separation',
+                    'max_qequil_separation',
+                    'tol_part_equil_ratio',
+                    'stiffn_coeff_threshold',
+                    'scaling_factor'
+                }
+            elif stiffness_scaling_algorithm == 'prats2024':
+                allowed_tags = {
+                    'check_every',
+                    'min_separation',
+                    'max_separation',
+                    'tol_part_equil_ratio',
+                    'upscaling_factor',
+                    'upscaling_limit',
+                    'downscaling_limit',
+                    'min_noccur'
+                }
+            else:
+                allowed_tags = set()
+        else:
             allowed_tags = {
                 'check_every',
                 'min_separation',
@@ -306,33 +327,14 @@ class KMCModel:
                 'stiffn_coeff_threshold',
                 'scaling_factor'
             }
-        elif stiffness_scaling_algorithm == 'prats2024':
-            allowed_tags = {
-                'check_every',
-                'min_separation',
-                'max_separation',
-                'tol_part_equil_ratio',
-                'upscaling_factor',
-                'upscaling_limit',
-                'downscaling_limit',
-                'min_noccur'
-            }
-        else:
-            allowed_tags = set()
 
         if stiffness_scaling_tags:
-            if stiffness_scaling_algorithm is None:
-                raise KMCModelError(
-                    "stiffness_scaling_tags provided but no stiffness_scaling_algorithm selected."
-                )
             invalid_tags = set(stiffness_scaling_tags.keys()) - allowed_tags
             if invalid_tags:
                 raise KMCModelError(
-                    f"Invalid stiffness_scaling_tags keys for algorithm '{stiffness_scaling_algorithm}': "
+                    f"Invalid stiffness_scaling_tags keys for Zacros version {version}: "
                     f"{invalid_tags}. Allowed keys are: {allowed_tags}."
                 )
-
-            # Type checking: 'check_every' and 'min_noccur' must be integers; all others must be floats.
             for tag, value in stiffness_scaling_tags.items():
                 if tag in ['check_every', 'min_noccur']:
                     if not isinstance(value, int):
@@ -344,12 +346,6 @@ class KMCModel:
                         raise KMCModelError(
                             f"Invalid type for stiffness_scaling_tags '{tag}': expected float, got {type(value).__name__}."
                         )
-
-        if stiffness_scaling_algorithm in allowed_scaling_algorithms:
-            if not stiffness_scalable_steps and not stiffness_scalable_symmetric_steps:
-                raise KMCModelError(
-                    "stiffness_scaling_algorithm selected but no steps are stiffness scalable."
-                )
 
         return {
             'reporting_scheme': reporting_scheme,
@@ -364,9 +360,8 @@ class KMCModel:
     def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria,
                                stiffness_scaling_algorithm, stiffness_scalable_steps,
                                stiffness_scalable_symmetric_steps, stiffness_scaling_tags,
-                               sig_figs_energies, random_seed):
+                               sig_figs_energies, random_seed, version):
         """Writes the simulation_input.dat file."""
-
         gas_specs_names = list(self.gas_model.df.index)
         surf_specs = self.get_surf_specs()
         write_header(f"{self.job_dir}/simulation_input.dat")
@@ -424,15 +419,20 @@ class KMCModel:
                 for tag in ['max_steps', 'max_time', 'wall_time']:
                     infile.write((tag + '\t').expandtabs(26) + str(stopping_criteria.get(tag, '')) + '\n')
 
-                # Handle stiffness scaling
-                if stiffness_scalable_steps or stiffness_scalable_symmetric_steps:
-                    if stiffness_scaling_algorithm is None:
-                        infile.write(f"enable_stiffness_scaling\n")
-                    else:
-                        infile.write(
-                            'enable_stiffness_scaling\t'.expandtabs(26) + stiffness_scaling_algorithm + '\n')
-                    for tag in stiffness_scaling_tags:
-                        infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
+                # Handle stiffness scaling based on version:
+                if float(version) >= 5.0:
+                    if stiffness_scalable_steps or stiffness_scalable_symmetric_steps:
+                        if stiffness_scaling_algorithm is None:
+                            infile.write("enable_stiffness_scaling\n")
+                        else:
+                            infile.write('enable_stiffness_scaling\t'.expandtabs(26) + stiffness_scaling_algorithm + '\n')
+                        for tag in stiffness_scaling_tags:
+                            infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
+                else:
+                    if stiffness_scalable_steps:
+                        infile.write("enable_stiffness_scaling\n")
+                        for tag in stiffness_scaling_tags:
+                            infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
                 infile.write(f"finish\n")
         except IOError as e:
             raise KMCModelError(f"Failed to write to 'simulation_input.dat': {e}")
@@ -466,7 +466,6 @@ class KMCModel:
                     except ValueError:
                         raise KMCModelError(
                             f"Invalid dentate value in lattice_state for cluster '{cluster}': {parts[2]}")
-                    # Update the surf_specs dictionary
                     if surf_specs_name not in surf_specs or (
                             surf_specs_name in surf_specs and surf_specs_dent > surf_specs[surf_specs_name]):
                         surf_specs[surf_specs_name] = surf_specs_dent
