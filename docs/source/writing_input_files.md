@@ -67,12 +67,15 @@ Once the `KMCModel` is created, you can generate the Zacros input files by calli
 - **`stopping_criteria`** (`dict`, optional): Conditions to end the simulation (max steps, max time, wall time).
 - **`manual_scaling`** (`dict`, optional): Apply scaling factors to specific reaction steps.
 - **`stiffness_scaling_algorithm`** (`str`, optional): Algorithm for handling stiffness scaling (`'legacy'` or `'prats2024'`).
-- **`stiffness_scalable_steps`** and **`stiffness_scalable_symmetric_steps`** (`list` of `str`, optional): Steps that can be dynamically scaled in Zacros to handle stiffness.
+- **`stiffness_scalable_steps`** (`list` of `str`, optional): Steps that will be marked as `'stiffness_scalable'` in mechanism_input.dat. Can be provided as a list of step names or the string `'all'` to indicate that all steps
+            (except those specified in `stiffness_scalable_symmetric_steps) are stiffness scalable.
+- **`stiffness_scalable_symmetric_steps`**: (`list` of `str`, optional): Steps that will be marked as `'stiffness_scalable_symmetric'` in `mechanism_input.dat`
 - **`stiffness_scaling_tags`** (`dict`, optional): Parameters controlling the dynamic scaling algorithm.
 - **`sig_figs_energies`** (`int`, optional): Significant figures for energies written to input files.
 - **`sig_figs_pe`** (`int`, optional): Significant figures for pre-exponential factors.
 - **`sig_figs_lattice`** (`int`, optional): Significant figures for coordinates.
 - **`random_seed`** (`int`, optional): Seed for Zacros's random number generator.
+- **`version`** (`float` or `int`, optional): The Zacros version. Can be a single integer (e.g. 4) or float (e.g. 4.2 or 5.1). Default is 5.0.
 
 These parameters can be tailored to suit your simulation needs, ensuring that the generated files are both accurate and easy to reproduce.
 

@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.3] 04-Apr-2025
+
+### Added
+- **Specialized functions for creating heatmaps**: each heatmap type has its own function, such as `plot_tof` or `plot_selectivity`.
+- **Plot ∆tof heatmaps**: new function `plot_dtof` which computes the difference in TOF between two simulations in absolute or relative value and plots a heatmap. 
+- **Plot lattice**: new function `plot_periodic_lattice'` to plot a periodic lattice model. 
+- **Stiffness scalable steps**: now it is possible to define `stiffness_scalable_steps = 'all'` in `create_job_dir`.
+- **Zacros version**: added new `version` parameter in `create_job_dir`.
+
+### Fixed
+- **Non-zero TOF bug**: Resolved a numerical issue where the computed TOF for a poisoned catalyst could be non-zero.
+- **Adsorption step bug**: Fixed a bug where `vib_energies_ts` was required for non-activated steps when creating a reaction model from a dictionary.
+- **Event frequencies:** Function `plot_procstat` is now compatible with models including irreversible steps.
+
+### Improved
+- **Validation of **: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
+
 ## [2.2] 20-Dec-2024
 
 ### Added
