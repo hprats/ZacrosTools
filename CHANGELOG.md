@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [2.3] - 2025-04-04
+## [2.3] - 04-Apr-2025
 
 ### Added
 - **Specialized functions for creating heatmaps**: Each heatmap type now has its own function (e.g., `plot_tof`, `plot_selectivity`).
