@@ -252,9 +252,9 @@ def plot_dtof(
             # For log scale, if all values are positive or all negative, use LogNorm;
             # otherwise, use SymLogNorm with a linear threshold.
             if np.all(z_axis > 0):
-                norm = LogNorm(vmin=max(np.nanmin(z_axis[z_axis > 0]), min_dtof), vmax=abs_max)
+                norm = LogNorm(vmin=min_dtof, vmax=abs_max)
             elif np.all(z_axis < 0):
-                norm = LogNorm(vmin=min(np.nanmax(z_axis[z_axis < 0]), -abs_max), vmax=-min_dtof)
+                norm = LogNorm(vmin=-abs_max, vmax=-min_dtof)
             else:
                 norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
         else:
