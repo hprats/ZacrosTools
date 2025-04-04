@@ -97,7 +97,6 @@ def plot_dtof(
     -----
     - The function reads simulation data from the provided main and reference directories. It computes the TOF
       for a given gas species in both sets of simulations and calculates ∆TOF as the difference between them.
-      When `difference_type` is 'relative', the difference is computed in percent.
     - Only simulations meeting the minimum total production threshold (min_molec) in both the main and reference
       datasets are used.
     - For both absolute and relative differences, the color range is set symmetrically from –abs_max to +abs_max so that
@@ -175,7 +174,7 @@ def plot_dtof(
             elif difference_type == 'relative':
                 # if the reference TOF is zero, assign NaN (as in the example)
                 if tof_ref != 0:
-                    df.loc[folder_name, "dtof"] = 100.0 * (tof - tof_ref) / abs(tof_ref)
+                    df.loc[folder_name, "dtof"] = (tof - tof_ref) / abs(tof_ref)
                 else:
                     df.loc[folder_name, "dtof"] = np.nan
             else:

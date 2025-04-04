@@ -57,7 +57,7 @@ def plot_dtime(
     difference_type : str, optional
         Type of time difference to compute. Must be either 'absolute' (default) or 'relative'.
         - 'absolute': ∆time = time (main) - time (reference).
-        - 'relative': ∆time = 100 * (time (main) - time (reference)) / |time (reference)|
+        - 'relative': ∆time = (time (main) - time (reference)) / |time (reference)|
                       (if time (reference) is 0, NaN is assigned).
     scale : str, optional
         Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used.
@@ -86,7 +86,6 @@ def plot_dtime(
     -----
     - The function reads simulation data from the provided main and reference directories.
     - It computes the total simulation time by taking the difference between the last and first time points.
-    - When `difference_type` is 'relative', the difference is computed in percent.
     - For both absolute and relative differences, the color range is set symmetrically from –abs_max to +abs_max so that
       zero is centered.
     - When `scale` is 'log', if discretization is enabled (nlevels ≠ 0) the positive boundaries are generated using
@@ -156,7 +155,7 @@ def plot_dtime(
                 df.loc[folder_name, "dtime"] = time - time_ref
             elif difference_type == 'relative':
                 if time_ref != 0:
-                    df.loc[folder_name, "dtime"] = 100.0 * (time - time_ref) / abs(time_ref)
+                    df.loc[folder_name, "dtime"] = (time - time_ref) / abs(time_ref)
                 else:
                     df.loc[folder_name, "dtime"] = np.nan
             else:
@@ -276,9 +275,9 @@ def plot_dtime(
 
     if auto_title:
         if difference_type == 'absolute':
-            label = "∆Time"
+            label = "∆Time (abs.)"
         else:
-            label = "∆Time (%)"
+            label = "∆Time (rel.)"
         ax.set_title(
             label=label,
             y=1.0,
