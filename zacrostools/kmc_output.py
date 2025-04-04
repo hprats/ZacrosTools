@@ -8,63 +8,64 @@ from zacrostools.custom_exceptions import enforce_types, KMCOutputError, Energet
 
 
 class KMCOutput:
+
     """
     A class that represents a KMC (Kinetic Monte Carlo) simulation output.
 
     Attributes
     ----------
-    n_gas_species : int
-        Number of gas species.
-    gas_specs_names : List[str]
-        Gas species names.
-    n_surf_species : int
-        Number of surface species.
-    surf_specs_names : List[str]
-        Surface species names.
-    n_sites : int
-        Total number of lattice sites.
     area : float
         Lattice surface area (in Å²).
-    site_types : Dict[str, int]
-        Site type names and total number of sites of that type.
-    nevents : np.ndarray
-        Number of events occurred.
-    time : np.ndarray
-        Simulated time (in seconds).
-    finaltime : float
-        Final simulated time (in seconds).
-    energy : np.ndarray
-        Lattice energy (in eV·Å⁻²).
-    av_energy : float
-        Average lattice energy (in eV·Å⁻²).
-    final_energy : float
-        Final lattice energy (in eV·Å⁻²).
-    production : Dict[str, np.ndarray]
-        Gas species produced over time. Example: `KMCOutput.production['CO']`.
-    total_production : Dict[str, float]
-        Total number of gas species produced. Example: `KMCOutput.total_production['CO']`.
-    tof : Dict[str, float]
-        TOF (Turnover Frequency) of gas species (in molecules·s⁻¹·Å⁻²). Example: `KMCOutput.tof['CO2']`.
-    coverage : Dict[str, np.ndarray]
-        Coverage of surface species over time (in %). Example: `KMCOutput.coverage['CO']`.
     av_coverage : Dict[str, float]
         Average coverage of surface species (in %). Example: `KMCOutput.av_coverage['CO']`.
-    total_coverage : np.ndarray
-        Total coverage of surface species over time (in %).
-    av_total_coverage : float
-        Average total coverage of surface species (in %).
-    dominant_ads : str
-        Most dominant surface species, used for plotting kinetic phase diagrams.
-    coverage_per_site_type : Dict[str, Dict[str, np.ndarray]]
-        Coverage of surface species per site type over time (in %).
     av_coverage_per_site_type : Dict[str, Dict[str, float]]
         Average coverage of surface species per site type (in %).
-    total_coverage_per_site_type : Dict[str, np.ndarray]
-        Total coverage of surface species per site type over time (in %). Example: `KMCOutput.total_coverage_per_site_type['top']`.
+    av_energy : float
+        Average lattice energy (in eV·Å⁻²).
+    av_total_coverage : float
+        Average total coverage of surface species (in %).
     av_total_coverage_per_site_type : Dict[str, float]
         Average total coverage of surface species per site type (in %).
+    coverage : Dict[str, np.ndarray]
+        Coverage of surface species over time (in %). Example: `KMCOutput.coverage['CO']`.
+    coverage_per_site_type : Dict[str, Dict[str, np.ndarray]]
+        Coverage of surface species per site type over time (in %).
+    cpu_time : float
+        Final elapsed cpu time (in seconds).
+    dominant_ads : str
+        Most dominant surface species, used for plotting kinetic phase diagrams.
     dominant_ads_per_site_type : Dict[str, str]
         Most dominant surface species per site type, used for plotting kinetic phase diagrams.
+    energy : np.ndarray
+        Lattice energy (in eV·Å⁻²).
+    final_energy : float
+        Final lattice energy (in eV·Å⁻²).
+    finaltime : float
+        Final simulated time (in seconds).
+    gas_specs_names : List[str]
+        Gas species names.
+    n_gas_species : int
+        Number of gas species.
+    n_sites : int
+        Total number of lattice sites.
+    n_surf_species : int
+        Number of surface species.
+    nevents : np.ndarray
+        Number of events occurred.
+    production : Dict[str, np.ndarray]
+        Gas species produced over time. Example: `KMCOutput.production['CO']`.
+    surf_specs_names : List[str]
+        Surface species names.
+    time : np.ndarray
+        Simulated time (in seconds).
+    tof : Dict[str, float]
+        TOF (Turnover Frequency) of gas species (in molecules·s⁻¹·Å⁻²). Example: `KMCOutput.tof['CO2']`.
+    total_coverage : np.ndarray
+        Total coverage of surface species over time (in %).
+    total_coverage_per_site_type : Dict[str, np.ndarray]
+        Total coverage of surface species per site type over time (in %). Example: `KMCOutput.total_coverage_per_site_type['top']`.
+    total_production : Dict[str, float]
+        Total number of gas species produced. Example: `KMCOutput.total_production['CO']`.
     """
 
     def __init__(self, job_path: str = None, analysis_range: Union[list, None] = None, range_type: str = 'time',
@@ -122,6 +123,7 @@ class KMCOutput:
         self.n_sites = data_general['n_sites']
         self.area = data_general['area']
         self.site_types = data_general['site_types']
+        self.cpu_time = data_general['cpu_time']
 
         # Parse relevant data from the specnum_output.txt file
         data_specnum, header = parse_specnum_output_file(

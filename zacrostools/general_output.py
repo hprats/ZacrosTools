@@ -785,9 +785,24 @@ def parse_general_output_file(
         start, end = find_block(full_lines, "Simulation stopped:", blocks)
         # For now, do nothing
 
-    def parse_performance_facts(full_lines: List[str], blocks: List[str]):
+    def parse_performance_facts(full_lines: List[str], blocks: List[str]) -> Dict[str, Any]:
         start, end = find_block(full_lines, "Performance facts:", blocks)
-        # For now, do nothing
+        perf_data: Dict[str, Any] = {}
+        if start is not None and end is not None:
+            for line in full_lines[start:end]:
+                line_stripped = line.strip()
+                if line_stripped.startswith("Elapsed CPU time:"):
+                    # Expected format: "Elapsed CPU time:         60327.0391 seconds"
+                    parts = line_stripped.split(":", 1)
+                    if len(parts) == 2:
+                        # Split again to remove the "seconds" part and convert the first token to float
+                        time_str = parts[1].strip().split()[0]
+                        try:
+                            perf_data['cpu_time'] = float(time_str)
+                        except ValueError:
+                            perf_data['cpu_time'] = None
+                    break
+        return perf_data
 
     def parse_execution_queue_statistics(full_lines: List[str], blocks: List[str]):
         start, end = find_block(full_lines, "Execution queue statistics:", blocks)
@@ -821,7 +836,8 @@ def parse_general_output_file(
     )
     data.update(comm_data)
     parse_simulation_stopped(lines, known_blocks)
-    parse_performance_facts(lines, known_blocks)
+    perf_data = parse_performance_facts(lines, known_blocks)
+    data.update(perf_data)
     parse_execution_queue_statistics(lines, known_blocks)
     parse_memory_usage_statistics(lines, known_blocks)
 
