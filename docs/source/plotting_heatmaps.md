@@ -97,7 +97,7 @@ plt.show()
 
 #### ∆TOF (Delta TOF)
 
-Plot the difference in Turnover Frequencies (TOF) between a main simulation and a reference simulation for a specified gas-phase species. The difference can be either *absolute* (`main - reference`) or *relative* (percentage difference).
+Plot the difference in Turnover Frequencies (TOF) between a main simulation and a reference simulation for a specified gas-phase species. The difference can be either *absolute* (`main - reference`) or *relative*.
 
 **Additional parameters:**
 
