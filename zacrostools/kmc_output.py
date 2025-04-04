@@ -133,7 +133,7 @@ class KMCOutput:
 
         self.nevents = data_specnum[:, 1]
         self.time = data_specnum[:, 2]
-        self.finaltime = data_specnum[-1, 2]
+        self.final_time = data_specnum[-1, 2]
         self.energy = data_specnum[:, 4] / self.area  # in eV/Å2
 
         # If the energy is constant, avoid numerical noise in polyfit by setting slope to zero.

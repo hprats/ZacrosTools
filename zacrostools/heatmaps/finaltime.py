@@ -92,10 +92,10 @@ def plot_finaltime(
         # Initialize KMCOutput and retrieve final time
         try:
             kmc_output = KMCOutput(path=sim_path)
-            df.loc[folder_name, 'finaltime'] = kmc_output.finaltime
+            df.loc[folder_name, 'final_time'] = kmc_output.final_time
         except Exception as e:
             print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
-            df.loc[folder_name, "finaltime"] = float('NaN')
+            df.loc[folder_name, "final_time"] = float('NaN')
 
     # Build sorted arrays for x and y axis values
     x_value_list = np.sort(np.asarray(x_value_list))
@@ -116,7 +116,7 @@ def plot_finaltime(
             else:
                 folder_name = matching_indices[0]
 
-                z_axis[j, i] = df.loc[folder_name, "finaltime"]
+                z_axis[j, i] = df.loc[folder_name, "final_time"]
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
