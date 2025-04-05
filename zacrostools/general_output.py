@@ -787,7 +787,7 @@ def parse_general_output_file(
 
     def parse_performance_facts(full_lines: List[str], blocks: List[str]) -> Dict[str, Any]:
         start, end = find_block(full_lines, "Performance facts:", blocks)
-        perf_data: Dict[str, Any] = {}
+        perf_data: Dict[str, Any] = {'cpu_time': None}  # Otherwise KMCOutput will crash for unfinished simulations
         if start is not None and end is not None:
             for line in full_lines[start:end]:
                 line_stripped = line.strip()
