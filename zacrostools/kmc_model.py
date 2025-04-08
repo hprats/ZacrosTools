@@ -248,7 +248,7 @@ class KMCModel:
         if manual_scaling is None:
             manual_scaling = {}
 
-        # --- Handle stiffness_scalable_steps if set to 'all' ---
+        # Handle stiffness_scalable_steps if set to 'all'
         if isinstance(stiffness_scalable_steps, str):
             if stiffness_scalable_steps.lower() == 'all':
                 # Assign all step names from the reaction model except those in stiffness_scalable_symmetric_steps
@@ -260,7 +260,7 @@ class KMCModel:
                     "Invalid value for stiffness_scalable_steps: if provided as a string, only 'all' is allowed."
                 )
 
-        # --- Version-specific stiffness scaling validation ---
+        # Version-specific stiffness scaling validation
         if stiffness_scalable_steps is None:
             stiffness_scalable_steps = []
         if stiffness_scalable_symmetric_steps is None:
