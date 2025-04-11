@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.4] - 11-Apr-2025
+
+### Added
+- **Specialized functions for creating heatmaps**: New functions `plot_dtime` and `plot_cputime`.
+
+### Fixed
+- **Stiffness scalable steps**: Resolved a bug where `stiffness_scalable_steps = 'all'` could be ignored.
+
 ## [2.3] - 04-Apr-2025
 
 ### Added
