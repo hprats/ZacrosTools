@@ -33,7 +33,8 @@ def plot_dtime(
         cmap: str = "RdYlBu",
         show_points: bool = False,
         show_colorbar: bool = True,
-        auto_title: bool = False):
+        auto_title: bool = False,
+        sign: str = "both"):
     """
     Plot a ∆time heatmap using pcolormesh.
 
@@ -81,6 +82,8 @@ def plot_dtime(
         If True, display a colorbar alongside the heatmap.
     auto_title : bool, optional
         If True, automatically set a title for the plot.
+    sign : str, optional
+        Which sign of ∆time to include: 'both' (default), 'positive', or 'negative'.
 
     Notes
     -----
@@ -194,6 +197,13 @@ def plot_dtime(
                     z_axis[j, i] = df.loc[folder_name, "dtime"]
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
+
+    if sign not in ("both", "positive", "negative"):
+        raise ValueError("`sign` must be 'both', 'positive' or 'negative'")
+    if sign == "positive":
+        z_axis[z_axis <= 0] = min_dtime
+    elif sign == "negative":
+        z_axis[z_axis >= 0] = max_dtime
 
     # --- Determine normalization parameters ---
     computed_abs_max = max(np.abs(np.nanmin(z_axis)), np.abs(np.nanmax(z_axis)))
