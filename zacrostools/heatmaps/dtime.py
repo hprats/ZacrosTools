@@ -201,9 +201,9 @@ def plot_dtime(
     if sign not in ("both", "positive", "negative"):
         raise ValueError("`sign` must be 'both', 'positive' or 'negative'")
     if sign == "positive":
-        z_axis[z_axis <= 0] = min_dtime
+        z_axis[z_axis <= min_dtime] = min_dtime
     elif sign == "negative":
-        z_axis[z_axis >= 0] = max_dtime
+        z_axis[z_axis >= max_dtime] = max_dtime
 
     # --- Determine normalization parameters ---
     computed_abs_max = max(np.abs(np.nanmin(z_axis)), np.abs(np.nanmax(z_axis)))
@@ -230,12 +230,14 @@ def plot_dtime(
         if scale == 'lin':
             norm = Normalize(vmin=-abs_max, vmax=abs_max)
         elif scale == 'log':
-            if np.all(z_axis > 0):
+            finite = z_axis[np.isfinite(z_axis)]
+            if finite.size and np.all(finite > 0):
                 norm = LogNorm(vmin=min_dtime, vmax=abs_max)
-            elif np.all(z_axis < 0):
+            elif finite.size and np.all(finite < 0):
                 norm = LogNorm(vmin=-abs_max, vmax=-min_dtime)
             else:
-                norm = SymLogNorm(linthresh=min_dtime, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+                norm = SymLogNorm(linthresh=min_dtime, linscale=1.0,
+                                  vmin=-abs_max, vmax=+abs_max, base=10)
         else:
             raise ValueError("scale parameter must be either 'log' or 'lin'")
     else:
