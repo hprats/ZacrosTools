@@ -11,6 +11,7 @@ import matplotlib.colors as colors
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.custom_exceptions import PlotError
 from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value, convert_to_subscript
+from zacrostools.detect_issues import detect_issues
 
 
 def plot_dtof(
@@ -24,6 +25,8 @@ def plot_dtof(
         scan_path_ref: str = None,
         # plot-specific optional parameters
         difference_type: str = 'absolute',
+        percent: bool = False,
+        check_issues: bool = False,
         scale: str = 'log',
         min_molec: int = 1,
         max_dtof: float = None,
@@ -38,60 +41,61 @@ def plot_dtof(
         show_colorbar: bool = True,
         auto_title: bool = False):
     """
-    Plot a ∆TOF (delta TOF) heatmap using pcolormesh.
+    Plot the change in Turnover Frequency (∆TOF) heatmap between a main simulation and a reference.
 
-    This function computes the difference in turnover frequencies (TOF) between a main simulation
-    and that of a reference simulation for a specified gas species. It builds a heatmap where ∆TOF is defined as
-    the difference between the TOF of the main simulation and that of the reference simulation. Only
-    simulations that meet the minimum total production threshold in both datasets are considered.
-    The normalization is determined based on the absolute ∆TOF values and can be either continuous or discretized.
-    When discretized (if nlevels is a positive odd integer ≥ 3), the colorbar is segmented into that many distinct
-    intervals (with zero centered). If nlevels is 0 (the default), continuous normalization is used.
+    This function reads KMC simulation outputs for a specified gas species from both a main set of
+    directories (`scan_path`) and a reference set (`scan_path_ref`), computes the TOF for each, and
+    then builds a 2D heatmap of the difference (∆TOF). It supports absolute differences or relative
+    differences (fractions or percentages), and can optionally mask out any simulations flagged as
+    having issues.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
-        Axis object where the plot is drawn.
-    x : str
-        Parameter name for the x-axis.
-    y : str
-        Parameter name for the y-axis.
+        Matplotlib axis to draw the heatmap on.
+    x, y : str
+        Names of the parameters defining the horizontal and vertical axes (e.g., 'pressure_CH4',
+        'pressure_CO2'). If the string contains 'pressure', the respective axis will be logarithmic.
     scan_path : str
-        Path to the main simulation directories.
+        Path to the folder containing the main simulation subdirectories.
     gas_spec : str, optional
-        Gas species for which the TOF is computed.
+        Gas species key (e.g., 'H2', 'CO') for which TOF is computed.
     scan_path_ref : str, optional
-        Path to the reference simulation directories.
-    difference_type : str, optional
-        Type of TOF difference to compute. Must be either 'absolute' (default) or 'relative'.
-        - 'absolute': ∆TOF = TOF (main) - TOF (reference).
-        - 'relative': ∆TOF = (TOF (main) - TOF (reference)) / |TOF (reference)|
-                      (if TOF (reference) is 0, NaN is assigned).
-    scale : str, optional
-        Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used.
-    min_molec : int, optional
-        Minimum total production required for both the main and reference simulations (default: 1).
-    max_dtof : float, optional
-        Maximum absolute value for TOF differences. For relative differences, the default is set to 100.
-    min_dtof : float, optional
-        Minimum nonzero absolute value threshold for TOF differences. If not provided, it defaults to abs_max/1.0e3.
-    nlevels : int, optional
-        If 0 (the default), continuous normalization is used. Otherwise, nlevels must be a positive odd integer
-        (3 or higher) that defines the number of discrete boundaries (ensuring zero is centered).
+        Path to the folder containing reference simulation subdirectories (must match names).
+    difference_type : {'absolute', 'relative'}, default 'absolute'
+        - 'absolute': ∆TOF = TOF(main) - TOF(ref)
+        - 'relative': ∆TOF = (TOF(main) - TOF(ref)) / |TOF(ref)|
+    percent : bool, default False
+        If True and `difference_type='relative'`, express relative differences as percentages
+        (0–100) instead of fractions (0–1).
+    check_issues : bool, default False
+        If True, calls `detect_issues` on each simulation and reference; any pair with issues
+        will be masked (∆TOF set to NaN).
+    scale : {'log', 'lin'}, default 'log'
+        Axis scaling for the heatmap. In 'log' mode, uses SymLogNorm or LogNorm as appropriate.
+    min_molec : int, default 1
+        Minimum total production threshold for both main and reference runs; below this, cell
+        is masked.
+    max_dtof, min_dtof : float, optional
+        Maximum and minimum threshold for the color scale. If None, sensible defaults are chosen:
+        - For absolute differences: max → next decade above data, min → max/1e3.
+        - For relative: max → 100 (percent) or 1.0 (fraction), min → max/1e3.
+    nlevels : int, default 0
+        Number of discrete color levels (must be odd ≥3). If 0, continuous normalization is used.
     weights : str, optional
-        Weighting method (e.g., 'time', 'events', or None).
-    analysis_range : list, optional
-        Portion of the simulation data to analyze (default: [0, 100]).
-    range_type : str, optional
-        Type of range to consider in the analysis ('time' or 'nevents').
-    cmap : str, optional
-        Colormap to be used for the heatmap (default: 'RdYlBu').
-    show_points : bool, optional
-        If True, overlay grid points on the heatmap.
-    show_colorbar : bool, optional
-        If True, display a colorbar alongside the heatmap.
-    auto_title : bool, optional
-        If True, automatically set a title for the plot.
+        Weighting mode passed to KMCOutput ('time', 'events', or None).
+    analysis_range : list of two floats, default [0,100]
+        Percentage of simulation range to analyze (start, end).
+    range_type : {'time', 'nevents'}, default 'time'
+        Whether analysis_range refers to simulation time or number of events.
+    cmap : str, default 'RdYlBu'
+        Colormap for the heatmap.
+    show_points : bool, default False
+        If True, overlays scatter points at each grid location.
+    show_colorbar : bool, default True
+        Whether to draw a colorbar.
+    auto_title : bool, default False
+        If True, automatically set the plot title indicating ∆TOF and species.
 
     Notes
     -----
@@ -104,7 +108,6 @@ def plot_dtof(
     - When `scale` is 'log', if discretization is enabled (nlevels ≠ 0) the positive boundaries are generated using
       logarithmic spacing (and mirrored for negative values). If discretization is disabled (nlevels=0), a continuous
       normalization is used (via SymLogNorm if data include both positive and negative values).
-    - If auto_title is True, the plot title is set automatically using the gas species (formatted as a subscript).
     """
 
     # Set default analysis range if needed
@@ -148,42 +151,69 @@ def plot_dtof(
         if y_value not in y_value_list:
             y_value_list.append(y_value)
 
-        # Initialize KMCOutputs and retrieve TOF and total production for the given gas_spec
+        # Compute TOF and ∆TOF
         try:
-            kmc_output = KMCOutput(
+            kmc = KMCOutput(
                 path=sim_path,
                 analysis_range=analysis_range,
                 range_type=range_type,
-                weights=weights)
-            tof = max(kmc_output.tof[gas_spec], 0.0)  # only consider positive TOF
-            df.loc[folder_name, "tof"] = tof
-            df.loc[folder_name, "total_production"] = kmc_output.total_production[gas_spec]
-
-            kmc_output_ref = KMCOutput(
+                weights=weights,
+            )
+            kmc_ref = KMCOutput(
                 path=ref_path,
                 analysis_range=analysis_range,
                 range_type=range_type,
-                weights=weights)
-            tof_ref = max(kmc_output_ref.tof[gas_spec], 0.0)  # only consider positive TOF
-            df.loc[folder_name, "tof_ref"] = tof_ref
-            df.loc[folder_name, "total_production_ref"] = kmc_output_ref.total_production[gas_spec]
+                weights=weights,
+            )
 
-            # Compute difference according to the chosen difference_type.
-            if difference_type == 'absolute':
-                df.loc[folder_name, "dtof"] = tof - tof_ref
-            elif difference_type == 'relative':
-                # if the reference TOF is zero, assign NaN (as in the example)
-                if tof_ref != 0:
-                    df.loc[folder_name, "dtof"] = (tof - tof_ref) / abs(tof_ref)
-                else:
+            tof = max(kmc.tof[gas_spec], 0.0)
+            prod = kmc.total_production[gas_spec]
+            tof_ref = max(kmc_ref.tof[gas_spec], 0.0)
+            prod_ref = kmc_ref.total_production[gas_spec]
+
+            # Store production for later use (even if we end up masking the point)
+            df.loc[folder_name, "total_production"] = prod
+            df.loc[folder_name, "total_production_ref"] = prod_ref
+
+            if check_issues:
+                has_main_issues = detect_issues(
+                    job_path=sim_path,
+                    analysis_range=analysis_range,
+                    range_type=range_type,
+                )
+                has_ref_issues = detect_issues(
+                    job_path=ref_path,
+                    analysis_range=analysis_range,
+                    range_type=range_type,
+                )
+                if has_main_issues or has_ref_issues:
                     df.loc[folder_name, "dtof"] = np.nan
+                    continue
+
+            # Only consider points above production threshold
+            if prod >= min_molec and prod_ref >= min_molec:
+                if difference_type == "absolute":
+                    dtof_val = tof - tof_ref
+                elif difference_type == "relative":
+                    dtof_val = (
+                        ((tof - tof_ref) / abs(tof_ref)) * (100.0 if percent else 1.0)
+                        if tof_ref != 0
+                        else np.nan
+                    )
+                else:
+                    raise ValueError(
+                        "difference_type must be 'absolute' or 'relative'"
+                    )
             else:
-                raise ValueError("difference_type parameter must be either 'absolute' or 'relative'")
+                dtof_val = np.nan
+
+            df.loc[folder_name, "dtof"] = dtof_val
 
         except Exception as e:
-            print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
-            df.loc[folder_name, "tof"] = float('NaN')
-            df.loc[folder_name, "tof_ref"] = float('NaN')
+            print(f"Warning: could not process {folder_name}: {e}")
+            df.loc[folder_name, ["dtof",
+                                 "total_production",
+                                 "total_production_ref"]] = np.nan
 
     # Build sorted arrays for x and y axis values
     x_value_list = np.sort(np.asarray(x_value_list))
@@ -193,31 +223,34 @@ def plot_dtof(
 
     # Create a 2D grid
     z_axis = np.full((len(y_value_list), len(x_value_list)), np.nan)
+
     for i, x_val in enumerate(x_value_list):
         for j, y_val in enumerate(y_value_list):
-            matching_indices = df[(df['x_value'] == x_val) & (df['y_value'] == y_val)].index
-            if len(matching_indices) > 1:
+            matches = df[(df["x_value"] == x_val) & (df["y_value"] == y_val)].index
+            if len(matches) > 1:
                 raise PlotError(
-                    f"Several folders have the same values of {x} ({x_val}) and {y} ({y_val})")
-            elif len(matching_indices) == 0:
-                print(f"Warning: folder for x = {x_val} and y = {y_val} missing, NaN assigned")
-            else:
-                folder_name = matching_indices[0]
+                    f"Several folders share {x} = {x_val} and {y} = {y_val}"
+                )
+            elif len(matches) == 0:
+                print(
+                    f"Warning: folder for x = {x_val} and y = {y_val} missing; NaN assigned"
+                )
+                continue
 
-                # Only assign the dtof if total production meets the threshold
-                if (df.loc[folder_name, "total_production"] >= min_molec and
-                        df.loc[folder_name, "total_production_ref"] >= min_molec):
+            folder = matches[0]
+            dtof_val = df.loc[folder, "dtof"]
 
-                    # Apply a maximum value if max_dtof is provided
-                    if max_dtof is not None:
-                        if df.loc[folder_name, "dtof"] > max_dtof:
-                            z_axis[j, i] = max_dtof
-                        elif df.loc[folder_name, "dtof"] < -max_dtof:
-                            z_axis[j, i] = -max_dtof
-                        else:
-                            z_axis[j, i] = df.loc[folder_name, "dtof"]
-                    else:
-                        z_axis[j, i] = df.loc[folder_name, "dtof"]
+            if np.isnan(dtof_val):
+                continue  # leave as NaN
+
+            # Optional value capping
+            if max_dtof is not None:
+                if dtof_val > max_dtof:
+                    dtof_val = max_dtof
+                elif dtof_val < -max_dtof:
+                    dtof_val = -max_dtof
+
+            z_axis[j, i] = dtof_val
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
@@ -231,38 +264,41 @@ def plot_dtof(
         if min_dtof is None:
             min_dtof = max_dtof / 1.0e3
         abs_max = max_dtof
-    elif difference_type == 'relative':
-        if max_dtof is None:
-            max_dtof = 100  # default to 100 for relative differences
-        if min_dtof is None:
-            min_dtof = 1
-        abs_max = max_dtof
     else:
-        raise ValueError("difference_type must be 'absolute' or 'relative'")
+        # choose defaults appropriate to whether we're showing percent or fraction
+        if max_dtof is None:
+            max_dtof = 100.0 if percent else 1.0
+        if min_dtof is None:
+            min_dtof = max_dtof / 1.0e3
+        abs_max = max_dtof
 
     # --- Choose normalization: continuous if nlevels == 0, discrete otherwise ---
     levels = None
 
     if nlevels == 0:
-        # Continuous normalization.
-        if scale == 'lin':
+        # Continuous colour map
+        if scale == "lin":
             norm = Normalize(vmin=-abs_max, vmax=abs_max)
-        elif scale == 'log':
-            # For log scale, if all values are positive or all negative, use LogNorm;
-            # otherwise, use SymLogNorm with a linear threshold.
+        elif scale == "log":
             if np.all(z_axis > 0):
                 norm = LogNorm(vmin=min_dtof, vmax=abs_max)
             elif np.all(z_axis < 0):
                 norm = LogNorm(vmin=-abs_max, vmax=-min_dtof)
             else:
-                norm = SymLogNorm(linthresh=min_dtof, linscale=1.0, vmin=-abs_max, vmax=abs_max, base=10)
+                norm = SymLogNorm(
+                    linthresh=min_dtof,
+                    linscale=1.0,
+                    vmin=-abs_max,
+                    vmax=abs_max,
+                    base=10,
+                )
         else:
-            raise ValueError("scale parameter must be either 'log' or 'lin'")
+            raise ValueError("scale must be 'log' or 'lin'")
     else:
         # Discrete normalization is requested.
         # nlevels must be a positive odd integer (at least 3).
         if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
-            raise ValueError("nlevels must be either 0 or a positive odd integer (>=3)")
+            raise ValueError("nlevels must be either 0 or a positive odd integer (≥3)")
         if scale == 'lin':
             levels = np.linspace(-abs_max, abs_max, nlevels)
         elif scale == 'log':
@@ -292,7 +328,10 @@ def plot_dtof(
                     return r'$%+1.1e$' % x
             formatter = FuncFormatter(log_formatter)
         else:
-            formatter = FuncFormatter(lambda x, pos: f'+{x:.1f}' if x > 0 else f'{x:.1f}')
+            formatter = FuncFormatter(
+                lambda x, pos: "0" if np.isclose(x, 0)
+                else f"{x:+.0f}"
+            )
         cbar.ax.yaxis.set_major_formatter(formatter)
         # ---------------------------------------------------
 
@@ -305,7 +344,7 @@ def plot_dtof(
     ax.set_facecolor("lightgray")
 
     if auto_title:
-        label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$"
+        label = f"∆TOF {'% ' if percent and difference_type=='relative' else ''}{convert_to_subscript(gas_spec)}"
         ax.set_title(
             label=label,
             y=1.0,
