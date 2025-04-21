@@ -65,7 +65,7 @@ def plot_dtof(
     difference_type : str, optional
         Type of TOF difference to compute. Must be either 'absolute' (default) or 'relative'.
         - 'absolute': ∆TOF = TOF (main) - TOF (reference).
-        - 'relative': ∆TOF = 100 * (TOF (main) - TOF (reference)) / |TOF (reference)|
+        - 'relative': ∆TOF = (TOF (main) - TOF (reference)) / |TOF (reference)|
                       (if TOF (reference) is 0, NaN is assigned).
     scale : str, optional
         Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used.
@@ -305,10 +305,7 @@ def plot_dtof(
     ax.set_facecolor("lightgray")
 
     if auto_title:
-        if difference_type == 'absolute':
-            label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$"
-        else:
-            label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$ (%)"
+        label = "∆TOF " + f"${convert_to_subscript(chemical_formula=gas_spec)}$"
         ax.set_title(
             label=label,
             y=1.0,
