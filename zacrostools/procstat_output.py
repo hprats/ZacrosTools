@@ -10,7 +10,7 @@ import warnings
 
 def parse_procstat_output_file(output_file: Union[str, Path],
                                analysis_range: List[float],
-                               range_type: str) -> Tuple[pd.DataFrame, float, float]:
+                               range_type: str) -> Tuple[pd.DataFrame, float, int, float]:
     """
     Parses the procstat_output.txt file and extracts raw occurrence data within a specified window.
 
@@ -40,15 +40,10 @@ def parse_procstat_output_file(output_file: Union[str, Path],
             - noccur_net
         - delta_time : float
             The time interval corresponding to the selected window.
+        - delta_events : int
+            The number of events corresponding to the selected window.
         - area : float
             The area extracted from general_output.txt.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the output file does not exist.
-    ValueError
-        If the file format is incorrect or range_type is invalid.
     """
 
     output_file = Path(output_file)
@@ -58,7 +53,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     # Read entire file
     with output_file.open('r') as f:
         lines = [line.strip() for line in f if line.strip()]
-
     if not lines:
         raise ValueError("The output file is empty.")
 
@@ -166,8 +160,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         cparts = counts_line.split()
         if len(cparts) != len(headers):
             raise ValueError("Counts line does not match the number of header columns.")
-
-        # Convert all to integers
         try:
             cparts_int = list(map(int, cparts))
         except ValueError as e:
@@ -178,8 +170,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     times = np.array(times, dtype=float)
     cumulative_counts = np.array(cumulative_counts, dtype=int)  # shape: (Nblocks, Ncolumns_in_header)
 
-    # Now we must define the window slice based on range_type and analysis_range
-    # We have final simulation info (final time and final number of events) in the last entry:
     if len(times) == 0:
         raise ValueError("No data found in procstat_output.txt.")
 
@@ -193,7 +183,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         raise ValueError("range_type must be either 'time' or 'nevents'.")
 
     if range_type == 'time':
-        # Convert percent of time to actual time
         start_time = (start_percent / 100.0) * finaltime
         end_time = (end_percent / 100.0) * finaltime
 
@@ -208,7 +197,6 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         end_idx = min(end_idx, len(times) - 1)
 
     else:  # range_type == 'nevents'
-        # Convert percent of events to actual number of events
         start_nevents = (start_percent / 100.0) * final_nevents
         end_nevents = (end_percent / 100.0) * final_nevents
 
@@ -222,22 +210,19 @@ def parse_procstat_output_file(output_file: Union[str, Path],
 
     # If start_idx and end_idx are the same, it means zero-length window. Handle gracefully:
     if start_idx == end_idx:
-        # This might indicate that the chosen window doesn't contain any interval
-        # We can either raise an error or return an empty DataFrame
-        return pd.DataFrame(columns=['noccur_fwd', 'noccur_rev', 'noccur_net']), 0.0, 1.0
+        return pd.DataFrame(columns=['noccur_fwd', 'noccur_rev', 'noccur_net']), 0.0, 0, 1.0
 
-    # Calculate the differences in times and events
     delta_time = times[end_idx] - times[start_idx]
+    delta_events = total_events[end_idx] - total_events[start_idx]
 
     # If delta_time is zero, that means no time interval. Avoid division by zero:
     if delta_time <= 0.0:
-        return pd.DataFrame(columns=['noccur_fwd', 'noccur_rev', 'noccur_net']), 0.0, 1.0
+        return pd.DataFrame(columns=['noccur_fwd', 'noccur_rev', 'noccur_net']), 0.0, int(delta_events), 1.0
 
     # Compute differences in counts for each event
     # cumulative_counts[end_idx] - cumulative_counts[start_idx]
     delta_counts = cumulative_counts[end_idx] - cumulative_counts[start_idx]
 
-    # Create lists to store counts
     noccur_fwd_list = []
     noccur_rev_list = []
 
@@ -250,18 +235,14 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         noccur_fwd_list.append(fwd_count)
         noccur_rev_list.append(rev_count)
 
-    # Compute net occurrences
     noccur_net = np.array(noccur_fwd_list) - np.array(noccur_rev_list)
 
-    # Create a DataFrame with raw counts
     df = pd.DataFrame({
         'noccur_fwd': noccur_fwd_list,
         'noccur_rev': noccur_rev_list,
         'noccur_net': noccur_net
     }, index=event_names)
 
-    # Parse general_output.txt to get area
-    # Assuming general_output.txt is in the same directory as procstat_output.txt
     general_output_path = output_file.parent / "general_output.txt"
     try:
         general_data = parse_general_output_file(general_output_path)
@@ -270,7 +251,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         raise ValueError(f"Error parsing 'general_output.txt': {e}")
 
 
-    return df, float(delta_time), float(area)
+    return df, float(delta_time), int(delta_events), float(area)
 
 
 def plot_event_frequency(
@@ -280,7 +261,11 @@ def plot_event_frequency(
         range_type: str,
         elementary_steps: Optional[List[str]] = None,
         hide_zero_events: bool = False,
-        grouping: Optional[Dict[str, List[str]]] = None) -> plt.Axes:
+        grouping: Optional[Dict[str, List[str]]] = None,
+        show_minimum: bool = True,
+        print_pe_ratio: bool = False,
+        print_freq: bool = False
+) -> plt.Axes:
     """
     Parse the procstat_output.txt file from a given simulation path and produce a
     horizontal bar plot of event frequencies on the given Axes object, with optional grouping of elementary steps.
@@ -303,6 +288,9 @@ def plot_event_frequency(
     grouping : Optional[Dict[str, List[str]]], default None
         A dictionary defining groups of elementary steps. Each key is the name of the grouped step,
         and each value is a list of elementary steps to be grouped together.
+    show_minimum: if True, draw the vertical line for the minimum event frequency.
+    print_pe_ratio: if True, print the P/E ratio for each step.
+    print_freq: if True, print the computed event frequencies.
 
     Returns
     -------
@@ -314,9 +302,11 @@ def plot_event_frequency(
     procstat_file = simulation_path / 'procstat_output.txt'
 
     # Parse data: now returns counts, delta_time, and area
-    df_counts, delta_time, area = parse_procstat_output_file(output_file=procstat_file,
-                                                             analysis_range=analysis_range,
-                                                             range_type=range_type)
+    df_counts, delta_time, delta_events, area = parse_procstat_output_file(
+        output_file=procstat_file,
+        analysis_range=analysis_range,
+        range_type=range_type
+    )
     if df_counts.empty:
         raise ValueError(f"No steps have occurred.")
 
@@ -384,6 +374,31 @@ def plot_event_frequency(
     if hide_zero_events:
         condition = (df_counts_grouped['noccur_fwd'] != 0) | (df_counts_grouped['noccur_rev'] != 0)
         df_counts_grouped = df_counts_grouped[condition]
+
+    # print P/E ratios
+    if print_pe_ratio:
+        for step, row in df_counts_grouped.iterrows():
+            n_fwd = row['noccur_fwd']
+            n_rev = row['noccur_rev']
+            total = n_fwd + n_rev
+            pe = n_fwd / total if total > 0 else np.nan
+            print(f"Step {step}: P/E ratio = {pe:.3f}")
+
+    # Compute frequencies
+    df_freq = df_counts_grouped.copy()
+    df_freq['eventfreq_fwd'] = df_freq['noccur_fwd'] / (delta_time * area)
+    df_freq['eventfreq_rev'] = df_freq['noccur_rev'] / (delta_time * area)
+    df_freq['eventfreq_net'] = df_freq['noccur_net'] / (delta_time * area)
+    df_freq.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_freq.fillna(0.0, inplace=True)
+
+    # print frequencies
+    if print_freq:
+        for step, row in df_freq.iterrows():
+            fwd = row['eventfreq_fwd']
+            rev = row['eventfreq_rev']
+            net = row['eventfreq_net']
+            print(f"Step {step}: freq_fwd={fwd:.3e}, freq_rev={rev:.3e}, freq_net={net:.3e}")
 
     # Calculate frequencies: frequencies = counts / (delta_time * area)
     df_freq = df_counts_grouped.copy()
@@ -461,11 +476,17 @@ def plot_event_frequency(
     ax.set_xlabel(r'Event frequency ($\mathrm{s^{-1}\,\AA^{-2}}$)', fontsize=14)
     ax.set_ylabel('Elementary step', fontsize=14)
 
-    # Plot a continuous vertical black line at min_eventfreq after plotting bars to ensure it is on top
+    # Vertical line for minimum frequency
     min_eventfreq = 1.0 / (delta_time * area)
-    if np.isfinite(min_eventfreq) and min_eventfreq > 0:
-        ax.axvline(x=min_eventfreq, color='black', linestyle='-', linewidth=1.5,
-                   zorder=4, label='Min. event frequency')
+    if show_minimum and np.isfinite(min_eventfreq) and min_eventfreq > 0:
+        ax.axvline(
+            x=min_eventfreq,
+            color='black',
+            linestyle='-',
+            linewidth=1.5,
+            zorder=4,
+            label='Min. event frequency'
+        )
 
     # Create legend handles using the updated colors
     legend_handles = [
