@@ -53,6 +53,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     # Read entire file
     with output_file.open('r') as f:
         lines = [line.strip() for line in f if line.strip()]
+
     if not lines:
         raise ValueError("The output file is empty.")
 
@@ -183,6 +184,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         raise ValueError("range_type must be either 'time' or 'nevents'.")
 
     if range_type == 'time':
+        # Convert percent of time to actual time
         start_time = (start_percent / 100.0) * finaltime
         end_time = (end_percent / 100.0) * finaltime
 
@@ -197,6 +199,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         end_idx = min(end_idx, len(times) - 1)
 
     else:  # range_type == 'nevents'
+        # Convert percent of events to actual number of events
         start_nevents = (start_percent / 100.0) * final_nevents
         end_nevents = (end_percent / 100.0) * final_nevents
 
@@ -210,8 +213,11 @@ def parse_procstat_output_file(output_file: Union[str, Path],
 
     # If start_idx and end_idx are the same, it means zero-length window. Handle gracefully:
     if start_idx == end_idx:
+        # This might indicate that the chosen window doesn't contain any interval
+        # We can either raise an error or return an empty DataFrame
         return pd.DataFrame(columns=['noccur_fwd', 'noccur_rev', 'noccur_net']), 0.0, 0, 1.0
 
+    # Calculate the differences in times and events
     delta_time = times[end_idx] - times[start_idx]
     delta_events = total_events[end_idx] - total_events[start_idx]
 
@@ -223,6 +229,7 @@ def parse_procstat_output_file(output_file: Union[str, Path],
     # cumulative_counts[end_idx] - cumulative_counts[start_idx]
     delta_counts = cumulative_counts[end_idx] - cumulative_counts[start_idx]
 
+    # Create lists to store counts
     noccur_fwd_list = []
     noccur_rev_list = []
 
@@ -235,14 +242,18 @@ def parse_procstat_output_file(output_file: Union[str, Path],
         noccur_fwd_list.append(fwd_count)
         noccur_rev_list.append(rev_count)
 
+    # Compute net occurrences
     noccur_net = np.array(noccur_fwd_list) - np.array(noccur_rev_list)
 
+    # Create a DataFrame with raw counts
     df = pd.DataFrame({
         'noccur_fwd': noccur_fwd_list,
         'noccur_rev': noccur_rev_list,
         'noccur_net': noccur_net
     }, index=event_names)
 
+    # Parse general_output.txt to get area
+    # Assuming general_output.txt is in the same directory as procstat_output.txt
     general_output_path = output_file.parent / "general_output.txt"
     try:
         general_data = parse_general_output_file(general_output_path)
@@ -351,8 +362,6 @@ def plot_event_frequency(
                     group_order[group] = idx
             else:
                 group_order[name] = idx
-
-        # Assign sort keys based on group_order
         df_counts_grouped = df_counts_grouped.copy()
         sort_keys = []
         for group in df_counts_grouped.index:
@@ -361,13 +370,8 @@ def plot_event_frequency(
             else:
                 # If group not in group_order, assign a large number to push it to the end
                 sort_keys.append(len(original_order))
-
-        # Create a DataFrame column for sorting
         df_counts_grouped['sort_key'] = sort_keys
-
-        # Sort based on 'sort_key'
         df_counts_grouped = df_counts_grouped.sort_values('sort_key').drop(columns='sort_key')
-
     else:
         df_counts_grouped = df_counts_filtered.copy()
 
@@ -384,11 +388,13 @@ def plot_event_frequency(
             pe = n_fwd / total if total > 0 else np.nan
             print(f"Step {step}: P/E ratio = {pe:.3f}")
 
-    # Compute frequencies
+    # Calculate frequencies: frequencies = counts / (delta_time * area)
     df_freq = df_counts_grouped.copy()
     df_freq['eventfreq_fwd'] = df_freq['noccur_fwd'] / (delta_time * area)
     df_freq['eventfreq_rev'] = df_freq['noccur_rev'] / (delta_time * area)
     df_freq['eventfreq_net'] = df_freq['noccur_net'] / (delta_time * area)
+
+    # Handle any potential infinities or NaNs resulting from division
     df_freq.replace([np.inf, -np.inf], np.nan, inplace=True)
     df_freq.fillna(0.0, inplace=True)
 
@@ -400,16 +406,6 @@ def plot_event_frequency(
             net = row['eventfreq_net']
             print(f"Step {step}: freq_fwd={fwd:.3e}, freq_rev={rev:.3e}, freq_net={net:.3e}")
 
-    # Calculate frequencies: frequencies = counts / (delta_time * area)
-    df_freq = df_counts_grouped.copy()
-    df_freq['eventfreq_fwd'] = df_freq['noccur_fwd'] / (delta_time * area)
-    df_freq['eventfreq_rev'] = df_freq['noccur_rev'] / (delta_time * area)
-    df_freq['eventfreq_net'] = df_freq['noccur_net'] / (delta_time * area)
-
-    # Handle any potential infinities or NaNs resulting from division
-    df_freq.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df_freq.fillna(0.0, inplace=True)
-
     # Define colors for the barplot
     color_fwd = '#4169e1'      # Royal Blue
     color_rev = '#daa520'      # Goldenrod
@@ -418,13 +414,6 @@ def plot_event_frequency(
 
     bar_height = 0.22
 
-    # Positions of bars within each group:
-    #offset_map = {
-    #    'Forward': bar_height * (-1.5),
-    #    'Reverse': bar_height * (-0.5),
-    #    'Net (+)': bar_height * 0.5,
-    #    'Net (-)': bar_height * 1.5
-    #}
     offset_map = {
         'Forward': bar_height * (-1.1),
         'Reverse': 0.0,
@@ -435,27 +424,22 @@ def plot_event_frequency(
     y_tick_positions = []
     y_tick_labels = []
 
-    # Here add the code that makes the plot, for instance something like this
     for i, step in enumerate(df_freq.index):
         fwd = df_freq.loc[step, 'eventfreq_fwd']
         rev = df_freq.loc[step, 'eventfreq_rev']
         net = df_freq.loc[step, 'eventfreq_net']
-
         # Forward
         if fwd > 0:
             ax.barh(y=i + offset_map['Forward'], width=fwd, height=bar_height,
                     color=color_fwd, align='center', edgecolor='black', linewidth=0.5, zorder=3)
-
         # Reverse
         if rev > 0:
             ax.barh(y=i + offset_map['Reverse'], width=rev, height=bar_height,
                     color=color_rev, align='center', edgecolor='black', linewidth=0.5, zorder=3)
-
         # Net (+)
         if net > 0:
             ax.barh(y=i + offset_map['Net (+)'], width=net, height=bar_height,
                     color=color_net_pos, align='center', edgecolor='black', linewidth=0.5, zorder=3)
-
         # Net (-)
         if net < 0:
             abs_net = abs(net)
@@ -465,14 +449,9 @@ def plot_event_frequency(
         y_tick_positions.append(i)
         y_tick_labels.append(step)
 
-    # Set y ticks and labels at the category center lines
     ax.set_yticks(y_tick_positions)
     ax.set_yticklabels(y_tick_labels)
-
-    # Set log scale on x-axis
     ax.set_xscale('log')
-
-    # Set axis labels with LaTeX formatting
     ax.set_xlabel(r'Event frequency ($\mathrm{s^{-1}\,\AA^{-2}}$)', fontsize=14)
     ax.set_ylabel('Elementary step', fontsize=14)
 
@@ -488,7 +467,6 @@ def plot_event_frequency(
             label='Min. event frequency'
         )
 
-    # Create legend handles using the updated colors
     legend_handles = [
         Line2D([0], [0], color=color_fwd, lw=10, label='Forward'),
         Line2D([0], [0], color=color_rev, lw=10, label='Reverse'),
@@ -504,13 +482,8 @@ def plot_event_frequency(
         legend_labels = ['Forward', 'Reverse', 'Net (+)', 'Net (-)']
 
     ax.legend(handles=legend_handles, labels=legend_labels, loc='best')
-
-    # Add gridlines
     ax.grid(True, which='both', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
-
-    # Invert y-axis so that the first step is at the top
     ax.invert_yaxis()
-
     return ax
 
 
