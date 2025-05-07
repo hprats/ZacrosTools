@@ -26,7 +26,7 @@ def plot_dtof(
         # plot-specific optional parameters
         difference_type: str = 'absolute',
         percent: bool = False,
-        check_issues: bool = False,
+        check_issues: str = 'none',
         scale: str = 'log',
         min_molec: int = 1,
         max_dtof: float = None,
@@ -68,9 +68,12 @@ def plot_dtof(
     percent : bool, default False
         If True and `difference_type='relative'`, express relative differences as percentages
         (0–100) instead of fractions (0–1).
-    check_issues : bool, default False
-        If True, calls `detect_issues` on each simulation and reference; any pair with issues
-        will be masked (∆TOF set to NaN).
+    check_issues : {'none','both','main','ref'}, default 'none'
+        Which runs `detect_issues` on:
+        - 'none' → neither
+        - 'both' → both main and ref
+        - 'main' → only the main scan
+        - 'ref'  → only the reference scan
     scale : {'log', 'lin'}, default 'log'
         Axis scaling for the heatmap. In 'log' mode, uses SymLogNorm or LogNorm as appropriate.
     min_molec : int, default 1
@@ -113,6 +116,9 @@ def plot_dtof(
     # Set default analysis range if needed
     if analysis_range is None:
         analysis_range = [0, 100]
+
+    if check_issues not in ('none', 'both', 'main', 'ref'):
+        raise ValueError(f"Incorrect value for check_issues: {check_issues}")
 
     # Validate scan_path and scan_path_ref
     if not os.path.isdir(scan_path):
@@ -175,18 +181,31 @@ def plot_dtof(
             df.loc[folder_name, "total_production"] = prod
             df.loc[folder_name, "total_production_ref"] = prod_ref
 
-            if check_issues:
+            if check_issues in ['both', 'main']:
                 has_main_issues = detect_issues(
                     job_path=sim_path,
                     analysis_range=analysis_range,
                     range_type=range_type,
                 )
+            if check_issues in ['both', 'ref']:
                 has_ref_issues = detect_issues(
                     job_path=ref_path,
                     analysis_range=analysis_range,
                     range_type=range_type,
                 )
+
+            has_main_issues = False
+            has_ref_issues = False
+            if check_issues == 'both':
                 if has_main_issues or has_ref_issues:
+                    df.loc[folder_name, "dtof"] = np.nan
+                    continue
+            elif check_issues == 'main':
+                if has_main_issues:
+                    df.loc[folder_name, "dtof"] = np.nan
+                    continue
+            elif check_issues == 'ref':
+                if has_ref_issues:
                     df.loc[folder_name, "dtof"] = np.nan
                     continue
 
