@@ -181,6 +181,9 @@ def plot_dtof(
             df.loc[folder_name, "total_production"] = prod
             df.loc[folder_name, "total_production_ref"] = prod_ref
 
+            has_main_issues = False
+            has_ref_issues = False
+
             if check_issues in ['both', 'main']:
                 has_main_issues = detect_issues(
                     job_path=sim_path,
@@ -194,8 +197,6 @@ def plot_dtof(
                     range_type=range_type,
                 )
 
-            has_main_issues = False
-            has_ref_issues = False
             if check_issues == 'both':
                 if has_main_issues or has_ref_issues:
                     df.loc[folder_name, "dtof"] = np.nan

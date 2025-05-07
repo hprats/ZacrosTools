@@ -6,7 +6,7 @@ from zacrostools.kmc_output import KMCOutput
 def detect_issues(job_path,
                   analysis_range,
                   range_type='time',
-                  energy_slope_thr=5.0e-10,
+                  energy_slope_thr=2.0e-10, # 5.0e-10
                   time_r2_thr=0.95,
                   max_points=100):
     """
@@ -31,7 +31,7 @@ def detect_issues(job_path,
     energy_slope_thr : float, optional
         Threshold for the absolute energy slope (in eV/Å²/step) above
         which the simulation is considered to have an issue, by default 5.0e-10.
-   time_r2_thr : float, optional
+    time_r2_thr : float, optional
         Threshold for the R² value in the time vs. KMC events regression,
         by default 0.95. If the R² is below this value, the simulation is
         considered to have an issue.
