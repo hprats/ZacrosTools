@@ -334,6 +334,7 @@ def get_surf_specs_data(job_path: str = None, **kwargs):
                 cluster_species = []
                 site_types = []
                 i += 1
+                # Parse cluster block
                 while i < num_lines:
                     line = lines[i].strip()
                     if line.startswith('end_cluster'):
@@ -343,16 +344,21 @@ def get_surf_specs_data(job_path: str = None, **kwargs):
                         i += 1  # Move to the next line after 'lattice_state'
                         while i < num_lines:
                             line = lines[i].strip()
+                            # skip blank or comment lines
                             if not line or line.startswith('#'):
                                 i += 1
                                 continue
-                            if line.startswith('site_types') or line.startswith('cluster_eng') or line.startswith(
-                                    'neighboring') or line.startswith('end_cluster'):
+                            # stop at next block
+                            if any(line.startswith(k) for k in ('site_types', 'cluster_eng', 'neighboring', 'end_cluster')):
                                 break  # End of lattice_state block
                             tokens = line.split()
-                            if tokens and tokens[0].isdigit():
+                            if tokens[0].isdigit():
+                                # a real species entry
                                 species_name = tokens[1].rstrip('*')
                                 cluster_species.append(species_name)
+                            elif tokens[0] == '&':
+                                # unspecified site placeholder
+                                cluster_species.append(None)
                             i += 1
                     elif line.startswith('site_types'):
                         tokens = line.split()
@@ -363,12 +369,14 @@ def get_surf_specs_data(job_path: str = None, **kwargs):
                         i += 1
                 # After processing the cluster
                 if len(cluster_species) != len(site_types):
-                    raise EnergeticsModelError(f"Mismatch between number of species and site_types in a cluster in "
-                                               f"line {i + 1}."
-                                               f"\nCluster species: {cluster_species}"
-                                               f"\nSite types: {site_types}")
-                # Associate species with site types
+                    raise EnergeticsModelError(
+                        f"Mismatch between number of species and site_types in a cluster in line {i + 1}."
+                        f"\nCluster species: {cluster_species}\nSite types: {site_types}"
+                    )
+                # Associate species with site types, skipping unspecified placeholders
                 for species, site_type in zip(cluster_species, site_types):
+                    if species is None:
+                        continue
                     if species not in species_in_simulation:
                         raise EnergeticsModelError(
                             f"Species '{species}' declared in energetics_input.dat but not in surf_specs_names.")
@@ -383,14 +391,16 @@ def get_surf_specs_data(job_path: str = None, **kwargs):
             else:
                 i += 1
 
+        # Ensure every species has an assigned site-type
         for species in surf_specs_names:
             if species not in species_site_types:
-                raise EnergeticsModelError(f"Species '{species}' declared in surf_specs_names but not found in "
-                                           f"energetics_input.dat.")
+                raise EnergeticsModelError(
+                    f"Species '{species}' declared in surf_specs_names but not found in energetics_input.dat.")
             surf_specs_data[species] = {
                 'surf_specs_dent': species_dentates[species],
                 'site_type': species_site_types[species]
             }
+
     return surf_specs_data
 
 
