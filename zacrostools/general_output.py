@@ -184,7 +184,6 @@ def parse_general_output_file(
                     parts = line_stripped.split(":", 1)
                     if len(parts) == 2:
                         surf_names = parts[1].split()
-                        surf_names = [name.replace('*', '') for name in surf_names]
                         data_block['surf_specs_names'] = surf_names
 
                 elif line_stripped.startswith("Surface species dentation:"):

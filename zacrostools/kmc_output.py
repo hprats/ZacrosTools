@@ -166,50 +166,59 @@ class KMCOutput:
                 self.tof[gas_spec] = 0.0
 
         # Compute coverages (per total number of sites)
-        surf_specs_data = get_surf_specs_data(job_path=self.job_path)
+        dent_sites_map = get_dentate_types(job_path=self.job_path)
         self.coverage = {}
         self.av_coverage = {}
         for i in range(5, 5 + self.n_surf_species):
-            surf_spec = header[i].replace('*', '')
-            num_dentates = surf_specs_data[surf_spec]['surf_specs_dent']
-            self.coverage[surf_spec] = data_specnum[:, i] * num_dentates / self.n_sites * 100
-            self.av_coverage[surf_spec] = self.get_average(array=self.coverage[surf_spec], weights=weights)
+            surf_spec = header[i]
+            dent_sites = dent_sites_map[surf_spec]
+            total_dentates = len(dent_sites)
+            # total occupied sites = #molecules * #dentates per molecule
+            self.coverage[surf_spec] = data_specnum[:, i] * total_dentates / self.n_sites * 100
+            self.av_coverage[surf_spec] = self.get_average(
+                array=self.coverage[surf_spec], weights=weights
+            )
         self.total_coverage = sum(self.coverage.values())
-        self.av_total_coverage = min(sum(self.av_coverage.values()), 100)  # prevent numerical errors over 100%
+        self.av_total_coverage = min(sum(self.av_coverage.values()), 100)
         self.dominant_ads = max(self.av_coverage, key=self.av_coverage.get)
 
-        # Compute partial coverages (per total number of sites of a given type)
-        self.coverage_per_site_type = {}
-        self.av_coverage_per_site_type = {}
-        for site_type in self.site_types:
-            self.coverage_per_site_type[site_type] = {}
-            self.av_coverage_per_site_type[site_type] = {}
+        # Compute partial coverages (per total number of sites of each site_type)
+        self.coverage_per_site_type = {st: {} for st in self.site_types}
+        self.av_coverage_per_site_type = {st: {} for st in self.site_types}
         for i in range(5, 5 + self.n_surf_species):
-            surf_spec = header[i].replace('*', '')
-            site_type = surf_specs_data[surf_spec]['site_type']
-            num_dentates = surf_specs_data[surf_spec]['surf_specs_dent']
-            self.coverage_per_site_type[site_type][surf_spec] = (
-                    data_specnum[:, i] * num_dentates / self.site_types[site_type] * 100
-            )
-            self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
-                array=self.coverage_per_site_type[site_type][surf_spec],
-                weights=weights
-            )
+            surf_spec = header[i]
+            dent_sites = dent_sites_map[surf_spec]
+            for site_type, n_sites_type in self.site_types.items():
+                # number of dentates of this species on this site_type
+                n_dents_on_type = dent_sites.count(site_type)
+                self.coverage_per_site_type[site_type][surf_spec] = (
+                    data_specnum[:, i] * n_dents_on_type / n_sites_type * 100
+                )
+                self.av_coverage_per_site_type[site_type][surf_spec] = self.get_average(
+                    array=self.coverage_per_site_type[site_type][surf_spec],
+                    weights=weights
+                )
+
         self.total_coverage_per_site_type = {}
         self.av_total_coverage_per_site_type = {}
         self.dominant_ads_per_site_type = {}
-        for site_type in self.site_types:
-            if len(self.av_coverage_per_site_type[site_type]) > 0:
-                self.total_coverage_per_site_type[site_type] = sum(self.coverage_per_site_type[site_type].values())
+        for site_type, cov_dict in self.av_coverage_per_site_type.items():
+            if cov_dict:
+                self.total_coverage_per_site_type[site_type] = sum(
+                    self.coverage_per_site_type[site_type].values()
+                )
                 self.av_total_coverage_per_site_type[site_type] = min(
-                    sum(self.av_coverage_per_site_type[site_type].values()), 100)  # prevent numerical errors over 100%
+                    sum(cov_dict.values()), 100
+                )
                 self.dominant_ads_per_site_type[site_type] = max(
-                    self.av_coverage_per_site_type[site_type],
-                    key=self.av_coverage_per_site_type[site_type].get)
-            else:  # No species are adsorbed on this site type
+                    cov_dict, key=cov_dict.get
+                )
+            else:
+                # no adsorption on this site_type
                 self.total_coverage_per_site_type[site_type] = np.zeros_like(self.time)
                 self.av_total_coverage_per_site_type[site_type] = 0.0
                 self.dominant_ads_per_site_type[site_type] = None
+
 
     def get_average(self, array, weights):
         """
@@ -278,9 +287,9 @@ class KMCOutput:
         return selectivity
 
 
-def get_surf_specs_data(job_path: str = None, **kwargs):
+def get_dentate_types(job_path: str = None, **kwargs):
     """
-    Retrieve surface species data including the number of dentates and the associated site type for each species.
+    Retrieve surface species data including the number of dentates and the associated site types for each surface species.
 
     Parameters
     ----------
@@ -291,117 +300,146 @@ def get_surf_specs_data(job_path: str = None, **kwargs):
     Returns
     -------
     dict
-        A dictionary mapping each surface species name to its data, including:
-        - 'surf_specs_dent': int
-            Number of dentates required by the species.
-        - 'site_type': str
-            The site type on which the species adsorbs.
+        A dictionary mapping each surface species name to a list of site types indexed by dentate number (1-based).
     """
+    import warnings
+    # backward compatibility for 'path'
     if job_path is None:
         job_path = kwargs.pop('path', None)
     if job_path is None:
         raise TypeError("Missing required argument: job_path (or 'path' for backwards compatibility)")
 
-    # Get data from simulation_input.dat
-    parsed_sim_data = parse_simulation_input_file(input_file=f"{job_path}/simulation_input.dat")
-    surf_specs_names = parsed_sim_data.get('surf_specs_names')
-    surf_specs_dent = parsed_sim_data.get('surf_specs_dent')
-    species_dentates = dict(zip(surf_specs_names, surf_specs_dent))
-    species_in_simulation = set(surf_specs_names)
+    # parse simulation input for species and dentates
+    sim_data = parse_simulation_input_file(input_file=f"{job_path}/simulation_input.dat")
+    surf_specs = sim_data.get('surf_specs_names', [])
+    dent_counts = sim_data.get('surf_specs_dent', [])
+    species_dentates = dict(zip(surf_specs, dent_counts))
 
-    surf_specs_data = {}
+    # default lattice: every dentate on default site
+    if check_default_lattice(job_path=job_path):
+        return {spec: ['StTp1'] * species_dentates[spec] for spec in surf_specs}
 
-    # Check if the user is using a default lattice or not
-    default_lattice = check_default_lattice(job_path=job_path)
-    if default_lattice:
-        for species in surf_specs_names:
-            surf_specs_data[species] = {
-                'surf_specs_dent': species_dentates[species],
-                'site_type': 'StTp1'
-            }
+    # container for global species->dentate mapping
+    species_mapping = {}  # species -> {dentate_index: site_type}
 
-    else:
+    # read energetics_input.dat
+    with open(os.path.join(job_path, 'energetics_input.dat'), 'r') as f:
+        lines = f.readlines()
 
-        with open(os.path.join(job_path, 'energetics_input.dat'), 'r') as f:
-            lines = f.readlines()
+    i = 0
+    n = len(lines)
+    while i < n:
+        line = lines[i].strip()
+        if line.startswith('cluster'):
+            # record cluster identifier for messages
+            parts = line.split(maxsplit=1)
+            cluster_id = parts[1] if len(parts) > 1 else ''
 
-        species_site_types = {}
-        num_lines = len(lines)
-        i = 0
-        while i < num_lines:
-            line = lines[i].strip()
-            if line.startswith('cluster'):
-                cluster_species = []
-                site_types = []
-                i += 1
-                # Parse cluster block
-                while i < num_lines:
-                    line = lines[i].strip()
-                    if line.startswith('end_cluster'):
-                        break
-                    elif line.startswith('lattice_state'):
-                        # Process lattice_state block
-                        i += 1  # Move to the next line after 'lattice_state'
-                        while i < num_lines:
-                            line = lines[i].strip()
-                            # skip blank or comment lines
-                            if not line or line.startswith('#'):
-                                i += 1
-                                continue
-                            # stop at next block
-                            if any(line.startswith(k) for k in ('site_types', 'cluster_eng', 'neighboring', 'end_cluster')):
-                                break  # End of lattice_state block
-                            tokens = line.split()
-                            if tokens[0].isdigit():
-                                # a real species entry
-                                species_name = tokens[1].rstrip('*')
-                                cluster_species.append(species_name)
-                            elif tokens[0] == '&':
-                                # unspecified site placeholder
-                                cluster_species.append(None)
+            # reset block data
+            sites_count = None
+            state_entries = []
+            site_types = []
+            i += 1
+            # parse cluster block
+            while i < n and not lines[i].strip().startswith('end_cluster'):
+                text = lines[i].strip()
+                if text.startswith('sites'):
+                    toks = text.split()
+                    if len(toks) >= 2 and toks[1].isdigit():
+                        sites_count = int(toks[1])
+                if text.startswith('lattice_state'):
+                    i += 1
+                    count = 0
+                    while i < n and count < (sites_count or float('inf')):
+                        row = lines[i].strip()
+                        if not row or row.startswith('#'):
                             i += 1
-                    elif line.startswith('site_types'):
-                        tokens = line.split()
-                        site_types = tokens[1:]
-                        i += 1  # Move to the next line after 'site_types'
-                        continue  # Continue to process other lines in the cluster
-                    else:
+                            continue
+                        key = row.split()[0]
+                        if key in ('site_types', 'graph_multiplicity', 'cluster_eng', 'neighboring', 'angles'):
+                            break
+                        parts = row.split()
+                        if parts and parts[0] == '&':
+                            state_entries.append(None)
+                        elif len(parts) >= 3 and parts[0].isdigit() and parts[2].isdigit():
+                            spec = parts[1]
+                            dent = int(parts[2])
+                            state_entries.append((spec, dent))
                         i += 1
-                # After processing the cluster
-                if len(cluster_species) != len(site_types):
-                    raise EnergeticsModelError(
-                        f"Mismatch between number of species and site_types in a cluster in line {i + 1}."
-                        f"\nCluster species: {cluster_species}\nSite types: {site_types}"
-                    )
-                # Associate species with site types, skipping unspecified placeholders
-                for species, site_type in zip(cluster_species, site_types):
-                    if species is None:
-                        continue
-                    if species not in species_in_simulation:
-                        raise EnergeticsModelError(
-                            f"Species '{species}' declared in energetics_input.dat but not in surf_specs_names.")
-                    if species in species_site_types:
-                        if species_site_types[species] != site_type:
-                            raise EnergeticsModelError(
-                                f"Species '{species}' is adsorbed on multiple site types: "
-                                f"'{species_site_types[species]}' and '{site_type}'")
-                    else:
-                        species_site_types[species] = site_type
-                i += 1  # Move past 'end_cluster'
-            else:
+                        count += 1
+                    continue
+                if text.startswith('site_types'):
+                    toks = text.split()
+                    site_types = toks[1:]
                 i += 1
-
-        # Ensure every species has an assigned site-type
-        for species in surf_specs_names:
-            if species not in species_site_types:
+            # reached end_cluster
+            if sites_count is None:
+                raise EnergeticsModelError(f"Missing 'sites' declaration in cluster '{cluster_id}'.")
+            if len(site_types) != sites_count:
                 raise EnergeticsModelError(
-                    f"Species '{species}' declared in surf_specs_names but not found in energetics_input.dat.")
-            surf_specs_data[species] = {
-                'surf_specs_dent': species_dentates[species],
-                'site_type': species_site_types[species]
-            }
+                    f"Cluster '{cluster_id}' declares {sites_count} sites but site_types has {len(site_types)} entries: {site_types}")
+            if len(state_entries) != sites_count:
+                raise EnergeticsModelError(
+                    f"Cluster '{cluster_id}' declares {sites_count} sites but lattice_state provided {len(state_entries)} entries.")
 
-    return surf_specs_data
+            # build per-cluster mapping: species -> {dentate: site_type}
+            cluster_map = {}
+            for idx in range(sites_count):
+                entry = state_entries[idx]
+                stype = site_types[idx]
+                if entry is None:
+                    continue
+                spec, dent = entry
+                exp = species_dentates.get(spec)
+                if exp is None:
+                    raise EnergeticsModelError(
+                        f"Species '{spec}' in cluster '{cluster_id}' not declared in simulation_input.dat.")
+                if dent < 1 or dent > exp:
+                    raise EnergeticsModelError(
+                        f"Dentate index {dent} out of range for species '{spec}' in cluster '{cluster_id}' (expected 1..{exp}).")
+                cluster_map.setdefault(spec, {})[dent] = stype
+            # ensure full dentate coverage per species
+            for spec, dent_dict in cluster_map.items():
+                if len(dent_dict) != species_dentates[spec]:
+                    raise EnergeticsModelError(
+                        f"Species '{spec}' in cluster '{cluster_id}' has {species_dentates[spec]} dentates but got {len(dent_dict)} entries.")
+            # merge into global mapping with order-flexible consistency
+            for spec, dent_dict in cluster_map.items():
+                if spec not in species_mapping:
+                    species_mapping[spec] = dent_dict.copy()
+                else:
+                    existing_dict = species_mapping[spec]
+                    if existing_dict != dent_dict:
+                        # build ordered lists
+                        existing_list = [existing_dict[d] for d in sorted(existing_dict)]
+                        new_list = [dent_dict[d] for d in sorted(dent_dict)]
+                        # same multiset? then warn and keep existing order
+                        if sorted(existing_list) == sorted(new_list):
+                            warnings.warn(
+                                f"In cluster '{cluster_id}', dentates for species '{spec}' appear in {new_list} "
+                                f"instead of {existing_list}; keeping original order.")
+                        else:
+                            raise EnergeticsModelError(
+                                f"Inconsistent site types for species '{spec}' in cluster '{cluster_id}': "
+                                f"{existing_list} vs {new_list}")
+            i += 1  # skip end_cluster
+        else:
+            i += 1
+
+    # finalize result
+    result = {}
+    for spec in surf_specs:
+        if spec not in species_mapping:
+            raise EnergeticsModelError(
+                f"Species '{spec}' declared in simulation_input.dat but not found in energetics_input.dat.")
+        dent_dict = species_mapping[spec]
+        cnt = species_dentates[spec]
+        sites = [None] * cnt
+        for dent, stype in dent_dict.items():
+            sites[dent - 1] = stype
+        result[spec] = sites
+    return result
+
 
 
 def check_default_lattice(job_path: str = None, **kwargs):

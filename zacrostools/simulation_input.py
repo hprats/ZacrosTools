@@ -35,10 +35,6 @@ def parse_simulation_input_file(input_file: Union[str, Path]) -> Dict[str, Any]:
         list_keywords = {'gas_specs_names', 'gas_energies', 'gas_molec_weights',
                          'gas_molar_fracs', 'surf_specs_names', 'surf_specs_dent'}
 
-        # For surf_specs_names, remove '*'
-        if kword == 'surf_specs_names':
-            return [name.rstrip('*') for name in vals]
-
         # For 'override_array_bounds', store value as a string
         if kword == 'override_array_bounds':
             return ' '.join(vals)
