@@ -777,7 +777,6 @@ def parse_general_output_file(
         else:
             raise ValueError(f"Unsupported algorithm '{algorithm}'. Expected 'prats2024' or 'legacy'.")
 
-        print({k: len(v) for k, v in data_dict.items()})
         stiffness_df = pd.DataFrame(data_dict)
 
         return {'stiffness_scaling_coefficients': stiffness_df}
