@@ -23,6 +23,6 @@ setup(
     keywords=['python', 'chemistry', 'KMC', 'ZACROS'],
     install_requires=['pandas', 'scipy'],
     extras_require={
-        'dev': ['pytest'],
+        'dev': ['pytest', 'pytest-cov', 'codecov'],
     }
 )
