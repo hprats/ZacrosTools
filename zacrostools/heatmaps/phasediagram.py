@@ -106,18 +106,36 @@ def plot_phasediagram(
         raise ValueError(f"Scan path folder is empty: {scan_path}")
 
     # If tick_labels is not provided, construct a default mapping by parsing the simulation input file.
+    # We also need the actual species list for validation later.
+    first_sim = simulation_dirs[0]
+    input_file = os.path.join(first_sim, "simulation_input.dat")
+    data = parse_simulation_input_file(input_file=input_file)
+    surf_specs_names = data.get('surf_specs_names')
+    if surf_specs_names is None:
+        raise ValueError(f"'surf_specs_names' not found in {input_file}")
+
     if tick_labels is None:
-        first_sim = simulation_dirs[0]
-        input_file = os.path.join(first_sim, "simulation_input.dat")
-        data = parse_simulation_input_file(input_file=input_file)
-        surf_specs_names = data.get('surf_specs_names')
-        if surf_specs_names is None:
-            raise ValueError(f"'surf_specs_names' not found in {input_file}")
         # Default: assign each species to its own group using its own name as label
         tick_labels = {species: [species] for species in sorted(surf_specs_names)}
+    else:
+        # Validate user-provided tick_labels against actual species
+        actual = set(surf_specs_names)
+        for label, species_list in tick_labels.items():
+            for species in species_list:
+                if species not in actual:
+                    # Case A: missing but star-variant exists (e.g. selected 'O' doesn't exist but 'O*' exist)
+                    if not species.endswith('*') and f"{species}*" in actual:
+                        raise ValueError(
+                            f"Adsorbate name '{species}' included in tick_labels not found, "
+                            f"but an adsorbate exists with name '{species}*'. Please correct the surface name."
+                        )
+                    else:
+                        # Case B: not found at all (e.g. selected 'O' doesn't exist nor does 'O*')
+                        raise ValueError(
+                            f"Adsorbate name '{species}' included in tick_labels not found in the simulation."
+                        )
 
     # Construct surf_spec_values (mapping of each species to its numeric tick value)
-    # and tick_values (list of numeric tick positions) based on the provided tick_labels dictionary.
     surf_spec_values = {}
     tick_values = []
     for i, (label, species_list) in enumerate(tick_labels.items()):
