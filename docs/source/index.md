@@ -6,6 +6,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/zacrostools)](https://pypi.org/project/zacrostools/)
 [![License](https://img.shields.io/github/license/hprats/ZacrosTools)](https://github.com/hprats/ZacrosTools/blob/main/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.1021/acs.jpca.5c02802.svg)](https://doi.org/10.1021/acs.jpca.5c02802)
 [![CI](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml/badge.svg)](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml)
 
 This guide provides comprehensive information on using the ZacrosTools Python library.
@@ -20,6 +21,13 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 - **Documentation and examples:** Extensive documentation with detailed examples to help users get started and make full use of ZacrosTools.
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/multiple_heatmaps.png?raw=true" alt="Multiple heatmaps" width="700"/> </div>
+
+## How to cite
+
+If you use **ZacrosTools** in your research, please cite:
+
+> Prats, H. ZacrosTools: A Python Library for Automated Preparation, Analysis, and Visualization of Kinetic Monte Carlo Simulations with Zacros. *J. Phys. Chem. A* **2025**, *129*, 6608–6614. DOI: [10.1021/acs.jpca.5c02802](https://doi.org/10.1021/acs.jpca.5c02802)
+
 
 ## Installation 
 
@@ -121,6 +129,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
    :maxdepth: 2
    :caption: Contents
 
+   citation.md
    installation.md
    gas_model.md
    energetics_model.md
