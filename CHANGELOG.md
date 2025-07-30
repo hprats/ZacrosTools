@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.5] - 30-Jul-2025
+
+### Added
+- **Additional keywords support**: added an `additional_keywords` parameter to `KMCModel.create_job_dir` and `write_simulation_input` to append additional Zacros keywords to `simulation_input.dat`.  
+- **`sign` parameter for ∆time heatmaps**: introduced a `sign` argument in `plot_dtime` (`'both'`, `'positive'`, or `'negative'`) to filter ∆time values by sign.  
+- **Issue masking in ∆TOF heatmaps**: added a `check_issues` parameter to `plot_dtof` (`'none'`, `'both'`, `'main'`, or `'ref'`) to mask cells flagged by `detect_issues`.  
+- **Unspecified state support**: `EnergeticsModel` now accepts the `& & &` placeholder in `lattice_state` definitions to represent unspecified site states.  
+- **Multidentate species support**: `EnergeticsModel` handles adsorbates multidentate surface species occupying multiple site types.  
+
+### Changed 
+- **Surface species name parsing**: removed the requirement that species names end with `*`. Surface species names now stay exactly as typed by the user (i.e. no removal of `*` at the end).
+
+### Fixed
+- **`parse_general_output_file` crash**: fixed a bug that caused a crash when an initial state is provided.
+- **∆TOF docstring & title logic**: corrected the relative ∆TOF formula in `plot_dtof`’s docstring.
+
 ## [2.4] - 11-Apr-2025
 
 ### Added
