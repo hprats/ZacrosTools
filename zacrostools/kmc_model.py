@@ -72,6 +72,7 @@ class KMCModel:
                        stiffness_scalable_steps: Union[list, str, None] = None,
                        stiffness_scalable_symmetric_steps: Optional[list] = None,
                        stiffness_scaling_tags: Optional[dict] = None,
+                       additional_keywords: Optional[list] = None,
                        sig_figs_energies: int = 8,
                        sig_figs_pe: int = 8,
                        sig_figs_lattice: int = 8,
@@ -118,6 +119,10 @@ class KMCModel:
             {'check_every': 500, 'min_separation': 400.0, ...}.
             The correct types are: integer for 'check_every' and 'min_noccur', and float for all others.
             Default is {}
+        additional_keywords : list of str, optional
+            Additional keywords to append to simulation_input.dat that are currently not supported by zacrostools,
+            e.g., ['event_report on']. Each keyword will be written on its own line.
+            Default is None.
         sig_figs_energies : int, optional
             Number of significant figures for energy values in input files.
             Default is 8.
@@ -154,6 +159,8 @@ class KMCModel:
         stiffness_scalable_symmetric_steps = parsed_params['stiffness_scalable_symmetric_steps']
         stiffness_scaling_tags = parsed_params['stiffness_scaling_tags']
 
+        additional_keywords = additional_keywords or []
+
         self.job_dir = Path(job_path)
         if not self.job_dir.exists():
             self.job_dir.mkdir(parents=True, exist_ok=True)
@@ -166,6 +173,7 @@ class KMCModel:
                 stiffness_scalable_steps=stiffness_scalable_steps,
                 stiffness_scalable_symmetric_steps=stiffness_scalable_symmetric_steps,
                 stiffness_scaling_tags=stiffness_scaling_tags,
+                additional_keywords=additional_keywords,
                 sig_figs_energies=sig_figs_energies,
                 random_seed=random_seed,
                 version=version)
@@ -369,11 +377,22 @@ class KMCModel:
             'stiffness_scaling_tags': stiffness_scaling_tags
         }
 
-    def write_simulation_input(self, temperature, pressure, reporting_scheme, stopping_criteria,
-                               stiffness_scaling_algorithm, stiffness_scalable_steps,
-                               stiffness_scalable_symmetric_steps, stiffness_scaling_tags,
-                               sig_figs_energies, random_seed, version):
-        """Writes the simulation_input.dat file."""
+    def write_simulation_input(self,
+                               temperature,
+                               pressure,
+                               reporting_scheme,
+                               stopping_criteria,
+                               stiffness_scaling_algorithm,
+                               stiffness_scalable_steps,
+                               stiffness_scalable_symmetric_steps,
+                               stiffness_scaling_tags,
+                               additional_keywords=None,
+                               sig_figs_energies=None,
+                               random_seed=None,
+                               version=None):
+        """
+        Writes the simulation_input.dat file.
+        """
         gas_specs_names = list(self.gas_model.df.index)
         surf_specs = self.get_surf_specs()
         write_header(f"{self.job_dir}/simulation_input.dat")
@@ -445,6 +464,11 @@ class KMCModel:
                         infile.write("enable_stiffness_scaling\n")
                         for tag in stiffness_scaling_tags:
                             infile.write((tag + '\t').expandtabs(26) + str(stiffness_scaling_tags[tag]) + '\n')
+
+                # Write any additional keywords
+                for kw in additional_keywords:
+                    infile.write(f"{kw}\n")
+
                 infile.write(f"finish\n")
         except IOError as e:
             raise KMCModelError(f"Failed to write to 'simulation_input.dat': {e}")
