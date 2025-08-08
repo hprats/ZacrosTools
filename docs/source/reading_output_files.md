@@ -2,13 +2,13 @@
 
 ## Overview
 
-After completing a Zacros simulation, you can use `zacrostools` to parse and analyze the results. The `KMCOutput` class provides a convenient interface to load simulation data from output files, compute averages and coverages, and extract key performance indicators like turnover frequencies (TOFs) and selectivities.
+After completing a Zacros simulation, `zacrostools` can be used to parse and analyze the results. 
 
 ---
 
-## Creating a `KMCOutput` object
+## Extract data from a single simulation
 
-To extract simulation results, instantiate a `KMCOutput` object by pointing it to the directory containing the Zacros output files. You can also specify analysis ranges and weighting schemes for averaging results.
+The `KMCOutput` class provides a convenient interface to load simulation data from output files, compute averages and coverages, and extract key performance indicators like turnover frequencies (TOFs) and selectivities.
 
 ### Example
 
@@ -17,7 +17,7 @@ from zacrostools.kmc_output import KMCOutput
 
 # Create a KMCOutput object to read data from the current directory.
 # Here, we consider the last 50% of the simulation time and apply time-weighted averaging.
-kmc_output = KMCOutput(path='.', analysis_range=[50, 100], range_type='time', weights='time')
+kmc_output = KMCOutput(path='simulation_files', analysis_range=[50, 100], range_type='time', weights='time')
 ```
 
 ### Arguments
@@ -41,11 +41,11 @@ kmc_output = KMCOutput(path='.', analysis_range=[50, 100], range_type='time', we
 
 ---
 
-## Accessing simulation data
+### Accessing simulation data
 
 Once you have created a `KMCOutput` object, you can access a variety of data fields, as summarized below.
 
-### General simulation data
+#### General simulation data
 
 - **`random_seed`** (*int*): Random seed used by Zacros.
 - **`temperature`** (*float*): Simulation temperature (K).
@@ -59,26 +59,26 @@ Once you have created a `KMCOutput` object, you can access a variety of data fie
 - **`area`** (*float*): Catalyst surface area (Å²).
 - **`site_types`** (*dict*): Mapping of site types to the number of sites of each type (e.g., `{'top': 50, 'bridge': 50}`).
 
-### Events and time
+#### Events and time
 
 - **`nevents`** (*np.ndarray*): Array of integers representing the cumulative number of KMC events at each recorded data point.
 - **`time`** (*np.ndarray*): Simulated time at each data point (s).
 - **`finaltime`** (*float*): Final simulation time (s).
 
-### Lattice energy
+#### Lattice energy
 
 - **`energy`** (*np.ndarray*): Lattice energy over time (eV·Å⁻²).
 - **`av_energy`** (*float*): Time/Events-weighted average lattice energy (eV·Å⁻²).
 - **`final_energy`** (*float*): Final lattice energy (eV·Å⁻²).
 - **`energyslope`** (*float*): Slope of energy vs. events (eV·Å⁻²·step⁻¹). A large slope may suggest the simulation did not reach steady-state.
 
-### Gas production and TOF
+#### Gas production and TOF
 
 - **`production`** (*dict*): Dictionary of arrays tracking the cumulative production of each gas species over time (in molecules). For example, `kmc_output.production['CO']` gives an array of CO production values.
 - **`total_production`** (*dict*): Total number of molecules produced for each gas species by the end of the simulation. Example: `kmc_output.total_production['CO']`.
 - **`tof`** (*dict*): Turnover frequency of each gas species (molecules·s⁻¹·Å⁻²), indicating production rate normalized by the catalyst area. For example, `kmc_output.tof['CO2']`.
 
-### Surface coverage
+#### Surface coverage
 
 - **`coverage`** (*dict*): Coverage of each surface species over time, expressed as a percentage of total sites. Example: `kmc_output.coverage['CO']` gives an array of CO coverage values.
 - **`av_coverage`** (*dict*): Weighted average coverage of each surface species over the analysis window. Example: `kmc_output.av_coverage['CO']`.
@@ -86,7 +86,7 @@ Once you have created a `KMCOutput` object, you can access a variety of data fie
 - **`av_total_coverage`** (*float*): Average total coverage (%).
 - **`dominant_ads`** (*str*): The surface species with the highest average coverage.
 
-### Coverage per site type
+#### Coverage per site type
 
 To gain more detailed insight, you can also access coverage data broken down by site type:
 
@@ -98,7 +98,7 @@ To gain more detailed insight, you can also access coverage data broken down by 
 
 ---
 
-## Methods
+### Methods
 
 ### `get_selectivity()`
 
@@ -132,9 +132,9 @@ print(f"CH4 Selectivity: {selectivity:.2f} %")
 
 ---
 
-## Examples of usage
+### Examples of usage
 
-### Printing TOFs
+#### Printing TOFs
 
 ```python
 for gas_species in kmc_output.gas_specs_names:
@@ -142,14 +142,14 @@ for gas_species in kmc_output.gas_specs_names:
     print(f"TOF of {gas_species}: {tof:.3e} molecules·s⁻¹·Å⁻²")
 ```
 
-### Checking selectivity
+#### Checking selectivity
 
 ```python
 selectivity = kmc_output.get_selectivity(main_product='CH4', side_products=['CO2', 'CH3OH'])
 print(f"Selectivity for CH4: {selectivity:.2f} %")
 ```
 
-### Average coverage on total sites
+#### Average coverage on total sites
 
 ```python
 for surf_species in kmc_output.surf_specs_names:
@@ -157,7 +157,7 @@ for surf_species in kmc_output.surf_specs_names:
     print(f"Average coverage of {surf_species}: {avg_cov:.3f} % of total sites")
 ```
 
-### Average coverage per site type
+#### Average coverage per site type
 
 ```python
 for stype in kmc_output.site_types:
@@ -167,7 +167,7 @@ for stype in kmc_output.site_types:
 ```
 
 
-### Complete example
+#### Complete example
 
 ```python
 from zacrostools.kmc_output import KMCOutput
@@ -194,4 +194,20 @@ print(f"Selectivity of CH4: {select_ch4:.2f}%")
 for surf_spec in kmc_output.surf_specs_names:
     avg_cov = kmc_output.av_coverage[surf_spec]
     print(f"{surf_spec}: {avg_cov:.2f}%")
+```
+
+## Extract data from multiple simulations
+
+The `read_scan` function can be used to read the results of all KMC simulations in a given scan directory. This function returns a Pandas DataFrame containing key observables for each simulation.
+
+### Example
+
+```python
+from zacrostools.read_scan import read_scan
+
+data_scan = read_scan(
+    scan_path='path_to_scan',
+    analysis_range=[50, 100],
+    range_type='time')
+data_scan.to_csv('data_scan.csv', index=True)
 ```
