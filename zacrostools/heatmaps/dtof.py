@@ -31,6 +31,7 @@ def plot_dtof(
         min_molec: int = 1,
         max_dtof: float = None,
         min_dtof: float = None,
+        min_tof_ref: float = 0.0,
         nlevels: int = 0,
         weights: str = None,
         analysis_range: list = None,
@@ -87,6 +88,9 @@ def plot_dtof(
         Maximum and minimum threshold for the color scale. If None, sensible defaults are chosen:
         - For absolute differences: max → next decade above data, min → max/1e3.
         - For relative: max → 100 (percent) or 1.0 (fraction), min → max/1e3.
+    min_tof_ref : float, optional
+        Minimum TOF threshold for the reference run. If nonzero and the reference TOF is below
+        this value, the corresponding cell is masked (NaN). Default is 0.0.
     nlevels : int, default 0
         Number of discrete color levels (must be odd ≥3). If 0, continuous normalization is used.
     weights : str, optional
@@ -227,6 +231,11 @@ def plot_dtof(
                 if has_ref_issues:
                     df.loc[folder_name, "dtof"] = np.nan
                     continue
+
+            # If a minimum reference TOF is requested, mask cells where the reference is below it
+            if (min_tof_ref != 0.0) and (tof_ref < min_tof_ref):
+                df.loc[folder_name, "dtof"] = np.nan
+                continue
 
             # Only consider points above production threshold
             if prod >= min_molec and prod_ref >= min_molec:
