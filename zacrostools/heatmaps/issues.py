@@ -21,6 +21,10 @@ def plot_issues(
         analysis_range: list,
         # plot-specific optional parameters
         range_type: str = 'time',
+        # detect_issues optional parameters (pass-through)
+        energy_slope_thr: float = 5.0e-10,
+        time_r2_thr: float = 0.95,
+        max_points: int = 100,
         # general optional parameters
         cmap: str = "RdYlGn",
         show_points: bool = False,
@@ -44,6 +48,15 @@ def plot_issues(
         Portion of the simulation data to analyze (e.g., [0, 100]). If None, defaults to [0, 100].
     range_type : str, optional
         Type of range to consider in the analysis ('time' or 'nevents').
+    energy_slope_thr : float, optional
+        Threshold for the absolute energy slope used by `detect_issues`
+        (default is 5.0e-10).
+    time_r2_thr : float, optional
+        R² threshold for the linearity of time vs. events used by
+        `detect_issues` (default is 0.95).
+    max_points : int, optional
+        Maximum number of data points sampled by `detect_issues`
+        (default is 100).
     cmap : str, optional
         Colormap for the heatmap (default is "RdYlGn").
     show_points : bool, optional
@@ -101,7 +114,10 @@ def plot_issues(
             df.loc[folder_name, "issues"] = detect_issues(
                 job_path=sim_path,
                 analysis_range=analysis_range,
-                range_type=range_type)
+                range_type=range_type,
+                energy_slope_thr=energy_slope_thr,
+                time_r2_thr=time_r2_thr,
+                max_points=max_points)
             if df.loc[folder_name, "issues"] and verbose:
                 print(f"Issue detected: {sim_path}")
         except Exception as e:
