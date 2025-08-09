@@ -6,7 +6,7 @@ from zacrostools.kmc_output import KMCOutput
 def detect_issues(job_path,
                   analysis_range,
                   range_type='time',
-                  energy_slope_thr=2.0e-10, # 5.0e-10
+                  energy_slope_thr=5.0e-10,
                   time_r2_thr=0.95,
                   max_points=100):
     """
