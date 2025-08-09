@@ -35,6 +35,10 @@ def plot_dtof(
         weights: str = None,
         analysis_range: list = None,
         range_type: str = 'time',
+        # detect_issues optional parameters (pass-through)
+        energy_slope_thr: float = 5.0e-10,
+        time_r2_thr: float = 0.95,
+        max_points: int = 100,
         # general optional parameters
         cmap: str = "RdYlBu",
         show_points: bool = False,
@@ -91,6 +95,15 @@ def plot_dtof(
         Percentage of simulation range to analyze (start, end).
     range_type : {'time', 'nevents'}, default 'time'
         Whether analysis_range refers to simulation time or number of events.
+    energy_slope_thr : float, optional
+        Threshold for the absolute energy slope used by `detect_issues`
+        (default is 5.0e-10).
+    time_r2_thr : float, optional
+        R² threshold for the linearity of time vs. events used by
+        `detect_issues` (default is 0.95).
+    max_points : int, optional
+        Maximum number of data points sampled by `detect_issues`
+        (default is 100).
     cmap : str, default 'RdYlBu'
         Colormap for the heatmap.
     show_points : bool, default False
@@ -189,13 +202,18 @@ def plot_dtof(
                     job_path=sim_path,
                     analysis_range=analysis_range,
                     range_type=range_type,
-                )
+                    energy_slope_thr=energy_slope_thr,
+                    time_r2_thr=time_r2_thr,
+                    max_points=max_points)
+
             if check_issues in ['both', 'ref']:
                 has_ref_issues = detect_issues(
                     job_path=ref_path,
                     analysis_range=analysis_range,
                     range_type=range_type,
-                )
+                    energy_slope_thr=energy_slope_thr,
+                    time_r2_thr=time_r2_thr,
+                    max_points=max_points)
 
             if check_issues == 'both':
                 if has_main_issues or has_ref_issues:
