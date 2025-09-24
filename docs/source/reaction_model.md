@@ -38,6 +38,10 @@ The `ReactionModel` contains the information about each elementary step. It supp
 - **`prox_factor`** (`float`): Proximity factor.
 - **`angles`** (`str`): Angle constraints between sites in Zacros format (e.g., `'1-2-3:180'`).
 - **`graph_multiplicity`** (`int` or `float`): Symmetry factor of the step. The computed pre-exponential factor will be divided by this value. Useful for symmetric steps like diffusion on equivalent sites.
+- **`fixed_pre_expon`** (`float`): Optional fixed **forward** pre-exponential factor to write as-is (no scaling / no graph multiplicity applied).
+  Units must match Zacros expectations: surface/non-activated desorption in `s^-1`; adsorption (activated/non-activated) in `bar^-1·s^-1`.
+- **`fixed_pe_ratio`** (`float`): Optional fixed pre-exponential ratio `pe_fwd/pe_rev` to write as-is.
+  Must be provided **together** with `fixed_pre_expon`.
 
 ---
 
@@ -461,32 +465,23 @@ If any of these conditions occur, a `ReactionModelError` is raised.
 
 ```python
 from zacrostools.reaction_model import ReactionModel
-from zacrostools.gas_model import GasModel
 
-steps_data = {
-    "custom_step": {
-        "activ_eng": 1.0,
-        "initial": ["1 CO* 1"],
-        "final": ["1 * 1"],
-        "vib_energies_is": [200],
-        "vib_energies_fs": [150],
-        "vib_energies_ts": [180],
-        "site_types": "tC",
-        # Fix pre-exponential and ratio explicitly
-        "fixed_pre_expon": 1.0e13,   # in s^-1 or bar^-1·s^-1 depending on type
+reaction_data = {
+    'CO_ads': {
+        'activ_eng': 0.0,
+        'area_site': 6.54,
+        'initial': ['1 * 1'],
+        'final': ['1 CO* 1'],
+        'molecule_is': 'CO',
+        'prox_factor': 0.0,
+        'vib_energies_is': [263],
+        'vib_energies_fs': [253, 40, 36, 33, 7, 5],
+        "fixed_pre_expon": 1.0e13,  # in s^-1 or bar^-1·s^-1 depending on type
         "fixed_pe_ratio": 2.5
     }
 }
 
-reaction_model = ReactionModel.from_dict(steps_data)
-
-gas_model = GasModel.from_csv("gas_data.csv")
-
-reaction_model.write_mechanism_input(
-    output_dir="kmc_simulation",
-    temperature=500,
-    gas_model=gas_model
-)
+reaction_model = ReactionModel.from_dict(reaction_data)
 ```
 
 ## Next Steps

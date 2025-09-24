@@ -83,16 +83,21 @@ The ZacrosTools documentation is organized into the following sections:
 
 ## Recent changes
 
+## [2.7] - 25-Sep-2025
+
+### Added
+- **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
+  - Incompatible with `stiffness_scalable_steps='all'`.  
+  - Incompatible with listing fixed steps in either `stiffness_scalable_steps` or `stiffness_scalable_symmetric_steps`.
+
 ## [2.6] - 24-Sep-2025
 
 ### Changed
 - **Gas-phase molecule parameter update**: the deprecated `molecule` parameter has been replaced by two explicit parameters, `molecule_is` and `molecule_fs`, which indicate the presence of gas-phase species in the initial or final state of a step, respectively. Using `molecule` will trigger a `DeprecationWarning`.  
 
 ### Added
-- **Bidirectional gas-phase step support**: ZacrosTools now accepts the definition of reaction steps involving gas-phase species in either direction (initial or final state). Previously, gas-phase species were only allowed in the initial state (adsorption).  
-- **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
-  - Incompatible with `stiffness_scalable_steps='all'`.  
-  - Incompatible with listing fixed steps in either `stiffness_scalable_steps` or `stiffness_scalable_symmetric_steps`.
+- **Bidirectional gas-phase step support**: ZacrosTools now accepts the definition of reaction steps involving gas-phase species in either direction (initial or final state). Previously, gas-phase species were only allowed in the initial state (adsorption).
+  
 ## [2.5] - 30-Jul-2025
 
 ### Added
