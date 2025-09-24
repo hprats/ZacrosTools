@@ -440,6 +440,55 @@ print(reaction_model.df)
 
 ---
 
+## Fixing pre-exponential factors
+
+By default, `ReactionModel` computes the forward pre-exponential factor (`pre_expon`) and the pre-exponential ratio (`pe_ratio`) from statistical mechanics.  
+However, in some cases you may want to **fix these values explicitly** (for both forward and reverse directions). This can be done by providing two optional parameters:
+
+- **`fixed_pre_expon`** (`float`): User-specified forward pre-exponential factor.  
+- **`fixed_pe_ratio`** (`float`): User-specified pre-exponential ratio.  
+
+⚠️ **Important**:  
+- If one of these parameters is provided, the other must also be provided.  
+- Using `fixed_pre_expon`/`fixed_pe_ratio` is **incompatible** with:
+  1. Setting `stiffness_scalable_steps="all"`.  
+  2. Including a fixed step in `stiffness_scalable_steps`.  
+  3. Including a fixed step in `stiffness_scalable_symmetric_steps`.  
+
+If any of these conditions occur, a `ReactionModelError` is raised.
+
+### Example
+
+```python
+from zacrostools.reaction_model import ReactionModel
+from zacrostools.gas_model import GasModel
+
+steps_data = {
+    "custom_step": {
+        "activ_eng": 1.0,
+        "initial": ["1 CO* 1"],
+        "final": ["1 * 1"],
+        "vib_energies_is": [200],
+        "vib_energies_fs": [150],
+        "vib_energies_ts": [180],
+        "site_types": "tC",
+        # Fix pre-exponential and ratio explicitly
+        "fixed_pre_expon": 1.0e13,   # in s^-1 or bar^-1·s^-1 depending on type
+        "fixed_pe_ratio": 2.5
+    }
+}
+
+reaction_model = ReactionModel.from_dict(steps_data)
+
+gas_model = GasModel.from_csv("gas_data.csv")
+
+reaction_model.write_mechanism_input(
+    output_dir="kmc_simulation",
+    temperature=500,
+    gas_model=gas_model
+)
+```
+
 ## Next Steps
 
 With the `ReactionModel` defined, you can proceed to:
