@@ -48,6 +48,10 @@ class ReactionModel:
           will be divided by `graph_multiplicity`. Should be used in steps with the same initial and final configuration
           (symmetric steps), such as diffusions to the same site type. For instance, diffusion of A* from top to top
           should have a value of `2`. Default is `1`.
+        - **fixed_pre_expon** (float): Optional fixed **forward** pre-exponential factor to write as-is (no scaling / no graph multiplicity applied).
+          Units must match Zacros expectations: surface/non-activated desorption in `s^-1`; adsorption (activated/non-activated) in `bar^-1·s^-1`.
+        - **fixed_pe_ratio** (float): Optional fixed pre-exponential ratio `pe_fwd/pe_rev` to write as-is.
+          Must be provided **together** with `fixed_pre_expon`.
 
         **Backward compatibility (deprecated)**:
         - **molecule** (str, optional): Deprecated. If present, it is treated as `molecule_is`
@@ -66,7 +70,8 @@ class ReactionModel:
     REQUIRED_ACTIVATED_COLUMNS = {'vib_energies_ts'}
     OPTIONAL_COLUMNS = {
         'site_types', 'neighboring', 'prox_factor', 'angles', 'graph_multiplicity',
-        'molecule_is', 'molecule_fs', 'molecule'  # 'molecule' kept for backward compatibility
+        'molecule_is', 'molecule_fs', 'molecule',  # legacy 'molecule'
+        'fixed_pre_expon', 'fixed_pe_ratio'
     }
     LIST_COLUMNS = ['initial', 'final', 'vib_energies_is', 'vib_energies_fs', 'vib_energies_ts']
 
@@ -119,7 +124,8 @@ class ReactionModel:
                     df[col] = [[] for _ in range(len(df))]
 
             # Convert numerical columns to appropriate types
-            numeric_columns = ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity']
+            numeric_columns = ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity',
+                               'fixed_pre_expon', 'fixed_pe_ratio']
             for col in numeric_columns:
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -185,7 +191,6 @@ class ReactionModel:
         # Ensure the dataframe has all allowed columns so we can assign safely
         for col in allowed:
             if col not in self.df.columns:
-                # create column with appropriate default
                 if col in self.LIST_COLUMNS:
                     self.df[col] = [[] for _ in range(len(self.df))]
                 elif col == 'graph_multiplicity':
@@ -209,11 +214,17 @@ class ReactionModel:
                 row_data[col] = step_info.get(col, pd.NA)
 
         # Minimal presence checks before full validation
-        missing_required = self.REQUIRED_COLUMNS - set([k for k, v in row_data.items() if not (pd.isna(v) or v == [])])
-        # We allow vib_energies_ts to be empty (non-activated), but initial/final/activ_eng/vib_energies_is/fs must be provided
         for must in ('initial', 'final', 'activ_eng', 'vib_energies_is', 'vib_energies_fs'):
             if must not in step_info:
                 raise ReactionModelError(f"Missing required key '{must}' in step '{step_name}'.")
+
+        # If either fixed_* provided, both must be provided
+        fpe = row_data.get('fixed_pre_expon', pd.NA)
+        fpr = row_data.get('fixed_pe_ratio', pd.NA)
+        if (pd.notna(fpe) and pd.isna(fpr)) or (pd.notna(fpr) and pd.isna(fpe)):
+            raise ReactionModelError(
+                f"Step '{step_name}': both 'fixed_pre_expon' and 'fixed_pe_ratio' must be provided together."
+            )
 
         self.df.loc[step_name] = row_data
         self._normalize_gas_columns()
@@ -324,9 +335,9 @@ class ReactionModel:
                 raise ReactionModelError(f"Missing required column: '{col}'")
 
         # Validate numeric columns (if present)
-        for col in ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity']:
+        for col in ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity',
+                    'fixed_pre_expon', 'fixed_pe_ratio']:
             if col in df.columns:
-                # Allow NaNs; reject non-numeric non-NaNs
                 non_num = df[col].apply(lambda x: not (pd.isna(x) or isinstance(x, (int, float))))
                 if non_num.any():
                     invalid_steps = df[non_num].index.tolist()
@@ -360,6 +371,29 @@ class ReactionModel:
                 raise ReactionModelError(
                     f"'area_site' is required when gas species participate. Missing for steps: {bad}")
 
+        # Validate fixed_* pairing and positivity when set
+        if 'fixed_pre_expon' in df.columns or 'fixed_pe_ratio' in df.columns:
+            def _has(x): return pd.notna(x)
+            bad_pair = []
+            bad_sign = []
+            for idx, r in df.iterrows():
+                fpe = r.get('fixed_pre_expon', pd.NA)
+                fpr = r.get('fixed_pe_ratio', pd.NA)
+                if _has(fpe) ^ _has(fpr):
+                    bad_pair.append(idx)
+                elif _has(fpe) and _has(fpr):
+                    try:
+                        if float(fpe) <= 0.0 or float(fpr) <= 0.0:
+                            bad_sign.append(idx)
+                    except Exception:
+                        bad_sign.append(idx)
+            if bad_pair:
+                raise ReactionModelError(
+                    f"For steps {bad_pair}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be provided together.")
+            if bad_sign:
+                raise ReactionModelError(
+                    f"For steps {bad_sign}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be positive numbers.")
+
     def write_mechanism_input(self,
                               output_dir: Union[str, Path],
                               temperature: float,
@@ -368,9 +402,7 @@ class ReactionModel:
                               stiffness_scalable_steps: list = None,
                               stiffness_scalable_symmetric_steps: list = None,
                               sig_figs_energies: int = 8,
-                              sig_figs_pe: int = 8,
-                              fixed_pre_expon: Optional[dict[str, float]] = None,
-                              fixed_pe_ratio: Optional[dict[str, float]] = None):
+                              sig_figs_pe: int = 8):
         """
         Write the `mechanism_input.dat` file.
 
@@ -392,61 +424,7 @@ class ReactionModel:
             Number of significant figures for activation energies. Default is `8`.
         sig_figs_pe : int, optional
             Number of significant figures for pre-exponential factors. Default is `8`.
-        fixed_pre_expon : dict[str, float], optional
-            Optional map of step name -> fixed forward pre-exponential (as written to file).
-            If provided, `fixed_pe_ratio` must also be provided. Steps present here are written
-            using these fixed values (no manual scaling or graph multiplicity applied).
-            Units must match Zacros expectations: surface/desorption in s^-1; adsorption in bar^-1·s^-1.
-        fixed_pe_ratio : dict[str, float], optional
-            Optional map of step name -> fixed pre-exponential ratio (pe_fwd / pe_rev).
-            Must be provided together with `fixed_pre_expon` and have the same keys.
         """
-
-        # ---- Validate fixed pre-exponential inputs ----
-        if (fixed_pre_expon is None) ^ (fixed_pe_ratio is None):
-            raise ReactionModelError(
-                "If one of 'fixed_pre_expon' or 'fixed_pe_ratio' is provided, the other must also be provided."
-            )
-
-        fixed_steps = set()
-        if fixed_pre_expon is not None and fixed_pe_ratio is not None:
-            if not isinstance(fixed_pre_expon, dict) or not isinstance(fixed_pe_ratio, dict):
-                raise ReactionModelError("'fixed_pre_expon' and 'fixed_pe_ratio' must be dictionaries when provided.")
-            if set(fixed_pre_expon.keys()) != set(fixed_pe_ratio.keys()):
-                raise ReactionModelError("'fixed_pre_expon' and 'fixed_pe_ratio' must have identical step-name keys.")
-            # numeric, positive
-            for k in fixed_pre_expon:
-                try:
-                    pf = float(fixed_pre_expon[k])
-                    pr = float(fixed_pe_ratio[k])
-                except Exception:
-                    raise ReactionModelError(f"Fixed values for step '{k}' must be numeric.")
-                if pf <= 0.0 or pr <= 0.0:
-                    raise ReactionModelError(f"Fixed values for step '{k}' must be positive.")
-            fixed_steps = set(fixed_pre_expon.keys())
-
-        # ---- Enforce incompatibilities with stiffness-scalable options ----
-        # 1) 'all' for stiffness_scalable_steps is incompatible with any fixed steps
-        if fixed_steps and stiffness_scalable_steps == 'all':
-            raise ReactionModelError(
-                "Using fixed_pre_expon/fixed_pe_ratio is incompatible with stiffness_scalable_steps='all'."
-            )
-
-        # 2) Overlap with stiffness_scalable_steps list is not allowed
-        if fixed_steps and isinstance(stiffness_scalable_steps, (list, tuple, set)):
-            overlap = fixed_steps.intersection(set(stiffness_scalable_steps))
-            if overlap:
-                raise ReactionModelError(
-                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_steps."
-                )
-
-        # 3) Overlap with stiffness_scalable_symmetric_steps list is not allowed
-        if fixed_steps and isinstance(stiffness_scalable_symmetric_steps, (list, tuple, set)):
-            overlap = fixed_steps.intersection(set(stiffness_scalable_symmetric_steps))
-            if overlap:
-                raise ReactionModelError(
-                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_symmetric_steps."
-                )
 
         # Handle default arguments
         if manual_scaling is None:
@@ -455,6 +433,32 @@ class ReactionModel:
             stiffness_scalable_steps = []
         if stiffness_scalable_symmetric_steps is None:
             stiffness_scalable_symmetric_steps = []
+
+        # Determine which steps are fixed (have both columns set)
+        def _is_fixed_row(r):
+            return pd.notna(r.get('fixed_pre_expon', pd.NA)) and pd.notna(r.get('fixed_pe_ratio', pd.NA))
+
+        fixed_steps = set([idx for idx, r in self.df.iterrows() if _is_fixed_row(r)])
+
+        # Enforce incompatibilities with stiffness-scalable options
+        if fixed_steps and stiffness_scalable_steps == 'all':
+            raise ReactionModelError(
+                "Using per-step fixed_pre_expon/fixed_pe_ratio is incompatible with stiffness_scalable_steps='all'."
+            )
+
+        if fixed_steps and isinstance(stiffness_scalable_steps, (list, tuple, set)):
+            overlap = fixed_steps.intersection(set(stiffness_scalable_steps))
+            if overlap:
+                raise ReactionModelError(
+                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_steps."
+                )
+
+        if fixed_steps and isinstance(stiffness_scalable_symmetric_steps, (list, tuple, set)):
+            overlap = fixed_steps.intersection(set(stiffness_scalable_symmetric_steps))
+            if overlap:
+                raise ReactionModelError(
+                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_symmetric_steps."
+                )
 
         # Check for inconsistent stiffness scaling configuration
         if isinstance(stiffness_scalable_steps, (list, tuple, set)) and \
@@ -524,12 +528,13 @@ class ReactionModel:
                     if pd.notna(site_types):
                         infile.write(f"  site_types {site_types}\n")
 
-                    # Use fixed values if provided for this step; otherwise compute
+                    # Use fixed values if defined; otherwise compute
                     if step in fixed_steps:
-                        pe_fwd = float(fixed_pre_expon[step])
-                        pe_ratio = float(fixed_pe_ratio[step])
+                        pe_fwd = float(row['fixed_pre_expon'])
+                        pe_ratio = float(row['fixed_pe_ratio'])
                         # NOTE: For fixed values we do NOT apply manual scaling nor graph multiplicity;
                         # they are treated as final values to be written as-is.
+                        infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # fixed\n")
                     else:
                         pe_fwd, pe_ratio = self.get_pre_expon(
                             step=step,
@@ -537,11 +542,6 @@ class ReactionModel:
                             gas_model=gas_model,
                             manual_scaling=manual_scaling
                         )
-
-                    # Write pre_expon and pe_ratio
-                    if step in fixed_steps:
-                        infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # fixed\n")
-                    else:
                         if step in manual_scaling:
                             infile.write(
                                 f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # scaled {manual_scaling[step]:.8e}\n")
