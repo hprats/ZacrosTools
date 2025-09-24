@@ -1,116 +1,152 @@
+# tests/test_calc_functions.py
+
+import math
 import numpy as np
 import pytest
-from zacrostools import calc_functions
-from zacrostools.custom_exceptions import CalcFunctionsError
+
+from zacrostools import calc_functions as cf
 
 
-def test_find_nearest():
-    array = np.array([1, 3, 5, 7, 9])
-    value = 6
-    expected = 5
-    result = calc_functions.find_nearest(array, value)
-    assert result == expected, f"Expected {expected}, got {result}"
-
-    value = 8
-    expected = 7
-    result = calc_functions.find_nearest(array, value)
-    assert result == expected, f"Expected {expected}, got {result}"
+def test_as_eV_list():
+    assert cf.as_eV_list([1000, 0, 250]) == [1.0, 0.0, 0.25]
+    assert cf.as_eV_list([]) == []
+    assert cf.as_eV_list(None) == []
 
 
-def test_get_q_vib():
-    temperature = 300  # Kelvin
-    vib_energies = [100, 200, 300]  # meV
-    result = calc_functions.get_q_vib(temperature, vib_energies)
-    expected = 9.32366938280356e-06
-    assert np.isclose(result, expected), f"Expected {expected}, got {result}"
+def test_q_vib_numeric():
+    # T = 300 K, vib energies in meV
+    T = 300.0
+    vib = [100, 200, 300]
+    # Known value (from the HO formula used here)
+    expected = 9.32366938463989e-06
+    got = cf.q_vib(vib, T)
+    assert np.isclose(got, expected, rtol=1e-12), f"q_vib mismatch: {got} vs {expected}"
 
 
-def test_get_q_rot_linear():
-    temperature = 300  # Kelvin
-    inertia_moments = [10.0]  # amu·Å^2 for a linear molecule
-    sym_number = 2
-    result = calc_functions.get_q_rot(temperature, inertia_moments, sym_number)
-    expected = 61.84453275589907
-    assert np.isclose(result, expected), f"Expected {expected}, got {result}"
+def test_q_trans2D_numeric():
+    # A = 5 Å^2, m = 28 amu, T = 300 K
+    T = 300.0
+    A = 5.0
+    m_amu = 28.0
+    expected = 137.80008332596037  # dimensionless
+    got = cf.q_trans2D(A, m_amu, T)
+    assert np.isclose(got, expected, rtol=1e-12), f"q_trans2D mismatch: {got} vs {expected}"
 
 
-def test_get_q_rot_non_linear():
-    temperature = 300  # Kelvin
-    inertia_moments = [10.0, 15.0, 20.0]  # amu·Å^2 for a non-linear molecule
-    sym_number = 1
-    result = calc_functions.get_q_rot(temperature, inertia_moments, sym_number)
-    expected = 4223.11128907918
-    assert np.isclose(result, expected), f"Expected {expected}, got {result}"
+def test_q_rot_linear_numeric():
+    # Linear rotor: 1 inertia moment
+    T = 300.0
+    inertia = [10.0]  # amu*Å^2
+    sigma = 2
+    expected = 61.84453277727122
+    got = cf.q_rot(inertia, sigma, T)
+    assert np.isclose(got, expected, rtol=1e-12), f"q_rot linear mismatch: {got} vs {expected}"
 
 
-def test_get_q_rot_invalid():
-    temperature = 300
-    inertia_moments = [10.0, 15.0]  # Invalid number of moments
-    sym_number = 1
-    with pytest.raises(CalcFunctionsError):
-        calc_functions.get_q_rot(temperature, inertia_moments, sym_number)
+def test_q_rot_nonlinear_numeric():
+    # Non-linear rotor: 3 inertia moments
+    T = 300.0
+    inertia = [10.0, 15.0, 20.0]  # amu*Å^2
+    sigma = 1
+    expected = 4223.111291268305
+    got = cf.q_rot(inertia, sigma, T)
+    assert np.isclose(got, expected, rtol=1e-12), f"q_rot nonlinear mismatch: {got} vs {expected}"
 
 
-def test_calc_ads_non_activated():
-    area_site = 5.0  # Å^2
-    molec_mass = 28.0  # g/mol (e.g., N2)
-    temperature = 300  # K
-    vib_energies_is = [100, 200, 300]  # meV
-    vib_energies_ts = []  # Non-activated process
-    vib_energies_fs = [150, 250, 350]  # meV
-    inertia_moments = [10.0]  # amu·Å^2 (linear molecule)
-    sym_number = 2
-    degeneracy = 1
+def test_q_rot_invalid_raises():
+    T = 300.0
+    bad_inertia = [10.0, 15.0]  # invalid length
+    with pytest.raises(ValueError):
+        cf.q_rot(bad_inertia, sym_number=1, T=T)
 
-    pe_fwd, pe_rev = calc_functions.calc_ads(
-        area_site, molec_mass, temperature,
-        vib_energies_is, vib_energies_ts, vib_energies_fs,
-        inertia_moments, sym_number, degeneracy
+
+def test_q_elec_defaults_and_values():
+    assert cf.q_elec(None) == 1.0
+    assert cf.q_elec(0) == 1.0
+    assert cf.q_elec(1) == 1.0
+    assert cf.q_elec(3) == 3.0
+
+
+def test_gas_RS_partition_composition():
+    # Check that gas_RS_partition equals product of components
+    T = 300.0
+    A = 5.0
+    molec = {
+        "gas_molec_weight": 28.0,      # amu
+        "inertia_moments": [10.0],     # linear
+        "sym_number": 2,
+        "degeneracy": 1,
+    }
+    vib_RS = [100, 200, 300]
+
+    # Build product explicitly
+    q_trans = cf.q_trans2D(A, molec["gas_molec_weight"], T)
+    q_rot = cf.q_rot(molec["inertia_moments"], molec["sym_number"], T)
+    q_vib = cf.q_vib(vib_RS, T)
+    q_elec = cf.q_elec(molec["degeneracy"])
+    expected = q_trans * q_rot * q_vib * q_elec
+
+    got = cf.gas_RS_partition(A, molec, vib_RS, T)
+    assert np.isclose(got, expected, rtol=1e-12), "gas_RS_partition does not match product of components"
+
+
+def test_pe_surface_numeric():
+    # Surface process: pe = (kB*T/h) * (q_TS/q_RS)
+    T = 300.0
+    vib_RS = [100, 200, 300]
+    vib_TS = [150, 250, 350]
+    expected = 337272372355.2879  # s^-1
+    got = cf.pe_surface(vib_TS_meV=vib_TS, vib_RS_meV=vib_RS, T=T)
+    assert np.isclose(got, expected, rtol=1e-10), f"pe_surface mismatch: {got} vs {expected}"
+
+
+def test_pe_activated_ads_numeric():
+    # pe = A / sqrt(2*pi*m*k*T) * (q_TS / q_RS)
+    T = 300.0
+    A = 5.0
+    molec = {
+        "gas_molec_weight": 28.0,  # amu
+        "inertia_moments": [10.0],
+        "sym_number": 2,
+        "degeneracy": 1,
+    }
+    vib_RS = [100, 200, 300]
+    vib_TS = [120, 220, 320]
+    expected = 5.22368430437502e-02  # s^-1 Pa^-1
+    got = cf.pe_activated_ads(A_ang2=A, molec_data=molec, vib_TS_meV=vib_TS, vib_RS_meV=vib_RS, T=T)
+    assert np.isclose(got, expected, rtol=1e-12), f"pe_activated_ads mismatch: {got} vs {expected}"
+
+
+def test_pe_nonactivated_ads_numeric():
+    # pe = A / sqrt(2*pi*m*k*T)
+    T = 300.0
+    A = 5.0
+    mass_amu = 28.0
+    expected = 1437.3887352217173  # s^-1 Pa^-1
+    got = cf.pe_nonactivated_ads(A_ang2=A, mass_amu=mass_amu, T=T)
+    assert np.isclose(got, expected, rtol=1e-12), f"pe_nonactivated_ads mismatch: {got} vs {expected}"
+
+
+def test_pe_nonactivated_desorption_numeric():
+    # pe = (kB*T/h) * (q_PS / q_RS)
+    # q_PS = q_trans2D * q_rot * q_vib * q_elec (gas-like, uses PS data)
+    # q_RS = q_vib (surface)
+    T = 300.0
+    A = 5.0
+    molec_ps = {
+        "gas_molec_weight": 28.0,  # amu
+        "inertia_moments": [10.0],  # linear
+        "sym_number": 2,
+        "degeneracy": 1,
+    }
+    vib_PS = [150, 250, 350]
+    vib_RS_surface = [100, 200, 300]
+    expected = 2.874296463198428e15  # s^-1
+    got = cf.pe_nonactivated_desorption(
+        A_ang2=A,
+        molec_data=molec_ps,
+        vib_PS_meV=vib_PS,
+        vib_RS_meV_surface=vib_RS_surface,
+        T=T
     )
-
-    expected_pe_fwd = 143738873.52217174
-    expected_pe_rev = 9.873407036538351e+17
-
-    assert np.isclose(pe_fwd, expected_pe_fwd, rtol=1e-5), f"Expected pe_fwd {expected_pe_fwd}, got {pe_fwd}"
-    assert np.isclose(pe_rev, expected_pe_rev, rtol=1e-5), f"Expected pe_rev {expected_pe_rev}, got {pe_rev}"
-
-
-def test_calc_ads_activated():
-    area_site = 5.0  # Å^2
-    molec_mass = 28.0  # g/mol (e.g., N2)
-    temperature = 300  # K
-    vib_energies_is = [100, 200, 300]  # meV
-    vib_energies_ts = [120, 220, 320]  # meV
-    vib_energies_fs = [150, 250, 350]  # meV
-    inertia_moments = [10.0]  # amu·Å^2
-    sym_number = 2
-    degeneracy = 1
-
-    pe_fwd, pe_rev = calc_functions.calc_ads(
-        area_site, molec_mass, temperature,
-        vib_energies_is, vib_energies_ts, vib_energies_fs,
-        inertia_moments, sym_number, degeneracy
-    )
-
-    expected_pe_fwd = 5223.684306081529
-    expected_pe_rev = 35881428677235.87
-
-    assert np.isclose(pe_fwd, expected_pe_fwd, rtol=1e-5), f"Expected pe_fwd {expected_pe_fwd}, got {pe_fwd}"
-    assert np.isclose(pe_rev, expected_pe_rev, rtol=1e-5), f"Expected pe_rev {expected_pe_rev}, got {pe_rev}"
-
-
-def test_calc_surf_proc():
-    temperature = 300  # K
-    vib_energies_is = [100, 200, 300]  # meV
-    vib_energies_ts = [150, 250, 350]  # meV
-    vib_energies_fs = [200, 300, 400]  # meV
-
-    pe_fwd, pe_rev = calc_functions.calc_surf_proc(
-        temperature, vib_energies_is, vib_energies_ts, vib_energies_fs
-    )
-
-    expected_pe_fwd = 337272372339.18915
-    expected_pe_rev = 114035791835184.86
-
-    assert np.isclose(pe_fwd, expected_pe_fwd, rtol=1e-5), f"Expected pe_fwd {expected_pe_fwd}, got {pe_fwd}"
-    assert np.isclose(pe_rev, expected_pe_rev, rtol=1e-5), f"Expected pe_rev {expected_pe_rev}, got {pe_rev}"
+    assert np.isclose(got, expected, rtol=1e-12), f"pe_nonactivated_desorption mismatch: {got} vs {expected}"
