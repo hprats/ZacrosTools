@@ -6,6 +6,7 @@ The `ReactionModel` contains the information about each elementary step. It supp
 
 - **Non-activated adsorption**
 - **Activated adsorption**
+- **Non-activated desorption**
 - **Surface reactions or diffusions**
 
 ### Required columns
@@ -16,13 +17,19 @@ The `ReactionModel` contains the information about each elementary step. It supp
 - **`vib_energies_is`** (`list` of `float`): Vibrational energies for the initial state in millielectronvolts (meV), excluding the zero-point energy (ZPE).
 - **`vib_energies_fs`** (`list` of `float`): Vibrational energies for the final state in meV, excluding the ZPE.
 
-### Additional required columns for specific steps
+### Additional required columns (when applicable)
 
-- **Adsorption steps**:
-  - **`molecule`** (`str`): Gas-phase molecule involved.
-  - **`area_site`** (`float`): Area of the adsorption site in square angstroms (Å²).
-- **Activated steps** (e.g., activated adsorption, surface reactions):
-  - **`vib_energies_ts`** (`list` of `float`): Vibrational energies for the transition state in meV, excluding the ZPE.
+- **When *any* gas species participates (adsorption/desorption/exchange)**:
+  - **`area_site`** (`float`): Area of the adsorption site in Å².
+- **When a gas species is present in the initial state (IS)**:
+  - **`molecule_is`** (`str`): Gas-phase molecule in the **initial** state (e.g. adsorption).
+- **When a gas species is present in the final state (FS)**:
+  - **`molecule_fs`** (`str`): Gas-phase molecule in the **final** state (e.g. desorption).
+- **Activated steps** (activated adsorption, surface reactions):
+  - **`vib_energies_ts`** (`list[float]`): Vibrational energies for the transition state in meV (no ZPE).  
+    For **non-activated** steps, this may be omitted or set to `[]`.
+
+> **Deprecation note**: The old **`molecule`** column is deprecated. If provided, it is treated as `molecule_is` and a `DeprecationWarning` is issued.
 
 ### Optional columns
 
@@ -32,18 +39,20 @@ The `ReactionModel` contains the information about each elementary step. It supp
 - **`angles`** (`str`): Angle constraints between sites in Zacros format (e.g., `'1-2-3:180'`).
 - **`graph_multiplicity`** (`int` or `float`): Symmetry factor of the step. The computed pre-exponential factor will be divided by this value. Useful for symmetric steps like diffusion on equivalent sites.
 
+---
+
 ### Example data table
 
-| index       | activ_eng          | area_site | final                          | graph_multiplicity | initial                       | molecule | neighboring | prox_factor | site_types | vib_energies_fs                                                                 | vib_energies_is                                                                             | vib_energies_ts                                                              |
-|-------------|--------------------|-----------|--------------------------------|--------------------|-------------------------------|----------|-------------|-------------|------------|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| aO2_HfC     | 0.0                | 5.34      | ['1 O* 1', '2 O* 1']           | NaN                | ['1 * 1', '2 * 1']            | O2       | 1-2         | 0.0         | tC tC      | [78.662275, 40.796289, 40.348665, 78.662275, 40.796289, 40.348665]              | [194.605883]                                                                                | []                                                                            |
-| aCO_HfC     | 0.0                | 5.34      | ['1 CO* 1']                    | NaN                | ['1 * 1']                     | CO       | NaN         | 0.0         | tC         | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [263.427949]                                                                                | []                                                                            |
-| aCO2_HfC    | 0.0                | 5.34      | ['1 CO2* 1']                   | NaN                | ['1 * 1']                     | CO2      | NaN         | 0.0         | tC         | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [293.279791, 163.611086, 78.016609, 77.959489]                                                | []                                                                            |
-| fCO_HfC     | 1.3251912539165005 | NaN       | ['1 CO* 1', '2 * 1']           | NaN                | ['1 C* 1', '2 O* 1']          | NaN      | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [138.207451, 24.592242, 17.986572, 78.662275, 40.796289, 40.348665]                          | [129.799624, 55.940895, 41.760039, 33.292377, 20.816034]                       |
-| bCO2_HfC    | 1.6930197990402576 | NaN       | ['1 CO* 1', '2 O* 1']          | NaN                | ['1 CO2* 1', '2 * 1']         | NaN      | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359, 78.662275, 40.796289, 40.348665] | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [217.940927, 81.361728, 66.833494, 56.917831, 50.342099, 37.430358, 19.074043, 12.356398] |
-| dCO_HfC     | 1.156349999999975  | NaN       | ['1 * 1', '2 CO* 1']           | 2.0                | ['1 CO* 1', '2 * 1']          | NaN      | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                           | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                         |
-| dO_HfC      | 1.220541240457237  | NaN       | ['1 * 1', '2 O* 1']            | 2.0                | ['1 O* 1', '2 * 1']           | NaN      | 1-2         | NaN         | tC tC      | [78.662275, 40.796289, 40.348665]                                               | [78.662275, 40.796289, 40.348665]                                                          | [56.617104, 49.715199]                                                       |
-| dC_HfC      | 1.4489481277169034 | NaN       | ['1 * 1', '2 C* 1']            | NaN                | ['1 C* 1', '2 * 1']           | NaN      | 1-2         | NaN         | tC tC      | [138.207451, 24.592242, 17.986572]                                               | [138.207451, 24.592242, 17.986572]                                                        | [85.015794, 66.512731]                                                       |
+| index       | activ_eng          | area_site | final                          | graph_multiplicity | initial                       | molecule_is | neighboring | prox_factor | site_types | vib_energies_fs                                                                 | vib_energies_is                                                                             | vib_energies_ts                                                              |
+|-------------|--------------------|-----------|--------------------------------|--------------------|-------------------------------|-------------|-------------|-------------|------------|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| aO2_HfC     | 0.0                | 5.34      | ['1 O* 1', '2 O* 1']           | NaN                | ['1 * 1', '2 * 1']            | O2          | 1-2         | 0.0         | tC tC      | [78.662275, 40.796289, 40.348665, 78.662275, 40.796289, 40.348665]              | [194.605883]                                                                                | []                                                                            |
+| aCO_HfC     | 0.0                | 5.34      | ['1 CO* 1']                    | NaN                | ['1 * 1']                     | CO          | NaN         | 0.0         | tC         | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [263.427949]                                                                                | []                                                                            |
+| aCO2_HfC    | 0.0                | 5.34      | ['1 CO2* 1']                   | NaN                | ['1 * 1']                     | CO2         | NaN         | 0.0         | tC         | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [293.279791, 163.611086, 78.016609, 77.959489]                                                | []                                                                            |
+| fCO_HfC     | 1.3251912539165005 | NaN       | ['1 CO* 1', '2 * 1']           | NaN                | ['1 C* 1', '2 O* 1']          | NaN         | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [138.207451, 24.592242, 17.986572, 78.662275, 40.796289, 40.348665]                          | [129.799624, 55.940895, 41.760039, 33.292377, 20.816034]                       |
+| bCO2_HfC    | 1.6930197990402576 | NaN       | ['1 CO* 1', '2 O* 1']          | NaN                | ['1 CO2* 1', '2 * 1']         | NaN         | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359, 78.662275, 40.796289, 40.348665] | [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922] | [217.940927, 81.361728, 66.833494, 56.917831, 50.342099, 37.430358, 19.074043, 12.356398] |
+| dCO_HfC     | 1.156349999999975  | NaN       | ['1 * 1', '2 CO* 1']           | 2.0                | ['1 CO* 1', '2 * 1']          | NaN         | 1-2         | NaN         | tC tC      | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]               | [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]                           | [218.382388, 53.526855, 47.6122, 28.580404, 6.599679]                         |
+| dO_HfC      | 1.220541240457237  | NaN       | ['1 * 1', '2 O* 1']            | 2.0                | ['1 O* 1', '2 * 1']           | NaN         | 1-2         | NaN         | tC tC      | [78.662275, 40.796289, 40.348665]                                               | [78.662275, 40.796289, 40.348665]                                                          | [56.617104, 49.715199]                                                       |
+| dC_HfC      | 1.4489481277169034 | NaN       | ['1 * 1', '2 C* 1']            | NaN                | ['1 C* 1', '2 * 1']           | NaN         | 1-2         | NaN         | tC tC      | [138.207451, 24.592242, 17.986572]                                               | [138.207451, 24.592242, 17.986572]                                                        | [85.015794, 66.512731]                                                       |
 
 ---
 
@@ -71,7 +80,7 @@ steps_data = {
         'area_site': 5.34,
         'final': ['1 O* 1', '2 O* 1'],
         'initial': ['1 * 1', '2 * 1'],
-        'molecule': 'O2',
+        'molecule_is': 'O2',
         'neighboring': '1-2',
         'prox_factor': 0.0,
         'site_types': 'tC tC',
@@ -84,7 +93,7 @@ steps_data = {
         'area_site': 5.34,
         'final': ['1 CO* 1'],
         'initial': ['1 * 1'],
-        'molecule': 'CO',
+        'molecule_is': 'CO',
         'prox_factor': 0.0,
         'site_types': 'tC',
         'vib_energies_fs': [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359],
@@ -96,7 +105,7 @@ steps_data = {
         'area_site': 5.34,
         'final': ['1 CO2* 1'],
         'initial': ['1 * 1'],
-        'molecule': 'CO2',
+        'molecule_is': 'CO2',
         'prox_factor': 0.0,
         'site_types': 'tC',
         'vib_energies_fs': [171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922],
@@ -168,7 +177,7 @@ Load reaction steps data from a CSV file. The CSV should have the required colum
 #### Example CSV (`mechanism_data.csv`)
 
 ```csv
-,index,activ_eng,area_site,final,graph_multiplicity,initial,molecule,neighboring,prox_factor,site_types,vib_energies_fs,vib_energies_is,vib_energies_ts
+,index,activ_eng,area_site,final,graph_multiplicity,initial,molecule_is,neighboring,prox_factor,site_types,vib_energies_fs,vib_energies_is,vib_energies_ts
 aO2_HfC,0.0,5.34,"['1 O* 1', '2 O* 1']",,"['1 * 1', '2 * 1']",O2,1-2,0.0,"tC tC","[78.662275, 40.796289, 40.348665, 78.662275, 40.796289, 40.348665]",[194.605883],[]
 aCO_HfC,0.0,5.34,"['1 CO* 1']",,"['1 * 1']",CO,,0.0,tC,"[240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359]",[263.427949],[]
 aCO2_HfC,0.0,5.34,"['1 CO2* 1']",,"['1 * 1']",CO2,,0.0,tC,"[171.188002, 145.668886, 96.963691, 86.25514, 56.201368, 52.375682, 35.933392, 24.342963, 21.024922]","[293.279791, 163.611086, 78.016609, 77.959489]",[]
@@ -222,7 +231,7 @@ data = {
         ['1 O* 1', '2 * 1'],
         ['1 C* 1', '2 * 1']
     ],
-    'molecule': ['O2', 'CO', 'CO2', None, None, None, None, None],
+    'molecule_is': ['O2', 'CO', 'CO2', None, None, None, None, None],
     'neighboring': ['1-2', None, None, '1-2', '1-2', '1-2', '1-2', '1-2'],
     'prox_factor': [0.0, 0.0, 0.0, None, None, None, None, None],
     'site_types': ['tC tC', 'tC', 'tC', 'tC tC', 'tC tC', 'tC tC', 'tC tC', 'tC tC'],
@@ -277,16 +286,11 @@ reaction_model = ReactionModel.from_df(df)
 
 ## Adding and removing steps
 
-You can modify an existing `ReactionModel` by adding or removing reaction steps.
+You can modify an existing model programmatically.
 
 ### Adding a step
 
-Use the `add_step` method to add a new reaction step.
-
-#### Example
-
 ```python
-# Define the new step data
 new_step = {
     'step_name': 'new_step',
     'activ_eng': 2.0,
@@ -298,25 +302,18 @@ new_step = {
     'site_types': 'tC'
 }
 
-# Add the step to the ReactionModel
 reaction_model.add_step(step_info=new_step)
 ```
 
 ### Removing steps
 
-Use the `remove_steps` method to remove steps by name.
-
-#### Example
-
 ```python
-# List of steps to remove
 steps_to_remove = ['aCO_HfC']
-
-# Remove steps from the ReactionModel
 reaction_model.remove_steps(steps_to_remove)
 ```
 
 ---
+
 
 ## Writing the `mechanism_input.dat` file
 
@@ -397,7 +394,7 @@ steps_data = {
         'area_site': 5.34,
         'final': ['1 O* 1', '2 O* 1'],
         'initial': ['1 * 1', '2 * 1'],
-        'molecule': 'O2',
+        'molecule_is': 'O2',
         'neighboring': '1-2',
         'prox_factor': 0.0,
         'site_types': 'tC tC',
@@ -417,7 +414,7 @@ reaction_model.add_step(step_info={
     'area_site': 5.34,
     'final': ['1 CO* 1'],
     'initial': ['1 * 1'],
-    'molecule': 'CO',
+    'molecule_is': 'CO',
     'prox_factor': 0.0,
     'site_types': 'tC',
     'vib_energies_fs': [240.497465, 82.738219, 60.132962, 60.080258, 7.271753, 6.553359],

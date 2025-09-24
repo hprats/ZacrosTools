@@ -83,22 +83,31 @@ The ZacrosTools documentation is organized into the following sections:
 
 ## Recent changes
 
-## [2.2] 20-Dec-2024
-
-### Added
-- **Plot event frequencies**: introduced the ability to parse the event frequencies from `procstat_output.txt` using `zacrostools.procstat_output` and visualize them.
-- **Plot stiffness coefficients**: added functionality to parse stiffness coefficient information from `general_output.txt` using `zacrostools.parse_general_output_file` and generate corresponding plots.
-- **Examples:**  
-  - **`DRM_on_PtHfC`**: Demonstrates how to analyze hundreds of output files to generate heatmaps and plot the event frequencies and stiffness coefficients.
-  - **`custom_lattice_models`**: Illustrates how to create custom lattice models for Zacros simulations.
+## [2.6] - 24-Sep-2025
 
 ### Changed
-- **Analysis of output files:**  
-  - Renamed `window_percent` to `analysis_range` 
-  - Renamed `window_type` to `range_type`
+- **Gas-phase molecule parameter update**: the deprecated `molecule` parameter has been replaced by two explicit parameters, `molecule_is` and `molecule_fs`, which indicate the presence of gas-phase species in the initial or final state of a step, respectively. Using `molecule` will trigger a `DeprecationWarning`.  
 
-### Improved
-- **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
+### Added
+- **Bidirectional gas-phase step support**: ZacrosTools now accepts the definition of reaction steps involving gas-phase species in either direction (initial or final state). Previously, gas-phase species were only allowed in the initial state (adsorption).  
+- **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
+  - Incompatible with `stiffness_scalable_steps='all'`.  
+  - Incompatible with listing fixed steps in either `stiffness_scalable_steps` or `stiffness_scalable_symmetric_steps`.
+## [2.5] - 30-Jul-2025
+
+### Added
+- **Additional keywords support**: added an `additional_keywords` parameter to `KMCModel.create_job_dir` and `write_simulation_input` to append additional Zacros keywords to `simulation_input.dat`.  
+- **`sign` parameter for ∆time heatmaps**: introduced a `sign` argument in `plot_dtime` (`'both'`, `'positive'`, or `'negative'`) to filter ∆time values by sign.  
+- **Issue masking in ∆TOF heatmaps**: added a `check_issues` parameter to `plot_dtof` (`'none'`, `'both'`, `'main'`, or `'ref'`) to mask cells flagged by `detect_issues`.  
+- **Unspecified state support**: `EnergeticsModel` now accepts the `& & &` placeholder in `lattice_state` definitions to represent unspecified site states.  
+- **Multidentate species support**: `EnergeticsModel` handles adsorbates multidentate surface species occupying multiple site types.  
+
+### Changed 
+- **Surface species name parsing**: removed the requirement that species names end with `*`. Surface species names now stay exactly as typed by the user (i.e. no removal of `*` at the end).
+
+### Fixed
+- **`parse_general_output_file` crash**: fixed a bug that caused a crash when an initial state is provided.
+- **∆TOF docstring & title logic**: corrected the relative ∆TOF formula in `plot_dtof`’s docstring.
 
 Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 

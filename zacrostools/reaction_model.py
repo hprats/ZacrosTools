@@ -1,11 +1,13 @@
 import ast
+import warnings
 from pathlib import Path
 from typing import Union, Optional
 import pandas as pd
 from zacrostools.header import write_header
-from zacrostools.calc_functions import calc_ads, calc_surf_proc
 from zacrostools.custom_exceptions import ReactionModelError, enforce_types
 from zacrostools.gas_model import GasModel
+from zacrostools.calc_functions import pe_surface, pe_activated_ads, pe_nonactivated_ads, pe_nonactivated_desorption
+
 
 
 class ReactionModel:
@@ -18,25 +20,26 @@ class ReactionModel:
         Information on the reaction model. The reaction name is taken as the index of each row.
 
         **Required columns**:
-
         - **initial** (list): Initial configuration in Zacros format, e.g., `['1 CO* 1', '2 * 1']`.
         - **final** (list): Final configuration in Zacros format, e.g., `['1 C* 1', '2 O* 1']`.
         - **activ_eng** (float): Activation energy (in eV).
         - **vib_energies_is** (list of float): Vibrational energies for the initial state (in meV). Do not include the ZPE.
         - **vib_energies_fs** (list of float): Vibrational energies for the final state (in meV). Do not include the ZPE.
 
-        **Mandatory for adsorption steps**:
+        **Mandatory when any gas species participates (adsorption/desorption/exchange)**:
+        - **area_site** (float): Area of the adsorption site (Å²). Required whenever gas species are involved.
 
-        - **molecule** (str): Gas-phase molecule involved. Only required for adsorption steps.
-        - **area_site** (float): Area of adsorption site (in Å²). Only required for adsorption steps.
+        **Mandatory for steps involving gas-phase species in the initial state**:
+        - **molecule_is** (str, optional): Gas species present in the initial state (e.g. adsorption).
+
+        **Mandatory for steps involving gas-phase species in the final state**:
+        - **molecule_fs** (str, optional): Gas species present in the final state (e.g. desorption).
 
         **Mandatory for activated adsorption steps and surface reaction steps**:
-
         - **vib_energies_ts** (list of float): Vibrational energies for the transition state (in meV).
           For non-activated adsorption steps, this value can be either undefined or an empty list, i.e., `[]`.
 
         **Optional columns**:
-
         - **site_types** (str): The types of each site in the pattern. Required if `lattice_type is 'periodic_cell'`.
         - **neighboring** (str): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
         - **prox_factor** (float): Proximity factor. Default is `None`.
@@ -46,19 +49,9 @@ class ReactionModel:
           (symmetric steps), such as diffusions to the same site type. For instance, diffusion of A* from top to top
           should have a value of `2`. Default is `1`.
 
-    Raises
-    ------
-    ReactionModelError
-        If `mechanism_data` is not provided, contains duplicates, or is invalid.
-
-    Examples
-    --------
-    Example DataFrame:
-
-    | index             | site_types | initial                  | final                    | activ_eng | vib_energies_is    | vib_energies_fs    | molecule | area_site | vib_energies_ts   | neighboring | prox_factor | angles        | graph_multiplicity |
-    |-------------------|------------|--------------------------|--------------------------|-----------|--------------------|--------------------|----------|-----------|-------------------|-------------|-------------|---------------|--------------------|
-    | CO_adsorption     | '1'        | ['1 * 1']                | ['1 CO* 1']              | 0.0       | [200.0, 300.0]     | [150.0, 250.0]     | 'CO'     | 6.5       | []                | NaN         | NaN         | NaN           | NaN                |
-    | Surface_reaction  | '1 1'      | ['1 CO* 1', '2 O* 1']    | ['1 * 1', '2 * 1']       | 0.5       | [200.0, 300.0, 400.0] | [150.0, 250.0, 350.0] | NaN      | NaN       | [250.0, 350.0, 450.0] | '1-2'       | 0.8         | '1-2-3:180'   | 2                  |
+        **Backward compatibility (deprecated)**:
+        - **molecule** (str, optional): Deprecated. If present, it is treated as `molecule_is`
+          and triggers a DeprecationWarning.
 
     """
 
@@ -69,51 +62,25 @@ class ReactionModel:
         'vib_energies_is',
         'vib_energies_fs'
     }
-    REQUIRED_ADS_COLUMNS = {'molecule', 'area_site'}
+    REQUIRED_ADS_COLUMNS = {'area_site'}
     REQUIRED_ACTIVATED_COLUMNS = {'vib_energies_ts'}
-    OPTIONAL_COLUMNS = {'site_types', 'neighboring', 'prox_factor', 'angles', 'graph_multiplicity'}
+    OPTIONAL_COLUMNS = {
+        'site_types', 'neighboring', 'prox_factor', 'angles', 'graph_multiplicity',
+        'molecule_is', 'molecule_fs', 'molecule'  # 'molecule' kept for backward compatibility
+    }
     LIST_COLUMNS = ['initial', 'final', 'vib_energies_is', 'vib_energies_fs', 'vib_energies_ts']
 
     @enforce_types
     def __init__(self, mechanism_data: pd.DataFrame = None):
-        """
-        Initialize the ReactionModel.
-
-        Parameters
-        ----------
-        mechanism_data : pandas.DataFrame
-            DataFrame containing the reaction mechanism data.
-
-        Raises
-        ------
-        ReactionModelError
-            If `mechanism_data` is not provided, contains duplicates, or is invalid.
-        """
         if mechanism_data is None:
             raise ReactionModelError("mechanism_data must be provided as a Pandas DataFrame.")
         self.df = mechanism_data.copy()
+        self._normalize_gas_columns()  # handle deprecated 'molecule' and ensure new columns exist
         self._validate_dataframe()
 
     @classmethod
     def from_dict(cls, steps_dict: dict):
-        """
-        Create a ReactionModel instance from a dictionary.
-
-        Parameters
-        ----------
-        steps_dict : dict
-            Dictionary where keys are step names and values are dictionaries of step properties.
-
-        Returns
-        -------
-        ReactionModel
-            An instance of ReactionModel.
-
-        Raises
-        ------
-        ReactionModelError
-            If the instance cannot be created from the provided dictionary due to duplicates or invalid data.
-        """
+        """Create a ReactionModel instance from a dictionary."""
         try:
             df = pd.DataFrame.from_dict(steps_dict, orient='index')
 
@@ -130,24 +97,7 @@ class ReactionModel:
 
     @classmethod
     def from_csv(cls, csv_path: Union[str, Path]):
-        """
-        Create a ReactionModel instance by reading a CSV file.
-
-        Parameters
-        ----------
-        csv_path : str or Path
-            Path to the CSV file.
-
-        Returns
-        -------
-        ReactionModel
-            An instance of ReactionModel.
-
-        Raises
-        ------
-        ReactionModelError
-            If the CSV file cannot be read, contains duplicates, or the data is invalid.
-        """
+        """Create a ReactionModel instance by reading a CSV file."""
         try:
             csv_path = Path(csv_path)
             if not csv_path.is_file():
@@ -165,13 +115,8 @@ class ReactionModel:
                 if col in df.columns:
                     df[col] = df[col].apply(cls._parse_list_cell)
                 else:
-                    # For 'vib_energies_ts', it might be missing if not applicable
-                    if col in cls.REQUIRED_ACTIVATED_COLUMNS:
-                        # If 'vib_energies_ts' is mandatory but missing, validation will catch it
-                        pass
-                    else:
-                        # For non-mandatory list columns, assign empty lists if missing
-                        df[col] = [[] for _ in range(len(df))]
+                    # If TS vib energies are mandatory in a given context, validation will catch it later
+                    df[col] = [[] for _ in range(len(df))]
 
             # Convert numerical columns to appropriate types
             numeric_columns = ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity']
@@ -187,24 +132,7 @@ class ReactionModel:
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
-        """
-        Create a ReactionModel instance from a Pandas DataFrame.
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame containing mechanism data.
-
-        Returns
-        -------
-        ReactionModel
-            An instance of ReactionModel.
-
-        Raises
-        ------
-        ReactionModelError
-            If the DataFrame contains duplicates or is invalid.
-        """
+        """Create a ReactionModel instance from a Pandas DataFrame."""
         # Check for duplicate step names
         if df.index.duplicated().any():
             duplicates = df.index[df.index.duplicated()].unique().tolist()
@@ -212,28 +140,123 @@ class ReactionModel:
 
         return cls(mechanism_data=df)
 
-    @staticmethod
-    def _parse_list_cell(cell: str) -> list:
-        """
-        Parse a cell expected to contain a list.
 
-        If the cell is NaN or empty, returns an empty list.
-        Otherwise, evaluates the string to a Python list.
+    def add_step(self, step_info: dict) -> None:
+        """
+        Add a new step to the reaction model.
 
         Parameters
         ----------
-        cell : str
-            The cell content as a string.
+        step_info : dict
+            Dictionary describing the step. Must include 'step_name' and the tags
+            for the step (e.g., 'initial', 'final', 'activ_eng', vib lists, etc.).
+            Example:
+                {
+                    'step_name': 'new_step',
+                    'activ_eng': 2.0,
+                    'final': ['1 * 1'],
+                    'initial': ['1 CO* 1'],
+                    'vib_energies_is': [150, 200],
+                    'vib_energies_fs': [100, 150],
+                    'vib_energies_ts': [125],
+                    'site_types': 'tC'
+                }
+        """
+        if not isinstance(step_info, dict):
+            raise ReactionModelError("add_step expects a dict 'step_info'.")
 
-        Returns
-        -------
-        list
-            The parsed list, or empty list if the cell is NaN or empty.
+        step_name = step_info.get('step_name', None)
+        if not step_name or not isinstance(step_name, str):
+            raise ReactionModelError("The new step must include a valid 'step_name' string.")
 
-        Raises
-        ------
-        ReactionModelError
-            If the cell cannot be parsed into a list.
+        if step_name in self.df.index:
+            raise ReactionModelError(f"A step named '{step_name}' already exists.")
+
+        # Only allow known columns
+        allowed = set(self.REQUIRED_COLUMNS) | set(self.OPTIONAL_COLUMNS) | set(self.LIST_COLUMNS)
+        provided_keys = set(step_info.keys()) - {'step_name'}
+        unknown = provided_keys - allowed
+        if unknown:
+            raise ReactionModelError(
+                f"Unknown keys in 'step_info' for step '{step_name}': {sorted(unknown)}.\n"
+                f"Allowed: {sorted(allowed)}"
+            )
+
+        # Ensure the dataframe has all allowed columns so we can assign safely
+        for col in allowed:
+            if col not in self.df.columns:
+                # create column with appropriate default
+                if col in self.LIST_COLUMNS:
+                    self.df[col] = [[] for _ in range(len(self.df))]
+                elif col == 'graph_multiplicity':
+                    self.df[col] = 1
+                else:
+                    self.df[col] = pd.NA
+
+        # Build a complete row respecting defaults
+        row_data = {}
+        for col in self.df.columns:
+            if col in self.LIST_COLUMNS:
+                val = step_info.get(col, [])
+                if not isinstance(val, list):
+                    raise ReactionModelError(
+                        f"Column '{col}' must be a list for step '{step_name}'. Got: {type(val)}"
+                    )
+                row_data[col] = val
+            elif col == 'graph_multiplicity':
+                row_data[col] = step_info.get(col, self.df[col].dtype.type(1) if hasattr(self.df[col].dtype, 'type') else 1)
+            else:
+                row_data[col] = step_info.get(col, pd.NA)
+
+        # Minimal presence checks before full validation
+        missing_required = self.REQUIRED_COLUMNS - set([k for k, v in row_data.items() if not (pd.isna(v) or v == [])])
+        # We allow vib_energies_ts to be empty (non-activated), but initial/final/activ_eng/vib_energies_is/fs must be provided
+        for must in ('initial', 'final', 'activ_eng', 'vib_energies_is', 'vib_energies_fs'):
+            if must not in step_info:
+                raise ReactionModelError(f"Missing required key '{must}' in step '{step_name}'.")
+
+        self.df.loc[step_name] = row_data
+        self._normalize_gas_columns()
+
+        # Coerce numeric columns if present
+        for col in ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity']:
+            if col in self.df.columns:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+
+        # Ensure vib_energies_ts always a list (empty allowed)
+        if 'vib_energies_ts' in self.df.columns:
+            self.df['vib_energies_ts'] = self.df['vib_energies_ts'].apply(
+                lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else v)
+            )
+
+        # Validate entire table (catches missing area_site when gas present, etc.)
+        self._validate_dataframe()
+
+
+    def remove_steps(self, steps_to_remove: list[str]) -> None:
+        """
+        Remove existing steps from the model.
+
+        Parameters
+        ----------
+        steps_to_remove : list of str
+            Names (index) of steps to remove.
+        """
+        if not isinstance(steps_to_remove, (list, tuple)) or not steps_to_remove:
+            raise ReactionModelError("remove_steps expects a non-empty list of step names.")
+
+        missing = [s for s in steps_to_remove if s not in self.df.index]
+        if missing:
+            raise ReactionModelError(f"Steps not found and cannot be removed: {missing}")
+
+        self.df = self.df.drop(index=list(steps_to_remove))
+
+
+    @staticmethod
+    def _parse_list_cell(cell: str) -> list:
+        """
+        Parse a cell expected to contain a list.If the cell is NaN or empty, returns an empty list.
+        Otherwise, evaluates the string to a Python list.
         """
         if pd.isna(cell) or cell.strip() == '':
             return []
@@ -242,20 +265,35 @@ class ReactionModel:
         except (ValueError, SyntaxError) as e:
             raise ReactionModelError(f"Failed to parse list from cell: {cell}. Error: {e}")
 
+    def _normalize_gas_columns(self):
+        """
+        Ensure 'molecule_is' and 'molecule_fs' exist.
+        If deprecated 'molecule' exists and 'molecule_is' is empty for a row,
+        migrate its value to 'molecule_is' and emit a DeprecationWarning.
+        """
+        # Ensure columns exist
+        for col in ('molecule_is', 'molecule_fs'):
+            if col not in self.df.columns:
+                self.df[col] = pd.NA
+
+        if 'molecule' in self.df.columns:
+            # Migrate row-wise where appropriate
+            for idx, row in self.df.iterrows():
+                mol = row.get('molecule', pd.NA)
+                mol_is = row.get('molecule_is', pd.NA)
+                if pd.notna(mol) and (pd.isna(mol_is) or mol_is in (None, '')):
+                    # Move deprecated 'molecule' -> 'molecule_is'
+                    self.df.at[idx, 'molecule_is'] = mol
+                    warnings.warn(
+                        f"[ReactionModel] Step '{idx}': 'molecule' is deprecated; "
+                        f"treating it as 'molecule_is'. Please update your inputs.",
+                        DeprecationWarning,
+                        stacklevel=2,
+                    )
+            # Keep the deprecated column, but do not rely on it anywhere else
+
     def _validate_dataframe(self, df: Optional[pd.DataFrame] = None):
-        """
-        Validate that the DataFrame contains the required columns and correct data types.
-
-        Parameters
-        ----------
-        df : pandas.DataFrame, optional
-            The DataFrame to validate. If None, uses `self.df`.
-
-        Raises
-        ------
-        ReactionModelError
-            If validation fails.
-        """
+        """Validate that the DataFrame contains the required columns and correct data types."""
         if df is None:
             df = self.df
 
@@ -268,19 +306,13 @@ class ReactionModel:
         if missing_columns:
             raise ReactionModelError(f"Missing required columns: {missing_columns}")
 
-        # Pre-process the 'vib_energies_ts' column:
-        # For non-activated adsorption steps (i.e. those with a defined gas-phase 'molecule'
-        # and an activation energy of 0.0), if the cell is missing (i.e. not a list and is NaN),
-        # replace it with an empty list.
-        if 'vib_energies_ts' in df.columns:
-            for idx, row in df.iterrows():
-                val = row['vib_energies_ts']
-                # Only check for NaN if 'val' is not already a list.
-                if not isinstance(val, list) and pd.isna(val):
-                    # Check if this is an adsorption step (has a molecule) with zero activation energy.
-                    if ('molecule' in row and pd.notna(row['molecule'])
-                            and row['activ_eng'] == 0.0):
-                        df.at[idx, 'vib_energies_ts'] = []
+        # Ensure vib_energies_ts always exists as a list
+        if 'vib_energies_ts' not in df.columns:
+            df['vib_energies_ts'] = [[] for _ in range(len(df))]
+        else:
+            df['vib_energies_ts'] = df['vib_energies_ts'].apply(
+                lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else v)
+            )
 
         # Validate data types for list columns
         for col in self.LIST_COLUMNS:
@@ -291,37 +323,42 @@ class ReactionModel:
             else:
                 raise ReactionModelError(f"Missing required column: '{col}'")
 
-        # Validate data types for numeric columns
+        # Validate numeric columns (if present)
         for col in ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity']:
             if col in df.columns:
-                if not pd.api.types.is_numeric_dtype(df[col]):
-                    invalid_steps = df[~df[col].apply(lambda x: isinstance(x, (int, float)))].index.tolist()
-                    raise ReactionModelError(f"Column '{col}' must contain numeric values. Invalid steps: {invalid_steps}")
+                # Allow NaNs; reject non-numeric non-NaNs
+                non_num = df[col].apply(lambda x: not (pd.isna(x) or isinstance(x, (int, float))))
+                if non_num.any():
+                    invalid_steps = df[non_num].index.tolist()
+                    raise ReactionModelError(
+                        f"Column '{col}' must contain numeric values or NaN. Invalid: {invalid_steps}")
 
-        # Validate 'site_types' column if present
-        if 'site_types' in df.columns:
-            if not df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
-                invalid_steps = df[~df['site_types'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
-                raise ReactionModelError(
-                    f"Column 'site_types' must contain string or NaN values. Invalid steps: {invalid_steps}")
-
-        # Validate 'neighboring' column if present
-        if 'neighboring' in df.columns:
-            if not df['neighboring'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
-                invalid_steps = df[~df['neighboring'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
-                raise ReactionModelError("Column 'neighboring' must contain string values or NaN.")
-
-        # Validate 'angles' column if present
-        if 'angles' in df.columns:
-            if not df['angles'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
-                invalid_steps = df[~df['angles'].apply(lambda x: isinstance(x, str) or pd.isna(x))].index.tolist()
-                raise ReactionModelError("Column 'angles' must contain string values or NaN.")
+        # Validate 'site_types', 'neighboring', 'angles' if present
+        for col in ['site_types', 'neighboring', 'angles', 'molecule_is', 'molecule_fs', 'molecule']:
+            if col in df.columns:
+                ok = df[col].apply(lambda x: isinstance(x, str) or pd.isna(x))
+                if not ok.all():
+                    invalid_steps = df[~ok].index.tolist()
+                    raise ReactionModelError(f"Column '{col}' must contain string values or NaN. Invalid: {invalid_steps}")
 
         # Assign default values for optional columns if missing
         if 'graph_multiplicity' not in df.columns:
             df['graph_multiplicity'] = 1
         else:
             df['graph_multiplicity'] = df['graph_multiplicity'].fillna(1)
+
+        # Whenever any gas species participates, area_site must be provided
+        if 'area_site' in df.columns:
+            needs_area = df.apply(
+                lambda r: pd.notna(r.get('molecule_is', pd.NA)) or pd.notna(r.get('molecule_fs', pd.NA)) or
+                          pd.notna(r.get('molecule', pd.NA)),
+                axis=1
+            )
+            missing_area = needs_area & df['area_site'].isna()
+            if missing_area.any():
+                bad = df[missing_area].index.tolist()
+                raise ReactionModelError(
+                    f"'area_site' is required when gas species participate. Missing for steps: {bad}")
 
     def write_mechanism_input(self,
                               output_dir: Union[str, Path],
@@ -331,7 +368,9 @@ class ReactionModel:
                               stiffness_scalable_steps: list = None,
                               stiffness_scalable_symmetric_steps: list = None,
                               sig_figs_energies: int = 8,
-                              sig_figs_pe: int = 8):
+                              sig_figs_pe: int = 8,
+                              fixed_pre_expon: Optional[dict[str, float]] = None,
+                              fixed_pe_ratio: Optional[dict[str, float]] = None):
         """
         Write the `mechanism_input.dat` file.
 
@@ -353,12 +392,62 @@ class ReactionModel:
             Number of significant figures for activation energies. Default is `8`.
         sig_figs_pe : int, optional
             Number of significant figures for pre-exponential factors. Default is `8`.
-
-        Raises
-        ------
-        ReactionModelError
-            If there are inconsistencies in the data or during file writing.
+        fixed_pre_expon : dict[str, float], optional
+            Optional map of step name -> fixed forward pre-exponential (as written to file).
+            If provided, `fixed_pe_ratio` must also be provided. Steps present here are written
+            using these fixed values (no manual scaling or graph multiplicity applied).
+            Units must match Zacros expectations: surface/desorption in s^-1; adsorption in bar^-1·s^-1.
+        fixed_pe_ratio : dict[str, float], optional
+            Optional map of step name -> fixed pre-exponential ratio (pe_fwd / pe_rev).
+            Must be provided together with `fixed_pre_expon` and have the same keys.
         """
+
+        # ---- Validate fixed pre-exponential inputs ----
+        if (fixed_pre_expon is None) ^ (fixed_pe_ratio is None):
+            raise ReactionModelError(
+                "If one of 'fixed_pre_expon' or 'fixed_pe_ratio' is provided, the other must also be provided."
+            )
+
+        fixed_steps = set()
+        if fixed_pre_expon is not None and fixed_pe_ratio is not None:
+            if not isinstance(fixed_pre_expon, dict) or not isinstance(fixed_pe_ratio, dict):
+                raise ReactionModelError("'fixed_pre_expon' and 'fixed_pe_ratio' must be dictionaries when provided.")
+            if set(fixed_pre_expon.keys()) != set(fixed_pe_ratio.keys()):
+                raise ReactionModelError("'fixed_pre_expon' and 'fixed_pe_ratio' must have identical step-name keys.")
+            # numeric, positive
+            for k in fixed_pre_expon:
+                try:
+                    pf = float(fixed_pre_expon[k])
+                    pr = float(fixed_pe_ratio[k])
+                except Exception:
+                    raise ReactionModelError(f"Fixed values for step '{k}' must be numeric.")
+                if pf <= 0.0 or pr <= 0.0:
+                    raise ReactionModelError(f"Fixed values for step '{k}' must be positive.")
+            fixed_steps = set(fixed_pre_expon.keys())
+
+        # ---- Enforce incompatibilities with stiffness-scalable options ----
+        # 1) 'all' for stiffness_scalable_steps is incompatible with any fixed steps
+        if fixed_steps and stiffness_scalable_steps == 'all':
+            raise ReactionModelError(
+                "Using fixed_pre_expon/fixed_pe_ratio is incompatible with stiffness_scalable_steps='all'."
+            )
+
+        # 2) Overlap with stiffness_scalable_steps list is not allowed
+        if fixed_steps and isinstance(stiffness_scalable_steps, (list, tuple, set)):
+            overlap = fixed_steps.intersection(set(stiffness_scalable_steps))
+            if overlap:
+                raise ReactionModelError(
+                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_steps."
+                )
+
+        # 3) Overlap with stiffness_scalable_symmetric_steps list is not allowed
+        if fixed_steps and isinstance(stiffness_scalable_symmetric_steps, (list, tuple, set)):
+            overlap = fixed_steps.intersection(set(stiffness_scalable_symmetric_steps))
+            if overlap:
+                raise ReactionModelError(
+                    f"Steps {sorted(overlap)} are fixed and cannot be in stiffness_scalable_symmetric_steps."
+                )
+
         # Handle default arguments
         if manual_scaling is None:
             manual_scaling = {}
@@ -368,11 +457,12 @@ class ReactionModel:
             stiffness_scalable_symmetric_steps = []
 
         # Check for inconsistent stiffness scaling configuration
-        if len(stiffness_scalable_steps) > 0 and len(stiffness_scalable_symmetric_steps) > 0:
+        if isinstance(stiffness_scalable_steps, (list, tuple, set)) and \
+                isinstance(stiffness_scalable_symmetric_steps, (list, tuple, set)):
             overlapping_steps = set(stiffness_scalable_steps).intersection(set(stiffness_scalable_symmetric_steps))
             if overlapping_steps:
                 raise ReactionModelError(
-                    f"Steps {overlapping_steps} cannot be in both 'stiffness_scalable_steps' and "
+                    f"Steps {sorted(overlapping_steps)} cannot be in both 'stiffness_scalable_steps' and "
                     f"'stiffness_scalable_symmetric_steps'."
                 )
 
@@ -389,8 +479,9 @@ class ReactionModel:
                 infile.write('mechanism\n\n')
                 infile.write('############################################################################\n\n')
                 for step in self.df.index:
-                    initial_state = self.df.loc[step, 'initial']
-                    final_state = self.df.loc[step, 'final']
+                    row = self.df.loc[step]
+                    initial_state = row['initial']
+                    final_state = row['final']
 
                     if len(initial_state) != len(final_state):
                         raise ReactionModelError(
@@ -400,13 +491,24 @@ class ReactionModel:
 
                     infile.write(f"reversible_step {step}\n\n")
 
-                    molecule = self.df.loc[step].get('molecule', None)
-                    if pd.notna(molecule):
-                        infile.write(f"  gas_reacs_prods {molecule} -1\n")
+                    # gas_reacs_prods assembly
+                    mol_is = row.get('molecule_is', pd.NA)
+                    mol_fs = row.get('molecule_fs', pd.NA)
+                    # Also consider deprecated 'molecule' for legacy CSVs where normalize ensured molecule_is
+                    if pd.notna(row.get('molecule', pd.NA)) and pd.isna(mol_is):
+                        mol_is = row.get('molecule')
+
+                    if pd.notna(mol_is) or pd.notna(mol_fs):
+                        line = "  gas_reacs_prods"
+                        if pd.notna(mol_is):
+                            line += f" {str(mol_is).strip()} -1"
+                        if pd.notna(mol_fs):
+                            line += f" {str(mol_fs).strip()} 1"
+                        infile.write(line + "\n")
 
                     infile.write(f"  sites {len(initial_state)}\n")
 
-                    neighboring = self.df.loc[step].get('neighboring', None)
+                    neighboring = row.get('neighboring', None)
                     if pd.notna(neighboring):
                         infile.write(f"  neighboring {neighboring}\n")
 
@@ -418,26 +520,36 @@ class ReactionModel:
                     for element in final_state:
                         infile.write(f"    {' '.join(element.split())}\n")
 
-                    site_types = self.df.loc[step].get('site_types', None)
+                    site_types = row.get('site_types', None)
                     if pd.notna(site_types):
                         infile.write(f"  site_types {site_types}\n")
 
-                    # Obtain pe_fwd and pe_ratio from get_pre_expon
-                    pe_fwd, pe_ratio = self.get_pre_expon(
-                        step=step,
-                        temperature=temperature,
-                        gas_model=gas_model,
-                        manual_scaling=manual_scaling
-                    )
+                    # Use fixed values if provided for this step; otherwise compute
+                    if step in fixed_steps:
+                        pe_fwd = float(fixed_pre_expon[step])
+                        pe_ratio = float(fixed_pe_ratio[step])
+                        # NOTE: For fixed values we do NOT apply manual scaling nor graph multiplicity;
+                        # they are treated as final values to be written as-is.
+                    else:
+                        pe_fwd, pe_ratio = self.get_pre_expon(
+                            step=step,
+                            temperature=temperature,
+                            gas_model=gas_model,
+                            manual_scaling=manual_scaling
+                        )
 
                     # Write pre_expon and pe_ratio
-                    if step in manual_scaling:
-                        infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # scaled {manual_scaling[step]:.8e}\n")
+                    if step in fixed_steps:
+                        infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # fixed\n")
                     else:
-                        infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}\n")
+                        if step in manual_scaling:
+                            infile.write(
+                                f"  pre_expon {pe_fwd:.{sig_figs_pe}e}   # scaled {manual_scaling[step]:.8e}\n")
+                        else:
+                            infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}\n")
 
+                    activ_eng = float(row['activ_eng'])
                     infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}\n")
-                    activ_eng = self.df.loc[step, 'activ_eng']
                     infile.write(f"  activ_eng {activ_eng:.{sig_figs_energies}f}\n")
 
                     # Write optional keywords only if they are provided
@@ -458,245 +570,192 @@ class ReactionModel:
         except IOError as e:
             raise ReactionModelError(f"Failed to write to '{output_file}': {e}")
 
-    def get_step_type(self, step: str) -> str:
-        """
-        Determine the type of a given step based on its properties.
-
-        Parameters
-        ----------
-        step : str
-            The name of the reaction step.
-
-        Returns
-        -------
-        str
-            The type of the step:
-            - 'non_activated_adsorption'
-            - 'activated_adsorption'
-            - 'surface_reaction'
-
-        Raises
-        ------
-        ReactionModelError
-            If the step type cannot be determined.
-        """
-        molecule = self.df.loc[step].get('molecule', None)
-        if pd.isna(molecule) or molecule is None:
-            return 'surface_reaction'
-        vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
-        if not isinstance(vib_energies_ts, list):
-            raise ReactionModelError(f"Invalid 'vib_energies_ts' for step {step}. Must be a list.")
-        if len(vib_energies_ts) == 0:
-            return 'non_activated_adsorption'
-        else:
-            return 'activated_adsorption'
 
     def get_pre_expon(self, step: str, temperature: float, gas_model: GasModel, manual_scaling: dict) -> tuple:
         """
-        Calculate the forward pre-exponential and the pre-exponential ratio.
-
-        These values are required for the `mechanism_input.dat` file.
-
-        Parameters
-        ----------
-        step : str
-            The name of the reaction step.
-        temperature : float
-            Temperature in Kelvin.
-        gas_model : GasModel
-            Instance of GasModel containing gas-phase molecule data.
-        manual_scaling : dict
-            Dictionary for manual scaling factors per step.
-
-        Returns
-        -------
-        tuple
-            A tuple containing `(pe_fwd, pe_ratio)`.
-
-        Raises
-        ------
-        ReactionModelError
-            If vibrational energies contain 0.0 or other calculation errors.
+        Calculate the forward pre-exponential and the pre-exponential ratio (pe_fwd / pe_rev).
+        Forward RS is IS; reverse RS is FS. Each direction may be surface or adsorption
+        (activated/non-activated) and is treated independently.
         """
-        vib_energies_is = self.df.loc[step, 'vib_energies_is']
-        vib_energies_ts = self.df.loc[step, 'vib_energies_ts']
-        vib_energies_fs = self.df.loc[step, 'vib_energies_fs']
+        # Compute raw (unscaled) pe_fwd and pe_rev
+        pe_fwd = self._pe_for_direction(step=step, direction="fwd", T=temperature, gas_model=gas_model)
+        pe_rev = self._pe_for_direction(step=step, direction="rev", T=temperature, gas_model=gas_model)
 
-        # Check for zero vibrational energies
-        for energy_list, label in zip(
-                [vib_energies_is, vib_energies_ts, vib_energies_fs],
-                ['initial state', 'transition state', 'final state']
-        ):
-            if any(e == 0.0 for e in energy_list):
-                raise ReactionModelError(f"Vibrational energy of 0.0 found in {label} of step {step}.")
+        # ---- Convert adsorption pre-exponentials from Pa^-1·s^-1 to bar^-1·s^-1 (Zacros uses bar) ----
+        # Identify process type per direction
+        proc_fwd = self._get_process_type(step, "fwd")
+        proc_rev = self._get_process_type(step, "rev")
 
-        step_type = self.get_step_type(step)
+        PA_TO_BAR_FACTOR = 1.0e5  # multiply Pa^-1·s^-1 by 1e5 to get bar^-1·s^-1
 
-        if 'adsorption' in step_type:
-            molecule = self.df.loc[step, 'molecule']
-            try:
-                molec_data = gas_model.df.loc[molecule]
-                molec_mass = molec_data['gas_molec_weight']
-                inertia_moments = molec_data['inertia_moments']
-                sym_number = molec_data['sym_number']
-                degeneracy = molec_data['degeneracy']
-                if step_type == 'non_activated_adsorption':
-                    vib_energies_ts = []
-                pe_fwd, pe_rev = calc_ads(
-                    area_site=self.df.loc[step, 'area_site'],
-                    molec_mass=molec_mass,
-                    temperature=temperature,
-                    vib_energies_is=vib_energies_is,
-                    vib_energies_ts=vib_energies_ts,
-                    vib_energies_fs=vib_energies_fs,
-                    inertia_moments=inertia_moments,
-                    sym_number=int(sym_number),
-                    degeneracy=degeneracy
-                )
-            except KeyError as e:
-                raise ReactionModelError(f"Missing gas data for molecule '{molecule}': {e}")
-        else:  # surface reaction
-            pe_fwd, pe_rev = calc_surf_proc(
-                temperature=temperature,
-                vib_energies_is=vib_energies_is,
-                vib_energies_ts=vib_energies_ts,
-                vib_energies_fs=vib_energies_fs
-            )
+        if proc_fwd in ("activated_adsorption", "non_activated_adsorption"):
+            pe_fwd *= PA_TO_BAR_FACTOR
+        if proc_rev in ("activated_adsorption", "non_activated_adsorption"):
+            pe_rev *= PA_TO_BAR_FACTOR
+        # -----------------------------------------------------------------------------------------------
 
-        # Apply manual scaling if applicable
+        # Apply manual scaling if applicable (both directions)
         if step in manual_scaling:
-            pe_fwd *= manual_scaling[step]
-            pe_rev *= manual_scaling[step]
+            scale = float(manual_scaling[step])
+            pe_fwd *= scale
+            pe_rev *= scale
 
-        # Apply graph multiplicity if applicable
+        # Apply graph multiplicity if applicable (divide both)
         graph_multiplicity = self.df.loc[step].get('graph_multiplicity', 1)
         if graph_multiplicity is not None and not pd.isna(graph_multiplicity):
-            pe_fwd /= float(graph_multiplicity)
-            pe_rev /= float(graph_multiplicity)
+            gm = float(graph_multiplicity)
+            if gm != 0.0:
+                pe_fwd /= gm
+                pe_rev /= gm
 
-        if pe_rev == 0:
-            raise ReactionModelError(f"Pre-exponential ratio division by zero for step {step}.")
+        if pe_rev == 0.0:
+            raise ReactionModelError(f"Computed pe_rev == 0 for step '{step}', cannot compute pe_ratio.")
         pe_ratio = pe_fwd / pe_rev
 
         return pe_fwd, pe_ratio
 
-    def add_step(self, step_info: dict = None, step_series: pd.Series = None):
+
+    def _pe_for_direction(self, step: str, direction: str, T: float, gas_model: GasModel) -> float:
         """
-        Add a new reaction step to the model.
-
-        Parameters
-        ----------
-        step_info : dict, optional
-            Dictionary containing step properties. Must include a key `'step_name'` to specify the step's name.
-        step_series : pandas.Series, optional
-            Pandas Series containing step properties. Must include `'step_name'` as part of the Series data.
-
-        Raises
-        ------
-        ReactionModelError
-            If neither `step_info` nor `step_series` is provided, or if required fields are missing,
-            or if the step already exists.
+        Compute pe for one direction ('fwd' or 'rev') using step-level activation logic.
         """
-        if step_info is not None and step_series is not None:
-            raise ReactionModelError("Provide either 'step_info' or 'step_series', not both.")
+        row = self.df.loc[step]
+        proc_type = self._get_process_type(step, direction)
 
-        if step_info is None and step_series is None:
-            raise ReactionModelError("Either 'step_info' or 'step_series' must be provided.")
+        # Pick RS (reactant-side) vibrational list according to direction
+        vib_RS_meV = row['vib_energies_is'] if direction == "fwd" else row['vib_energies_fs']
+        vib_TS_meV = row.get('vib_energies_ts', [])
 
-        if step_info is not None:
-            if 'step_name' not in step_info:
-                raise ReactionModelError("Missing 'step_name' in step_info dictionary.")
-            step_name = step_info.pop('step_name')
-            new_data = step_info
-        else:
-            if 'step_name' not in step_series:
-                raise ReactionModelError("Missing 'step_name' in step_series.")
-            step_name = step_series.pop('step_name')
-            new_data = step_series.to_dict()
+        if proc_type == "surface_process":
+            # Activated step with no gas in RS -> surface process requires TS vibes
+            if not isinstance(vib_TS_meV, list) or len(vib_TS_meV) == 0:
+                raise ReactionModelError(
+                    f"vib_energies_ts must be provided for surface processes (step {step}, dir={direction})."
+                )
+            return pe_surface(vib_TS_meV=vib_TS_meV, vib_RS_meV=vib_RS_meV or [], T=T)
 
-        # Parse 'initial', 'final', and vibrational energies using _parse_list_cell
-        for list_col in ['initial', 'final', 'vib_energies_is', 'vib_energies_fs', 'vib_energies_ts']:
-            if list_col in new_data:
-                new_data[list_col] = self._parse_list_cell(new_data[list_col])
-            else:
-                if list_col in self.REQUIRED_COLUMNS:
-                    raise ReactionModelError(f"Missing required column '{list_col}' in new step '{step_name}'.")
-                else:
-                    new_data[list_col] = []
-
-        # Convert 'graph_multiplicity' to numeric if present
-        if 'graph_multiplicity' in new_data:
+        if proc_type == "activated_adsorption":
+            # Activated adsorption: need area + RS gas molecule + TS vibes
+            if 'area_site' not in self.df.columns or pd.isna(row.get('area_site', pd.NA)):
+                raise ReactionModelError(
+                    f"'area_site' is required for activated adsorption (step='{step}', direction='{direction}')."
+                )
+            rs_molecule = self._get_rs_molecule(step, direction)
+            if rs_molecule is None:
+                raise ReactionModelError(
+                    f"Activated adsorption detected but RS molecule not found (step='{step}', dir='{direction}')."
+                )
             try:
-                if pd.isna(new_data['graph_multiplicity']) or new_data['graph_multiplicity'] == '':
-                    new_data['graph_multiplicity'] = 1
-                else:
-                    new_data['graph_multiplicity'] = float(new_data['graph_multiplicity'])
-            except ValueError:
-                raise ReactionModelError(f"'graph_multiplicity' for step '{step_name}' must be numeric.")
-        else:
-            new_data['graph_multiplicity'] = 1
+                molec_data = gas_model.df.loc[rs_molecule]
+            except KeyError:
+                raise ReactionModelError(f"Gas species '{rs_molecule}' (step='{step}') not found in GasModel.")
+            if not isinstance(vib_TS_meV, list) or len(vib_TS_meV) == 0:
+                raise ReactionModelError("vib_energies_ts must be provided for activated adsorption.")
+            return pe_activated_ads(
+                A_ang2=row['area_site'],
+                molec_data=molec_data,
+                vib_TS_meV=vib_TS_meV,
+                vib_RS_meV=vib_RS_meV or [],
+                T=T
+            )
 
-        # Assign default values for optional columns if missing or NaN (excluding 'prox_factor')
-        for optional_col in self.OPTIONAL_COLUMNS - {'prox_factor'}:
-            if optional_col not in new_data or pd.isna(new_data[optional_col]):
-                new_data[optional_col] = None
+        if proc_type == "non_activated_adsorption":
+            # Non-activated adsorption: need area + RS gas molecule
+            if 'area_site' not in self.df.columns or pd.isna(row.get('area_site', pd.NA)):
+                raise ReactionModelError(
+                    f"'area_site' is required for non-activated adsorption (step='{step}', direction='{direction}')."
+                )
+            rs_molecule = self._get_rs_molecule(step, direction)
+            if rs_molecule is None:
+                raise ReactionModelError(
+                    f"Non-activated adsorption detected but RS molecule not found (step='{step}', dir='{direction}')."
+                )
+            try:
+                molec_data = gas_model.df.loc[rs_molecule]
+            except KeyError:
+                raise ReactionModelError(f"Gas species '{rs_molecule}' (step='{step}') not found in GasModel.")
+            return pe_nonactivated_ads(
+                A_ang2=row['area_site'],
+                mass_amu=molec_data['gas_molec_weight'],
+                T=T
+            )
 
-        # Ensure 'prox_factor' is handled correctly
-        if 'prox_factor' not in new_data or pd.isna(new_data['prox_factor']):
-            new_data['prox_factor'] = None
-
-        new_row = pd.Series(new_data, name=step_name)
-
-        # Validate required columns
-        missing_columns = self.REQUIRED_COLUMNS - set(new_row.index)
-        if missing_columns:
-            raise ReactionModelError(f"Missing required columns in the new step: {missing_columns}")
-
-        # Additional validation for adsorption steps
-        if pd.notna(new_row.get('molecule', pd.NA)):
-            missing_ads_columns = self.REQUIRED_ADS_COLUMNS - set(new_row.index)
-            if missing_ads_columns:
-                raise ReactionModelError(f"Missing required adsorption columns in the new step: {missing_ads_columns}")
-
-        # Additional validation for activated steps
-        vib_energies_ts = new_row.get('vib_energies_ts', [])
-        if isinstance(vib_energies_ts, list) and len(vib_energies_ts) > 0:
-            missing_activated_columns = self.REQUIRED_ACTIVATED_COLUMNS - set(new_row.index)
-            if missing_activated_columns:
-                raise ReactionModelError(f"Missing required columns for activated step: {missing_activated_columns}")
-        elif not isinstance(vib_energies_ts, list):
-            raise ReactionModelError(f"'vib_energies_ts' must be a list for step '{step_name}'.")
-
-        # Check for duplicate step name
-        if step_name in self.df.index:
-            raise ReactionModelError(f"Step '{step_name}' already exists in the model.")
-
-        temp_df = pd.concat([self.df, new_row.to_frame().T], ignore_index=False)
-
-        # Validate the temporary DataFrame
+        # non_activated_desorption:
+        # RS has no gas, PS has a gas molecule; need area + PS gas molecule and PS partition
+        if 'area_site' not in self.df.columns or pd.isna(row.get('area_site', pd.NA)):
+            raise ReactionModelError(
+                f"'area_site' is required for non-activated desorption (step='{step}', direction='{direction}')."
+            )
+        ps_molecule = self._get_ps_molecule(step, direction)
+        if ps_molecule is None:
+            raise ReactionModelError(
+                f"Non-activated desorption detected but PS molecule not found (step='{step}', dir='{direction}')."
+            )
         try:
-            self._validate_dataframe(temp_df)
-        except ReactionModelError as e:
-            raise ReactionModelError(f"Invalid data for new step '{step_name}': {e}")
+            molec_data_ps = gas_model.df.loc[ps_molecule]
+        except KeyError:
+            raise ReactionModelError(f"Gas species '{ps_molecule}' (step='{step}') not found in GasModel.")
 
-        self.df = temp_df
+        # vib_PS_meV: use the vib list of the product state for this direction
+        vib_PS_meV = row['vib_energies_fs'] if direction == "fwd" else row['vib_energies_is']
 
-    def remove_steps(self, step_names: list):
+        return pe_nonactivated_desorption(
+            A_ang2=row['area_site'],
+            molec_data=molec_data_ps,
+            vib_PS_meV=vib_PS_meV or [],
+            vib_RS_meV_surface=vib_RS_meV or [],
+            T=T
+        )
+
+    def _get_rs_molecule(self, step: str, direction: str):
         """
-        Remove existing reaction steps from the model.
-
-        Parameters
-        ----------
-        step_names : list
-            List of step names to be removed.
-
-        Raises
-        ------
-        ReactionModelError
-            If any of the step names do not exist in the model.
+        Return the gas molecule name for the Reactant State (RS) of the given direction,
+        or None if there is no gas-phase molecule in the RS.
+        Forward RS uses 'molecule_is', reverse RS uses 'molecule_fs'.
         """
-        missing_steps = [name for name in step_names if name not in self.df.index]
-        if missing_steps:
-            raise ReactionModelError(f"The following steps do not exist and cannot be removed: {missing_steps}")
+        row = self.df.loc[step]
+        if direction == "fwd":
+            mol = row.get("molecule_is", pd.NA)
+            if pd.isna(mol) and pd.notna(row.get("molecule", pd.NA)):  # legacy fallback
+                mol = row.get("molecule")
+        else:
+            mol = row.get("molecule_fs", pd.NA)
+        return None if (pd.isna(mol) or mol in ("", None)) else str(mol).strip()
 
-        self.df = self.df.drop(step_names)
+
+    def _get_ps_molecule(self, step: str, direction: str):
+        """
+        Return the gas molecule name for the Product State (PS) of the given direction,
+        or None if there is no gas-phase molecule in the PS.
+        Forward PS uses 'molecule_fs'; reverse PS uses 'molecule_is' (legacy fallback 'molecule').
+        """
+        row = self.df.loc[step]
+        if direction == "fwd":
+            mol = row.get("molecule_fs", pd.NA)
+        else:
+            mol = row.get("molecule_is", pd.NA)
+            if pd.isna(mol) and pd.notna(row.get("molecule", pd.NA)):  # legacy fallback
+                mol = row.get("molecule")
+        return None if (pd.isna(mol) or mol in ("", None)) else str(mol).strip()
+
+
+    def _get_process_type(self, step: str, direction: str) -> str:
+        """
+        Step-level activation first:
+          - If step is 'activated' (vib_energies_ts non-empty):
+              if RS has gas  -> 'activated_adsorption'
+              else           -> 'surface_process'
+          - If step is 'non-activated' (vib_energies_ts empty):
+              if RS has gas  -> 'non_activated_adsorption'
+              else           -> 'non_activated_desorption'
+        """
+        row = self.df.loc[step]
+        vib_ts = row.get("vib_energies_ts", [])
+        step_is_activated = isinstance(vib_ts, list) and len(vib_ts) > 0
+
+        rs_mol = self._get_rs_molecule(step, direction)
+
+        if step_is_activated:
+            return "activated_adsorption" if rs_mol is not None else "surface_process"
+        else:
+            return "non_activated_adsorption" if rs_mol is not None else "non_activated_desorption"

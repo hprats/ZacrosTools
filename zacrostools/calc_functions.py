@@ -1,163 +1,150 @@
-import numpy as np
-from math import sqrt, exp
-from scipy.constants import pi, N_A, k, h, physical_constants
-from zacrostools.custom_exceptions import CalcFunctionsError
+import math
+from typing import Iterable, Sequence, Mapping, Any
 
-k_eV = physical_constants["Boltzmann constant in eV/K"][0]
-atomic_mass = physical_constants["atomic mass constant"][0]
+# ------------------------------
+# Constants (SI and eV flavors)
+# ------------------------------
+KB_J = 1.380649e-23            # Boltzmann constant [J/K]
+KB_eV = 8.617333262145179e-05  # Boltzmann constant [eV/K]
+H = 6.62607015e-34             # Planck constant [J*s]
+N_A = 6.02214076e+23           # Avogadro number
+AMU = 1.0e-3 / N_A             # 1 amu in kg
+ANG2_to_m2 = 1.0e-20           # Å^2 -> m^2
+amuA2_to_kgm2 = AMU * 1.0e-20  # (amu * Å^2) -> kg*m^2
+PI = 3.141592653589793
+TWO_PI = 2.0 * PI
 
 
-def find_nearest(array, value):
-    """Finds the element of an array whose value is closest to a given value, and returns its index.
+# ---------- Basic helpers ----------
+def as_eV_list(meV_list: Iterable[float]) -> list[float]:
+    """Convert list of energies in meV to eV. Empty/None -> []."""
+    if not meV_list:
+        return []
+    return [float(x) * 1.0e-3 for x in meV_list]
 
-    Parameters
-    ----------
-    array: np.Array
-    value: float
 
-    Returns
-    -------
-    array[idx]: int
-
+def q_vib(energies_meV: Sequence[float], T: float) -> float:
     """
-    array = np.asarray(array)
-    idx = (np.abs(array - value)).argmin()
-    return array[idx]
-
-
-def get_q_vib(temperature, vib_energies):
-    """Calculates the vibrational partition function.
-
-    Parameters
-    ----------
-    temperature: float
-        Temperature (in K)
-    vib_energies: list of float
-        Vibrational energies of the molecule or adsorbate (in meV)
-
-    Returns
-    -------
-    q_vib: float
-        Vibrational partition function
-
+    Vibrational partition function (product over modes) using harmonic oscillator.
+    q_vib_x = exp(-v/(2 k T)) / (1 - exp(-v/(k T)))
+    Energies given in meV.
     """
-    q_vib = 1.0
-    for v in vib_energies:
-        q_vib = q_vib * exp(- v / (1000 * 2 * k_eV * temperature)) / (1 - exp(- v / (1000 * k_eV * temperature)))
-    return q_vib
+    energies_eV = as_eV_list(energies_meV)
+    if not energies_eV:
+        return 1.0
+    beta = 1.0 / (KB_eV * T)  # 1/eV
+    q = 1.0
+    for v in energies_eV:
+        if v <= 0.0:
+            continue
+        x = v * beta
+        numerator = math.exp(-0.5 * x)
+        denom = 1.0 - math.exp(-x)
+        if denom <= 0.0:
+            denom = 1.0
+        q *= (numerator / denom)
+    return q
 
 
-def get_q_rot(temperature, inertia_moments: list, sym_number):
-    """Calculates the rotational partition function.
+def q_trans2D(A_ang2: float, mass_amu: float, T: float) -> float:
+    """2D translational PF: q_trans2D = A * 2*pi*m*k*T / h^2 (dimensionless)."""
+    A = float(A_ang2) * ANG2_to_m2
+    m = float(mass_amu) * AMU
+    return A * (TWO_PI * m * KB_J * T) / (H ** 2)
 
-    Parameters
-    ----------
-    temperature: float
-        Temperature (in K)
-    inertia_moments: list
-        Moments of inertia in amu·Å^2. 1 element for linear molecules, 3 elements for non-linear molecules. Can be
-        obtained from ase.Atoms.get_moments_of_inertia()
-    sym_number: int
-        Molecule symmetry number
 
-    Returns
-    -------
-    q_rot_gas: float
-        Rotational partition function
-
+def q_rot(inertia_moments: Sequence[float], sym_number: float, T: float) -> float:
     """
-
-    if len(inertia_moments) == 1:  # linear
-        i = inertia_moments[0] * atomic_mass / 1.0e20  # from amu*Å2 to kg*m2
-        q_rot_gas = 8 * pi ** 2 * i * k * temperature / (sym_number * h ** 2)
-    elif len(inertia_moments) == 3:  # non-linear
-        i_a = inertia_moments[0] * atomic_mass / 1.0e20
-        i_b = inertia_moments[1] * atomic_mass / 1.0e20
-        i_c = inertia_moments[2] * atomic_mass / 1.0e20
-        q_rot_gas = (sqrt(pi * i_a * i_b * i_c) / sym_number) * (8 * pi ** 2 * k * temperature / h ** 2) ** (3 / 2)
+    Rotational PF (rigid rotor).
+      Linear (len=1): 8*pi^2*I*k*T / (sigma*h^2)
+      Non-linear (len=3): (sqrt(pi*Ia*Ib*Ic)/sigma) * (8*pi^2*k*T/h^2)^(3/2)
+    inertia in amu*Å^2.
+    """
+    if len(inertia_moments) == 1:
+        I = float(inertia_moments[0]) * amuA2_to_kgm2
+        sigma = float(sym_number) if sym_number else 1.0
+        return (8.0 * (math.pi ** 2) * I * KB_J * T) / (sigma * (H ** 2))
+    elif len(inertia_moments) == 3:
+        Ia = float(inertia_moments[0]) * amuA2_to_kgm2
+        Ib = float(inertia_moments[1]) * amuA2_to_kgm2
+        Ic = float(inertia_moments[2]) * amuA2_to_kgm2
+        sigma = float(sym_number) if sym_number else 1.0
+        factor = 8.0 * (math.pi ** 2) * KB_J * T / (H ** 2)
+        return (math.sqrt(math.pi * Ia * Ib * Ic) / sigma) * (factor ** 1.5)
     else:
-        raise CalcFunctionsError(f"len(inertia_moments) = {len(inertia_moments)}. Valid values are 1 (linear) or 3 "
-                                 f"(non-linear)")
-    return q_rot_gas
+        raise ValueError("inertia_moments must have length 1 (linear) or 3 (non-linear).")
 
 
-def calc_ads(area_site, molec_mass, temperature, vib_energies_is, vib_energies_ts, vib_energies_fs,
-             inertia_moments, sym_number, degeneracy):
-    """Calculates the forward and reverse pre-exponential factors for a reversible activated adsorption.
+def q_elec(degeneracy: float | int | None) -> float:
+    """Electronic PF ~ ground-state degeneracy."""
+    try:
+        g = float(degeneracy)
+    except Exception:
+        g = 1.0
+    return max(g, 1.0)
 
-    Parameters
-    ----------
-    area_site: float
-        Area of an adsorption site (in Å^2)
-    molec_mass: float
-        Molecular mass (in g/mol) of the gas species
-    temperature: float
-        Temperature (in K)
-    vib_energies_is: list
-        Vibrational energies for the initial state (in meV)
-    vib_energies_ts: list
-        Vibrational energies for the transition state (in meV)
-    vib_energies_fs: list
-        Vibrational energies for the final state (in meV)
-    inertia_moments: list
-        Moments of inertia for the gas-phase molecule (in amu·Å^2). 1 element for linear molecules, 3 elements for
-        non-linear molecules. Can be obtained from ase.Atoms.get_moments_of_inertia()
-    sym_number: int
-        Symmetry number of the molecule
-    degeneracy: int
-        Degeneracy of the ground state, for the calculation of the electronic partition function. Default value: 1
 
-    Returns
-    -------
-    pe_fwd: float
-        Pre-exponential factor in the forward direction (in s^-1·bar^-1)
-    pe_rev: float
-        Pre-exponential factor in the reverse direction (in s^-1)
-
+def gas_RS_partition(A_ang2: float,
+                     molec_data: Mapping[str, Any],
+                     vib_RS_meV: Sequence[float],
+                     T: float) -> float:
     """
-    area_site = area_site * 1.0e-20  # Å^2 to m^2
-    m = molec_mass * 1.0e-3 / N_A  # g/mol to kg/molec
-    q_vib_gas = get_q_vib(temperature=temperature, vib_energies=vib_energies_is)
-    q_rot_gas = get_q_rot(temperature=temperature, inertia_moments=inertia_moments, sym_number=sym_number)
-    q_trans_2d_gas = area_site * 2 * pi * m * k * temperature / h ** 2
-    q_el_gas = degeneracy
-    q_vib_ads = get_q_vib(temperature=temperature, vib_energies=vib_energies_fs)
-    if not vib_energies_ts:  # non-activated if vib_energies_ts == []
-        pe_fwd = area_site / sqrt(2 * pi * m * k * temperature) * 1e5  # Pa-1 to bar-1
-        pe_rev = (q_el_gas * q_vib_gas * q_rot_gas * q_trans_2d_gas / q_vib_ads) * (k * temperature / h)
-    else:  # activated if vib_energies_ts != []
-        q_vib_ts = get_q_vib(temperature=temperature, vib_energies=vib_energies_ts)
-        pe_fwd = (q_vib_ts / (q_el_gas * q_vib_gas * q_rot_gas * q_trans_2d_gas)) * (area_site / sqrt(2 * pi * m * k * temperature))
-        pe_fwd = pe_fwd * 1e5  # Pa-1 to bar-1
-        pe_rev = (q_vib_ts / q_vib_ads) * (k * temperature / h)
-    return pe_fwd, pe_rev
-
-
-def calc_surf_proc(temperature, vib_energies_is, vib_energies_ts, vib_energies_fs):
-    """Calculates the forward and reverse pre-exponential factors for a reversible surface process.
-
-    Parameters
-    ----------
-    temperature: float
-        Temperature (in K)
-    vib_energies_is: list
-        Vibrational energies for the initial state (in meV)
-    vib_energies_ts: list
-        Vibrational energies for the transition state (in meV)
-    vib_energies_fs: list
-        Vibrational energies for the final state (in meV)
-
-    Returns
-    -------
-    pe_fwd: float
-        Pre-exponential factor in the forward direction (in s^-1)
-    pe_rev: float
-        Pre-exponential factor in the reverse direction (in s^-1)
-
+    RS partition function for adsorption (gas in RS):
+      q_RS = q_trans2D * q_rot * q_vib * q_elec
     """
-    q_vib_initial = get_q_vib(temperature=temperature, vib_energies=vib_energies_is)
-    q_vib_ts = get_q_vib(temperature=temperature, vib_energies=vib_energies_ts)
-    q_vib_final = get_q_vib(temperature=temperature, vib_energies=vib_energies_fs)
-    pe_fwd = (q_vib_ts / q_vib_initial) * (k * temperature / h)
-    pe_rev = (q_vib_ts / q_vib_final) * (k * temperature / h)
-    return pe_fwd, pe_rev
+    mass_amu = molec_data['gas_molec_weight']
+    imoms = molec_data['inertia_moments']      # len 1 or 3
+    sigma = molec_data.get('sym_number', 1)
+    degen = molec_data.get('degeneracy', 1)
+
+    return (q_trans2D(A_ang2, mass_amu, T)
+            * q_rot(imoms, sigma, T)
+            * q_vib(vib_RS_meV, T)
+            * q_elec(degen))
+
+
+# ---------- Pre-exponential calculators ----------
+def pe_surface(vib_TS_meV: Sequence[float], vib_RS_meV: Sequence[float], T: float) -> float:
+    """Surface process: pe = (kB*T/h) * (q_TS / q_RS). Vib-only PFs."""
+    q_TS = q_vib(vib_TS_meV, T)
+    q_RS = q_vib(vib_RS_meV, T)
+    return (KB_J * T / H) * (q_TS / (q_RS if q_RS > 0.0 else 1.0))
+
+
+def pe_activated_ads(A_ang2: float,
+                     molec_data: Mapping[str, Any],
+                     vib_TS_meV: Sequence[float],
+                     vib_RS_meV: Sequence[float],
+                     T: float) -> float:
+    """Activated adsorption: pe = A / sqrt(2*pi*m*k*T) * (q_TS / q_RS)."""
+    m = float(molec_data['gas_molec_weight']) * AMU
+    pref = (float(A_ang2) * ANG2_to_m2) / math.sqrt(TWO_PI * m * KB_J * T)
+    q_TS = q_vib(vib_TS_meV, T)
+    q_RS = gas_RS_partition(A_ang2, molec_data, vib_RS_meV, T)
+    return pref * (q_TS / (q_RS if q_RS > 0.0 else 1.0))
+
+
+def pe_nonactivated_ads(A_ang2: float, mass_amu: float, T: float) -> float:
+    """Non-activated adsorption (2D gas-like TS): pe = A / sqrt(2*pi*m*k*T)."""
+    m = float(mass_amu) * AMU
+    return (float(A_ang2) * ANG2_to_m2) / math.sqrt(TWO_PI * m * KB_J * T)
+
+
+# add near the other pe_* functions
+def pe_nonactivated_desorption(A_ang2: float,
+                               molec_data: Mapping[str, Any],
+                               vib_PS_meV: Sequence[float],
+                               vib_RS_meV_surface: Sequence[float],
+                               T: float) -> float:
+    """
+    Non-activated desorption:
+        pe = (kB*T/h) * (q_PS / q_RS)
+    with
+        q_PS = q_trans2D * q_rot * q_vib * q_elec  (gas-like, 2D)
+        q_RS = q_vib (surface vibrational only)
+    """
+    # q_PS (gas-like, depends on product-side molecule)
+    q_ps = gas_RS_partition(A_ang2, molec_data, vib_RS_meV=vib_PS_meV, T=T)
+    # q_RS (surface vibrational only)
+    q_rs = q_vib(vib_RS_meV_surface, T)
+    return (KB_J * T / H) * (q_ps / (q_rs if q_rs > 0.0 else 1.0))
