@@ -6,13 +6,16 @@ The `GasModel` contains the information about each gas-phase molecule involved i
 
 ### Required columns
 
-- **`type`** (`str`): Specifies whether the molecule is `'linear'` or `'non_linear'`.
+- **`type`** (`str`): Specifies whether the molecule is `'linear'`, `'non_linear'` or `'monoatomic'`.
+- **`gas_energy`** (`float`): Formation energy in electronvolts (eV). Do not include the zero-point energy (ZPE).
 - **`gas_molec_weight`** (`float`): Molecular weight in atomic mass units (amu).
-- **`sym_number`** (`int`): Symmetry number of the molecule.
+
+### Required for 'linear' and 'non_linear' molecules
+
+- **`sym_number`** (`int`): Symmetry number of the molecule (must be positive integer). Must be undefined/None for 'monoatomic'.
 - **`inertia_moments`** (`list` of `float`): Moments of inertia in amu·Å².
   - Linear molecules: Provide 1 moment of inertia.
   - Non-linear molecules: Provide 3 moments of inertia.
-- **`gas_energy`** (`float`): Formation energy in electronvolts (eV). Do not include the zero-point energy (ZPE).
 
 ### Optional column
 
