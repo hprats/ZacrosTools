@@ -53,26 +53,32 @@ def q_trans2D(A_ang2: float, mass_amu: float, T: float) -> float:
     return A * (TWO_PI * m * KB_J * T) / (H ** 2)
 
 
-def q_rot(inertia_moments: Sequence[float], sym_number: float, T: float) -> float:
+def q_rot(inertia_moments: Sequence[float] | None, sym_number: float | None, T: float) -> float:
     """
     Rotational PF (rigid rotor).
-      Linear (len=1): 8*pi^2*I*k*T / (sigma*h^2)
-      Non-linear (len=3): (sqrt(pi*Ia*Ib*Ic)/sigma) * (8*pi^2*k*T/h^2)^(3/2)
+      - Monoatomic / no rotation (len=0 or None): 1.0
+      - Linear (len=1): 8*pi^2*I*k*T / (sigma*h^2)
+      - Non-linear (len=3): (sqrt(pi*Ia*Ib*Ic)/sigma) * (8*pi^2*k*T/h^2)^(3/2)
     inertia in amu*Å^2.
     """
+    if not inertia_moments:
+        # monoatomic or missing -> rotational PF = 1
+        return 1.0
+
     if len(inertia_moments) == 1:
         I = float(inertia_moments[0]) * amuA2_to_kgm2
         sigma = float(sym_number) if sym_number else 1.0
         return (8.0 * (math.pi ** 2) * I * KB_J * T) / (sigma * (H ** 2))
-    elif len(inertia_moments) == 3:
+
+    if len(inertia_moments) == 3:
         Ia = float(inertia_moments[0]) * amuA2_to_kgm2
         Ib = float(inertia_moments[1]) * amuA2_to_kgm2
         Ic = float(inertia_moments[2]) * amuA2_to_kgm2
         sigma = float(sym_number) if sym_number else 1.0
         factor = 8.0 * (math.pi ** 2) * KB_J * T / (H ** 2)
         return (math.sqrt(math.pi * Ia * Ib * Ic) / sigma) * (factor ** 1.5)
-    else:
-        raise ValueError("inertia_moments must have length 1 (linear) or 3 (non-linear).")
+
+    raise ValueError("inertia_moments must have length 0 (monoatomic), 1 (linear), or 3 (non-linear).")
 
 
 def q_elec(degeneracy: float | int | None) -> float:
@@ -93,7 +99,18 @@ def gas_RS_partition(A_ang2: float,
       q_RS = q_trans2D * q_rot * q_vib * q_elec
     """
     mass_amu = molec_data['gas_molec_weight']
-    imoms = molec_data['inertia_moments']      # len 1 or 3
+
+    # inertia_moments may be missing/None/NaN for monoatomic
+    imoms_raw = molec_data.get('inertia_moments', [])
+    # avoid importing pandas; treat float('nan') as missing too
+    if imoms_raw is None or (isinstance(imoms_raw, float) and math.isnan(imoms_raw)):
+        imoms = []
+    elif isinstance(imoms_raw, (list, tuple)):
+        imoms = list(imoms_raw)
+    else:
+        # unknown type -> assume monoatomic/no rotation
+        imoms = []
+
     sigma = molec_data.get('sym_number', 1)
     degen = molec_data.get('degeneracy', 1)
 
