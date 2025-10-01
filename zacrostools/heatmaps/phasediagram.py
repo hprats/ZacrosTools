@@ -20,7 +20,7 @@ def plot_phasediagram(
         y: str,
         scan_path: str,
         # plot-specific optional parameters
-        site_type: str = 'default',
+        site_type: str = 'StTp1',
         min_coverage: Union[float, int] = 50.0,
         tick_labels: dict = None,
         weights: str = None,
@@ -47,7 +47,7 @@ def plot_phasediagram(
         Path to the directory containing simulation subdirectories.
     site_type : str, optional
         Site type to consider when retrieving coverage and dominant adsorbate data
-        (default is 'default').
+        (default is 'StTp1').
     min_coverage : float or int, optional
         Minimum total coverage (%) required to assign a dominant species
         (default is 50.0).

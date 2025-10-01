@@ -20,7 +20,7 @@ def plot_coverage(
         # plot-specific mandatory parameters
         surf_spec: Union[str, list] = None,
         # plot-specific optional parameters
-        site_type: str = 'default',
+        site_type: str = 'StTp1',
         weights: str = None,
         levels: Optional[Union[list, np.ndarray]] = np.linspace(0, 100, 11, dtype=int),
         analysis_range: list = None,
@@ -46,7 +46,7 @@ def plot_coverage(
     surf_spec : str or list, optional
         Surface species for which coverage is calculated. Use 'all' to plot total coverage.
     site_type : str, optional
-        Site type to consider when retrieving coverage (default is 'default').
+        Site type to consider when retrieving coverage (default is 'StTp1').
     weights : str, optional
         Weighting method for the simulation analysis (e.g., 'time', 'events', or None).
     levels : list or np.ndarray, optional

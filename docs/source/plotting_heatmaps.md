@@ -195,7 +195,7 @@ from zacrostools.heatmaps.coverage import plot_coverage
 ### Parameters specific to Coverage
 
 - **`surf_spec`** (`'all'` | `str` | `list[str]`): `'all'` means total coverage. A string or list sums the listed adsorbates’ coverages.
-- **`site_type`** (`str`, default `'default'`).
+- **`site_type`** (`str`, default `'StTp1'`).
 
 ### Example
 
@@ -237,7 +237,7 @@ from zacrostools.heatmaps.phasediagram import plot_phasediagram
 
 ### Parameters specific to Phase Diagram
 
-- **`site_type`** (`str`, default `'default'`).
+- **`site_type`** (`str`, default `'StTp1'`).
 - **`min_coverage`** (`float|int`, default `50.0`): Minimum total coverage (%) to consider a dominant species.
 - **`tick_labels`** (`dict` or `None`): `{label_str: [species, ...], ...}`.  
   If `None`, the code parses `simulation_input.dat` from the first simulation and assigns **each species to its own group** (label=species). The function validates that provided species exist in the simulation; if you accidentally pass `'O'` while only `'O*'` exists, a helpful error is raised.
