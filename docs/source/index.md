@@ -83,6 +83,25 @@ The ZacrosTools documentation is organized into the following sections:
 
 ## Recent changes
 
+## [2.8] - 01-Oct-2025
+
+### Added
+- **Monoatomic gas species support**: `GasModel` now accepts a third `type` value: `"monoatomic"`.  
+  - For monoatomics, rotational partition is treated as 1, so `sym_number` and `inertia_moments` may be **omitted or set to `None`**.  
+  - CSVs that contain **only** monoatomic species no longer need `sym_number` or `inertia_moments` columns.  
+  - Works seamlessly with `ReactionModel` and the updated partition/pre-exponential functions.
+
+### Changed
+- **Fixed pre-exponential factors are now step-level fields**: Instead of passing `fixed_pre_expon` / `fixed_pe_ratio` to `ReactionModel.write_mechanism_input()`, define them **per step** (like other optional columns).  
+  - New optional columns on each step:  
+    - `fixed_pre_expon` (float): forward pre-exponential written as-is  
+    - `fixed_pe_ratio` (float): ratio `pe_fwd/pe_rev` written as-is  
+  - When provided together for a step, ZacrosTools **does not** apply manual scaling or graph multiplicity to that step’s pre-exponential.
+  - Incompatibilities are enforced:
+    - `stiffness_scalable_steps='all'` is not allowed if any step is fixed  
+    - A fixed step cannot appear in `stiffness_scalable_steps`  
+    - A fixed step cannot appear in `stiffness_scalable_symmetric_steps`
+    
 ## [2.7] - 25-Sep-2025
 
 ### Added
