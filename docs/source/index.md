@@ -83,6 +83,19 @@ The ZacrosTools documentation is organized into the following sections:
 
 ## Recent changes
 
+## [2.9] - 07-Oct-2025
+
+### Fixed
+- **Missing heatmaps subpackage in PyPI builds**: The `zacrostools.heatmaps` folder is now correctly included in the package distribution.  
+  - Added an `__init__.py` file to ensure it is recognized as a subpackage.  
+  - Users can now successfully import plotting functions such as:
+    ```python
+    from zacrostools.heatmaps.tof import plot_tof
+    from zacrostools.heatmaps.coverage import plot_coverage
+    from zacrostools.heatmaps.phasediagram import plot_phasediagram
+    ```
+  - This fix ensures compatibility when installing ZacrosTools via `pip` or from PyPI.
+
 ## [2.8] - 01-Oct-2025
 
 ### Added
