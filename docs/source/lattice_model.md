@@ -190,25 +190,19 @@ lattice_model.change_site_type(direct_coords=(0.0, 0.0), new_site_type='B')
 
 The `LatticeModel` can generate the `lattice_input.dat` file required by Zacros.
 
-### Method
-
-```python
-lattice_model.write_lattice_input(output_dir, sig_figs=8)
-```
-
+Required parameters:
 - **`output_dir`** (`str` or `Path`): Directory where the file will be written.
 - **`sig_figs`** (`int`, optional): Number of significant figures for numerical values.
 
-#### Example
 
 ```python
 # Write the lattice_input.dat file to the specified directory
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
+lattice_model.write_lattice_input(output_dir='kmc_simulation', sig_figs=3)
 ```
 
 ---
 
-## Full example
+#### Full example
 
 This example shows how to create a lattice model for a Pt4 cluster supported on a HfC(001) surface, as described in the image below:
 
@@ -243,7 +237,3 @@ lattice_model.write_lattice_input(output_dir='PtHfC')
 ```
 
 ---
-
-## Next steps
-
-- Assemble the `KMCModel`
