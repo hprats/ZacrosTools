@@ -1,16 +1,17 @@
-# 5. Assembling the KMC model and writing the input files
+# 5. Assembling the KMC Model and Writing the Input Files
 
 The `KMCModel` class represents the complete KMC simulation model for Zacros.
-To create a `KMCModel`, you must first prepare and verify the individual components that comprise a complete KMC simulation setup:
+
+#### Properties
 
 1. **`GasModel`**: Contains gas-phase species definitions, including their molecular weights and energies.
 2. **`ReactionModel`**: Details elementary reaction steps, including initial/final states, activation energies, and vibrational energies.
 3. **`EnergeticsModel`**: Lists clusters and their energies, reflecting the cluster expansion used for energy calculations.
 4. **`LatticeModel`**: Describes the lattice structure, site types, and spatial arrangement of sites.
 
-Once you have these models, you can pass them into the `KMCModel`. The `KMCModel` constructor checks for data consistency—helping catch common issues (e.g., missing `site_types` definitions) early on.
+#### How to create the KMC Model
 
-### Example
+Create it in the same way as shown in the example below.
 
 ```python
 from zacrostools.kmc_model import KMCModel
@@ -43,41 +44,29 @@ kmc_model = KMCModel(
 )
 ```
 
-This integrated `kmc_model` now holds a complete configuration of the KMC simulation, ready for input file generation.
-
 ---
 
-## Writing the input files
+#### Writing the input files
 
-Once the `KMCModel` is created, you can generate the Zacros input files by calling the `create_job_dir` method. This method writes all required input files into a specified directory:
+Once the `KMCModel` is created, you can generate the Zacros input files by calling the `create_job_dir` method. 
 
-- **`simulation_input.dat`**: Defines global simulation parameters (temperature, pressure, reporting frequencies, stopping criteria, and optional stiffness scaling parameters).
-- **`energetics_input.dat`**: Lists clusters and their corresponding energies from the `EnergeticsModel`.
-- **`mechanism_input.dat`**: Specifies the elementary reaction steps, their activation energies, and vibrational energies from the `ReactionModel`.
-- **`lattice_input.dat`**: Outlines the lattice configuration, as defined in the `LatticeModel`.
-
-### Parameters
-
+Required parameters:
 - **`job_path`** (`str`): Directory where the input files will be written.
 - **`temperature`** (`float` or `int`): Simulation temperature in Kelvin.
 - **`pressure`** (`dict`): Partial pressures of gas species in bar, e.g., `{'CO': 1.0, 'O2': 0.001}`.
-- **`reporting_scheme`** (`dict`, optional): Controls how often Zacros writes snapshots, process statistics, and species counts.
-- **`stopping_criteria`** (`dict`, optional): Conditions to end the simulation (max steps, max time, wall time).
-- **`manual_scaling`** (`dict`, optional): Apply scaling factors to specific reaction steps.
-- **`stiffness_scaling_algorithm`** (`str`, optional): Algorithm for handling stiffness scaling (`'legacy'` or `'prats2024'`).
-- **`stiffness_scalable_steps`** (`list` of `str`, optional): Steps that will be marked as `'stiffness_scalable'` in mechanism_input.dat. Can be provided as a list of step names or the string `'all'` to indicate that all steps
+- **`reporting_scheme`** (`dict`, *optional*): Controls how often Zacros writes snapshots, process statistics, and species counts.
+- **`stopping_criteria`** (`dict`, *optional*): Conditions to end the simulation (max steps, max time, wall time).
+- **`manual_scaling`** (`dict`, *optional*): Apply scaling factors to specific reaction steps.
+- **`stiffness_scaling_algorithm`** (`str`, *optional*): Algorithm for handling stiffness scaling (`'legacy'` or `'prats2024'`).
+- **`stiffness_scalable_steps`** (`list` of `str`, *optional*): Steps that will be marked as `'stiffness_scalable'` in mechanism_input.dat. Can be provided as a list of step names or the string `'all'` to indicate that all steps
             (except those specified in `stiffness_scalable_symmetric_steps) are stiffness scalable.
-- **`stiffness_scalable_symmetric_steps`**: (`list` of `str`, optional): Steps that will be marked as `'stiffness_scalable_symmetric'` in `mechanism_input.dat`
-- **`stiffness_scaling_tags`** (`dict`, optional): Parameters controlling the dynamic scaling algorithm.
-- **`sig_figs_energies`** (`int`, optional): Significant figures for energies written to input files.
-- **`sig_figs_pe`** (`int`, optional): Significant figures for pre-exponential factors.
-- **`sig_figs_lattice`** (`int`, optional): Significant figures for coordinates.
-- **`random_seed`** (`int`, optional): Seed for Zacros's random number generator.
-- **`version`** (`float` or `int`, optional): The Zacros version. Can be a single integer (e.g. 4) or float (e.g. 4.2 or 5.1). Default is 5.0.
-
-These parameters can be tailored to suit your simulation needs, ensuring that the generated files are both accurate and easy to reproduce.
-
-### Example for a single KMC simulation
+- **`stiffness_scalable_symmetric_steps`**: (`list` of `str`, *optional*): Steps that will be marked as `'stiffness_scalable_symmetric'` in `mechanism_input.dat`
+- **`stiffness_scaling_tags`** (`dict`, *optional*): Parameters controlling the dynamic scaling algorithm.
+- **`sig_figs_energies`** (`int`, *optional*): Significant figures for energies written to input files.
+- **`sig_figs_pe`** (`int`, *optional*): Significant figures for pre-exponential factors.
+- **`sig_figs_lattice`** (`int`, *optional*): Significant figures for coordinates.
+- **`random_seed`** (`int`, *optional*): Seed for Zacros's random number generator.
+- **`version`** (`float` or `int`, *optional*): The Zacros version. Can be a single integer (e.g. 4) or float (e.g. 4.2 or 5.1). Default is 5.0.
 
 ```python
 kmc_model.create_job_dir(
@@ -103,15 +92,9 @@ kmc_model.create_job_dir(
 
 The specified directory (`kmc_simulation`) will be created, containing all four Zacros input files.
 
-### Looping over pressure and temperature values
-
-This example automates the creation of multiple sets of input files across a parameter grid, enabling high-throughput studies of reaction conditions.
+#### Looping over pressure and temperature values
 
 ```python
-from zacrostools.kmc_model import KMCModel
-
-# Create the KMC model here
-
 for temperature in [600, 700, 800]: # in K
     kmc_model.create_job_dir(
         job_path=f'temp_{temperature}K',
@@ -128,13 +111,3 @@ for temperature in [600, 700, 800]: # in K
     )
 ```
 ---
-
-## Next steps
-
-Once your input files are generated, you can:
-
-- **Run the Zacros simulation** using the generated input files.
-- **Parse and analyze the output data**, extracting information about reaction rates, coverages, and production profiles.
-- **Visualize results**, creating plots or heatmaps to understand trends and identify optimal conditions.
-
-For more details on analyzing and visualizing results, consult the corresponding sections of the documentation.

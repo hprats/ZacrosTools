@@ -1,4 +1,4 @@
-# 1. Create a Gas Model
+# 1. Creating the Gas Model
 
 The `GasModel` contains the information about each gas-phase molecule involved in the simulation.
 

@@ -1,4 +1,4 @@
-# 4. Create a Lattice Model
+# 4. Creating the Lattice Model
 
 The `LatticeModel` represents the lattice structure on which adsorbates can bind, and supports different lattice types:
 

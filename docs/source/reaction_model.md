@@ -1,4 +1,4 @@
-# 3. Create a Reaction Model
+# 3. Creating the Reaction Model
 
 The `ReactionModel` stores information about each elementary reaction step. 
 

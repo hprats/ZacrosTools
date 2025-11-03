@@ -1,4 +1,4 @@
-# 2. Create an Energetics Model
+# 2. Creating the Energetics Model
 
 The `EnergeticsModel` stores information about each cluster included in the cluster expansion.
 
