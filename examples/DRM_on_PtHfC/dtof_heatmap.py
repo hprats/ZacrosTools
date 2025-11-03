@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from zacrostools.heatmaps.dtof import plot_dtof
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
-
 plot_dtof(
     ax=axs,
     scan_path='simulation_results',
@@ -11,6 +10,7 @@ plot_dtof(
     x='pressure_CH4',
     y='pressure_CO2',
     gas_spec='H2',
+    difference_type='absolute',
     min_molec=0,
     analysis_range=[50, 100],
     range_type='time',
@@ -19,7 +19,6 @@ plot_dtof(
     show_points=False,
     show_colorbar=True
 )
-
 plt.tight_layout()
 plt.savefig('dtof_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()

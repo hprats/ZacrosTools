@@ -12,19 +12,20 @@ scan_path = 'simulation_results'
 x_variable = 'pressure_CH4'
 y_variable = 'pressure_CO2'
 
-analysis_range = [50, 100]  # (in %) Ignore first X% of total simulated time (equilibration)
+analysis_range = [50, 100]      # Ignore first 50 % of total simulated time (equilibration)
 range_type = 'time'
 weights = 'time'
 
-min_molec_tof = 0  # To plot TOF and selectivity
-min_molec_selectivity = 100  # To plot TOF and selectivity
-min_coverage = 50  # (in %) To plot phase diagrams
+min_molec_tof = 0               # For TOF and selectivity
+min_molec_selectivity = 100     # For TOF and selectivity
+min_coverage = 50               # (in %) To plot phase diagrams
 
 auto_title = True
 show_points = False
 show_colorbar = True
 
-tick_labels = {  # for phase diagram plots
+# Define labels for phase diagram heatmaps
+tick_labels = {
     '$CH_{x}$': ['CH3*', 'CH3_Pt*', 'CH2*', 'CH2_Pt*', 'CH*', 'CH_Pt*', 'C*', 'C_Pt*'],
     '$CHO/COH$': ['CHO*', 'CHO_Pt*', 'COH*', 'COH_Pt*'],
     '$CO$': ['CO*', 'CO_Pt*'],

@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from zacrostools.heatmaps.selectivity import plot_selectivity
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
-
 plot_selectivity(
     ax=axs,
     scan_path='simulation_results',
@@ -17,7 +16,6 @@ plot_selectivity(
     show_points=False,
     show_colorbar=True
 )
-
 plt.tight_layout()
 plt.savefig('selectivity_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
