@@ -25,7 +25,6 @@ def plot_dtof(
         scan_path_ref: str = None,
         # plot-specific optional parameters
         difference_type: str = 'absolute',
-        percent: bool = False,
         check_issues: str = 'none',
         scale: str = 'log',
         min_molec: int = 1,
@@ -44,7 +43,7 @@ def plot_dtof(
         cmap: str = "RdYlBu",
         show_points: bool = False,
         show_colorbar: bool = True,
-        auto_title: bool = False):
+        auto_title: bool = False, **kwargs):
     """
     Plot the change in Turnover Frequency (∆TOF) heatmap between a main simulation and a reference.
 
@@ -70,9 +69,6 @@ def plot_dtof(
     difference_type : {'absolute', 'relative'}, default 'absolute'
         - 'absolute': ∆TOF = TOF(main) - TOF(ref)
         - 'relative': ∆TOF = (TOF(main) - TOF(ref)) / |TOF(ref)|
-    percent : bool, default False
-        If True and `difference_type='relative'`, express relative differences as percentages
-        (0–100) instead of fractions (0–1).
     check_issues : {'none','both','main','ref'}, default 'none'
         Which runs `detect_issues` on:
         - 'none' → neither
@@ -129,6 +125,10 @@ def plot_dtof(
       logarithmic spacing (and mirrored for negative values). If discretization is disabled (nlevels=0), a continuous
       normalization is used (via SymLogNorm if data include both positive and negative values).
     """
+    # Parameter removal notice
+    if 'percent' in kwargs:
+        raise ValueError("'percent' is not supported for dtof since v2.10; relative ∆TOF is now defined as |TOF(main)/TOF(ref)| (unitless ratio).")
+
 
     # Set default analysis range if needed
     if analysis_range is None:
@@ -243,7 +243,7 @@ def plot_dtof(
                     dtof_val = tof - tof_ref
                 elif difference_type == "relative":
                     dtof_val = (
-                        ((tof - tof_ref) / abs(tof_ref)) * (100.0 if percent else 1.0)
+                        ((tof - tof_ref) / abs(tof_ref))
                         if tof_ref != 0
                         else np.nan
                     )
@@ -314,7 +314,7 @@ def plot_dtof(
     else:
         # choose defaults appropriate to whether we're showing percent or fraction
         if max_dtof is None:
-            max_dtof = 100.0 if percent else 1.0
+            max_dtof = 1.0
         if min_dtof is None:
             min_dtof = max_dtof / 1.0e3
         abs_max = max_dtof
