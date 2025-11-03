@@ -1,6 +1,4 @@
-# Lattice model
-
-## Overview
+# 4. Create a Lattice Model
 
 The `LatticeModel` represents the lattice structure on which adsorbates can bind, and supports different lattice types:
 
@@ -8,7 +6,7 @@ The `LatticeModel` represents the lattice structure on which adsorbates can bind
 - **`periodic_cell`**: Custom periodic unit cells with specified cell vectors and sites.
 - **`explicit`**: Explicitly defined lattice structures (not yet implemented).
 
-### Allowed lattice types
+#### Allowed lattice types
 
 - `'default_choice'`
 - `'periodic_cell'`
@@ -16,31 +14,23 @@ The `LatticeModel` represents the lattice structure on which adsorbates can bind
 
 ---
 
-## Creating a `LatticeModel`
+#### How to create it
 
-There are three primary ways to create a `LatticeModel`:
+There are three primary ways to create a `LatticeModel`, as detailed below.
 
-1. **Using a default lattice**
-2. **Defining a custom periodic cell**
-3. **Loading from an existing lattice input file**
+##### Using a default lattice
 
-### 1. Using a default lattice 
+This method allows you to select from predefined lattice types and specify basic parameters. 
 
-This method allows you to select from predefined lattice types and specify basic parameters.
-
-#### Required Parameters
-
+Required parameters:
 - **`lattice_type`**: Set to `'default_choice'`.
 - **`default_lattice_type`** (`str`): Choose from `'triangular_periodic'`, `'rectangular_periodic'`, or `'hexagonal_periodic'`.
-- **`lattice_constant`** (`float`): The lattice constant (e.g., in Ångströms).
+- **`lattice_constant`** (`float`): The lattice constant (Å).
 - **`copies`** (`List[int]`): Number of repetitions along the horizontal and vertical directions.
-
-#### Example
 
 ```python
 from zacrostools.lattice_model import LatticeModel
 
-# Create a default triangular lattice
 lattice_model = LatticeModel(
     lattice_type='default_choice',
     default_lattice_type='triangular_periodic',
@@ -49,12 +39,11 @@ lattice_model = LatticeModel(
 )
 ```
 
-### 2. Defining a custom periodic cell
+##### Defining a custom periodic cell
 
 This method allows you to define a custom lattice by specifying the unit cell vectors, site types, and neighboring structures.
 
-#### Required Parameters
-
+Required parameters:
 - **`lattice_type`**: Set to `'periodic_cell'`.
 - **`cell_vectors`** (`Tuple[Tuple[float, float], Tuple[float, float]]`): Two vectors defining the unit cell.
 - **`sites`** (`Dict[str, Union[Tuple[float, float], List[Tuple[float, float]]]]`): Mapping of site types to their coordinates within the unit cell.
@@ -65,13 +54,11 @@ This method allows you to define a custom lattice by specifying the unit cell ve
   - If providing a dictionary, it maps site pairs to a list of relationship keywords.
 - **`max_distances`** (`Dict[str, float]`, required if `neighboring_structure='from_distances'`): Defines maximum distances for neighbor pairs.
 
-#### Example 
-
 The following examples show two different ways to create the lattice model for a HfC(001) surface, as described in the image below:
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/docs/images/lattice_model_HfC.png?raw=true" alt="Molecules produced" width="500"/> </div>
 
-##### Specifying a neighboring structure
+1. Specifying a neighboring structure:
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -104,7 +91,7 @@ lattice_model = LatticeModel(
 )
 ```
 
-##### Generating the neighboring structure automatically
+2. Generating the neighboring structure automatically
 
 ```python
 from zacrostools.lattice_model import LatticeModel
@@ -137,98 +124,60 @@ lattice_model = LatticeModel(
 )
 ```
 
-### 3. Loading from an existing lattice input file
+##### Loading from an existing lattice input file
 
 This method allows you to create a `LatticeModel` by reading a previously created `lattice_input.dat` file. This is particularly useful when you want to reuse lattice configurations or when the lattice file was provided by another user.
 
-#### Method
-
-```python
-lattice_model = LatticeModel.from_file(input_file)
-```
-
+Required parameters:
 - **`input_file`** (`str` or `Path`): Path to the existing `lattice_input.dat` file.
-
-#### Notes
-
-- The method reads the `lattice` block from the file, which starts with the `lattice` keyword and ends with `end_lattice`.
-- The method supports `'default_choice'` and `'periodic_cell'` lattice types.
-- If the lattice type is `'explicit'`, a `LatticeModelError` will be raised as this type is not yet supported.
-- The method ignores any content outside the `lattice` block.
-
-#### Example
 
 ```python
 from zacrostools.lattice_model import LatticeModel
 
-# Load a LatticeModel from an existing lattice_input.dat file
 lattice_model = LatticeModel.from_file(input_file='path/to/lattice_input.dat')
-
-# Write the lattice input file (optional, e.g., to a new directory)
-lattice_model.write_lattice_input(output_dir='kmc_simulation')
 ```
+
+Notes for this method:
+- It reads the `lattice` block from the file, which starts with the `lattice` keyword and ends with `end_lattice`.
+- Supports `'default_choice'` and `'periodic_cell'` lattice types.
+- If the lattice type is `'explicit'`, a `LatticeModelError` will be raised as this type is not yet supported.
+- Ignores any content outside the `lattice` block.
+
 
 ---
 
-## Methods for modifying the lattice
-
-The `LatticeModel` class provides methods to modify the lattice after creation.
-
-### Repeating the `LatticeModel`
+#### Repeating the `LatticeModel`
 
 You can expand the unit cell by repeating it along the cell vectors.
 
-#### Method
-
-```python
-lattice_model.repeat_lattice_model(a, b)
-```
-
+Required parameters:
 - **`a`** (`int`): Number of repetitions along the first cell vector.
 - **`b`** (`int`): Number of repetitions along the second cell vector.
-
-#### Example
 
 ```python
 # Repeat the lattice 2 times along alpha and 3 times along beta
 lattice_model.repeat_lattice_model(a=2, b=3)
 ```
 
-### Removing a site
+#### Removing a site
 
 You can remove a specific site based on its coordinates.
 
-#### Method
-
-```python
-lattice_model.remove_site(direct_coords, tolerance=1e-8)
-```
-
+Required parameters:
 - **`direct_coords`** (`Tuple[float, float]`): The direct coordinates of the site to remove.
 - **`tolerance`** (`float`, optional): Tolerance for coordinate matching.
-
-#### Example
 
 ```python
 # Remove a site at position (0.5, 0.5)
 lattice_model.remove_site(direct_coords=(0.5, 0.5))
 ```
 
-### Changing the site type
+#### Changing the site type
 
-You can change the type of a specific site.
-
-#### Method
-
-```python
-lattice_model.change_site_type(direct_coords, new_site_type, tolerance=1e-8)
-```
-
+Required parameters:
 - **`direct_coords`** (`Tuple[float, float]`): The direct coordinates of the site.
 - **`new_site_type`** (`str`): The new site type to assign.
 - **`tolerance`** (`float`, optional): Tolerance for coordinate matching.
-
-#### Example
 
 ```python
 # Change the site type at position (0.0, 0.0) to 'B'
@@ -237,7 +186,7 @@ lattice_model.change_site_type(direct_coords=(0.0, 0.0), new_site_type='B')
 
 ---
 
-## Writing the `lattice_input.dat` file
+#### Writing the `lattice_input.dat` file
 
 The `LatticeModel` can generate the `lattice_input.dat` file required by Zacros.
 

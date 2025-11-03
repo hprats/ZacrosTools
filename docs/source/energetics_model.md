@@ -131,15 +131,12 @@ energetics_model.remove_clusters(['CO2_point'])
 
 The `EnergeticsModel` can generate the `energetics_input.dat` file required by Zacros:
 
-```python
-energetics_model.write_energetics_input(output_dir, sig_figs_energies=8)
-```
-
+Required parameters:
 - **`output_dir`** (`str` or `Path`): Directory where the file will be written.
 - **`sig_figs_energies`** (`int`, *optional*): Number of significant figures for cluster energies.
 
 ```python
-energetics_model.write_energetics_input(output_dir='kmc_simulation')
+energetics_model.write_energetics_input(output_dir='kmc_simulation', sig_figs_energies=3)
 ```
 
 This will generate a file named `energetics_input.dat` in the `kmc_simulation` directory.

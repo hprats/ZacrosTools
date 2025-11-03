@@ -1,4 +1,4 @@
-# 2. Create a Reaction Model
+# 3. Create a Reaction Model
 
 The `ReactionModel` stores information about each elementary reaction step. 
 
@@ -145,11 +145,11 @@ reaction_model.remove_steps(steps_to_remove)
 
 ---
 
-
 #### Writing the `mechanism_input.dat` file
 
 The `ReactionModel` can generate the `mechanism_input.dat` file required by Zacros.
 
+Required parameters:
 - **`output_dir`** (`str` or `Path`): Directory where the file will be written.
 - **`temperature`** (`float`): Temperature in Kelvin for pre-exponential calculations.
 - **`gas_model`** (`GasModel`): Instance of `GasModel` containing gas-phase species data.
