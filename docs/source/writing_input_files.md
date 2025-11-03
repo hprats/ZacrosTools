@@ -1,6 +1,4 @@
-# Writing input files
-
-## Creating a KMCModel
+# 5. Assembling the KMC model and writing the input files
 
 The `KMCModel` class represents the complete KMC simulation model for Zacros.
 To create a `KMCModel`, you must first prepare and verify the individual components that comprise a complete KMC simulation setup:
