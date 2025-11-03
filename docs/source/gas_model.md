@@ -76,7 +76,7 @@ gas_model = GasModel.from_df(df)
 
 ---
 
-### Adding and removing species
+#### Adding and removing species
 
 You can modify an existing `GasModel` by adding or removing species.
 
