@@ -8,7 +8,6 @@ After completing a Zacros simulation, `zacrostools` can be used to parse and ana
 
 The `KMCOutput` class provides a convenient interface to load simulation data from output files, compute averages and coverages, and extract key performance indicators like turnover frequencies (TOFs) and selectivities.
 
-### Properties
 Required parameters: 
 - **`path`** (`str`): Path to the directory containing Zacros output files (e.g., `simulation_input.dat`, `general_output.txt`, `specnum_output.txt`, etc.).  
 - **`analysis_range`** (`list`, *optional*): Portion of the simulation used for averaging and analysis (`[start%, end%]`, default = `[0.0, 100.0]`).  
@@ -27,8 +26,6 @@ from zacrostools.kmc_output import KMCOutput
 # Here, we consider the last 50% of the simulation time and apply time-weighted averaging.
 kmc_output = KMCOutput(path='/path/to/simulation_files', analysis_range=[50, 100], range_type='time', weights='time')
 ```
-
----
 
 Once you have created a `KMCOutput` object, you can access all the information using the following attributes:
 
@@ -73,8 +70,6 @@ Surface coverage:
 - **`av_total_coverage_per_site_type`** (*dict*): Average total coverage per site type (%).
 - **`dominant_ads_per_site_type`** (*dict*): Dominant adsorbed species on each site type.
 
----
-
 Finally, the selectivity can be obtained using the `get_selectivity()` method. The following parameters are required:
 - **`main_product`** (*str*): Main product species name.
 - **`side_products`** (*list of str*): List of side product species names.
@@ -116,7 +111,7 @@ for surf_spec in kmc_output.surf_specs_names:
 
 The `read_scan` function can be used to read the results of all KMC simulations in a given scan directory. This function returns a Pandas DataFrame containing key observables for each simulation.
 
-### Example
+#### Example
 
 ```python
 from zacrostools.read_scan import read_scan
