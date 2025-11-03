@@ -34,6 +34,12 @@ examples/*
 tests/*
 zacrostools/*
 !zacrostools/heatmaps/
+
+# >>> Re-allow subdirectories so file un-ignores below can match
+!docs/**/
+!examples/**/
+!tests/**/
+
 # -------------------------------------
 # 7) Re-unignore the file types to track
 !docs/**/*.py
