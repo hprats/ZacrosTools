@@ -133,7 +133,6 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
    :caption: Contents
 
    citation.md
-   installation.md
    gas_model.md
    energetics_model.md
    reaction_model.md
