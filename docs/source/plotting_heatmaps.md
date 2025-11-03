@@ -1,8 +1,6 @@
 # Plotting heatmaps
 
-This guide documents the heatmap plotting helpers in `zacrostools.heatmaps`. These functions build 2D heatmaps from batches of Zacros KMC jobs arranged under a **scan directory**. Each subfolder in the scan represents one operating point (e.g., a specific pair of partial pressures or temperature/pressure).
-
-The following specialized functions are available:
+The following specialized functions are available to generate heatmap plots from large parameter scans:
 
 - `plot_tof` – Turnover frequency of a gas-phase species
 - `plot_dtof` – Difference in TOF w.r.t. a reference scan (absolute or relative)
@@ -13,16 +11,9 @@ The following specialized functions are available:
 - `plot_energyslope` – Energy slope (|dE/d(step)| per area per step)
 - `plot_issues` – Yes/No map of runs with detected issues
 
-All functions take **x** and **y** names that correspond to how your scan encodes the operating variables in folder names (e.g., `pressure_CO2=…`, `temperature=…`, `total_pressure=…`). If the axis name contains the substring **`"pressure"`**, the corresponding axis is plotted in **log-scale** automatically; otherwise it is in linear scale. Axis labels are formatted via `heatmap_functions.get_axis_label`.
+#### Common parameters
 
-> **Tip.** Use `show_points=True` to overlay the simulation grid nodes on top of the heatmap, and `auto_title=True` to auto-generate a bold, high-contrast title bar.
-
----
-
-## Common parameters
-
-These appear (with identical meaning) in all plotting functions unless stated otherwise.
-
+These following parameters are available in most heatmap types:
 - **`ax`** (`matplotlib.axes.Axes`, required): Matplotlib axis to draw on.
 - **`x`**, **`y`** (`str`, required): Names of the scan dimensions. If the name contains `"pressure"`, that axis is set to logarithmic scale and tick values are converted from log10 to absolute units for plotting.
 - **`scan_path`** (`str`, required): Path to the directory holding one subfolder per operating point.
