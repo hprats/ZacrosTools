@@ -391,7 +391,7 @@ def plot_dtof(
     ax.set_facecolor("lightgray")
 
     if auto_title:
-        label = f"∆TOF {'% ' if percent and difference_type=='relative' else ''}{convert_to_subscript(gas_spec)}"
+        label = f"∆TOF {'% ' if percent and difference_type=='relative' else ''}${convert_to_subscript(gas_spec)}$"
         ax.set_title(
             label=label,
             y=1.0,
