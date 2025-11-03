@@ -51,6 +51,8 @@ zacrostools/*
 !docs/**/*.csv
 !docs/**/*.yml
 
+docs/html/
+
 !examples/**/*.py
 !examples/**/*.txt
 !examples/**/*.dat
