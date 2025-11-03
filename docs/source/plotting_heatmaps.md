@@ -20,7 +20,7 @@ These following parameters are available in most heatmap types:
 - **`cmap`** (`str`, optional): Matplotlib colormap name. Defaults vary by plot (see below).
 - **`show_points`** (`bool`, default `False`): Overlay white dots at each grid node.
 - **`show_colorbar`** (`bool`, default `True`): Draw a colorbar.
-- **`auto_title`** (`bool`, default `False`): Render an automatic, styled subplot title.
+- **`auto_title`** (`bool`, default `False`): Add title.
 - **`analysis_range`** (`list[float]`, default `[0, 100]`): Percentage window of the simulation data to analyze.
 - **`range_type`** (`str`, default `'time'`): `'time'` for simulated time windows or `'nevents'` for number-of-events windows.
 - **`weights`** (`str` or `None`): Averaging weights passed to `KMCOutput` (`'time'`, `'events'`, or `None`).
@@ -63,7 +63,7 @@ plt.show()
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap.png?raw=true" alt="TOF heatmap" width="500"/> </div>
 
 
-#### ∆TOF
+#### TOF difference 
 
 Parameters specific to `plot_dtof`:
 - **`difference_type`**:  
