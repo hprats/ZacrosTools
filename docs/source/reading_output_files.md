@@ -111,8 +111,6 @@ for surf_spec in kmc_output.surf_specs_names:
 
 The `read_scan` function can be used to read the results of all KMC simulations in a given scan directory. This function returns a Pandas DataFrame containing key observables for each simulation.
 
-#### Example
-
 ```python
 from zacrostools.read_scan import read_scan
 
