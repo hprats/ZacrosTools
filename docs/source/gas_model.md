@@ -1,4 +1,4 @@
-# Gas model
+# 1. Create a Gas Model
 
 ## Overview
 
@@ -15,16 +15,6 @@ The `GasModel` contains the information about each gas-phase molecule involved i
   - `'non_linear'`: 3 values required.
 - **`degeneracy`** (`int`, *optional*): Ground-state degeneracy (default = 1).
 
-### Example data table
-
-| index | type    | gas_molec_weight | sym_number | degeneracy | inertia_moments            | gas_energy |
-|-------|---------|------------------|------------|------------|----------------------------|------------|
-| CO    | linear  | 28.01            | 1          | 1          | [8.973618976566065]        | 1.9544267  |
-| O2    | linear  | 32.00            | 2          | 3          | [12.178373934770187]       | 2.6131292  |
-| CO2   | linear  | 44.01            | 2          | 1          | [44.317204709218686]       | 0.00       |
-
----
-
 ## Creating a `GasModel`
 
 There are several ways to create a `GasModel` instance:
@@ -33,95 +23,62 @@ There are several ways to create a `GasModel` instance:
 2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### 1. From a dictionary
+### From a dictionary
 
 You can create a `GasModel` by providing a dictionary where each key is a species name and each value is a dictionary of properties.
-
-#### Example
 
 ```python
 from zacrostools.gas_model import GasModel
 
-# Define the gas species data
 species_data = {
     'CO': {
         'type': 'linear',
         'gas_molec_weight': 28.01,
         'sym_number': 1,
         'degeneracy': 1,
-        'inertia_moments': [8.973618976566065],
-        'gas_energy': 1.9544267
+        'inertia_moments': [8.973],
+        'gas_energy': 1.954
     },
     'O2': {
         'type': 'linear',
         'gas_molec_weight': 32.00,
         'sym_number': 2,
         'degeneracy': 3,
-        'inertia_moments': [12.178373934770187],
-        'gas_energy': 2.6131292
+        'inertia_moments': [12.178],
+        'gas_energy': 2.613
     },
     'CO2': {
         'type': 'linear',
         'gas_molec_weight': 44.01,
         'sym_number': 2,
         'degeneracy': 1,
-        'inertia_moments': [44.317204709218686],
+        'inertia_moments': [44.317],
         'gas_energy': 0.00
     }
 }
 
-# Create the GasModel instance
 gas_model = GasModel.from_dict(species_data)
 ```
 
-### 2. From a CSV file
+### From a CSV file
 
 The CSV should have the required columns and use the species names as the index.
-
-#### Example CSV (`gas_data.csv`)
-
-```csv
-,index,type,gas_molec_weight,sym_number,degeneracy,inertia_moments,gas_energy
-CO,linear,28.01,1,1,"[8.973618976566065]",1.9544267
-O2,linear,32.00,2,3,"[12.178373934770187]",2.6131292
-CO2,linear,44.01,2,1,"[44.317204709218686]",0.00
-```
-
-#### Loading from CSV
 
 ```python
 from zacrostools.gas_model import GasModel
 
-# Create the GasModel instance from a CSV file
 gas_model = GasModel.from_csv('gas_data.csv')
 ```
 
-### 3. From a Pandas DataFrame
+### From a Pandas DataFrame
 
 If you already have a DataFrame containing the gas species data, you can create a `GasModel` directly.
 
 #### Example
 
 ```python
-import pandas as pd
 from zacrostools.gas_model import GasModel
 
-# Create a DataFrame
-data = {
-    'type': ['linear', 'linear', 'linear'],
-    'gas_molec_weight': [28.01, 32.00, 44.01],
-    'sym_number': [1, 2, 2],
-    'degeneracy': [1, 3, 1],
-    'inertia_moments': [
-        [8.973618976566065],
-        [12.178373934770187],
-        [44.317204709218686]
-    ],
-    'gas_energy': [1.9544267, 2.6131292, 0.00]
-}
-df = pd.DataFrame(data, index=['CO', 'O2', 'CO2'])
-
-# Create the GasModel instance
 gas_model = GasModel.from_df(df)
 ```
 
@@ -131,40 +88,25 @@ gas_model = GasModel.from_df(df)
 
 You can modify an existing `GasModel` by adding or removing species.
 
-### Adding a species
-
 Use the `add_species` method to add a new species.
 
-#### Example
-
 ```python
-# Define the new species data
 new_species = {
     'species_name': 'N2',
     'type': 'linear',
-    'gas_molec_weight': 28.0134,
+    'gas_molec_weight': 28.013,
     'sym_number': 2,
     'degeneracy': 1,
     'inertia_moments': [10.822],
     'gas_energy': 0.00
 }
-
-# Add the species to the GasModel
 gas_model.add_species(species_info=new_species)
 ```
 
-### Removing species
-
 Use the `remove_species` method to remove species by name.
 
-#### Example
-
 ```python
-# List of species to remove
-species_to_remove = ['CO2']
-
-# Remove species from the GasModel
-gas_model.remove_species(species_to_remove)
+gas_model.remove_species(['CO2'])
 ```
 
 ---
@@ -173,25 +115,9 @@ gas_model.remove_species(species_to_remove)
 
 The gas species data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
-#### Example
-
 ```python
-# View the gas species data
 print(gas_model.df)
 ```
-
-**Output:**
-
-```
-     type  gas_molec_weight  sym_number  degeneracy  \
-CO  linear            28.010           1           1   
-CO2 linear            44.010           2           1   
-
-                     inertia_moments  gas_energy  
-CO           [8.973618976566065]     1.9544267  
-CO2         [44.317204709218686]     0.00  
-```
-
 ---
 
 ## Full example
@@ -208,7 +134,7 @@ species_data = {
         'gas_molec_weight': 28.01,
         'sym_number': 1,
         'degeneracy': 1,
-        'inertia_moments': [8.973618976566065],
+        'inertia_moments': [8.973],
         'gas_energy': 1.9544267
     },
     'O2': {
@@ -216,7 +142,7 @@ species_data = {
         'gas_molec_weight': 32.00,
         'sym_number': 2,
         'degeneracy': 3,
-        'inertia_moments': [12.178373934770187],
+        'inertia_moments': [12.178],
         'gas_energy': 2.6131292
     }
 }
@@ -231,7 +157,7 @@ gas_model.add_species(species_info={
     'gas_molec_weight': 44.01,
     'sym_number': 2,
     'degeneracy': 1,
-    'inertia_moments': [44.317204709218686],
+    'inertia_moments': [44.317],
     'gas_energy': 0.00
 })
 
@@ -243,14 +169,3 @@ print(gas_model.df)
 ```
 
 ---
-
-## Next steps
-
-With the `GasModel` defined, you can proceed to:
-
-- Define the `EnergeticsModel`
-- Define the `ReactionModel`
-- Create a `LatticeModel`
-- Assemble the `KMCModel`
-
-For detailed guidance on these steps, refer to the respective sections in the documentation.

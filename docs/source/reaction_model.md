@@ -2,46 +2,33 @@
 
 ## Overview
 
-The `ReactionModel` contains the information about each elementary step. It supports different types of steps:
+The `ReactionModel` stores information about each elementary reaction step. Supported step types include non-activated/activated adsorption or desorption, and surface reactions or diffusions.
 
-- **Non-activated adsorption**
-- **Activated adsorption**
-- **Non-activated desorption**
-- **Surface reactions or diffusions**
+### Properties
 
-### Required columns
+- **`initial`** (`list[str]`): Initial configuration (e.g., `['1 CO* 1', '2 * 1']`).  
+- **`final`** (`list[str]`): Final configuration (e.g., `['1 C* 1', '2 O* 1']`).  
+- **`activ_eng`** (`float`): Activation energy (eV).  
+- **`vib_energies_is`** (`list[float]`): Vibrational energies for the initial state (meV).  
+- **`vib_energies_fs`** (`list[float]`): Vibrational energies for the final state (meV).  
+- **`vib_energies_ts`** (`list[float]`, *optional*): Vibrational energies for the transition state (meV).  
+  Omit or set to `[]` for non-activated steps.  
+- **`area_site`** (`float`, *optional*): Site area (Å²); required if a gas species participates.  
+- **`molecule_is`** (`str`, *optional*): Name of gas-phase molecule in the initial state (only for adsorption).  
+- **`molecule_fs`** (`str`, *optional*): Name of gas-phase molecule in the final state (only for desorption).  
+- **`site_types`** (`str`, *optional*): Site types required if `lattice_type='periodic_cell'`).  
+- **`neighboring`** (`str`, *optional*): Connectivity between sites (e.g., `'1-2'`; default = `None`).  
+- **`prox_factor`** (`float`, *optional*): Proximity factor.  
+- **`angles`** (`str`, *optional*): Angle constraints (e.g., `'1-2-3:180'`; default = `None`).  
+- **`graph_multiplicity`** (`int` or `float`, *optional*): Symmetry factor of the step. The computed pre-exponential factor is divided by this value.  
+- **`fixed_pre_expon`** (`float`, *optional*): Fixed forward pre-exponential factor (no scaling or symmetry applied).  
+  Units must follow Zacros conventions:  
+  - Surface/non-activated desorption → `s⁻¹`  
+  - Adsorption (activated/non-activated) → `bar⁻¹·s⁻¹`  
+- **`fixed_pe_ratio`** (`float`, *optional*): Fixed pre-exponential ratio `pe_fwd/pe_rev`. Must be used with `fixed_pre_expon`.  
 
-- **`initial`** (`list` of `str`): Initial configuration in Zacros format (e.g., `['1 CO* 1', '2 * 1']`).
-- **`final`** (`list` of `str`): Final configuration in Zacros format (e.g., `['1 C* 1', '2 O* 1']`).
-- **`activ_eng`** (`float`): Activation energy in electronvolts (eV).
-- **`vib_energies_is`** (`list` of `float`): Vibrational energies for the initial state in millielectronvolts (meV), excluding the zero-point energy (ZPE).
-- **`vib_energies_fs`** (`list` of `float`): Vibrational energies for the final state in meV, excluding the ZPE.
+> **Deprecation note:** The old **`molecule`** column is deprecated and treated as `molecule_is` with a warning.
 
-### Additional required columns (when applicable)
-
-- **When *any* gas species participates (adsorption/desorption/exchange)**:
-  - **`area_site`** (`float`): Area of the adsorption site in Å².
-- **When a gas species is present in the initial state (IS)**:
-  - **`molecule_is`** (`str`): Gas-phase molecule in the **initial** state (e.g. adsorption).
-- **When a gas species is present in the final state (FS)**:
-  - **`molecule_fs`** (`str`): Gas-phase molecule in the **final** state (e.g. desorption).
-- **Activated steps** (activated adsorption, surface reactions):
-  - **`vib_energies_ts`** (`list[float]`): Vibrational energies for the transition state in meV (no ZPE).  
-    For **non-activated** steps, this may be omitted or set to `[]`.
-
-> **Deprecation note**: The old **`molecule`** column is deprecated. If provided, it is treated as `molecule_is` and a `DeprecationWarning` is issued.
-
-### Optional columns
-
-- **`site_types`** (`str`): Types of each site in the reaction pattern. Required if `lattice_type` is `'periodic_cell'`.
-- **`neighboring`** (`str`): Connectivity between sites involved (e.g., `'1-2'`).
-- **`prox_factor`** (`float`): Proximity factor.
-- **`angles`** (`str`): Angle constraints between sites in Zacros format (e.g., `'1-2-3:180'`).
-- **`graph_multiplicity`** (`int` or `float`): Symmetry factor of the step. The computed pre-exponential factor will be divided by this value. Useful for symmetric steps like diffusion on equivalent sites.
-- **`fixed_pre_expon`** (`float`): Optional fixed **forward** pre-exponential factor to write as-is (no scaling / no graph multiplicity applied).
-  Units must match Zacros expectations: surface/non-activated desorption in `s^-1`; adsorption (activated/non-activated) in `bar^-1·s^-1`.
-- **`fixed_pe_ratio`** (`float`): Optional fixed pre-exponential ratio `pe_fwd/pe_rev` to write as-is.
-  Must be provided **together** with `fixed_pre_expon`.
 
 ---
 

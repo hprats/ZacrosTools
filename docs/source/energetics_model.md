@@ -2,19 +2,16 @@
 
 ## Overview
 
-The `EnergeticsModel` contains the information about each cluster included in the cluster expansion.
+The `EnergeticsModel` stores information about each cluster included in the cluster expansion.
 
-### Required columns
+### Properties
 
-- **`cluster_eng`** (`float`): Cluster formation energy in electronvolts (eV).
-- **`lattice_state`** (`list` of `str`): Cluster configuration in Zacros format, e.g., `['1 CO* 1', '2 CO* 1']`.
-
-### Optional columns
-
-- **`site_types`** (`str`): Types of each site in the cluster pattern. Required if `lattice_type` is `'periodic_cell'`.
-- **`neighboring`** (`str`): Connectivity between sites involved, e.g., `'1-2'`. Default is `None`.
-- **`angles`** (`str`): Angle constraints between sites in Zacros format, e.g., `'1-2-3:180'`. Default is `None`.
-- **`graph_multiplicity`** (`int`): Symmetry number of the cluster. Default is `None`.
+- **`cluster_eng`** (`float`): Cluster formation energy (eV).  
+- **`lattice_state`** (`list[str]`): Cluster configuration (e.g., `['1 CO* 1', '2 CO* 1']`).  
+- **`site_types`** (`str`, *optional*): Site types (required if `lattice_type='periodic_cell'`).  
+- **`neighboring`** (`str`, *optional*): Connectivity between sites (e.g., `'1-2'`; default = `None`).  
+- **`angles`** (`str`, *optional*): Angle constraints (e.g., `'1-2-3:180'`; default = `None`).  
+- **`graph_multiplicity`** (`int`, *optional*): Graph multiplicity (default = `None`).  
 
 ### Example data table
 
