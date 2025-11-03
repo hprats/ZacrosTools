@@ -139,7 +139,7 @@ def plot_finaltime(
 
     if auto_title:
         ax.set_title(
-            label="final time ($s$)",
+            label="final time",
             y=1.0,
             pad=-14,
             color="w",
