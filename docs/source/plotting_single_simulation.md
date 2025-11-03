@@ -1,10 +1,8 @@
 # Plotting single simulation results
 
-There are several ways to visualize results from a single KMC simulation. This section demonstrates how to plot surface coverage and the number of molecules produced over time.
+There are several ways to visualize results from a single KMC simulation. This section shows some examples
 
-### Surface coverage
-
-In this example, we plot surface coverage as a function of simulation time for different surface species. The `KMCOutput` object is initialized with data from a completed KMC simulation, and the plot displays the coverage for all species that reach a threshold coverage of 1%.
+### Surface coverage vs simulated time
 
 ```python
 import matplotlib.pyplot as plt
@@ -72,7 +70,7 @@ plt.show()
 
 ---
 
-### Number of molecules produced
+#### Number of molecules produced
 
 This example demonstrates how to plot the number of molecules produced over time for different gas-phase species in a single KMC simulation.
 
@@ -104,27 +102,18 @@ plt.show()
 
 ---
 
-### Event frequencies
+#### Event frequencies
 
-The frequency of different types of events can provide valuable insights into the reaction mechanism. The `procstat_output.txt` file contains statistical information about the events (elementary steps) that occurred during the simulation. By parsing this file, one can plot the frequency of each event over a specified time range. 
-
-#### Simple plot of event frequencies
-
-The following example demonstrates how to plot the frequency of all observed events in a specified time range without applying any grouping of similar events:
+The `procstat_output.txt` file records statistics on all elementary events during the simulation. Analyzing it reveals the frequency of each event type within a chosen time range. The example below shows how to plot these event frequencies:
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.procstat_output import plot_procstat, parse_procstat_output_file
+from zacrostools.procstat_output import plot_event_frequency, parse_procstat_output_file
 
-# Plot parameters
-job_path = 'simulation_results/CH4_5.179e-04#CO2_6.105e-04'
-analysis_range = [50, 100]
-range_type = 'time'
-
-df_procstat, delta_time, area = parse_procstat_output_file(
-    output_file=f'{job_path}/procstat_output.txt',
-    analysis_range=analysis_range,
-    range_type=range_type
+df_procstat, delta_time, delta_events, area = parse_procstat_output_file(
+    procstat_output_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time'
 )
 
 num_steps = len(df_procstat.index)
@@ -132,40 +121,34 @@ fig_height = max(4.0, num_steps * 0.18)
 
 fig1, axs = plt.subplots(1, figsize=(9, fig_height))
 
-plot_procstat(ax=axs,
-              simulation_path=job_path,
-              analysis_range=analysis_range,
-              range_type=range_type)
+plot_event_frequency(
+    ax=axs,
+    simulation_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time')
 
 plt.tight_layout(pad=3.0)  # Increased padding for better spacing
 plt.savefig('event_frequencies.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
-This code reads the `procstat_output.txt` file, filters the data for the specified time range, and then plots each elementary step event frequency. The vertical size of the figure is dynamically adjusted based on the number of elementary steps.
-
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/event_frequencies.png?raw=true" alt="Stiffness coefficients" width="700"/> </div>
 
 ---
-
-#### Grouped event frequencies and selective hiding of events
 
 Sometimes, there may be too many elementary steps to analyze individually. Grouping related events together simplifies the visualization. Additionally, one may want to hide certain types of events, such as diffusion steps, to focus on reaction events only. The following example demonstrates how to group similar events and optionally hide diffusion steps:
 
 ```python
 import matplotlib.pyplot as plt
-from zacrostools.procstat_output import plot_procstat, parse_procstat_output_file
+from zacrostools.procstat_output import plot_event_frequency, parse_procstat_output_file
 
 # Plot parameters
-job_path = 'simulation_results/CH4_5.179e-04#CO2_6.105e-04'
-analysis_range = [50, 100]
-range_type = 'time'
 hide_diffusion_steps = False
 
-df_procstat, delta_time, area = parse_procstat_output_file(
-    output_file=f'{job_path}/procstat_output.txt',
-    analysis_range=analysis_range,
-    range_type=range_type
+df_procstat, delta_time, delta_events, area = parse_procstat_output_file(
+    procstat_output_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time'
 )
 
 if hide_diffusion_steps:
@@ -177,7 +160,6 @@ else:
         (df_procstat['noccur_net'] != 0)
     ].index.tolist()
 
-# Define groups of related elementary steps
 grouping = {
     'aCH4_Pt': ['aCH4_Pt-1', 'aCH4_Pt-2'],
     'aCH4_in': ['aCH4_in-1', 'aCH4_in-2'],
@@ -224,11 +206,11 @@ fig1, axs = plt.subplots(
     sharex='col'
 )
 
-plot_procstat(
+plot_event_frequency(
     ax=axs,
-    simulation_path=job_path,
-    analysis_range=analysis_range,
-    range_type=range_type,
+    simulation_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time',
     elementary_steps=None,
     hide_zero_events=True,
     grouping=grouping
@@ -243,9 +225,9 @@ In this example, events are grouped for clearer visualization. Additionally, by 
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/event_frequencies_grouping.png?raw=true" alt="Stiffness coefficients" width="700"/> </div>
 
-### Stiffness scaling coefficients
+#### Stiffness scaling coefficients
 
-In simulations where stiffness scaling is employed, it's often useful to visualize how the stiffness coefficients evolve over time. Stiffness coefficients may remain constant for a while and then abruptly change at specific times. Using a step plot makes it easy to highlight these jumps:
+Only if stiffness scaling has been applied. 
 
 ```python
 import numpy as np
@@ -258,10 +240,8 @@ data = parse_general_output_file(
 
 stiffness_df = data['stiffness_scaling_coefficients']
 
-# Identify columns corresponding to stiffness steps
+# Exclude from the plot steps where all stiffness coefficients are 1.0
 step_columns = [col for col in stiffness_df.columns if col not in ['time', 'nevents']]
-
-# Filter out steps where all coefficients are 1.0 (no change)
 filtered_steps = [col for col in step_columns if not np.all(np.isclose(stiffness_df[col], 1.0))]
 
 plt.figure(figsize=(8, 6))
@@ -285,7 +265,7 @@ plt.savefig('stiffness_coefficients.png', dpi=300, bbox_inches='tight', transpar
 plt.show()
 ```
 
-The `parse_general_output_file` function extracts stiffness scaling coefficients from the general output file of a simulation. After filtering out steps that do not change (remain at a factor of 1.0), the code creates a step plot showing how the coefficients evolve over time. 
+Note: The `parse_general_output_file` function extracts stiffness scaling coefficients from the general output file of a simulation. After filtering out steps that do not change (remain at a factor of 1.0), the code creates a step plot showing how the coefficients evolve over time. 
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/stiffness_coefficients.png?raw=true" alt="Stiffness coefficients" width="600"/> </div>
 
