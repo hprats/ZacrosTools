@@ -1,17 +1,14 @@
-# -------------------------------------
-# 0) Common junk (always ignore)
+# Common junk (always ignore)
 .idea/
 .pytest_cache/
 dist/
 zacrostools.egg-info/
 .DS_Store
 
-# -------------------------------------
-# 1) Ignore everything by default
+# Ignore everything by default
 *
 
-# -------------------------------------
-# 2) Allow versioning of this .gitignore and key top-level files
+# Allow key top-level files
 !.gitignore
 !CHANGELOG.md
 !LICENSE
@@ -21,28 +18,17 @@ zacrostools.egg-info/
 !setup.py
 !.readthedocs.yaml
 
-# -------------------------------------
-# 3) Allow these top-level directories to be considered
+# Allow these directories and all subdirs
 !docs/
 !examples/
 !tests/
 !zacrostools/
-
-# -------------------------------------
-# 4) Inside those directories, ignore everything recursively...
-docs/**
-examples/**
-tests/**
-zacrostools/**
-
-# ...but re-allow directories so negation rules below can match files
 !docs/**/
 !examples/**/
 !tests/**/
 !zacrostools/**/
 
-# -------------------------------------
-# 5) Re-allow the file types you want to track (recursively)
+# Track these file types recursively
 !docs/**/*.{py,txt,dat,md,png,pdf,csv,yml}
 !examples/**/*.{py,txt,dat,md,png,pdf,csv,yml}
 !tests/**/*.{py,txt,dat,md,png,pdf,csv,yml}
