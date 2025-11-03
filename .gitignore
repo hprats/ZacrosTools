@@ -1,15 +1,19 @@
-# Common junk (always ignore)
+# -------------------------------------
+# 1) Ignore everything by default
+*
+# -------------------------------------
+# 2) Explicitly ignore common unwanted folders
 .idea/
 .pytest_cache/
 dist/
 zacrostools.egg-info/
+# macOS hidden file
 .DS_Store
-
-# Ignore everything by default
-*
-
-# Allow key top-level files
+# -------------------------------------
+# 3) Allow versioning of this .gitignore
 !.gitignore
+# -------------------------------------
+# 4) Unignore the specific top-level files
 !CHANGELOG.md
 !LICENSE
 !README.md
@@ -17,19 +21,53 @@ zacrostools.egg-info/
 !setup.cfg
 !setup.py
 !.readthedocs.yaml
-
-# Allow these directories and all subdirs
+# -------------------------------------
+# 5) Unignore these directories so Git can see inside them
 !docs/
 !examples/
 !tests/
 !zacrostools/
-!docs/**/
-!examples/**/
-!tests/**/
-!zacrostools/**/
+# -------------------------------------
+# 6) Re-ignore everything inside those directories
+docs/*
+examples/*
+tests/*
+zacrostools/*
+!zacrostools/heatmaps/
+# -------------------------------------
+# 7) Re-unignore the file types to track
+!docs/**/*.py
+!docs/**/*.txt
+!docs/**/*.dat
+!docs/**/*.md
+!docs/**/*.png
+!docs/**/*.pdf
+!docs/**/*.csv
+!docs/**/*.yml
 
-# Track these file types recursively
-!docs/**/*.{py,txt,dat,md,png,pdf,csv,yml}
-!examples/**/*.{py,txt,dat,md,png,pdf,csv,yml}
-!tests/**/*.{py,txt,dat,md,png,pdf,csv,yml}
-!zacrostools/**/*.{py,txt,dat,md,png,pdf,csv,yml}
+!examples/**/*.py
+!examples/**/*.txt
+!examples/**/*.dat
+!examples/**/*.md
+!examples/**/*.png
+!examples/**/*.pdf
+!examples/**/*.csv
+!examples/**/*.yml
+
+!tests/**/*.py
+!tests/**/*.txt
+!tests/**/*.dat
+!tests/**/*.md
+!tests/**/*.png
+!tests/**/*.pdf
+!tests/**/*.csv
+!tests/**/*.yml
+
+!zacrostools/**/*.py
+!zacrostools/**/*.txt
+!zacrostools/**/*.dat
+!zacrostools/**/*.md
+!zacrostools/**/*.png
+!zacrostools/**/*.pdf
+!zacrostools/**/*.csv
+!zacrostools/**/*.yml
