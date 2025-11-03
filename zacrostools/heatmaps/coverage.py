@@ -164,8 +164,13 @@ def plot_coverage(
     ax.set_facecolor("lightgray")
 
     if auto_title:
+        if site_type == 'StTp1':
+            title_label = "coverage"
+        else:
+            title_label = f"coverage ${site_type.replace('_', r'\_')}$"
+
         ax.set_title(
-            label=f"coverage ${site_type.replace('_', r'\_')}$",
+            label=title_label,
             y=1.0,
             pad=-14,
             color="w",
