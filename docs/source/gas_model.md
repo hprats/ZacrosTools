@@ -74,8 +74,6 @@ gas_model = GasModel.from_csv('gas_data.csv')
 
 If you already have a DataFrame containing the gas species data, you can create a `GasModel` directly.
 
-#### Example
-
 ```python
 from zacrostools.gas_model import GasModel
 
