@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_heatmap
+from zacrostools.heatmaps.coverage import plot_coverage
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_heatmap(
+plot_coverage(
     ax=axs,
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='coverage',
     surf_spec='all',
     site_type='tC',
     analysis_range=[50, 100],

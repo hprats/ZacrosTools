@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_heatmap
+from zacrostools.heatmaps.selectivity import plot_selectivity
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_heatmap(
+plot_selectivity(
     ax=axs,
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='selectivity',
     main_product='H2',
     side_products=['H2O'],
     min_molec=100,

@@ -1,16 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_heatmap
+from zacrostools.heatmaps.dtof import plot_dtof
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_heatmap(
+plot_dtof(
     ax=axs,
     scan_path='simulation_results',
     scan_path_ref='simulation_results_reference',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='dtof',
     gas_spec='H2',
     min_molec=0,
     analysis_range=[50, 100],

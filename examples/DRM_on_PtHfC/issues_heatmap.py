@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
-from zacrostools.plot_functions import plot_heatmap
+from zacrostools.heatmaps.issues import plot_issues
 
 fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 
-plot_heatmap(
+plot_issues(
     ax=axs,
     scan_path='simulation_results',
     x='pressure_CH4',
     y='pressure_CO2',
-    z='issues',
+    analysis_range=[50, 100],
     verbose=True,
     auto_title=True,
     show_points=False,

@@ -1,16 +1,13 @@
 import matplotlib.pyplot as plt
-from zacrostools.procstat_output import plot_procstat, parse_procstat_output_file
+from zacrostools.procstat_output import plot_event_frequency, parse_procstat_output_file
 
 # Plot parameters
-job_path = 'simulation_results/CH4_5.179e-04#CO2_6.105e-04'
-analysis_range = [50, 100]
-range_type = 'time'
 hide_diffusion_steps = False
 
-df_procstat, delta_time, area = parse_procstat_output_file(
-    output_file=f'{job_path}/procstat_output.txt',
-    analysis_range=analysis_range,
-    range_type=range_type
+df_procstat, delta_time, delta_events, area = parse_procstat_output_file(
+    procstat_output_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time'
 )
 
 if hide_diffusion_steps:
@@ -68,11 +65,11 @@ fig1, axs = plt.subplots(
     sharex='col'
 )
 
-plot_procstat(
+plot_event_frequency(
     ax=axs,
-    simulation_path=job_path,
-    analysis_range=analysis_range,
-    range_type=range_type,
+    simulation_path='simulation_results/CH4_5.179e-04#CO2_6.105e-04',
+    analysis_range=[50, 100],
+    range_type='time',
     elementary_steps=None,
     hide_zero_events=True,
     grouping=grouping
