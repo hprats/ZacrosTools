@@ -1,7 +1,5 @@
 # 1. Create a Gas Model
 
-## Overview
-
 The `GasModel` contains the information about each gas-phase molecule involved in the simulation.
 
 ### Properties
@@ -15,17 +13,15 @@ The `GasModel` contains the information about each gas-phase molecule involved i
   - `'non_linear'`: 3 values required.
 - **`degeneracy`** (`int`, *optional*): Ground-state degeneracy (default = 1).
 
-## Creating a `GasModel`
-
 There are several ways to create a `GasModel` instance:
 
 1. **From a dictionary**
 2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### From a dictionary
+### How to create it
 
-You can create a `GasModel` by providing a dictionary where each key is a species name and each value is a dictionary of properties.
+You can create a `GasModel` by providing a dictionary where each key is a species name and each value is a dictionary of properties:
 
 ```python
 from zacrostools.gas_model import GasModel
@@ -60,9 +56,7 @@ species_data = {
 gas_model = GasModel.from_dict(species_data)
 ```
 
-### From a CSV file
-
-The CSV should have the required columns and use the species names as the index.
+Alternatively, it can also be created from a CSV file. In this case, the indexes must correspond to the species names:
 
 ```python
 from zacrostools.gas_model import GasModel
@@ -70,9 +64,7 @@ from zacrostools.gas_model import GasModel
 gas_model = GasModel.from_csv('gas_data.csv')
 ```
 
-### From a Pandas DataFrame
-
-If you already have a DataFrame containing the gas species data, you can create a `GasModel` directly.
+Finally, it can also be created from a Pandas dataframe:
 
 ```python
 import pandas as pd
@@ -84,7 +76,7 @@ gas_model = GasModel.from_df(df)
 
 ---
 
-## Adding and removing species
+### Adding and removing species
 
 You can modify an existing `GasModel` by adding or removing species.
 
@@ -111,7 +103,7 @@ gas_model.remove_species(['CO2'])
 
 ---
 
-## Accessing gas-phase data
+### Accessing gas-phase data
 
 The gas species data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
@@ -120,7 +112,7 @@ print(gas_model.df)
 ```
 ---
 
-## Full example
+### Full example
 
 Below is a complete example demonstrating the creation and modification of a `GasModel`:
 
