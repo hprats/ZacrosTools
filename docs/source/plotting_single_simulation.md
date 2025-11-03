@@ -2,7 +2,7 @@
 
 There are several ways to visualize results from a single KMC simulation. This section shows some examples
 
-### Surface coverage vs simulated time
+#### Surface coverage vs simulated time
 
 ```python
 import matplotlib.pyplot as plt
@@ -31,7 +31,6 @@ plt.show()
 ```
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_per_totalsites.png?raw=true" alt="Coverage per total sites" width="500"/> </div>
-
 
 In the previous example, coverage is calculated by dividing the number of molecules of a given adsorbate by the total number of sites. However, it is often more meaningful to calculate coverage as the number of molecules of a specific adsorbate on a particular site type, divided by the total number of sites of that type. The following example demonstrates how to do this:
 
@@ -133,8 +132,6 @@ plt.show()
 ```
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/event_frequencies.png?raw=true" alt="Stiffness coefficients" width="700"/> </div>
-
----
 
 Sometimes, there may be too many elementary steps to analyze individually. Grouping related events together simplifies the visualization. Additionally, one may want to hide certain types of events, such as diffusion steps, to focus on reaction events only. The following example demonstrates how to group similar events and optionally hide diffusion steps:
 
