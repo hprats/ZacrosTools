@@ -2,7 +2,7 @@
 
 The `GasModel` contains the information about each gas-phase molecule involved in the simulation.
 
-### Properties
+#### Properties
 
 - **`type`** (`str`): Molecular type — `'linear'`, `'non_linear'` or `'monoatomic'`.
 - **`gas_energy`** (`float`): Formation energy (eV).
@@ -19,7 +19,7 @@ There are several ways to create a `GasModel` instance:
 2. **From a CSV file**
 3. **From a Pandas DataFrame**
 
-### How to create it
+#### How to create it
 
 You can create a `GasModel` by providing a dictionary where each key is a species name and each value is a dictionary of properties:
 
@@ -103,7 +103,7 @@ gas_model.remove_species(['CO2'])
 
 ---
 
-### Accessing gas-phase data
+#### Accessing gas-phase data
 
 The gas species data is stored internally as a Pandas DataFrame, accessible via the `df` attribute.
 
@@ -112,7 +112,7 @@ print(gas_model.df)
 ```
 ---
 
-### Full example
+#### Full example
 
 Below is a complete example demonstrating the creation and modification of a `GasModel`:
 
