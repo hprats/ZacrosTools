@@ -21,59 +21,59 @@ from zacrostools.energetics_model import EnergeticsModel
 clusters_data = {
     'CO_point': {
         'cluster_eng': 0.230,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 CO* 1']
     },
     'O_point': {
         'cluster_eng': -1.326,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 O* 1']
     },
     'CO2_point': {
         'cluster_eng': -1.571,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 CO2* 1']
     },
     'C_point': {
         'cluster_eng': 2.442,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 C* 1']
     },
     'CO2+CO2_pair': {
         'cluster_eng': 0.143,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 CO2* 1', '2 CO2* 1'],
         'neighboring': '1-2',
         'graph_multiplicity': 2.0
     },
     'CO2+CO_pair': {
         'cluster_eng': -0.183,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 CO2* 1', '2 CO* 1'],
         'neighboring': '1-2'
     },
     'CO2+O_pair': {
         'cluster_eng': -0.161,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 CO2* 1', '2 O* 1'],
         'neighboring': '1-2'
     },
     'CO+CO_pair': {
         'cluster_eng': 0.177,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 CO* 1', '2 CO* 1'],
         'neighboring': '1-2',
         'graph_multiplicity': 2.0
     },
     'CO+O_pair': {
         'cluster_eng': -0.032,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 CO* 1', '2 O* 1'],
         'neighboring': '1-2'
     },
     'O+O_pair': {
         'cluster_eng': 0.033,
-        'site_types': 'tC tC',
+        'site_types': 'top top',
         'lattice_state': ['1 O* 1', '2 O* 1'],
         'neighboring': '1-2',
         'graph_multiplicity': 2.0
@@ -111,7 +111,7 @@ Use the `add_cluster` method to add a new cluster:
 new_cluster = {
     'cluster_name': 'new_cluster',
     'cluster_eng': 1.0,
-    'site_types': 'tC tC',
+    'site_types': 'top top',
     'lattice_state': ['1 CO* 1', '2 C* 1'],
     'neighboring': '1-2'
 }
@@ -165,12 +165,12 @@ from zacrostools.energetics_model import EnergeticsModel
 clusters_data = {
     'CO_point': {
         'cluster_eng': 0.230,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 CO* 1']
     },
     'O_point': {
         'cluster_eng': -1.326,
-        'site_types': 'tC',
+        'site_types': 'top',
         'lattice_state': ['1 O* 1']
     }
 }
@@ -182,7 +182,7 @@ energetics_model = EnergeticsModel.from_dict(clusters_data)
 energetics_model.add_cluster(cluster_info={
     'cluster_name': 'CO2_point',
     'cluster_eng': -1.571,
-    'site_types': 'tC',
+    'site_types': 'top',
     'lattice_state': ['1 CO2* 1']
 })
 
