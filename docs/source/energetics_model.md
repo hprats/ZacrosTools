@@ -11,7 +11,7 @@ The `EnergeticsModel` stores information about each cluster included in the clus
 - **`angles`** (`str`, *optional*): Angle constraints (e.g., `'1-2-3:180'`; default = `None`).  
 - **`graph_multiplicity`** (`int`, *optional*): Graph multiplicity (default = `None`).  
 
-#### How to create it
+#### How to create it
 
 You can provide a dictionary where each key is a cluster name and each value is a dictionary of cluster properties:
 
