@@ -223,8 +223,13 @@ def plot_phasediagram(
     ax.set_facecolor("lightgray")
 
     if auto_title:
+        if site_type == 'StTp1':
+            title_label = "phase diagram"
+        else:
+            title_label = f"phase diagram ${site_type.replace('_', r'\_')}$"
+
         ax.set_title(
-            label=f"phase diagram ${site_type.replace('_', r'\_')}$",
+            label=title_label,
             y=1.0,
             pad=-14,
             color="w",
