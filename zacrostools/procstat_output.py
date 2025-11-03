@@ -8,7 +8,7 @@ from matplotlib.lines import Line2D
 import warnings
 
 
-def parse_procstat_output_file(output_file: Union[str, Path],
+def parse_procstat_output_file(procstat_output_path: Union[str, Path],
                                analysis_range: List[float],
                                range_type: str) -> Tuple[pd.DataFrame, float, int, float]:
     """
@@ -16,8 +16,8 @@ def parse_procstat_output_file(output_file: Union[str, Path],
 
     Parameters
     ----------
-    output_file : Union[str, Path]
-        Path to the procstat_output.txt file.
+    procstat_output_path : Union[str, Path]
+        Path to the **folder** that contains 'procstat_output.txt'.
     analysis_range : List[float], optional
         A list of two elements `[start_percent, end_percent]` specifying the portion of the entire simulation
         to consider for analysis. The values should be between 0 and 100, representing percentages of the
@@ -46,7 +46,8 @@ def parse_procstat_output_file(output_file: Union[str, Path],
             The area extracted from general_output.txt.
     """
 
-    output_file = Path(output_file)
+    procstat_output_path = Path(procstat_output_path)
+    output_file = procstat_output_path / "procstat_output.txt"
     if not output_file.is_file():
         raise FileNotFoundError(f"Output file '{output_file}' does not exist.")
 
@@ -310,14 +311,13 @@ def plot_event_frequency(
     """
 
     simulation_path = Path(simulation_path)
-    procstat_file = simulation_path / 'procstat_output.txt'
 
-    # Parse data: now returns counts, delta_time, and area
     df_counts, delta_time, delta_events, area = parse_procstat_output_file(
-        output_file=procstat_file,
+        procstat_output_path=simulation_path,
         analysis_range=analysis_range,
         range_type=range_type
     )
+
     if df_counts.empty:
         raise ValueError(f"No steps have occurred.")
 
