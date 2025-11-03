@@ -21,33 +21,19 @@ These following parameters are available in most heatmap types:
 - **`show_points`** (`bool`, default `False`): Overlay white dots at each grid node.
 - **`show_colorbar`** (`bool`, default `True`): Draw a colorbar.
 - **`auto_title`** (`bool`, default `False`): Render an automatic, styled subplot title.
-
-### About analysis windows and weights
-
-Several plots read time series and accept:
-
 - **`analysis_range`** (`list[float]`, default `[0, 100]`): Percentage window of the simulation data to analyze.
 - **`range_type`** (`str`, default `'time'`): `'time'` for simulated time windows or `'nevents'` for number-of-events windows.
 - **`weights`** (`str` or `None`): Averaging weights passed to `KMCOutput` (`'time'`, `'events'`, or `None`).
 
 ---
 
-## TOF (Turnover Frequency): `plot_tof`
+#### TOF
 
-**What it shows:** TOF of a gas-phase species (molec·s⁻¹·Å⁻²). Values are plotted with **logarithmic normalization** (`LogNorm`).
-
-```python
-from zacrostools.heatmaps.tof import plot_tof
-```
-
-### Parameters specific to TOF
-
+Parameters specific to `plot_tof`:
 - **`gas_spec`** (`str`, required): Gas species key (e.g., `'H2'`, `'CO'`).
 - **`min_molec`** (`int`, default `1`): Minimum total production required for a valid TOF.
 - **`levels`** (`list`/`ndarray` or `None`): If provided, TOF values are clipped to `[min(levels), max(levels)]` and those become `LogNorm` bounds.
 - **`show_max`** (`bool`, default `False`): Mark the global maximum with a golden `*`.
-
-### Example
 
 ```python
 import numpy as np
@@ -76,18 +62,10 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/tof_heatmap.png?raw=true" alt="TOF heatmap" width="500"/> </div>
 
----
 
-## ∆TOF (Delta TOF): `plot_dtof`
+#### ∆TOF
 
-**What it shows:** Difference in TOF between a **main** scan (`scan_path`) and a **reference** scan (`scan_path_ref`). Supports absolute or relative differences, optional percentage format, and optional masking of simulations with issues via `detect_issues`. Uses **continuous** or **discrete** normalization, linear or logarithmic, with sign-correct behavior (via `SymLogNorm` when needed).
-
-```python
-from zacrostools.heatmaps.dtof import plot_dtof
-```
-
-### Key behaviors & parameters
-
+Parameters specific to `plot_dtof`:
 - **`difference_type`**:  
   - `'absolute'`: ∆TOF = TOF(main) − TOF(ref)  
   - `'relative'`: ∆TOF = |TOF(main) / TOF(ref)|
@@ -96,8 +74,6 @@ from zacrostools.heatmaps.dtof import plot_dtof
 - **`min_tof_ref`** (`float`, default `0.0`): Mask cells whose reference TOF is below this threshold.
 - **`check_issues`**: run `detect_issues` on `'none'`, `'main'`, `'ref'`, or `'both'`; flagged cells are masked.
 - **Color range**: Symmetric about zero. If `max_dtof`/`min_dtof` not set, sensible defaults are chosen per mode.
-
-### Example: absolute, continuous log scale
 
 ```python
 import numpy as np
@@ -128,23 +104,12 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/dtof_heatmap.png?raw=true" alt="∆TOF heatmap" width="500"/> </div>
 
----
+#### Selectivity
 
-## Selectivity (%): `plot_selectivity`
-
-**What it shows:** Selectivity of a **main product** against specified **side products**, in percent. Values are clipped to the provided `levels` (linear scale).
-
-```python
-from zacrostools.heatmaps.selectivity import plot_selectivity
-```
-
-### Parameters specific to Selectivity
-
+Parameters specific to `plot_selectivity`:
 - **`main_product`** (`str`, required) and **`side_products`** (`list[str]`, required).
 - **`min_molec`** (`int`): Minimum **combined** production (main + sides) to accept the value.
 - **`levels`**: The plotted range is `[min(levels), max(levels)]`.
-
-### Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -172,22 +137,11 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/selectivity_heatmap.png?raw=true" alt="Selectivity heatmap" width="500"/> </div>
 
----
+#### Coverage
 
-## Coverage (%): `plot_coverage`
-
-**What it shows:** Coverage on a **site type** for either a list of adsorbates (summed) or `'all'` (total coverage). Values are clipped to `levels` (linear scale).
-
-```python
-from zacrostools.heatmaps.coverage import plot_coverage
-```
-
-### Parameters specific to Coverage
-
+Parameters specific to `plot_coverage`:
 - **`surf_spec`** (`'all'` | `str` | `list[str]`): `'all'` means total coverage. A string or list sums the listed adsorbates’ coverages.
 - **`site_type`** (`str`, default `'StTp1'`).
-
-### Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -215,24 +169,13 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/coverage_heatmap.png?raw=true" alt="Coverage heatmap" width="500"/> </div>
 
----
+#### Phase diagram
 
-## Phase Diagram (dominant adsorbate): `plot_phasediagram`
-
-**What it shows:** For each operating point, the **dominant surface species** on a chosen site type, provided total coverage ≥ `min_coverage`. Species (or groups of species) are mapped to numeric bins and rendered with `pcolormesh`. The colorbar tick labels are the **keys** of `tick_labels` (strings like `$CH_{x}$`), and each label corresponds to a list of surface species names in that group.
-
-```python
-from zacrostools.heatmaps.phasediagram import plot_phasediagram
-```
-
-### Parameters specific to Phase Diagram
-
+Parameters specific to `plot_phasediagram`:
 - **`site_type`** (`str`, default `'StTp1'`).
 - **`min_coverage`** (`float|int`, default `50.0`): Minimum total coverage (%) to consider a dominant species.
 - **`tick_labels`** (`dict` or `None`): `{label_str: [species, ...], ...}`.  
   If `None`, the code parses `simulation_input.dat` from the first simulation and assigns **each species to its own group** (label=species). The function validates that provided species exist in the simulation; if you accidentally pass `'O'` while only `'O*'` exists, a helpful error is raised.
-
-### Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -272,21 +215,10 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/phasediagram_heatmap.png?raw=true" alt="Phase diagram heatmap" width="500"/> </div>
 
----
+#### Final time
 
-## Final Time (s): `plot_finaltime`
-
-**What it shows:** The final simulation time read from each job. Plotted with **logarithmic normalization** (`LogNorm`).
-
-```python
-from zacrostools.heatmaps.finaltime import plot_finaltime
-```
-
-### Parameters specific to Final Time
-
+Parameters specific to `plot_finaltime`:
 - **`levels`** (`list`/`ndarray` or `None`): If provided, sets `LogNorm(vmin=min(levels), vmax=max(levels))`; otherwise auto-normalized.
-
-### Example
 
 ```python
 import numpy as np
@@ -311,21 +243,10 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/finaltime_heatmap.png?raw=true" alt="Final time heatmap" width="500"/> </div>
 
----
+#### Energy slope
 
-## Energy Slope: `plot_energyslope`
-
-**What it shows:** The **energy slope** metric gathered from each run (as computed via `KMCOutput`). Rendered with `pcolormesh` and `LogNorm`.
-
-```python
-from zacrostools.heatmaps.energyslope import plot_energyslope
-```
-
-### Parameters specific to Energy Slope
-
+Parameters specific to `plot_energyslope`:
 - **`levels`**: If provided, `LogNorm(vmin=min(levels), vmax=max(levels))`; otherwise auto-normalized.
-
-### Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -349,23 +270,12 @@ plt.show()
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/energyslope_heatmap.png?raw=true" alt="Energy slope heatmap" width="500"/> </div>
 
----
+#### Issues
 
-## Issues (Yes/No): `plot_issues`
-
-**What it shows:** For each run, whether **issues** are detected by `zacrostools.detect_issues.detect_issues` within the selected analysis window. Rendered via `pcolormesh` with a centered 2-bin scale: `-0.5 → "Yes"`, `+0.5 → "No"`.
-
-```python
-from zacrostools.heatmaps.issues import plot_issues
-```
-
-### Parameters specific to Issues
-
+Parameters specific to `plot_issues`:
 - **`analysis_range`** (`list`, required): If `None`, the function internally sets `[0, 100]`.
 - **Pass-through thresholds**: `energy_slope_thr`, `time_r2_thr`, `max_points` forwarded to `detect_issues`.
 - **`verbose`**: If `True`, prints paths of simulations with detected issues.
-
-### Example
 
 ```python
 import matplotlib.pyplot as plt
@@ -392,7 +302,7 @@ plt.show()
 
 ---
 
-## Building a multi-panel figure
+#### Building a multi-panel figure
 
 You can combine multiple heatmaps into a single figure. Below is a compact example with 4 rows × 3 columns using a common scan and consistent analysis window.
 
@@ -495,7 +405,7 @@ plt.show()
 
 ---
 
-## Customizing text sizes and colorbars
+#### Customizing text sizes and colorbars
 
 You can adjust tick sizes, label fonts, and title placement using standard Matplotlib APIs. Example for a single TOF subplot:
 
