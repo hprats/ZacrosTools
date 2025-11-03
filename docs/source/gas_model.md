@@ -4,23 +4,16 @@
 
 The `GasModel` contains the information about each gas-phase molecule involved in the simulation.
 
-### Required columns
+### Properties
 
-- **`type`** (`str`): Specifies whether the molecule is `'linear'`, `'non_linear'` or `'monoatomic'`.
-- **`gas_energy`** (`float`): Formation energy in electronvolts (eV). Do not include the zero-point energy (ZPE).
-- **`gas_molec_weight`** (`float`): Molecular weight in atomic mass units (amu).
-
-### Required for 'linear' and 'non_linear' molecules
-
-- **`sym_number`** (`int`): Symmetry number of the molecule (must be positive integer). Must be undefined/None for 'monoatomic'.
-- **`inertia_moments`** (`list` of `float`): Moments of inertia in amu·Å².
-  - Linear molecules: Provide 1 moment of inertia.
-  - Non-linear molecules: Provide 3 moments of inertia.
-
-### Optional column
-
-- **`degeneracy`** (`int`): Degeneracy of the ground state, used in calculating the electronic partition function.
-  - Default value: `1`.
+- **`type`** (`str`): Molecular type — `'linear'`, `'non_linear'` or `'monoatomic'`.
+- **`gas_energy`** (`float`): Formation energy (eV).
+- **`gas_molec_weight`** (`float`): Molecular weight (amu).
+- **`sym_number`** (`int`): Symmetry number (ignored for monoatomic species).
+- **`inertia_moments`** (`list` of `float`): Moments of inertia (amu·Å²).
+  - `'linear'`: 1 value required.
+  - `'non_linear'`: 3 values required.
+- **`degeneracy`** (`int`, *optional*): Ground-state degeneracy (default = 1).
 
 ### Example data table
 
