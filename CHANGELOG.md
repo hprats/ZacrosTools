@@ -6,24 +6,18 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - **Redefined relative ∆TOF calculation in `dtof.py`**:  
-  - The `difference_type='relative'` mode now computes  
-    \[
-    \Delta\mathrm{TOF} = \left| \frac{\mathrm{TOF_{main}}}{\mathrm{TOF_{ref}}} \right|
-    \]
-    instead of the previous fractional form  
-    \[
-    \frac{\mathrm{TOF_{main}} - \mathrm{TOF_{ref}}}{|\mathrm{TOF_{ref}}|}
-    \]
-    making the relative ∆TOF a **unitless ratio**.  
+  - The `difference_type='relative'` mode now computes |TOF(main) / TOF(ref)| instead of the previous fractional form (TOF(main) - TOF(ref)) / |TOF(ref)|
   - The colorbar for relative ∆TOF is now **logarithmic by default**, centered at **10⁰ (ratio = 1)**.  
   - The range automatically adapts to the nearest order of magnitude of the data (e.g., from 10⁻² to 10²).  
     - Users may still specify `max_dtof` to manually set the range; the colorbar will then span `[10^{-N}, 10^{+N}]`, where `10^N` is the closest power of ten to the given value.  
   - When using `difference_type='relative'`, the `scale` parameter is automatically forced to `'log'`.  
-
+- **Improved automatic titles in heatmaps:**:  
+  - In `heatmaps.time`, `auto_title=True` now omits units from the title.
+  - In `heatmaps.coverage` and `heatmaps.phasediagram`, `auto_title=True` now omits the site type name if a default lattice is used. 
+  
 ### Removed
 - **Deprecated `percent` parameter**:  
-  - The `percent` keyword is **no longer supported** in `plot_dtof()`.  
-  - Attempting to pass it will raise a `ValueError` with a clear message directing users to the new relative ∆TOF definition.
+  - The `percent` keyword is **no longer supported** in `plot_dtof()`.
 
 ## [2.9] - 07-Oct-2025
 
