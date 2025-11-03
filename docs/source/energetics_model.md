@@ -39,32 +39,6 @@ clusters_data = {
         'site_types': 'top',
         'lattice_state': ['1 C* 1']
     },
-    'CO2+CO2_pair': {
-        'cluster_eng': 0.143,
-        'site_types': 'top top',
-        'lattice_state': ['1 CO2* 1', '2 CO2* 1'],
-        'neighboring': '1-2',
-        'graph_multiplicity': 2.0
-    },
-    'CO2+CO_pair': {
-        'cluster_eng': -0.183,
-        'site_types': 'top top',
-        'lattice_state': ['1 CO2* 1', '2 CO* 1'],
-        'neighboring': '1-2'
-    },
-    'CO2+O_pair': {
-        'cluster_eng': -0.161,
-        'site_types': 'top top',
-        'lattice_state': ['1 CO2* 1', '2 O* 1'],
-        'neighboring': '1-2'
-    },
-    'CO+CO_pair': {
-        'cluster_eng': 0.177,
-        'site_types': 'top top',
-        'lattice_state': ['1 CO* 1', '2 CO* 1'],
-        'neighboring': '1-2',
-        'graph_multiplicity': 2.0
-    },
     'CO+O_pair': {
         'cluster_eng': -0.032,
         'site_types': 'top top',
