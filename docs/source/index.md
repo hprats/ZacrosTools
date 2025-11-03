@@ -15,10 +15,10 @@ ZacrosTools is a versatile toolkit designed to simplify the preparation and anal
 
 ## Key features 
 
-- **Automatic input file generation**: Easily create Zacros input files, reducing errors.
-- **Output file parsing**: Quickly read, analyze, and process Zacros output data.
-- **Pressure and temperature scans**: Streamline the process of performing scans over different pressures and temperatures.
-- **Documentation and examples:** Extensive documentation with detailed examples to help users get started and make full use of ZacrosTools.
+- **Automatize the creation of Zacros input files**
+- **Quickly read, analyze, and process Zacros output files**
+- **Perform scans over different pressures and temperatures**
+- **Extensive documentation with detailed examples to help users get started**
 
 <div style="text-align: center;"> <img src="https://github.com/hprats/ZacrosTools/blob/main/examples/DRM_on_PtHfC/multiple_heatmaps.png?raw=true" alt="Multiple heatmaps" width="700"/> </div>
 
@@ -37,17 +37,12 @@ ZacrosTools is available on PyPI and can be installed using `pip`:
 pip install zacrostools
 ```
 
-### Prerequisites 
-
+Prerequisites:
 - **Python 3.8 or higher**
 - **[Scipy](https://scipy.org/)**
 - **[Pandas](https://pandas.pydata.org/)**
 
-These dependencies will be installed automatically with `pip`.
-
-### Installing from source
-
-To install the latest development version from GitHub:
+Alternatively, the latest development version can be installed from GitHub as follows:
 
 ```bash
 git clone https://github.com/hprats/ZacrosTools.git
@@ -55,37 +50,11 @@ cd ZacrosTools
 pip install .
 ```
 
-## Quick start guide
-
-Get started with ZacrosTools by following these steps:
-
-1. **Define the `GasModel`, the `EnergeticsModel` and the `ReactionModel` from a Python dictionary, a Pandas DataFrame, or a `.csv` file**
-2. **Create a default or custom `LatticeModel`**
-3. **Combine all previous models to create a `KMCModel`**
-4. **Write the input files with {py:func}`KMCModel.create_job_dir()` and run Zacros**
-5. **Parse the results with `KMCOutput` and visualize the results with `plot_functions` to gain insights**
-
-Detailed instructions for each step are provided in the documentation sections below.
-
-## Documentation
-
-The ZacrosTools documentation is organized into the following sections:
-
-- **[Gas model](gas_model.md)**: Learn how to define the gas-phase molecular data.
-- **[Energetics model](energetics_model.md)**: Define all the terms used in the cluster expansion.
-- **[Reaction model](reaction_model.md)**: Specify the elementary steps included in the reaction mechanism.
-- **[Lattice model](lattice_model.md)**: Understand how to set up a lattice model.
-- **[Writing_input_files](writing_input_files.md)**: Integrate all components into a KMC model and write the Zacros input files.
-- **[Reading output files](reading_output_files.md)**: Parse and analyze data from Zacros output files.
-- **[Plotting single simulation results](plotting_single_simulation.md)**: Plot the simulation results, such as surface coverage, molecules produced, or event frequencies. 
-- **[Plotting heatmaps](plotting_heatmaps.md)**: Draw heatmap plots from a set of KMC simulations at various operating conditions.
-- **[API reference](api_reference.md)**: Detailed API documentation for ZacrosTools modules and classes.
-
 ## Recent changes
 
-## [2.10] - 03-Nov-2025
+### [2.10] - 03-Nov-2025
 
-### Changed
+#### Changed
 - **Redefined relative ∆TOF calculation in `dtof.py`**:  
   - The `difference_type='relative'` mode now computes |TOF(main) / TOF(ref)| instead of the previous fractional form (TOF(main) - TOF(ref)) / |TOF(ref)|
   - The colorbar for relative ∆TOF is now **logarithmic by default**, centered at **10⁰ (ratio = 1)**.  
@@ -96,13 +65,13 @@ The ZacrosTools documentation is organized into the following sections:
   - In `heatmaps.time`, `auto_title=True` now omits units from the title.
   - In `heatmaps.coverage` and `heatmaps.phasediagram`, `auto_title=True` now omits the site type name if a default lattice is used. 
   
-### Removed
+#### Removed
 - **Deprecated `percent` parameter**:  
   - The `percent` keyword is **no longer supported** in `plot_dtof()`.
 
-## [2.9] - 07-Oct-2025
+### [2.9] - 07-Oct-2025
 
-### Fixed
+#### Fixed
 - **Missing heatmaps subpackage in PyPI builds**: The `zacrostools.heatmaps` folder is now correctly included in the package distribution.  
   - Added an `__init__.py` file to ensure it is recognized as a subpackage.  
   - Users can now successfully import plotting functions such as:
@@ -113,15 +82,15 @@ The ZacrosTools documentation is organized into the following sections:
     ```
   - This fix ensures compatibility when installing ZacrosTools via `pip` or from PyPI.
 
-## [2.8] - 01-Oct-2025
+### [2.8] - 01-Oct-2025
 
-### Added
+#### Added
 - **Monoatomic gas species support**: `GasModel` now accepts a third `type` value: `"monoatomic"`.  
   - For monoatomics, rotational partition is treated as 1, so `sym_number` and `inertia_moments` may be **omitted or set to `None`**.  
   - CSVs that contain **only** monoatomic species no longer need `sym_number` or `inertia_moments` columns.  
   - Works seamlessly with `ReactionModel` and the updated partition/pre-exponential functions.
 
-### Changed
+#### Changed
 - **Fixed pre-exponential factors are now step-level fields**: Instead of passing `fixed_pre_expon` / `fixed_pe_ratio` to `ReactionModel.write_mechanism_input()`, define them **per step** (like other optional columns).  
   - New optional columns on each step:  
     - `fixed_pre_expon` (float): forward pre-exponential written as-is  
@@ -132,48 +101,19 @@ The ZacrosTools documentation is organized into the following sections:
     - A fixed step cannot appear in `stiffness_scalable_steps`  
     - A fixed step cannot appear in `stiffness_scalable_symmetric_steps`
     
-## [2.7] - 25-Sep-2025
+### [2.7] - 25-Sep-2025
 
-### Added
+#### Added
 - **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
   - Incompatible with `stiffness_scalable_steps='all'`.  
   - Incompatible with listing fixed steps in either `stiffness_scalable_steps` or `stiffness_scalable_symmetric_steps`.
 
-## [2.6] - 24-Sep-2025
-
-### Changed
-- **Gas-phase molecule parameter update**: the deprecated `molecule` parameter has been replaced by two explicit parameters, `molecule_is` and `molecule_fs`, which indicate the presence of gas-phase species in the initial or final state of a step, respectively. Using `molecule` will trigger a `DeprecationWarning`.  
-
-### Added
-- **Bidirectional gas-phase step support**: ZacrosTools now accepts the definition of reaction steps involving gas-phase species in either direction (initial or final state). Previously, gas-phase species were only allowed in the initial state (adsorption).
-  
-## [2.5] - 30-Jul-2025
-
-### Added
-- **Additional keywords support**: added an `additional_keywords` parameter to `KMCModel.create_job_dir` and `write_simulation_input` to append additional Zacros keywords to `simulation_input.dat`.  
-- **`sign` parameter for ∆time heatmaps**: introduced a `sign` argument in `plot_dtime` (`'both'`, `'positive'`, or `'negative'`) to filter ∆time values by sign.  
-- **Issue masking in ∆TOF heatmaps**: added a `check_issues` parameter to `plot_dtof` (`'none'`, `'both'`, `'main'`, or `'ref'`) to mask cells flagged by `detect_issues`.  
-- **Unspecified state support**: `EnergeticsModel` now accepts the `& & &` placeholder in `lattice_state` definitions to represent unspecified site states.  
-- **Multidentate species support**: `EnergeticsModel` handles adsorbates multidentate surface species occupying multiple site types.  
-
-### Changed 
-- **Surface species name parsing**: removed the requirement that species names end with `*`. Surface species names now stay exactly as typed by the user (i.e. no removal of `*` at the end).
-
-### Fixed
-- **`parse_general_output_file` crash**: fixed a bug that caused a crash when an initial state is provided.
-- **∆TOF docstring & title logic**: corrected the relative ∆TOF formula in `plot_dtof`’s docstring.
 
 Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 
 ## What's next
 
-We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities.
-
-Contributions are welcome!
-
-- **Report bugs**: Use the [issue tracker](https://github.com/hprats/ZacrosTools/issues) to report bugs.
-- **Request features**: Suggest new features or improvements.
-- **Submit pull requests**: Fork the repository and submit pull requests for your contributions.
+We plan to continue improving ZacrosTools with additional features, optimizations, and support for more advanced Zacros functionalities. Contributions are welcome!
 
 ## License
 
@@ -202,5 +142,4 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
    reading_output_files.md
    plotting_single_simulation.md
    plotting_heatmaps.md
-   api_reference.md
 ```
