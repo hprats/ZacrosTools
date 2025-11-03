@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [2.10] - To be released soon
+## [2.10] - 03-Nov-2025
 
 ### Changed
 - **Redefined relative ∆TOF calculation in `dtof.py`**:  
