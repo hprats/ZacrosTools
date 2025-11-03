@@ -152,7 +152,7 @@ def plot_energyslope(
 
     if auto_title:
         ax.set_title(
-            label="energy slope \n($eV·Å^{{-2}}·step^{{-1}}$)",
+            label="energy slope \n",
             y=1.0,
             pad=-28,
             color="w",
