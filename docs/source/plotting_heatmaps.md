@@ -59,27 +59,27 @@ from zacrostools.heatmaps.tof import plot_tof
 ### Example
 
 ```python
-import numpy as np, matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 from zacrostools.heatmaps.tof import plot_tof
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_tof(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    gas_spec="H2",
-    min_molec=1,
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_tof(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    gas_spec='H2',
+    min_molec=0,
     analysis_range=[50, 100],
-    range_type="time",
-    levels=np.logspace(-1, 4, 11),
-    show_max=True,
+    range_type='time',
+    levels=np.logspace(-1, 4, num=11),
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("tof_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('tof_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -99,7 +99,7 @@ from zacrostools.heatmaps.dtof import plot_dtof
 
 - **`difference_type`**:  
   - `'absolute'`: ∆TOF = TOF(main) − TOF(ref)  
-  - `'relative'`: ∆TOF = (TOF(main) − TOF(ref)) / |TOF(ref)|; with **`percent=True`**, values are in %.
+  - `'relative'`: ∆TOF = |TOF(main) / TOF(ref)|
 - **`scale`**: `'log'` uses `LogNorm` (all positive/negative) or `SymLogNorm` (mixed sign); `'lin'` uses linear normalization.
 - **`nlevels`**: `0` → continuous normalization; odd ≥3 → discrete bins (`BoundaryNorm`). For `'log'`, bins are log-spaced (mirrored about 0).
 - **`min_tof_ref`** (`float`, default `0.0`): Mask cells whose reference TOF is below this threshold.
@@ -109,30 +109,29 @@ from zacrostools.heatmaps.dtof import plot_dtof
 ### Example: absolute, continuous log scale
 
 ```python
+import numpy as np
 import matplotlib.pyplot as plt
 from zacrostools.heatmaps.dtof import plot_dtof
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_dtof(
-    ax=ax,
-    scan_path="simulation_results",
-    scan_path_ref="reference_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    gas_spec="H2",
-    difference_type="absolute",
-    scale="log",
-    min_molec=1,
-    nlevels=0,              # continuous
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_dtof(
+    ax=axs,
+    scan_path='simulation_results',
+    scan_path_ref='simulation_results_reference',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    gas_spec='H2',
+    difference_type='absolute',
+    min_molec=0,
     analysis_range=[50, 100],
-    range_type="time",
-    check_issues="none",
+    range_type='time',
+    levels=np.logspace(-1, 4, num=11),
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("dtof_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('dtof_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -157,26 +156,26 @@ from zacrostools.heatmaps.selectivity import plot_selectivity
 ### Example
 
 ```python
-import matplotlib.pyplot as plt, numpy as np
+import matplotlib.pyplot as plt
 from zacrostools.heatmaps.selectivity import plot_selectivity
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_selectivity(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    main_product="H2",
-    side_products=["H2O"],
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_selectivity(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    main_product='H2',
+    side_products=['H2O'],
     min_molec=100,
     analysis_range=[50, 100],
-    range_type="time",
-    levels=np.linspace(0, 100, 11, dtype=int),
-    cmap="Greens",
+    range_type='time',
     auto_title=True,
+    show_points=False,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("selectivity_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('selectivity_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -203,23 +202,23 @@ from zacrostools.heatmaps.coverage import plot_coverage
 import matplotlib.pyplot as plt
 from zacrostools.heatmaps.coverage import plot_coverage
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_coverage(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    surf_spec="all",
-    site_type="tC",
-    weights="time",
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_coverage(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    surf_spec='all',
+    site_type='tC',
     analysis_range=[50, 100],
-    range_type="time",
+    range_type='time',
+    weights='time',
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("coverage_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('coverage_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -246,37 +245,37 @@ from zacrostools.heatmaps.phasediagram import plot_phasediagram
 
 ```python
 import matplotlib.pyplot as plt
+from zacrostools.heatmaps.phasediagram import plot_phasediagram
 
-tick_labels = {
-    '$CH_{x}$': ['CH3', 'CH3_Pt', 'CH2', 'CH2_Pt', 'CH', 'CH_Pt', 'C', 'C_Pt'],
-    '$CHO/COH$': ['CHO', 'CHO_Pt', 'COH', 'COH_Pt'],
-    '$CO$': ['CO', 'CO_Pt'],
-    '$COOH$': ['COOH', 'COOH_Pt'],
-    '$CO_{2}$': ['CO2', 'CO2_Pt'],
-    '$H$': ['H', 'H_Pt'],
-    '$H_{2}O$': ['H2O', 'H2O_Pt'],
-    '$OH$': ['OH', 'OH_Pt'],
-    '$O$': ['O', 'O_Pt']
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+tick_labels = {  # for phase diagram plots
+    '$CH_{x}$': ['CH3*', 'CH3_Pt*', 'CH2*', 'CH2_Pt*', 'CH*', 'CH_Pt*', 'C*', 'C_Pt*'],
+    '$CHO/COH$': ['CHO*', 'CHO_Pt*', 'COH*', 'COH_Pt*'],
+    '$CO$': ['CO*', 'CO_Pt*'],
+    '$COOH$': ['COOH*', 'COOH_Pt*'],
+    '$CO_{2}$': ['CO2*', 'CO2_Pt*'],
+    '$H$': ['H*', 'H_Pt*'],
+    '$H_{2}O$': ['H2O*', 'H2O_Pt*'],
+    '$OH$': ['OH*', 'OH_Pt*'],
+    '$O$': ['O*', 'O_Pt*'],
 }
-
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_phasediagram(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CO2",
-    y="pressure_CH4",
-    site_type="tC",
+plot_phasediagram(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
     min_coverage=50.0,
+    site_type='tC',
     tick_labels=tick_labels,
-    weights="time",
     analysis_range=[50, 100],
-    range_type="time",
+    range_type='time',
+    weights='time',
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("phase_diagram.png", dpi=300, bbox_inches="tight")
+plt.savefig('phasediagram_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -299,22 +298,23 @@ from zacrostools.heatmaps.finaltime import plot_finaltime
 ### Example
 
 ```python
-import numpy as np, matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 from zacrostools.heatmaps.finaltime import plot_finaltime
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_finaltime(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    levels=np.logspace(-5, 7, 13),
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_finaltime(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    levels=np.logspace(-5, 7, num=13),
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("finaltime_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('finaltime_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -340,20 +340,19 @@ from zacrostools.heatmaps.energyslope import plot_energyslope
 import matplotlib.pyplot as plt
 from zacrostools.heatmaps.energyslope import plot_energyslope
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_energyslope(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    analysis_range=[50, 100],
-    range_type="time",
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_energyslope(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    range_type='nevents',
     auto_title=True,
     show_points=False,
-    show_colorbar=True,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("energyslope_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('energyslope_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -381,21 +380,20 @@ from zacrostools.heatmaps.issues import plot_issues
 import matplotlib.pyplot as plt
 from zacrostools.heatmaps.issues import plot_issues
 
-fig, ax = plt.subplots(figsize=(4.6, 3.6))
-cp = plot_issues(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
+plot_issues(
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
     analysis_range=[50, 100],
-    range_type="time",
     verbose=True,
     auto_title=True,
-    show_colorbar=True,
     show_points=False,
+    show_colorbar=True
 )
 plt.tight_layout()
-plt.savefig("issues_heatmap.png", dpi=300, bbox_inches="tight")
+plt.savefig('issues_heatmap.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -410,134 +408,94 @@ You can combine multiple heatmaps into a single figure. Below is a compact examp
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-
 from zacrostools.heatmaps.tof import plot_tof
+from zacrostools.heatmaps.dtof import plot_dtof
+from zacrostools.heatmaps.selectivity import plot_selectivity
 from zacrostools.heatmaps.coverage import plot_coverage
 from zacrostools.heatmaps.phasediagram import plot_phasediagram
-from zacrostools.heatmaps.selectivity import plot_selectivity
 from zacrostools.heatmaps.finaltime import plot_finaltime
 
-scan_path = "simulation_results"
-x_variable = "pressure_CH4"
-y_variable = "pressure_CO2"
+# Plot parameters
+scan_path = 'simulation_results'
+x_variable = 'pressure_CH4'
+y_variable = 'pressure_CO2'
 
-analysis_range = [50, 100]
-range_type = "time"
-weights = "time"
+analysis_range = [50, 100]      # Ignore first 50 % of total simulated time (equilibration)
+range_type = 'time'
+weights = 'time'
 
-min_molec_tof = 1
-min_molec_selectivity = 100
-min_coverage = 50
+min_molec_tof = 0               # For TOF and selectivity
+min_molec_selectivity = 100     # For TOF and selectivity
+min_coverage = 50               # (in %) To plot phase diagrams
 
 auto_title = True
 show_points = False
 show_colorbar = True
 
-fig, axs = plt.subplots(4, 3, figsize=(8.8, 8), sharey="row", sharex="col")
-
-# Row 1: TOF of three products
-for n, product in enumerate(["CO", "H2", "H2O"]):
-    plot_tof(
-        ax=axs[0, n],
-        scan_path=scan_path,
-        x=x_variable,
-        y=y_variable,
-        gas_spec=product,
-        min_molec=min_molec_tof,
-        analysis_range=analysis_range,
-        range_type=range_type,
-        levels=np.logspace(-1, 4, 11),
-        auto_title=auto_title,
-        show_points=show_points,
-        show_colorbar=show_colorbar,
-    )
-
-# Row 2: Total coverage on three site types
-for n, site_type in enumerate(["tC", "tM", "Pt"]):
-    plot_coverage(
-        ax=axs[1, n],
-        scan_path=scan_path,
-        x=x_variable,
-        y=y_variable,
-        surf_spec="all",
-        site_type=site_type,
-        analysis_range=analysis_range,
-        range_type=range_type,
-        weights=weights,
-        auto_title=auto_title,
-        show_points=show_points,
-        show_colorbar=show_colorbar,
-    )
-
-# Row 3: Phase diagram on three site types
-tick_labels = {
-    "$CH_{x}$": ["CH3", "CH3_Pt", "CH2", "CH2_Pt", "CH", "CH_Pt", "C", "C_Pt"],
-    "$CHO/COH$": ["CHO", "CHO_Pt", "COH", "COH_Pt"],
-    "$CO$": ["CO", "CO_Pt"],
-    "$COOH$": ["COOH", "COOH_Pt"],
-    "$CO_{2}$": ["CO2", "CO2_Pt"],
-    "$H$": ["H", "H_Pt"],
-    "$H_{2}O$": ["H2O", "H2O_Pt"],
-    "$OH$": ["OH", "OH_Pt"],
-    "$O$": ["O", "O_Pt"],
+# Define labels for phase diagram heatmaps
+tick_labels = { 
+    '$CH_{x}$': ['CH3*', 'CH3_Pt*', 'CH2*', 'CH2_Pt*', 'CH*', 'CH_Pt*', 'C*', 'C_Pt*'],
+    '$CHO/COH$': ['CHO*', 'CHO_Pt*', 'COH*', 'COH_Pt*'],
+    '$CO$': ['CO*', 'CO_Pt*'],
+    '$COOH$': ['COOH*', 'COOH_Pt*'],
+    '$CO_{2}$': ['CO2*', 'CO2_Pt*'],
+    '$H$': ['H*', 'H_Pt*'],
+    '$H_{2}O$': ['H2O*', 'H2O_Pt*'],
+    '$OH$': ['OH*', 'OH_Pt*'],
+    '$O$': ['O*', 'O_Pt*'],
 }
 
-for n, site_type in enumerate(["tC", "tM", "Pt"]):
-    plot_phasediagram(
-        ax=axs[2, n],
-        scan_path=scan_path,
-        x=x_variable,
-        y=y_variable,
-        site_type=site_type,
-        min_coverage=min_coverage,
-        tick_labels=tick_labels,
-        analysis_range=analysis_range,
-        range_type=range_type,
-        auto_title=auto_title,
-        show_points=show_points,
-        show_colorbar=show_colorbar,
-    )
+fig, axs = plt.subplots(4, 3, figsize=(8.8, 8), sharey='row', sharex='col')
 
-# Row 4: Selectivity and Final time (leave last cell empty)
+for n, product in enumerate(['CO', 'H2', 'H2O']):
+    plot_tof(
+        ax=axs[0, n], scan_path=scan_path, x=x_variable, y=y_variable,
+        gas_spec=product, min_molec=min_molec_tof,
+        analysis_range=analysis_range, range_type=range_type, levels=np.logspace(-1, 4, num=11),
+        auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
+
+for n, site_type in enumerate(['tC', 'tM', 'Pt']):
+    plot_coverage(
+        ax=axs[1, n], scan_path=scan_path, x=x_variable, y=y_variable,
+        surf_spec='all', site_type=site_type,
+        analysis_range=analysis_range, range_type=range_type, weights=weights,
+        auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
+
+for n, site_type in enumerate(['tC', 'tM', 'Pt']):
+    plot_phasediagram(
+        ax=axs[2, n], scan_path=scan_path, x=x_variable, y=y_variable,
+        min_coverage=min_coverage, site_type=site_type, tick_labels=tick_labels,
+        analysis_range=analysis_range, range_type=range_type, weights=weights,
+        auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
+
 plot_selectivity(
-    ax=axs[3, 0],
-    scan_path=scan_path,
-    x=x_variable,
-    y=y_variable,
-    main_product="H2",
-    side_products=["H2O"],
-    min_molec=min_molec_selectivity,
-    analysis_range=analysis_range,
-    range_type=range_type,
-    auto_title=auto_title,
-    show_points=show_points,
-    show_colorbar=show_colorbar,
-)
+    ax=axs[3, 0], scan_path=scan_path, x=x_variable, y=y_variable,
+    main_product='H2', side_products=['H2O'], min_molec=min_molec_selectivity,
+    analysis_range=analysis_range, range_type=range_type,
+    auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
 plot_finaltime(
-    ax=axs[3, 1],
-    scan_path=scan_path,
-    x=x_variable,
-    y=y_variable,
-    levels=np.logspace(-7, 7, 15),
-    auto_title=auto_title,
-    show_points=show_points,
-    show_colorbar=show_colorbar,
-)
+    ax=axs[3, 1], scan_path=scan_path, x=x_variable, y=y_variable,
+    levels=np.logspace(-7, 7, num=15), auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
-axs[3, 2].axis("off")
+plot_dtof(
+    ax=axs[3, 2], scan_path=scan_path, x=x_variable, y=y_variable,
+    scan_path_ref='simulation_results_reference', gas_spec='H2', min_molec=0, levels=np.logspace(-1, 4, num=11),
+    analysis_range=analysis_range, range_type=range_type,
+    auto_title=auto_title, show_points=show_points, show_colorbar=show_colorbar)
 
-# Optional cosmetic cleanup
+# Hide axis labels of intermediate subplots
 for i in range(3):
     for j in range(3):
-        axs[i, j].set_xlabel("")
+        axs[i, j].set_xlabel('')
 for i in range(3):
     for j in range(1, 3):
-        axs[i, j].set_ylabel("")
+        axs[i, j].set_ylabel('')
 
 plt.tight_layout()
-plt.savefig("multiple_heatmaps.png", dpi=300, bbox_inches="tight")
+plt.savefig('multiple_heatmaps.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
+
 ```
 
 <div style="text-align: center;"> 
@@ -551,40 +509,38 @@ plt.show()
 You can adjust tick sizes, label fonts, and title placement using standard Matplotlib APIs. Example for a single TOF subplot:
 
 ```python
-import numpy as np, matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 from zacrostools.heatmaps.tof import plot_tof
 
-fig, ax = plt.subplots(figsize=(4.3, 3.5))
+fig, axs = plt.subplots(1, figsize=(4.3, 3.5))
 cp = plot_tof(
-    ax=ax,
-    scan_path="simulation_results",
-    x="pressure_CH4",
-    y="pressure_CO2",
-    gas_spec="H2",
-    min_molec=1,
+    ax=axs,
+    scan_path='simulation_results',
+    x='pressure_CH4',
+    y='pressure_CO2',
+    gas_spec='H2',
+    min_molec=0,
     analysis_range=[50, 100],
-    range_type="time",
-    levels=np.logspace(-1, 4, 11),
+    range_type='time',
+    levels=np.logspace(-1, 4, num=11),
     auto_title=True,
-    show_colorbar=False,
+    show_points=False,
+    show_colorbar=False
 )
-
 # Adjust size of axis ticks
-ax.tick_params(axis="both", which="major", labelsize=14)
-
+axs.tick_params(axis='both', which='major', labelsize=14)
 # Adjust font size of axis labels
-ax.set_xlabel(ax.get_xlabel(), fontsize=18)
-ax.set_ylabel(ax.get_ylabel(), fontsize=18)
-
-# Adjust font size and position of the title
-ax.set_title(ax.get_title(), fontsize=20, loc="center", pad=-170)
-
+axs.set_xlabel(axs.get_xlabel(), fontsize=18)
+axs.set_ylabel(axs.get_ylabel(), fontsize=18)
+# Adjust font size and position of axis title
+axs.set_title(axs.get_title(), fontsize=20, loc='center', pad=-170)
 # Create colorbar and adjust the size of its tick labels
-cbar = plt.colorbar(cp, ax=ax)
+cbar = plt.colorbar(cp, ax=axs)
 cbar.ax.tick_params(labelsize=14)
 
 plt.tight_layout()
-plt.savefig("tof_heatmap_custom.png", dpi=300, bbox_inches="tight")
+plt.savefig('tof_heatmap_custom.png', dpi=300, bbox_inches='tight', transparent=False)
 plt.show()
 ```
 
@@ -593,11 +549,3 @@ plt.show()
 </div>
 
 ---
-
-## Notes & error handling
-
-- If a simulation subfolder cannot be parsed, the corresponding cell is set to **NaN** (and left blank in the plot), with a warning printed.
-- When a grid node (x,y) is missing entirely from the scan directory, a warning is emitted and a NaN is assigned.
-- If duplicated (x,y) values are found (multiple folders encode the same pair), a `PlotError` is raised to protect data integrity.
-- `plot_tof` and `plot_selectivity` use **`contourf`**; `plot_dtof`, `plot_energyslope`, `plot_phasediagram`, and `plot_issues` use **`pcolormesh`**; `plot_finaltime` uses **`contourf`**. Normalization choices are described in each section above.
-
