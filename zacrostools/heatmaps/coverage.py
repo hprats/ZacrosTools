@@ -165,9 +165,9 @@ def plot_coverage(
 
     if auto_title:
         if site_type == 'StTp1':
-            title_label = "coverage"
+            title_label = "coverage (%)"
         else:
-            title_label = f"coverage ${site_type.replace('_', r'\_')}$"
+            title_label = f"coverage ${site_type.replace('_', r'\_')}$ (%)"
 
         ax.set_title(
             label=title_label,
