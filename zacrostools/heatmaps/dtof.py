@@ -49,8 +49,8 @@ def plot_dtof(
 
     This function reads KMC simulation outputs for a specified gas species from both a main set of
     directories (`scan_path`) and a reference set (`scan_path_ref`), computes the TOF for each, and
-    then builds a 2D heatmap of the difference (∆TOF). It supports absolute differences or relative
-    differences, and can optionally mask out any simulations flagged as having issues.
+    then builds a 2D heatmap of the difference (∆TOF). It supports absolute differences, ratio, or
+    relative percent difference, and can optionally mask out any simulations flagged as having issues.
 
     Parameters
     ----------
@@ -65,10 +65,12 @@ def plot_dtof(
         Gas species key (e.g., 'H2', 'CO') for which TOF is computed.
     scan_path_ref : str, optional
         Path to the folder containing reference simulation subdirectories (must match names).
-    difference_type : {'absolute', 'relative'}, default 'absolute'
+    difference_type : {'absolute', 'ratio', 'relative'}, default 'absolute'
         - 'absolute': ∆TOF = TOF(main) - TOF(ref)
-        - 'relative': ∆TOF = | TOF(main) / TOF(ref) |
-          In this mode, the colorbar is always logarithmic and centered at 10^0 (i.e., ratio 1).
+        - 'relative': ∆TOF = (TOF(main) - TOF(ref)) / TOF(ref) * 100  [percent]
+                      (colorbar forced to linear, centered at 0, spanning ±max_dtof%)
+        - 'ratio':    ∆TOF = | TOF(main) / TOF(ref) |
+                      (colorbar forced to logarithmic and centered at 10^0)
     check_issues : {'none','both','main','ref'}, default 'none'
         Which runs `detect_issues` on:
         - 'none' → neither
@@ -76,33 +78,31 @@ def plot_dtof(
         - 'main' → only the main scan
         - 'ref'  → only the reference scan
     scale : {'log', 'lin'}, default 'log'
-        Axis scaling for the heatmap. (Forced to 'log' if difference_type='relative'.)
+        Axis scaling for the heatmap. (Forced appropriately for 'ratio' and 'relative' modes.)
     min_molec : int, default 1
         Minimum total production threshold for both main and reference runs; below this, cell
         is masked.
     max_dtof, min_dtof : float, optional
         Maximum and minimum threshold for the color scale. If None, sensible defaults are chosen:
         - For absolute differences: max → next decade above data, min → max/1e3.
-        - For relative (ratio): the colorbar spans [10^{-N}, 10^{+N}] around 1, where 10^N is the
+        - For ratio: the colorbar spans [10^{-N}, 10^{+N}] around 1, where 10^N is the
           nearest order of magnitude to `max_dtof` if provided, otherwise to the maximum ratio in data.
+        - For relative (%): the colorbar spans [-max_dtof, +max_dtof] with default max_dtof=30 (%).
     min_tof_ref : float, optional
         Minimum TOF threshold for the reference run. If nonzero and the reference TOF is below
         this value, the corresponding cell is masked (NaN). Default is 0.0.
     nlevels : int, default 0
-        Number of discrete color levels (must be odd ≥3 for absolute; any int ≥2 for relative). If 0,
-        continuous normalization is used.
+        Number of discrete color levels.
+        - For 'absolute': must be odd ≥3 if >0 (to keep 0 centered).
+        - For 'relative': any odd integer ≥3 if >0 (to keep 0 centered). If 0, a continuous scale
+          is used and ticks are placed sensibly (e.g., every 10% by default).
+        - For 'ratio': any integer ≥2 if >0.
     weights : str, optional
         Weighting mode passed to KMCOutput ('time', 'events', or None).
     analysis_range : list of two floats, default [0,100]
         Percentage of simulation range to analyze (start, end).
     range_type : {'time', 'nevents'}, default 'time'
         Whether analysis_range refers to simulation time or number of events.
-    energy_slope_thr : float, optional
-        Threshold for the absolute energy slope used by `detect_issues` (default is 5.0e-10).
-    time_r2_thr : float, optional
-        R² threshold for the linearity of time vs. events used by `detect_issues` (default is 0.95).
-    max_points : int, optional
-        Maximum number of data points sampled by `detect_issues` (default is 100).
     cmap : str, default 'RdYlBu'
         Colormap for the heatmap.
     show_points : bool, default False
@@ -117,9 +117,6 @@ def plot_dtof(
     - The function reads simulation data from the provided main and reference directories. It computes the TOF
       for a given gas species in both sets of simulations and calculates ∆TOF.
     """
-    # Parameter removal notice
-    if 'percent' in kwargs:
-        raise ValueError("'percent' is not supported for dtof since v2.10; relative ∆TOF is now defined as |TOF(main)/TOF(ref)| (unitless ratio).")
 
     # Set default analysis range if needed
     if analysis_range is None:
@@ -233,10 +230,12 @@ def plot_dtof(
                 if difference_type == "absolute":
                     dtof_val = tof - tof_ref
                 elif difference_type == "relative":
+                    dtof_val = ((tof - tof_ref) / tof_ref * 100.0) if (tof_ref != 0) else np.nan
+                elif difference_type == "ratio":
                     dtof_val = (abs(tof / tof_ref) if tof_ref != 0 else np.nan)
                 else:
                     raise ValueError(
-                        "difference_type must be 'absolute' or 'relative'"
+                        "difference_type must be 'absolute', 'relative', or 'ratio'"
                     )
             else:
                 dtof_val = np.nan
@@ -277,7 +276,7 @@ def plot_dtof(
             if np.isnan(dtof_val):
                 continue  # leave as NaN
 
-            # Optional value capping (absolute vs relative handled later when N is known)
+            # Optional value capping (absolute vs ratio handled later when N is known)
             if (difference_type == "absolute") and (max_dtof is not None):
                 if dtof_val > max_dtof:
                     dtof_val = max_dtof
@@ -290,6 +289,7 @@ def plot_dtof(
 
     # --- Determine normalization parameters ---
     levels = None
+    relative_ticks = None  # used only for 'relative' when nlevels==0
 
     if difference_type == 'absolute':
         # Compute a symmetric maximum value from the grid.
@@ -332,8 +332,8 @@ def plot_dtof(
                 raise ValueError("scale parameter must be either 'log' or 'lin'")
             norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
 
-    else:
-        # RELATIVE (ratio): force log scale centered at 10^0
+    elif difference_type == 'ratio':
+        # Ratio: force log scale centered at 10^0
         scale = 'log'
 
         # Determine data max (ratio) and choose nearest order of magnitude
@@ -365,8 +365,38 @@ def plot_dtof(
         else:
             # For ratios we don't require odd nlevels; any >=2 works. Keep behavior minimal.
             if (not isinstance(nlevels, int)) or (nlevels < 2):
-                raise ValueError("For relative mode, nlevels must be either 0 or an integer ≥ 2")
+                raise ValueError("For ratio mode, nlevels must be either 0 or an integer ≥ 2")
             levels = np.logspace(-abs(N), abs(N), nlevels)
+            norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
+
+    else:
+        # relative (%) case: force linear scale centered at 0 within ±max_dtof
+        scale = 'lin'
+        if max_dtof is None:
+            max_dtof = 30.0  # default ±30%
+        abs_max = float(max_dtof)
+
+        # cap values to [-abs_max, +abs_max]
+        for j in range(z_axis.shape[0]):
+            for i in range(z_axis.shape[1]):
+                val = z_axis[j, i]
+                if np.isnan(val):
+                    continue
+                if val > abs_max:
+                    z_axis[j, i] = abs_max
+                elif val < -abs_max:
+                    z_axis[j, i] = -abs_max
+
+        if nlevels == 0:
+            norm = Normalize(vmin=-abs_max, vmax=abs_max)
+            # default ticks every 10% (example in spec)
+            step = 10.0
+            # Ensure symmetric ticks
+            relative_ticks = np.arange(-abs_max, abs_max + 0.5 * step, step)
+        else:
+            if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
+                raise ValueError("For relative mode, nlevels must be an odd integer ≥ 3")
+            levels = np.linspace(-abs_max, abs_max, nlevels)
             norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
 
     # --- Create pcolormesh plot ---
@@ -376,16 +406,20 @@ def plot_dtof(
         if levels is not None:
             cbar = plt.colorbar(cp, ax=ax, boundaries=levels, ticks=levels)
         else:
-            cbar = plt.colorbar(cp, ax=ax)
+            # Relative mode may define custom ticks even with continuous norm
+            if difference_type == 'relative' and relative_ticks is not None:
+                cbar = plt.colorbar(cp, ax=ax, ticks=relative_ticks)
+            else:
+                cbar = plt.colorbar(cp, ax=ax)
+
         # --- Custom formatter for colorbar tick labels ---
         if scale == 'log':
-            if difference_type == 'relative':
+            if difference_type == 'ratio':
                 def rel_log_formatter(x, pos):
                     # Show 10^{k}, centered at 10^0
                     if x <= 0 or not np.isfinite(x):
                         return ''
                     k = int(np.round(np.log10(x)))
-                    # Only show pretty powers of ten; otherwise scientific
                     if np.isclose(x, 10 ** k, rtol=1e-5, atol=1e-12):
                         return r'$10^{%d}$' % k
                     return r'$%1.1e$' % x
@@ -401,10 +435,21 @@ def plot_dtof(
                         return r'$%+1.1e$' % x
                 formatter = FuncFormatter(log_formatter)
         else:
-            formatter = FuncFormatter(
-                lambda x, pos: "0" if np.isclose(x, 0)
-                else f"{x:+.0f}"
-            )
+            if difference_type == 'relative':
+                formatter = FuncFormatter(
+                    lambda x, pos: (
+                        "0%" if np.isclose(x, 0)
+                        else f"{x:+.0f}%".replace("-", "\N{MINUS SIGN}")
+                    )
+                )
+            else:
+                formatter = FuncFormatter(
+                    lambda x, pos: (
+                        "0" if np.isclose(x, 0)
+                        else f"{x:+.0f}".replace("-", "\N{MINUS SIGN}")
+                    )
+                )
+
         cbar.ax.yaxis.set_major_formatter(formatter)
         # ---------------------------------------------------
 
@@ -417,7 +462,9 @@ def plot_dtof(
     ax.set_facecolor("lightgray")
 
     if auto_title:
-        _tag = "abs" if difference_type == "absolute" else "rel"
+        # make the tag reflect the actual mode
+        _tag_map = {'absolute': 'abs', 'relative': 'rel', 'ratio': 'ratio'}
+        _tag = _tag_map.get(difference_type, 'abs')
         label = f"$\\Delta\\mathrm{{TOF}}_{{{_tag}}}\\ {convert_to_subscript(gas_spec)}$"
         ax.set_title(
             label=label,
