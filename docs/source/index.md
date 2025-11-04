@@ -9,8 +9,6 @@
 [![DOI](https://zenodo.org/badge/DOI/10.1021/acs.jpca.5c02802.svg)](https://doi.org/10.1021/acs.jpca.5c02802)
 [![CI](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml/badge.svg)](https://github.com/hprats/ZacrosTools/actions/workflows/ci.yml)
 
-This guide provides comprehensive information on using the ZacrosTools Python library.
-
 ZacrosTools is a versatile toolkit designed to simplify the preparation and analysis of Kinetic Monte Carlo (KMC) simulations with **[Zacros](https://zacros.org/)**.
 
 ## Key features 
@@ -52,7 +50,7 @@ pip install .
 
 ## Recent changes
 
-### [2.10] - 03-Nov-2025
+### Version 2.10 — 2025-11-03
 
 #### Changed
 - **Redefined relative ∆TOF calculation in `dtof.py`**:  
@@ -69,7 +67,7 @@ pip install .
 - **Deprecated `percent` parameter**:  
   - The `percent` keyword is **no longer supported** in `plot_dtof()`.
 
-### [2.9] - 07-Oct-2025
+### Version 2.9 — 2025-10-07
 
 #### Fixed
 - **Missing heatmaps subpackage in PyPI builds**: The `zacrostools.heatmaps` folder is now correctly included in the package distribution.  
@@ -82,7 +80,7 @@ pip install .
     ```
   - This fix ensures compatibility when installing ZacrosTools via `pip` or from PyPI.
 
-### [2.8] - 01-Oct-2025
+### Version 2.8 — 2025-10-01
 
 #### Added
 - **Monoatomic gas species support**: `GasModel` now accepts a third `type` value: `"monoatomic"`.  
@@ -101,7 +99,7 @@ pip install .
     - A fixed step cannot appear in `stiffness_scalable_steps`  
     - A fixed step cannot appear in `stiffness_scalable_symmetric_steps`
     
-### [2.7] - 25-Sep-2025
+### Version 2.7 — 2025-09-25
 
 #### Added
 - **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
