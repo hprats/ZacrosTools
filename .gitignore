@@ -10,8 +10,12 @@ zacrostools.egg-info/
 # macOS hidden file
 .DS_Store
 # -------------------------------------
-# 3) Allow versioning of this .gitignore
+# 3) Allow versioning of this .gitignore and of the ci.yml file
 !.gitignore
+!/.github/
+!/.github/workflows/
+!/.github/workflows/**
+
 # -------------------------------------
 # 4) Unignore the specific top-level files
 !CHANGELOG.md
