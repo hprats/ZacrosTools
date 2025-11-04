@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-### Version 2.11 — to be released
+### Version 2.11 — 2025-11-04
 
 #### Changed
 - **Mode rename and new definition in `dtof.py`:**  
