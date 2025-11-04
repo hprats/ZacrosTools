@@ -1,6 +1,5 @@
 # tests/test_calc_functions.py
 
-import math
 import numpy as np
 import pytest
 

@@ -1,7 +1,6 @@
 import os
 import filecmp
 import difflib
-import pytest
 from zacrostools.kmc_model import KMCModel
 from zacrostools.gas_model import GasModel
 from zacrostools.energetics_model import EnergeticsModel
