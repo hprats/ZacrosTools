@@ -80,18 +80,7 @@ steps_data = {
         'site_types': 'top',
         'vib_energies_is': [293.279, 163.686, 78.019, 77.959],
         'vib_energies_fs': [171.188, 145.668, 96.961, 86.214, 56.201, 52.375, 35.932, 24.343, 21.022],
-    },
-    'CO_diffusion': {
-        'activ_eng': 1.156,
-        'initial': ['1 CO* 1', '2 * 1'],
-        'final': ['1 * 1', '2 CO* 1'],
-        'neighboring': '1-2',
-        'graph_multiplicity': 2.0,
-        'site_types': 'top top',
-        'vib_energies_fs': [240.497, 82.738, 60.133, 60.080, 7.272, 6.553],
-        'vib_energies_is': [240.497, 82.738, 60.133, 60.080, 7.272, 6.553],
-        'vib_energies_ts': [218.382, 53.527, 47.612, 28.580, 6.600]
-    },
+    }
 }
 
 reaction_model = ReactionModel.from_dict(steps_data)
@@ -123,10 +112,10 @@ Use the `add_step` method to add a new step:
 
 ```python
 reaction_model.add_step(step_info={
-        'step_name': 'O_diffusion',
+        'step_name': 'CO_diffusion',
         'activ_eng': 1.156,
-        'initial': ['1 O* 1', '2 * 1'],
-        'final': ['1 * 1', '2 O* 1'],
+        'initial': ['1 CO* 1', '2 * 1'],
+        'final': ['1 * 1', '2 CO* 1'],
         'neighboring': '1-2',
         'graph_multiplicity': 2.0,
         'site_types': 'top top',
@@ -207,18 +196,7 @@ steps_data = {
         'site_types': 'top',
         'vib_energies_is': [263.427],
         'vib_energies_fs': [240.497, 82.738, 60.132, 60.080, 7.271, 6.553],
-    },
-    'CO_diffusion': {
-        'activ_eng': 1.156,
-        'initial': ['1 CO* 1', '2 * 1'],
-        'final': ['1 * 1', '2 CO* 1'],
-        'neighboring': '1-2',
-        'graph_multiplicity': 2.0,
-        'site_types': 'top top',
-        'vib_energies_is': [240.497, 82.738, 60.133, 60.080, 7.272, 6.553],
-        'vib_energies_ts': [218.382, 53.527, 47.612, 28.580, 6.600],
-        'vib_energies_fs': [240.497, 82.738, 60.133, 60.080, 7.272, 6.553],
-    },
+    }
 }
 
 # Create the ReactionModel instance
@@ -226,10 +204,10 @@ reaction_model = ReactionModel.from_dict(steps_data)
 
 # Add a new step
 reaction_model.add_step(step_info={
-        'step_name': 'O_diffusion',
+        'step_name': 'CO_diffusion',
         'activ_eng': 1.156,
-        'initial': ['1 O* 1', '2 * 1'],
-        'final': ['1 * 1', '2 O* 1'],
+        'initial': ['1 CO* 1', '2 * 1'],
+        'final': ['1 * 1', '2 CO* 1'],
         'neighboring': '1-2',
         'graph_multiplicity': 2.0,
         'site_types': 'top top',
