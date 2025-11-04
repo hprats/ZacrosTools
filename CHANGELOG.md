@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+### Version 2.11 — To be released
+
+#### Changed
+- **Mode rename and new definition in `dtof.py`:**  
+  - The former `difference_type='relative'` mode (which computed the ratio `|TOF(main)/TOF(ref)|`) has been **renamed to** `difference_type='ratio'`.  
+  - A new `difference_type='relative'` is introduced to compute the **percent difference**:  
+    ΔTOF_rel = (TOF(main) − TOF(ref)) / TOF(ref) × 100
+
+#### Added
+- **New `difference_type` options in `plot_dtime`:**  
+  - Added support for `difference_type='ratio'`:  
+    Δt = t(main) / t(ref)  
+    - The colorbar is **logarithmic**, spanning **[10⁻ᴺ, 10⁺ᴺ]**, and centered at **10⁰**.  
+  - Added support for `difference_type='speedup'`:  
+    - Uses the **same ratio definition** as above, but the colorbar spans **[10⁰, 10⁺ᴺ]**, showing only values ≥ 1.  
+    - Tick labels on the colorbar are n
+
 ### Version 2.10 — 2025-11-03
 
 #### Changed
