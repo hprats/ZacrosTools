@@ -140,7 +140,7 @@ def plot_cputime(
 
     if auto_title:
         ax.set_title(
-            label="CPU time ($s$)",
+            label="CPU time",
             y=1.0,
             pad=-14,
             color="w",
