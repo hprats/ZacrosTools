@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-### [2.10] - 03-Nov-2025
+### Version 2.10 — 2025-11-03
 
 #### Changed
 - **Redefined relative ∆TOF calculation in `dtof.py`**:  
@@ -19,7 +19,7 @@ All notable changes to this project are documented in this file.
 - **Deprecated `percent` parameter**:  
   - The `percent` keyword is **no longer supported** in `plot_dtof()`.
 
-### [2.9] - 07-Oct-2025
+### Version 2.9 — 2025-10-07
 
 #### Fixed
 - **Missing heatmaps subpackage in PyPI builds**: The `zacrostools.heatmaps` folder is now correctly included in the package distribution.  
@@ -32,7 +32,7 @@ All notable changes to this project are documented in this file.
     ```
   - This fix ensures compatibility when installing ZacrosTools via `pip` or from PyPI.
 
-### [2.8] - 01-Oct-2025
+### Version 2.8 — 2025-10-01
 
 #### Added
 - **Monoatomic gas species support**: `GasModel` now accepts a third `type` value: `"monoatomic"`.  
@@ -51,14 +51,14 @@ All notable changes to this project are documented in this file.
     - A fixed step cannot appear in `stiffness_scalable_steps`  
     - A fixed step cannot appear in `stiffness_scalable_symmetric_steps`
 
-### [2.7] - 25-Sep-2025
+### Version 2.7 — 2025-09-25
 
 #### Added
 - **Fixed pre-exponential option**: Users can now fix the pre-exponential factor (`pre_expon`) and ratio (`pe_ratio`) of selected steps by providing `fixed_pre_expon` and `fixed_pe_ratio` dictionaries to `ReactionModel.write_mechanism_input()`. This bypasses automatic computation.  
   - Incompatible with `stiffness_scalable_steps='all'`.  
   - Incompatible with listing fixed steps in either `stiffness_scalable_steps` or `stiffness_scalable_symmetric_steps`.
 
-### [2.6] - 24-Sep-2025
+### Version 2.6 — 2025-09-24
 
 #### Changed
 - **Gas-phase molecule parameter update**: the deprecated `molecule` parameter has been replaced by two explicit parameters, `molecule_is` and `molecule_fs`, which indicate the presence of gas-phase species in the initial or final state of a step, respectively. Using `molecule` will trigger a `DeprecationWarning`.  
@@ -66,7 +66,7 @@ All notable changes to this project are documented in this file.
 #### Added
 - **Bidirectional gas-phase step support**: ZacrosTools now accepts the definition of reaction steps involving gas-phase species in either direction (initial or final state). Previously, gas-phase species were only allowed in the initial state (adsorption).
 
-### [2.5] - 30-Jul-2025
+### Version 2.5 — 2025-07-30
 
 #### Added
 - **Additional keywords support**: added an `additional_keywords` parameter to `KMCModel.create_job_dir` and `write_simulation_input` to append additional Zacros keywords to `simulation_input.dat`.  
@@ -82,7 +82,7 @@ All notable changes to this project are documented in this file.
 - **`parse_general_output_file` crash**: fixed a bug that caused a crash when an initial state is provided.
 - **∆TOF docstring & title logic**: corrected the relative ∆TOF formula in `plot_dtof`’s docstring.
 
-### [2.4] - 11-Apr-2025
+### Version 2.4 — 2025-04-11
 
 #### Added
 - **Specialized functions for creating heatmaps**: New functions `plot_dtime` and `plot_cputime`.
@@ -90,7 +90,7 @@ All notable changes to this project are documented in this file.
 #### Fixed
 - **Stiffness scalable steps**: Resolved a bug where `stiffness_scalable_steps = 'all'` could be ignored.
 
-### [2.3] - 04-Apr-2025
+### Version 2.3 — 2025-04-04
 
 #### Added
 - **Specialized functions for creating heatmaps**: Each heatmap type now has its own function (e.g., `plot_tof`, `plot_selectivity`).
@@ -104,7 +104,7 @@ All notable changes to this project are documented in this file.
 - **Adsorption step bug**: Fixed a requirement for `vib_energies_ts` in non-activated steps when creating a reaction model from a dictionary.
 - **Event frequencies**: Updated `plot_procstat` to ensure compatibility with models that include irreversible steps.
 
-### [2.2] 20-Dec-2024
+### Version 2.2 — 2024-12-20
 
 #### Added
 - **Plot event frequencies**: introduced the ability to parse the event frequencies from `procstat_output.txt` using `zacrostools.procstat_output` and visualize them.
@@ -121,7 +121,7 @@ All notable changes to this project are documented in this file.
 #### Improved
 - **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-### [2.1] 27-Nov-2024
+### Version 2.1 — 2024-11-27
 
 #### Added
 - **New classes and methods**: introduced the following classes, which can be instantiated from a Python dictionary, a Pandas DataFrame, or a `.csv` file:
@@ -144,7 +144,7 @@ All notable changes to this project are documented in this file.
 - **Docstrings**: updated all docstrings to adhere to the NumPy format for better clarity and consistency.
 - **Documentation**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-### [1.3] 07-Nov-2024
+### Version 1.3 — 2024-11-07
 
 #### Added
 - **Comprehensive test suite with Pytest**: Implemented a suite of tests using Pytest to ensure code reliability and facilitate future development.
@@ -152,7 +152,7 @@ All notable changes to this project are documented in this file.
 - **Documentation**:
   - Updated `README.md` with detailed installation instructions, usage examples, badges, and contributor guidelines.
 
-### [1.2] 06-Nov-2024
+### Version 1.2 — 2024-11-06
 
 #### Added
 - **New parameters in `KMCModel.create_job_dir`**: Introduced new parameters in anticipation of a future version of Zacros.
@@ -170,7 +170,7 @@ All notable changes to this project are documented in this file.
 - **Keyword validation**: Added checks to ensure that the keywords provided in `stiffness_scaling_tags` are allowed.
 - **Documentation enhancements**: Improved the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-### [1.1] 13-Oct-2024
+### Version 1.1 — 2024-10-13
 
 #### Added
 - **Data validation in `plot_result.py`**: Implemented data validation and error handling to improve robustness.
@@ -188,7 +188,7 @@ All notable changes to this project are documented in this file.
 #### Improved
 - **Documentation**: Updated and expanded the [ZacrosTools Documentation](https://zacrostools.readthedocs.io/en/latest/).
 
-### [1.0] 06-Sep-2024
+### Version 1.0 — 2024-09-06
 
 #### Initial Release
 - Launched ZacrosTools with core functionalities for preparing Zacros input files and parsing output data.
