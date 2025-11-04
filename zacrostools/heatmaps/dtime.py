@@ -10,7 +10,7 @@ import matplotlib.colors as colors
 
 from zacrostools.kmc_output import KMCOutput
 from zacrostools.custom_exceptions import PlotError
-from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value, convert_to_subscript
+from zacrostools.heatmaps.heatmap_functions import get_axis_label, extract_value
 
 
 def plot_dtime(
@@ -33,8 +33,7 @@ def plot_dtime(
         cmap: str = "RdYlBu",
         show_points: bool = False,
         show_colorbar: bool = True,
-        auto_title: bool = False,
-        sign: str = "both"):
+        auto_title: bool = False):
     """
     Plot a ∆time heatmap using pcolormesh.
 
@@ -55,21 +54,29 @@ def plot_dtime(
         Path to the main simulation directories.
     scan_path_ref : str
         Path to the reference simulation directories.
-    difference_type : str, optional
-        Type of time difference to compute. Must be either 'absolute' (default) or 'relative'.
-        - 'absolute': ∆time = time (main) - time (reference).
-        - 'relative': ∆time = (time (main) - time (reference)) / |time (reference)|
-                      (if time (reference) is 0, NaN is assigned).
-    scale : str, optional
-        Type of color scaling for the heatmap. If 'log' (default), logarithmic scaling is used.
-    max_dtime : float, optional
-        Maximum absolute value for time differences.
-    min_dtime : float, optional
-        Minimum nonzero absolute value threshold for time differences. If not provided, it defaults to max_dtime/1.0e3
-        for absolute differences and to 1 for relative differences.
-    nlevels : int, optional
-        If 0 (the default), continuous normalization is used. Otherwise, nlevels must be a positive odd integer
-        (3 or higher) that defines the number of discrete boundaries (ensuring zero is centered).
+    difference_type : {'absolute', 'ratio', 'relative', 'speedup'}, default 'absolute'
+        - 'absolute': ∆t = t(main) - t(ref)
+        - 'relative': ∆t = (t(main) - t(ref)) / t(ref) * 100  [percent]
+                      (colorbar forced to linear, centered at 0, spanning ±max_t%)
+        - 'ratio':    ∆t = t(main) / t(ref)
+                      (colorbar forced to logarithmic, spanning [10^{-N}, 10^{+N}], centered at 10^0)
+        - 'speedup':  same ratio as above, but colorbar spans [10^{0}, 10^{+N}] (no values < 1 shown)
+    scale : {'log', 'lin'}, default 'log'
+        Axis scaling for the heatmap. (Forced appropriately for 'ratio', 'speedup', and 'relative' modes.)
+    max_dtime, min_dtime : float, optional
+        Maximum and minimum threshold for the color scale. If None, sensible defaults are chosen:
+        - For absolute differences: max → next decade above data, min → max/1e3.
+        - For ratio: the colorbar spans [10^{-N}, 10^{+N}] around 1, where 10^N is the
+          nearest order of magnitude to `max_dtime` if provided, otherwise to the maximum ratio in data.
+        - For speedup: the colorbar spans [10^{0}, 10^{+N}] where 10^N is chosen as above.
+        - For relative (%): the colorbar spans [-max_dtime, +max_dtime] with default max_dtime=30 (%).
+    nlevels : int, default 0
+        Number of discrete color levels.
+        - For 'absolute': must be odd ≥3 if >0 (to keep 0 centered).
+        - For 'relative': any odd integer ≥3 if >0 (to keep 0 centered). If 0, a continuous scale
+          is used and ticks are placed sensibly (e.g., every 10% by default).
+        - For 'ratio': any integer ≥2 if >0.
+        - For 'speedup': any integer ≥2 if >0.
     analysis_range : list, optional
         Portion of the simulation data to analyze (default: [0, 100]).
     range_type : str, optional
@@ -82,18 +89,10 @@ def plot_dtime(
         If True, display a colorbar alongside the heatmap.
     auto_title : bool, optional
         If True, automatically set a title for the plot.
-    sign : str, optional
-        Which sign of ∆time to include: 'both' (default), 'positive', or 'negative'.
 
     Notes
     -----
-    - The function reads simulation data from the provided main and reference directories.
-    - It computes the total simulation time by taking the difference between the last and first time points.
-    - For both absolute and relative differences, the color range is set symmetrically from –abs_max to +abs_max so that
-      zero is centered.
-    - When `scale` is 'log', if discretization is enabled (nlevels ≠ 0) the positive boundaries are generated using
-      logarithmic spacing (and mirrored for negative values). If discretization is disabled (nlevels=0), a continuous
-      normalization is used (via SymLogNorm if data include both positive and negative values).
+    - The function reads the simulated time from the provided main and reference directories and calculates ∆t.
     """
 
     # Set default analysis range if needed
@@ -142,31 +141,34 @@ def plot_dtime(
             kmc_output = KMCOutput(
                 path=sim_path,
                 analysis_range=analysis_range,
-                range_type=range_type)
-            time = max(kmc_output.time[-1] - kmc_output.time[0], 0)
-            df.loc[folder_name, "time"] = time
-
+                range_type=range_type
+            )
             kmc_output_ref = KMCOutput(
                 path=ref_path,
                 analysis_range=analysis_range,
-                range_type=range_type)
-            time_ref = max(kmc_output_ref.time[-1] - kmc_output_ref.time[0], 0)
-            df.loc[folder_name, "time_ref"] = time_ref
+                range_type=range_type
+            )
+            time = max(kmc_output.time[-1] - kmc_output.time[0], 0.0)
+            time_ref = max(kmc_output_ref.time[-1] - kmc_output_ref.time[0], 0.0)
 
             # Compute difference according to the chosen difference_type.
-            if difference_type == 'absolute':
-                df.loc[folder_name, "dtime"] = time - time_ref
-            elif difference_type == 'relative':
-                if time_ref != 0:
-                    df.loc[folder_name, "dtime"] = (time - time_ref) / abs(time_ref)
-                else:
-                    df.loc[folder_name, "dtime"] = np.nan
+            if difference_type == "absolute":
+                dtime_val = time - time_ref
+            elif difference_type == "relative":
+                dtime_val = ((time - time_ref) / time_ref * 100.0) if (time_ref != 0) else np.nan
+            elif difference_type in ("ratio", "speedup"):
+                dtime_val = (time / time_ref if time_ref != 0 else np.nan)
             else:
-                raise ValueError("difference_type parameter must be either 'absolute' or 'relative'")
+                raise ValueError(
+                    "difference_type must be 'absolute', 'relative', 'ratio', or 'speedup'"
+                )
+
+            df.loc[folder_name, "dtime"] = dtime_val
+
         except Exception as e:
-            print(f"Warning: Could not initialize KMCOutput for {folder_name}: {e}")
-            df.loc[folder_name, "time"] = float('NaN')
-            df.loc[folder_name, "time_ref"] = float('NaN')
+            print(f"Warning: could not process {folder_name}: {e}")
+            df.loc[folder_name, ["time",
+                                 "time_ref"]] = np.nan
 
     # Build sorted arrays for x and y axis values
     x_value_list = np.sort(np.asarray(x_value_list))
@@ -174,84 +176,188 @@ def plot_dtime(
     x_list = np.power(10, x_value_list) if x_is_log else x_value_list
     y_list = np.power(10, y_value_list) if y_is_log else y_value_list
 
-    # Create a 2D grid for dtime values
+    # Create a 2D grid
     z_axis = np.full((len(y_value_list), len(x_value_list)), np.nan)
+
     for i, x_val in enumerate(x_value_list):
         for j, y_val in enumerate(y_value_list):
-            matching_indices = df[(df['x_value'] == x_val) & (df['y_value'] == y_val)].index
-            if len(matching_indices) > 1:
+            matches = df[(df["x_value"] == x_val) & (df["y_value"] == y_val)].index
+            if len(matches) > 1:
                 raise PlotError(
-                    f"Several folders have the same values of {x} ({x_val}) and {y} ({y_val})")
-            elif len(matching_indices) == 0:
-                print(f"Warning: folder for x = {x_val} and y = {y_val} missing, NaN assigned")
-            else:
-                folder_name = matching_indices[0]
-                if max_dtime is not None:
-                    if df.loc[folder_name, "dtime"] > max_dtime:
-                        z_axis[j, i] = max_dtime
-                    elif df.loc[folder_name, "dtime"] < -max_dtime:
-                        z_axis[j, i] = -max_dtime
-                    else:
-                        z_axis[j, i] = df.loc[folder_name, "dtime"]
-                else:
-                    z_axis[j, i] = df.loc[folder_name, "dtime"]
+                    f"Several folders share {x} = {x_val} and {y} = {y_val}"
+                )
+            elif len(matches) == 0:
+                print(
+                    f"Warning: folder for x = {x_val} and y = {y_val} missing; NaN assigned"
+                )
+                continue
+
+            folder = matches[0]
+            dtime_val = df.loc[folder, "dtime"]
+
+            if np.isnan(dtime_val):
+                continue  # leave as NaN
+
+            # Optional value capping (absolute vs ratio handled later when N is known)
+            if (difference_type == "absolute") and (max_dtime is not None):
+                if dtime_val > max_dtime:
+                    dtime_val = max_dtime
+                elif dtime_val < -max_dtime:
+                    dtime_val = -max_dtime
+
+            z_axis[j, i] = dtime_val
 
     x_axis, y_axis = np.meshgrid(x_list, y_list)
 
-    if sign not in ("both", "positive", "negative"):
-        raise ValueError("`sign` must be 'both', 'positive' or 'negative'")
-    if sign == "positive":
-        z_axis[z_axis <= min_dtime] = min_dtime
-    elif sign == "negative":
-        z_axis[z_axis >= max_dtime] = max_dtime
-
     # --- Determine normalization parameters ---
-    computed_abs_max = max(np.abs(np.nanmin(z_axis)), np.abs(np.nanmax(z_axis)))
+    levels = None
+    relative_ticks = None  # used only for 'relative' when nlevels==0
+
     if difference_type == 'absolute':
+        # Compute a symmetric maximum value from the grid.
+        computed_abs_max = max(np.abs(np.nanmin(z_axis)), np.abs(np.nanmax(z_axis)))
         if max_dtime is None:
-            exponent = np.ceil(np.log10(computed_abs_max))
+            exponent = np.ceil(np.log10(computed_abs_max)) if np.isfinite(
+                computed_abs_max) and computed_abs_max > 0 else 0
             max_dtime = 10 ** exponent
         if min_dtime is None:
             min_dtime = max_dtime / 1.0e3
         abs_max = max_dtime
-    elif difference_type == 'relative':
-        if max_dtime is None:
-            max_dtime = 100  # default to 100 for relative differences
-        if min_dtime is None:
-            min_dtime = 1
-        abs_max = max_dtime
-    else:
-        raise ValueError("difference_type must be 'absolute' or 'relative'")
 
-    # --- Choose normalization: continuous if nlevels == 0, discrete otherwise ---
-    levels = None
-    if nlevels == 0:
-        # Continuous normalization.
-        if scale == 'lin':
-            norm = Normalize(vmin=-abs_max, vmax=abs_max)
-        elif scale == 'log':
-            finite = z_axis[np.isfinite(z_axis)]
-            if finite.size and np.all(finite > 0):
-                norm = LogNorm(vmin=min_dtime, vmax=abs_max)
-            elif finite.size and np.all(finite < 0):
-                norm = LogNorm(vmin=-abs_max, vmax=-min_dtime)
+        # Normalization (continuous/discrete)
+        if nlevels == 0:
+            if scale == "lin":
+                norm = Normalize(vmin=-abs_max, vmax=abs_max)
+            elif scale == "log":
+                if np.all(z_axis > 0):
+                    norm = LogNorm(vmin=min_dtime, vmax=abs_max)
+                elif np.all(z_axis < 0):
+                    norm = LogNorm(vmin=-abs_max, vmax=-min_dtime)
+                else:
+                    norm = SymLogNorm(
+                        linthresh=min_dtime,
+                        linscale=1.0,
+                        vmin=-abs_max,
+                        vmax=abs_max,
+                        base=10,
+                    )
             else:
-                norm = SymLogNorm(linthresh=min_dtime, linscale=1.0,
-                                  vmin=-abs_max, vmax=+abs_max, base=10)
+                raise ValueError("scale must be 'log' or 'lin'")
         else:
-            raise ValueError("scale parameter must be either 'log' or 'lin'")
+            if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
+                raise ValueError("nlevels must be either 0 or a positive odd integer (≥3)")
+            if scale == 'lin':
+                levels = np.linspace(-abs_max, abs_max, nlevels)
+            elif scale == 'log':
+                positive_levels = np.logspace(np.log10(min_dtime), np.log10(abs_max), (nlevels - 1) // 2)
+                levels = np.concatenate((-positive_levels[::-1], [0], positive_levels))
+            else:
+                raise ValueError("scale parameter must be either 'log' or 'lin'")
+            norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
+
+    elif difference_type == 'ratio':
+        # Ratio: force log scale centered at 10^0
+        scale = 'log'
+
+        # Determine data max (ratio) and choose nearest order of magnitude
+        data_max = np.nanmax(z_axis)
+        if not np.isfinite(data_max) or data_max <= 0:
+            data_max = 1.0
+
+        if max_dtime is None:
+            N = int(np.round(np.log10(data_max)))
+        else:
+            N = int(np.round(np.log10(max_dtime)))
+        # Use symmetric log-range [10^{-N}, 10^{+N}]
+        vmin = 10.0 ** (-abs(N))
+        vmax = 10.0 ** (abs(N))
+
+        # After N is known, cap values into [10^{-N}, 10^{N}]
+        for j in range(z_axis.shape[0]):
+            for i in range(z_axis.shape[1]):
+                val = z_axis[j, i]
+                if np.isnan(val):
+                    continue
+                if val < vmin:
+                    z_axis[j, i] = vmin
+                elif val > vmax:
+                    z_axis[j, i] = vmax
+
+        if nlevels == 0:
+            norm = LogNorm(vmin=vmin, vmax=vmax)
+        else:
+            # For ratios we don't require odd nlevels; any >=2 works. Keep behavior minimal.
+            if (not isinstance(nlevels, int)) or (nlevels < 2):
+                raise ValueError("For ratio mode, nlevels must be either 0 or an integer ≥ 2")
+            levels = np.logspace(-abs(N), abs(N), nlevels)
+            norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
+
+    elif difference_type == 'speedup':
+        # Speedup: force log scale from 10^0 to 10^{+N}
+        scale = 'log'
+
+        # Determine data max (ratio) and choose nearest order of magnitude
+        data_max = np.nanmax(z_axis)
+        if not np.isfinite(data_max) or data_max <= 1.0:
+            data_max = 1.0
+
+        if max_dtime is None:
+            N = int(np.round(np.log10(data_max)))
+        else:
+            N = int(np.round(np.log10(max_dtime)))
+
+        # Colorbar range [10^0, 10^{+N}] (clip all <1 to 1)
+        vmin = 10.0 ** 0
+        vmax = 10.0 ** (abs(N))
+
+        # Cap values into [1, 10^{N}]
+        for j in range(z_axis.shape[0]):
+            for i in range(z_axis.shape[1]):
+                val = z_axis[j, i]
+                if np.isnan(val):
+                    continue
+                if val < vmin:
+                    z_axis[j, i] = vmin
+                elif val > vmax:
+                    z_axis[j, i] = vmax
+
+        if nlevels == 0:
+            norm = LogNorm(vmin=vmin, vmax=vmax)
+        else:
+            if (not isinstance(nlevels, int)) or (nlevels < 2):
+                raise ValueError("For speedup mode, nlevels must be either 0 or an integer ≥ 2")
+            levels = np.logspace(0, abs(N), nlevels)
+            norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
+
     else:
-        # Discrete normalization is requested.
-        if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
-            raise ValueError("nlevels must be either 0 or a positive odd integer (>=3)")
-        if scale == 'lin':
-            levels = np.linspace(-abs_max, abs_max, nlevels)
-        elif scale == 'log':
-            positive_levels = np.logspace(np.log10(min_dtime), np.log10(abs_max), (nlevels - 1) // 2)
-            levels = np.concatenate((-positive_levels[::-1], [0], positive_levels))
+        # relative (%) case: force linear scale centered at 0 within ±max_dtime
+        scale = 'lin'
+        if max_dtime is None:
+            max_dtime = 30.0  # default ±30%
+        abs_max = float(max_dtime)
+
+        # cap values to [-abs_max, +abs_max]
+        for j in range(z_axis.shape[0]):
+            for i in range(z_axis.shape[1]):
+                val = z_axis[j, i]
+                if np.isnan(val):
+                    continue
+                if val > abs_max:
+                    z_axis[j, i] = abs_max
+                elif val < -abs_max:
+                    z_axis[j, i] = -abs_max
+
+        if nlevels == 0:
+            norm = Normalize(vmin=-abs_max, vmax=abs_max)
+            # default ticks every 10% (example in spec)
+            step = 10.0
+            # Ensure symmetric ticks
+            relative_ticks = np.arange(-abs_max, abs_max + 0.5 * step, step)
         else:
-            raise ValueError("scale parameter must be either 'log' or 'lin'")
-        norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
+            if (not isinstance(nlevels, int)) or (nlevels < 3) or (nlevels % 2 == 0):
+                raise ValueError("For relative mode, nlevels must be an odd integer ≥ 3")
+            levels = np.linspace(-abs_max, abs_max, nlevels)
+            norm = colors.BoundaryNorm(levels, ncolors=plt.get_cmap(cmap).N, clip=True)
 
     # --- Create pcolormesh plot ---
     cp = ax.pcolormesh(x_axis, y_axis, z_axis, cmap=cmap, norm=norm)
@@ -260,21 +366,59 @@ def plot_dtime(
         if levels is not None:
             cbar = plt.colorbar(cp, ax=ax, boundaries=levels, ticks=levels)
         else:
-            cbar = plt.colorbar(cp, ax=ax)
+            # Relative mode may define custom ticks even with continuous norm
+            if difference_type == 'relative' and relative_ticks is not None:
+                cbar = plt.colorbar(cp, ax=ax, ticks=relative_ticks)
+            else:
+                cbar = plt.colorbar(cp, ax=ax)
+
         # --- Custom formatter for colorbar tick labels ---
         if scale == 'log':
-            def log_formatter(x, pos):
-                if np.isclose(x, 0):
-                    return '0'
-                exponent_cb = int(np.floor(np.log10(abs(x))))
-                if np.isclose(abs(x), 10 ** exponent_cb, rtol=1e-5, atol=1e-8):
-                    return r'$+10^{%d}$' % exponent_cb if x > 0 else r'$-10^{%d}$' % exponent_cb
-                else:
-                    return r'$%+1.1e$' % x
-            formatter = FuncFormatter(log_formatter)
+            if difference_type in ('ratio', 'speedup'):
+                # prepend × only in speedup mode
+                _with_times = (difference_type == 'speedup')
+
+                def rel_log_formatter(x, pos, with_times=_with_times):
+                    # Show [×]10^{k} at exact powers of ten
+                    if x <= 0 or not np.isfinite(x):
+                        return ''
+                    k = int(np.round(np.log10(x)))
+                    if np.isclose(x, 10 ** k, rtol=1e-5, atol=1e-12):
+                        core = r'$10^{%d}$' % k
+                        return (r'$\times$' + core) if with_times else core
+                    # fallback for non-powers (should be rare with LogNorm ticks)
+                    return (r'$\times$' + r'$%1.1e$' % x) if with_times else (r'$%1.1e$' % x)
+
+                formatter = FuncFormatter(rel_log_formatter)
+            else:
+                def log_formatter(x, pos):
+                    if np.isclose(x, 0):
+                        return '0'
+                    exponent_cb = int(np.floor(np.log10(abs(x))))
+                    if np.isclose(abs(x), 10 ** exponent_cb, rtol=1e-5, atol=1e-8):
+                        return r'$+10^{%d}$' % exponent_cb if x > 0 else r'$-10^{%d}$' % exponent_cb
+                    else:
+                        return r'$%+1.1e$' % x
+
+                formatter = FuncFormatter(log_formatter)
         else:
-            formatter = FuncFormatter(lambda x, pos: f'+{x:.1f}' if x > 0 else f'{x:.1f}')
+            if difference_type == 'relative':
+                formatter = FuncFormatter(
+                    lambda x, pos: (
+                        "0%" if np.isclose(x, 0)
+                        else f"{x:+.0f}%".replace("-", "\N{MINUS SIGN}")
+                    )
+                )
+            else:
+                formatter = FuncFormatter(
+                    lambda x, pos: (
+                        "0" if np.isclose(x, 0)
+                        else f"{x:+.0f}".replace("-", "\N{MINUS SIGN}")
+                    )
+                )
+
         cbar.ax.yaxis.set_major_formatter(formatter)
+
         # ---------------------------------------------------
 
     ax.set_xlim(np.min(x_list), np.max(x_list))
@@ -286,10 +430,10 @@ def plot_dtime(
     ax.set_facecolor("lightgray")
 
     if auto_title:
-        if difference_type == 'absolute':
-            label = "∆Time (abs.)"
-        else:
-            label = "∆Time (rel.)"
+        # make the tag reflect the actual mode
+        _tag_map = {'absolute': 'abs', 'relative': 'rel', 'ratio': 'ratio', 'speedup': 'speedup'}
+        _tag = _tag_map.get(difference_type, 'abs')
+        label = f"$\\Delta\\mathrm{{t}}_{{{_tag}}}$"
         ax.set_title(
             label=label,
             y=1.0,
@@ -302,4 +446,3 @@ def plot_dtime(
         ax.plot(x_axis.flatten(), y_axis.flatten(), 'w.', markersize=3)
 
     return cp
-
