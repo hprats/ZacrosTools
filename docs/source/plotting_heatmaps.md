@@ -14,26 +14,26 @@ The following specialized functions are available to generate heatmap plots from
 #### Common parameters
 
 These following parameters are available in most heatmap types:
-- **`ax`** (`matplotlib.axes.Axes`, required): Matplotlib axis to draw on.
-- **`x`**, **`y`** (`str`, required): Names of the scan dimensions. If the name contains `"pressure"`, that axis is set to logarithmic scale and tick values are converted from log10 to absolute units for plotting.
-- **`scan_path`** (`str`, required): Path to the directory holding one subfolder per operating point.
-- **`cmap`** (`str`, optional): Matplotlib colormap name. Defaults vary by plot (see below).
-- **`show_points`** (`bool`, default `False`): Overlay white dots at each grid node.
-- **`show_colorbar`** (`bool`, default `True`): Draw a colorbar.
-- **`auto_title`** (`bool`, default `False`): Add title.
-- **`analysis_range`** (`list[float]`, default `[0, 100]`): Percentage window of the simulation data to analyze.
-- **`range_type`** (`str`, default `'time'`): `'time'` for simulated time windows or `'nevents'` for number-of-events windows.
-- **`weights`** (`str` or `None`): Averaging weights passed to `KMCOutput` (`'time'`, `'events'`, or `None`).
+- **`ax`** (`matplotlib.axes.Axes`): Matplotlib axis to draw on.
+- **`x`**, **`y`** (`str`): Names of the scan dimensions. If the name contains `"pressure"`, that axis is set to logarithmic scale and tick values are converted from log10 to absolute units for plotting.
+- **`scan_path`** (`str`): Path to the directory holding one subfolder per operating point.
+- **`cmap`** (`str`, *optional*): Matplotlib colormap name. Defaults vary by plot (see below).
+- **`show_points`** (`bool`, *optional*): Overlay white dots at each grid node (default = `False`).
+- **`show_colorbar`** (`bool`, *optional*): Draw a colorbar (default = `True`).
+- **`auto_title`** (`bool`, *optional*): Add title (default = `False`).
+- **`analysis_range`** (`list[float]`, *optional*): Percentage window of the simulation data to analyze (default = `[0, 100]`).
+- **`range_type`** (`str`, *optional*): `'time'` for simulated time windows or `'nevents'` for number-of-events windows (default = `'time'`).
+- **`weights`** (`str`, *optional*): Averaging weights passed to `KMCOutput`. Possible values: `'time'`, `'events'`, or `None` (default = `'None'`).
 
 ---
 
 #### TOF
 
 Parameters specific to `plot_tof`:
-- **`gas_spec`** (`str`, required): Gas species key (e.g., `'H2'`, `'CO'`).
-- **`min_molec`** (`int`, default `1`): Minimum total production required for a valid TOF.
-- **`levels`** (`list`/`ndarray` or `None`): If provided, TOF values are clipped to `[min(levels), max(levels)]` and those become `LogNorm` bounds.
-- **`show_max`** (`bool`, default `False`): Mark the global maximum with a golden `*`.
+- **`gas_spec`** (`str`): Gas species key (e.g., `'H2'`, `'CO'`).
+- **`min_molec`** (`int`, *optional*): Minimum total production required for a valid TOF (default = `1`).
+- **`levels`** (`list` or `ndarray`, *optional*): Contour levels to use in the plot.
+- **`show_max`** (`bool`, *optional*): Mark the global maximum with a golden `*` (default = `False`).
 
 ```python
 import numpy as np
@@ -66,14 +66,14 @@ plt.show()
 #### TOF difference 
 
 Parameters specific to `plot_dtof`:
-- **`difference_type`**:  
+- **`difference_type`** (`str`):  
   - `'absolute'`: ∆TOF = TOF(main) − TOF(ref)  
-  - `'relative'`: ∆TOF = |TOF(main) / TOF(ref)|
-- **`scale`**: `'log'` uses `LogNorm` (all positive/negative) or `SymLogNorm` (mixed sign); `'lin'` uses linear normalization.
-- **`nlevels`**: `0` → continuous normalization; odd ≥3 → discrete bins (`BoundaryNorm`). For `'log'`, bins are log-spaced (mirrored about 0).
-- **`min_tof_ref`** (`float`, default `0.0`): Mask cells whose reference TOF is below this threshold.
-- **`check_issues`**: run `detect_issues` on `'none'`, `'main'`, `'ref'`, or `'both'`; flagged cells are masked.
-- **Color range**: Symmetric about zero. If `max_dtof`/`min_dtof` not set, sensible defaults are chosen per mode.
+  - `'relative'`: ∆TOF = (TOF(main) - TOF(ref)) / TOF(ref) * 100
+  - `'ratio'`: ∆TOF = |TOF(main) / TOF(ref)|
+- **`scale`** (`str`, *optional*): `'log'` uses `LogNorm` or `'lin'` (only available for `difference_type='absolute'`).
+- **`nlevels`** (`int`, *optional*): Number of discrete color levels. 
+- **`min_tof_ref`** (`float`, *optional*): Mask cells whose reference TOF is below this threshold (default = `0`).
+- **`check_issues`** (`str`, *optional*): run `detect_issues` on `'none'`, `'main'`, `'ref'`, or `'both'`; flagged cells are masked.
 
 ```python
 import numpy as np
@@ -107,9 +107,9 @@ plt.show()
 #### Selectivity
 
 Parameters specific to `plot_selectivity`:
-- **`main_product`** (`str`, required) and **`side_products`** (`list[str]`, required).
-- **`min_molec`** (`int`): Minimum **combined** production (main + sides) to accept the value.
-- **`levels`**: The plotted range is `[min(levels), max(levels)]`.
+- **`main_product`** (`str`) and **`side_products`** (`list[str]`, required).
+- **`min_molec`** (`int`, *optional*): Minimum **combined** production (main + sides) to accept the value (default = `0`).
+- **`levels`** (`list` or `ndarray`, *optional*): Contour levels to use in the plot.
 
 ```python
 import matplotlib.pyplot as plt
@@ -140,8 +140,8 @@ plt.show()
 #### Coverage
 
 Parameters specific to `plot_coverage`:
-- **`surf_spec`** (`'all'` | `str` | `list[str]`): `'all'` means total coverage. A string or list sums the listed adsorbates’ coverages.
-- **`site_type`** (`str`, default `'StTp1'`).
+- **`surf_spec`** (`str` or `list`): Surface species for which coverage is calculated. Use `'all'` to plot total coverage.
+- **`site_type`** (`str`, *optional*): Site type to consider (default = `'StTp1'`).
 
 ```python
 import matplotlib.pyplot as plt
@@ -172,10 +172,9 @@ plt.show()
 #### Phase diagram
 
 Parameters specific to `plot_phasediagram`:
-- **`site_type`** (`str`, default `'StTp1'`).
-- **`min_coverage`** (`float|int`, default `50.0`): Minimum total coverage (%) to consider a dominant species.
-- **`tick_labels`** (`dict` or `None`): `{label_str: [species, ...], ...}`.  
-  If `None`, the code parses `simulation_input.dat` from the first simulation and assigns **each species to its own group** (label=species). The function validates that provided species exist in the simulation; if you accidentally pass `'O'` while only `'O*'` exists, a helpful error is raised.
+- **`site_type`** (`str`, *optional*): Site type to consider (default = `'StTp1'`).
+- **`min_coverage`** (`float` or `int`, *optional*): Minimum total coverage (%) to consider a dominant species (default = `50.0`).
+- **`tick_labels`** (`dict` or `None`, *optional*): Mapping of colorbar tick labels to lists of surface species.
 
 ```python
 import matplotlib.pyplot as plt
@@ -218,7 +217,7 @@ plt.show()
 #### Final time
 
 Parameters specific to `plot_finaltime`:
-- **`levels`** (`list`/`ndarray` or `None`): If provided, sets `LogNorm(vmin=min(levels), vmax=max(levels))`; otherwise auto-normalized.
+- **`levels`** (`list` or `ndarray`, *optional*): Contour levels to use in the plot.
 
 ```python
 import numpy as np
@@ -246,7 +245,7 @@ plt.show()
 #### Energy slope
 
 Parameters specific to `plot_energyslope`:
-- **`levels`**: If provided, `LogNorm(vmin=min(levels), vmax=max(levels))`; otherwise auto-normalized.
+- **`levels`** (`list` or `ndarray`, *optional*): Contour levels to use in the plot.
 
 ```python
 import matplotlib.pyplot as plt
@@ -273,9 +272,10 @@ plt.show()
 #### Issues
 
 Parameters specific to `plot_issues`:
-- **`analysis_range`** (`list`, required): If `None`, the function internally sets `[0, 100]`.
-- **Pass-through thresholds**: `energy_slope_thr`, `time_r2_thr`, `max_points` forwarded to `detect_issues`.
-- **`verbose`**: If `True`, prints paths of simulations with detected issues.
+- **`energy_slope_thr`** (`float`, *optional*): Absolute energy-slope threshold (default = `5.0e-10`).
+- **`time_r2`** (`float`, *optional*): Minimum acceptable R² for linearity of time vs events (default = `0.95`).
+- **`max_points`** (`int`, *optional*): Maximum number of sampled points used inside `detect_issues` for the diagnostics (default = `100`).
+- **`verbose`** (`bool`, *optional*): If `True`, prints paths of simulations with detected issues (default = `False`).
 
 ```python
 import matplotlib.pyplot as plt
