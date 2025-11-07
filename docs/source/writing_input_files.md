@@ -97,11 +97,11 @@ The specified directory (`kmc_simulation`) will be created, containing all four 
 ```python
 for temperature in [600, 700, 800]: # in K
     for pCO in [0.01, 0.1, 1.0, 10]:  # in bar
-        for pH2O in [0.01, 0.1, 1.0, 10]:  # in bar
+        for pO2 in [0.01, 0.1, 1.0, 10]:  # in bar
             kmc_model.create_job_dir(
-                job_path=f'temp_{temperature}K_pCO_{pCO}bar_pH2O_{pH2O}bar',
+                job_path=f'temp_{temperature}K_pCO_{pCO}bar_pO2_{pO2}bar',
                 temperature=temperature,
-                pressure={'CO': pCO, 'H2O': pH2O},
+                pressure={'CO': pCO, 'O2': pO2, 'CO2': 0.0},
                 reporting_scheme={
                     'snapshots': 'on event 100000',
                     'process_statistics': 'on event 100000',
