@@ -407,14 +407,13 @@ class ReactionModel:
                 invalid_steps = df[~ok].index.tolist()
                 raise ReactionModelError(f"Column '{col}' must contain lists. Invalid steps: {invalid_steps}")
 
-        # For non-fixed steps specifically, vib lists must be lists (already) and present.
-        # Optional: enforce non-empty lists for non-fixed steps (commented out; enable if desired)
-        # if nonfixed_mask.any():
-        #     for col in vib_cols:
-        #         empty = df[col].apply(lambda x: isinstance(x, list) and len(x) == 0)
-        #         bad = df.index[nonfixed_mask & empty].tolist()
-        #         if bad:
-        #             raise ReactionModelError(f"Column '{col}' cannot be empty for non-fixed steps: {bad}")
+        # Enforce non-empty lists for non-fixed steps
+        if nonfixed_mask.any():
+            for col in vib_cols:
+                empty = df[col].apply(lambda x: isinstance(x, list) and len(x) == 0)
+                bad = df.index[nonfixed_mask & empty].tolist()
+                if bad:
+                    raise ReactionModelError(f"Column '{col}' cannot be empty for non-fixed steps: {bad}")
 
         # -----------------------
         # Validate numeric columns
