@@ -63,8 +63,6 @@ class ReactionModel:
         'initial',
         'final',
         'activ_eng',
-        'vib_energies_is',
-        'vib_energies_fs'
     }
     REQUIRED_ADS_COLUMNS = {'area_site'}
     REQUIRED_ACTIVATED_COLUMNS = {'vib_energies_ts'}
@@ -304,95 +302,180 @@ class ReactionModel:
             # Keep the deprecated column, but do not rely on it anywhere else
 
     def _validate_dataframe(self, df: Optional[pd.DataFrame] = None):
-        """Validate that the DataFrame contains the required columns and correct data types."""
+        """Validate that the DataFrame contains the required columns and correct data types.
+
+        Rules:
+          - Always required: initial, final, activ_eng
+          - vib_energies_is and vib_energies_fs are required ONLY for steps that do NOT
+            specify both fixed_pre_expon and fixed_pe_ratio.
+          - vib_energies_ts always exists (defaults to empty list per step).
+          - If any gas species participates (molecule_is/molecule_fs/molecule), area_site is required.
+        """
         if df is None:
             df = self.df
 
-        # Check for duplicate step names
+        # -----------------------
+        # Basic schema checks
+        # -----------------------
         if df.index.duplicated().any():
             duplicates = df.index[df.index.duplicated()].unique().tolist()
             raise ReactionModelError(f"Duplicate step names found: {duplicates}")
 
-        missing_columns = self.REQUIRED_COLUMNS - set(df.columns)
-        if missing_columns:
-            raise ReactionModelError(f"Missing required columns: {missing_columns}")
+        base_required = {"initial", "final", "activ_eng"}
+        missing_base = base_required - set(df.columns)
+        if missing_base:
+            raise ReactionModelError(f"Missing required columns: {missing_base}")
 
-        # Ensure vib_energies_ts always exists as a list
-        if 'vib_energies_ts' not in df.columns:
-            df['vib_energies_ts'] = [[] for _ in range(len(df))]
+        # -----------------------
+        # Ensure vib_energies_ts exists as a list column
+        # -----------------------
+        if "vib_energies_ts" not in df.columns:
+            df["vib_energies_ts"] = [[] for _ in range(len(df))]
         else:
-            df['vib_energies_ts'] = df['vib_energies_ts'].apply(
+            # Normalize NaN -> [] and keep proper lists
+            df["vib_energies_ts"] = df["vib_energies_ts"].apply(
                 lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else v)
             )
 
-        # Validate data types for list columns
-        for col in self.LIST_COLUMNS:
-            if col in df.columns:
-                if not df[col].apply(lambda x: isinstance(x, list)).all():
-                    invalid_steps = df[~df[col].apply(lambda x: isinstance(x, list))].index.tolist()
-                    raise ReactionModelError(f"Column '{col}' must contain lists. Invalid steps: {invalid_steps}")
-            else:
-                raise ReactionModelError(f"Missing required column: '{col}'")
+        # -----------------------
+        # Validate fixed_* pairing and positivity when set
+        # -----------------------
+        def _has(x) -> bool:
+            return pd.notna(x)
 
-        # Validate numeric columns (if present)
-        for col in ['area_site', 'activ_eng', 'prox_factor', 'graph_multiplicity',
-                    'fixed_pre_expon', 'fixed_pe_ratio']:
+        def _is_fixed_row(r) -> bool:
+            fpe = r.get("fixed_pre_expon", pd.NA)
+            fpr = r.get("fixed_pe_ratio", pd.NA)
+            return _has(fpe) and _has(fpr)
+
+        bad_pair = []
+        bad_sign = []
+        for idx, r in df.iterrows():
+            fpe = r.get("fixed_pre_expon", pd.NA)
+            fpr = r.get("fixed_pe_ratio", pd.NA)
+
+            # If one is provided, the other must be provided
+            if _has(fpe) ^ _has(fpr):
+                bad_pair.append(idx)
+                continue
+
+            # If both are provided, must be positive numbers
+            if _has(fpe) and _has(fpr):
+                try:
+                    if float(fpe) <= 0.0 or float(fpr) <= 0.0:
+                        bad_sign.append(idx)
+                except Exception:
+                    bad_sign.append(idx)
+
+        if bad_pair:
+            raise ReactionModelError(
+                f"For steps {bad_pair}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be provided together."
+            )
+        if bad_sign:
+            raise ReactionModelError(
+                f"For steps {bad_sign}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be positive numbers."
+            )
+
+        fixed_mask = df.apply(_is_fixed_row, axis=1)
+        nonfixed_mask = ~fixed_mask
+
+        # -----------------------
+        # vib_energies_is/fs required only for non-fixed steps
+        # -----------------------
+        vib_cols = ["vib_energies_is", "vib_energies_fs"]
+        if nonfixed_mask.any():
+            missing_vib_cols = set(vib_cols) - set(df.columns)
+            if missing_vib_cols:
+                bad_steps = df.index[nonfixed_mask].tolist()
+                raise ReactionModelError(
+                    f"Missing required columns {missing_vib_cols} for non-fixed steps: {bad_steps}. "
+                    f"Provide vib_energies_is/vib_energies_fs, or set fixed_pre_expon+fixed_pe_ratio."
+                )
+
+        # -----------------------
+        # Validate list columns
+        # -----------------------
+        list_cols_to_check = ["initial", "final", "vib_energies_ts"]
+        # Only validate vib_* columns if they exist
+        for c in vib_cols:
+            if c in df.columns:
+                list_cols_to_check.append(c)
+
+        for col in list_cols_to_check:
+            ok = df[col].apply(lambda x: isinstance(x, list))
+            if not ok.all():
+                invalid_steps = df[~ok].index.tolist()
+                raise ReactionModelError(f"Column '{col}' must contain lists. Invalid steps: {invalid_steps}")
+
+        # For non-fixed steps specifically, vib lists must be lists (already) and present.
+        # Optional: enforce non-empty lists for non-fixed steps (commented out; enable if desired)
+        # if nonfixed_mask.any():
+        #     for col in vib_cols:
+        #         empty = df[col].apply(lambda x: isinstance(x, list) and len(x) == 0)
+        #         bad = df.index[nonfixed_mask & empty].tolist()
+        #         if bad:
+        #             raise ReactionModelError(f"Column '{col}' cannot be empty for non-fixed steps: {bad}")
+
+        # -----------------------
+        # Validate numeric columns
+        # -----------------------
+        numeric_cols = [
+            "area_site",
+            "activ_eng",
+            "prox_factor",
+            "graph_multiplicity",
+            "fixed_pre_expon",
+            "fixed_pe_ratio",
+        ]
+        for col in numeric_cols:
             if col in df.columns:
                 non_num = df[col].apply(lambda x: not (pd.isna(x) or isinstance(x, (int, float))))
                 if non_num.any():
                     invalid_steps = df[non_num].index.tolist()
                     raise ReactionModelError(
-                        f"Column '{col}' must contain numeric values or NaN. Invalid: {invalid_steps}")
+                        f"Column '{col}' must contain numeric values or NaN. Invalid: {invalid_steps}"
+                    )
 
-        # Validate 'site_types', 'neighboring', 'angles' if present
-        for col in ['site_types', 'neighboring', 'angles', 'molecule_is', 'molecule_fs', 'molecule']:
+        # activ_eng must be numeric for all rows (cannot be missing)
+        if df["activ_eng"].isna().any():
+            bad = df.index[df["activ_eng"].isna()].tolist()
+            raise ReactionModelError(f"Column 'activ_eng' cannot be NaN. Invalid steps: {bad}")
+
+        # -----------------------
+        # Validate string columns
+        # -----------------------
+        for col in ["site_types", "neighboring", "angles", "molecule_is", "molecule_fs", "molecule"]:
             if col in df.columns:
                 ok = df[col].apply(lambda x: isinstance(x, str) or pd.isna(x))
                 if not ok.all():
                     invalid_steps = df[~ok].index.tolist()
-                    raise ReactionModelError(f"Column '{col}' must contain string values or NaN. Invalid: {invalid_steps}")
+                    raise ReactionModelError(
+                        f"Column '{col}' must contain string values or NaN. Invalid: {invalid_steps}")
 
-        # Assign default values for optional columns if missing
-        if 'graph_multiplicity' not in df.columns:
-            df['graph_multiplicity'] = 1
+        # -----------------------
+        # Defaults for optional columns
+        # -----------------------
+        if "graph_multiplicity" not in df.columns:
+            df["graph_multiplicity"] = 1
         else:
-            df['graph_multiplicity'] = df['graph_multiplicity'].fillna(1)
+            df["graph_multiplicity"] = df["graph_multiplicity"].fillna(1)
 
-        # Whenever any gas species participates, area_site must be provided
-        if 'area_site' in df.columns:
+        # -----------------------
+        # area_site required when gas species participate
+        # -----------------------
+        if "area_site" in df.columns:
             needs_area = df.apply(
-                lambda r: pd.notna(r.get('molecule_is', pd.NA)) or pd.notna(r.get('molecule_fs', pd.NA)) or
-                          pd.notna(r.get('molecule', pd.NA)),
-                axis=1
+                lambda r: pd.notna(r.get("molecule_is", pd.NA))
+                          or pd.notna(r.get("molecule_fs", pd.NA))
+                          or pd.notna(r.get("molecule", pd.NA)),
+                axis=1,
             )
-            missing_area = needs_area & df['area_site'].isna()
+            missing_area = needs_area & df["area_site"].isna()
             if missing_area.any():
                 bad = df[missing_area].index.tolist()
                 raise ReactionModelError(
-                    f"'area_site' is required when gas species participate. Missing for steps: {bad}")
-
-        # Validate fixed_* pairing and positivity when set
-        if 'fixed_pre_expon' in df.columns or 'fixed_pe_ratio' in df.columns:
-            def _has(x): return pd.notna(x)
-            bad_pair = []
-            bad_sign = []
-            for idx, r in df.iterrows():
-                fpe = r.get('fixed_pre_expon', pd.NA)
-                fpr = r.get('fixed_pe_ratio', pd.NA)
-                if _has(fpe) ^ _has(fpr):
-                    bad_pair.append(idx)
-                elif _has(fpe) and _has(fpr):
-                    try:
-                        if float(fpe) <= 0.0 or float(fpr) <= 0.0:
-                            bad_sign.append(idx)
-                    except Exception:
-                        bad_sign.append(idx)
-            if bad_pair:
-                raise ReactionModelError(
-                    f"For steps {bad_pair}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be provided together.")
-            if bad_sign:
-                raise ReactionModelError(
-                    f"For steps {bad_sign}, 'fixed_pre_expon' and 'fixed_pe_ratio' must be positive numbers.")
+                    f"'area_site' is required when gas species participate. Missing for steps: {bad}"
+                )
 
     def write_mechanism_input(self,
                               output_dir: Union[str, Path],
