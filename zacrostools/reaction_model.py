@@ -522,6 +522,15 @@ class ReactionModel:
 
         fixed_steps = set([idx for idx, r in self.df.iterrows() if _is_fixed_row(r)])
 
+        # manual_scaling is incompatible with fixed steps
+        if manual_scaling:
+            overlap = fixed_steps.intersection(set(manual_scaling.keys()))
+            if overlap:
+                raise ReactionModelError(
+                    "manual_scaling cannot be used for steps with fixed_pre_expon/fixed_pe_ratio. "
+                    f"Conflicting fixed steps in manual_scaling: {sorted(overlap)}"
+                )
+
         # Enforce incompatibilities with stiffness-scalable options
         if fixed_steps and stiffness_scalable_steps == 'all':
             raise ReactionModelError(
