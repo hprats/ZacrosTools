@@ -631,7 +631,10 @@ class ReactionModel:
                             infile.write(f"  pre_expon {pe_fwd:.{sig_figs_pe}e}\n")
 
                     activ_eng = float(row['activ_eng'])
-                    infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}\n")
+                    if step in fixed_steps:
+                        infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}    # fixed\n")
+                    else:
+                        infile.write(f"  pe_ratio {pe_ratio:.{sig_figs_pe}e}\n")
                     infile.write(f"  activ_eng {activ_eng:.{sig_figs_energies}f}\n")
 
                     # Write optional keywords only if they are provided
