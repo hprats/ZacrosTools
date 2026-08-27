@@ -12,8 +12,8 @@ The `ReactionModel` stores information about each elementary reaction step.
 - **`vib_energies_ts`** (`list[float]`, *optional*): Vibrational energies for the transition state (meV).  
   Omit or set to `[]` for non-activated steps.  
 - **`area_site`** (`float`, *optional*): Site area (Å²); required if a gas species participates.  
-- **`molecule_is`** (`str`, *optional*): Name of gas-phase molecule in the initial state (only for adsorption).  
-- **`molecule_fs`** (`str`, *optional*): Name of gas-phase molecule in the final state (only for desorption).  
+- **`molecule_is`** (`str`, *optional*): Name of gas-phase molecule(s) in the initial state (only for adsorption). One or more whitespace-separated species can be provided.  
+- **`molecule_fs`** (`str`, *optional*): Name of gas-phase molecule(s) in the final state (only for desorption). One or more whitespace-separated species can be provided.
 - **`site_types`** (`str`, *optional*): Site types required if `lattice_type='periodic_cell'`).  
 - **`neighboring`** (`str`, *optional*): Connectivity between sites (e.g., `'1-2'`; default = `None`).  
 - **`prox_factor`** (`float`, *optional*): Proximity factor.  
