@@ -31,9 +31,11 @@ class ReactionModel:
 
         **Mandatory for steps involving gas-phase species in the initial state**:
         - **molecule_is** (str, optional): Gas species present in the initial state (e.g. adsorption).
+          One or more whitespace-separated species can be provided, e.g. `'CO2'` or `'Hplus elec'`.
 
         **Mandatory for steps involving gas-phase species in the final state**:
         - **molecule_fs** (str, optional): Gas species present in the final state (e.g. desorption).
+          One or more whitespace-separated species can be provided, e.g. `'H2'` or `'CO H2O'`.
 
         **Mandatory for activated adsorption steps and surface reaction steps**:
         - **vib_energies_ts** (list of float): Vibrational energies for the transition state (in meV).
@@ -50,6 +52,8 @@ class ReactionModel:
           should have a value of `2`. Default is `1`.
         - **fixed_pre_expon** (float): Optional fixed **forward** pre-exponential factor to write as-is (no scaling / no graph multiplicity applied).
           Units must match Zacros expectations: surface/non-activated desorption in `s^-1`; adsorption (activated/non-activated) in `bar^-1·s^-1`.
+          For a step with multiple gas reactants, the fixed pre-exponential must include one inverse-pressure
+          factor per gas reactant (e.g. `bar^-2·s^-1` for two gas reactants).
         - **fixed_pe_ratio** (float): Optional fixed pre-exponential ratio `pe_fwd/pe_rev` to write as-is.
           Must be provided **together** with `fixed_pre_expon`.
 
@@ -300,6 +304,32 @@ class ReactionModel:
                         stacklevel=2,
                     )
             # Keep the deprecated column, but do not rely on it anywhere else
+
+    @staticmethod
+    def _parse_gas_species(value) -> list[str]:
+        """Return the whitespace-separated gas species stored in one molecule field."""
+        if value is None or pd.isna(value):
+            return []
+        return str(value).split()
+
+    def _get_gas_stoichiometry(self, row: pd.Series) -> list[tuple[str, int]]:
+        """Return ordered net gas stoichiometry as ``(species, coefficient)`` pairs."""
+        mol_is = row.get('molecule_is', pd.NA)
+        mol_fs = row.get('molecule_fs', pd.NA)
+
+        # Legacy fallback for dataframes not yet normalized.
+        if not self._parse_gas_species(mol_is):
+            legacy_mol = row.get('molecule', pd.NA)
+            if self._parse_gas_species(legacy_mol):
+                mol_is = legacy_mol
+
+        stoichiometry = {}
+        for species in self._parse_gas_species(mol_is):
+            stoichiometry[species] = stoichiometry.get(species, 0) - 1
+        for species in self._parse_gas_species(mol_fs):
+            stoichiometry[species] = stoichiometry.get(species, 0) + 1
+
+        return [(species, coefficient) for species, coefficient in stoichiometry.items() if coefficient != 0]
 
     def _validate_dataframe(self, df: Optional[pd.DataFrame] = None):
         """Validate that the DataFrame contains the required columns and correct data types.
@@ -587,18 +617,11 @@ class ReactionModel:
                     infile.write(f"reversible_step {step}\n\n")
 
                     # gas_reacs_prods assembly
-                    mol_is = row.get('molecule_is', pd.NA)
-                    mol_fs = row.get('molecule_fs', pd.NA)
-                    # Also consider deprecated 'molecule' for legacy CSVs where normalize ensured molecule_is
-                    if pd.notna(row.get('molecule', pd.NA)) and pd.isna(mol_is):
-                        mol_is = row.get('molecule')
-
-                    if pd.notna(mol_is) or pd.notna(mol_fs):
+                    gas_stoichiometry = self._get_gas_stoichiometry(row)
+                    if gas_stoichiometry:
                         line = "  gas_reacs_prods"
-                        if pd.notna(mol_is):
-                            line += f" {str(mol_is).strip()} -1"
-                        if pd.notna(mol_fs):
-                            line += f" {str(mol_fs).strip()} 1"
+                        for species, coefficient in gas_stoichiometry:
+                            line += f" {species} {coefficient}"
                         infile.write(line + "\n")
 
                     infile.write(f"  sites {len(initial_state)}\n")
@@ -814,7 +837,14 @@ class ReactionModel:
                 mol = row.get("molecule")
         else:
             mol = row.get("molecule_fs", pd.NA)
-        return None if (pd.isna(mol) or mol in ("", None)) else str(mol).strip()
+        molecules = self._parse_gas_species(mol)
+        if len(molecules) > 1:
+            raise ReactionModelError(
+                f"Automatic pre-exponential calculation supports at most one gas reactant per direction. "
+                f"Step '{step}' has {molecules} in the {direction} reactant state. Provide both "
+                f"'fixed_pre_expon' and 'fixed_pe_ratio' for steps with multiple gas reactants."
+            )
+        return molecules[0] if molecules else None
 
 
     def _get_ps_molecule(self, step: str, direction: str):
@@ -830,7 +860,14 @@ class ReactionModel:
             mol = row.get("molecule_is", pd.NA)
             if pd.isna(mol) and pd.notna(row.get("molecule", pd.NA)):  # legacy fallback
                 mol = row.get("molecule")
-        return None if (pd.isna(mol) or mol in ("", None)) else str(mol).strip()
+        molecules = self._parse_gas_species(mol)
+        if len(molecules) > 1:
+            raise ReactionModelError(
+                f"Automatic pre-exponential calculation supports at most one gas product per direction. "
+                f"Step '{step}' has {molecules} in the {direction} product state. Provide both "
+                f"'fixed_pre_expon' and 'fixed_pe_ratio' for steps with multiple gas products."
+            )
+        return molecules[0] if molecules else None
 
 
     def _get_process_type(self, step: str, direction: str) -> str:
