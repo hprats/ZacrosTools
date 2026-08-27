@@ -51,22 +51,21 @@ pip install .
 
 ## Recent changes
 
-### Version 2.11 — 2025-11-04
-
-#### Changed
-- **Mode rename and new definition in `dtof.py`:**  
-  - The former `difference_type='relative'` mode (which computed the ratio `|TOF(main)/TOF(ref)|`) has been **renamed to** `difference_type='ratio'`.  
-  - A new `difference_type='relative'` is introduced to compute the **percent difference**:  
-    ΔTOF_rel = (TOF(main) − TOF(ref)) / TOF(ref) × 100
+### Version 2.12 — 2026-08-27
 
 #### Added
-- **New `difference_type` options in `plot_dtime`:**  
-  - Added support for `difference_type='ratio'`:  
-    Δt = t(main) / t(ref)  
-    - The colorbar is **logarithmic**, spanning **[10⁻ᴺ, 10⁺ᴺ]**, and centered at **10⁰**.  
-  - Added support for `difference_type='speedup'`:  
-    - Uses the **same ratio definition** as above, but the colorbar spans **[10⁰, 10⁺ᴺ]**, showing only values ≥ 1.
-    
+- **Multiple gas-phase species per reaction side**: `ReactionModel` now accepts one or more whitespace-separated species in `molecule_is` and `molecule_fs`, e.g. `molecule_is='CO2 H2'`.
+  - `gas_reacs_prods` is written with the corresponding stoichiometric coefficient for every species.
+  - Repeated species are combined, and species appearing on both sides are assigned their net coefficient.
+  - For steps with multiple gas reactants or products in one direction, `fixed_pre_expon` and `fixed_pe_ratio` must be supplied because automatic pre-exponential calculation remains limited to one gas species per direction.
+
+#### Changed
+- **Simplified fixed-rate reaction models**: Steps defining both `fixed_pre_expon` and `fixed_pe_ratio` no longer need to provide `vib_energies_is` or `vib_energies_fs`.
+- **Stricter validation for calculated prefactors**: Non-fixed steps must provide non-empty `vib_energies_is` and `vib_energies_fs` lists.
+- **Fixed-step scaling validation**: `ReactionModel` now raises an error if `manual_scaling` is applied to a step using fixed pre-exponential values.
+
+#### Improved
+- **Documentation and examples**: Updated the project overview and expanded the input-generation example to demonstrate scans over temperature and multiple gas pressures.
 
 Full details are available in the [ZacrosTools CHANGELOG](https://github.com/hprats/ZacrosTools/blob/main/CHANGELOG.md).
 

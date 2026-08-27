@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+### Version 2.12 — 2026-08-27
+
+#### Added
+- **Multiple gas-phase species per reaction side**: `ReactionModel` now accepts one or more whitespace-separated species in `molecule_is` and `molecule_fs`, e.g. `molecule_is='CO2 H2'`.
+  - `gas_reacs_prods` is written with the corresponding stoichiometric coefficient for every species.
+  - Repeated species are combined, and species appearing on both sides are assigned their net coefficient.
+  - For steps with multiple gas reactants or products in one direction, `fixed_pre_expon` and `fixed_pe_ratio` must be supplied because automatic pre-exponential calculation remains limited to one gas species per direction.
+
+#### Changed
+- **Simplified fixed-rate reaction models**: Steps defining both `fixed_pre_expon` and `fixed_pe_ratio` no longer need to provide `vib_energies_is` or `vib_energies_fs`.
+- **Stricter validation for calculated prefactors**: Non-fixed steps must provide non-empty `vib_energies_is` and `vib_energies_fs` lists.
+- **Fixed-step scaling validation**: `ReactionModel` now raises an error if `manual_scaling` is applied to a step using fixed pre-exponential values.
+
+#### Improved
+- **Documentation and examples**: Updated the project overview and expanded the input-generation example to demonstrate scans over temperature and multiple gas pressures.
+
 ### Version 2.11 — 2025-11-04
 
 #### Changed
