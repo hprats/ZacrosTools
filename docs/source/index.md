@@ -79,11 +79,11 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Contributors
 
-- **Hector Prats** - [hector.prats@tuwien.ac.at](mailto:hector.prats@tuwien.ac.at)
+- **Hector Prats** - [hpratsga@ub.edu](mailto:hpratsga@ub.edu)
 
 ## Acknowledgements
 
-- **Zeyu Wu** 
+- **Zeyu Wu**: for testing the library and reporting bugs
 
 ```{eval-rst}
 .. toctree::
