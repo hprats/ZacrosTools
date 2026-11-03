@@ -306,18 +306,15 @@ def plot_dtof(
             if scale == "lin":
                 norm = Normalize(vmin=-abs_max, vmax=abs_max)
             elif scale == "log":
-                if np.all(z_axis > 0):
-                    norm = LogNorm(vmin=min_dtof, vmax=abs_max)
-                elif np.all(z_axis < 0):
-                    norm = LogNorm(vmin=-abs_max, vmax=-min_dtof)
-                else:
-                    norm = SymLogNorm(
-                        linthresh=min_dtof,
-                        linscale=1.0,
-                        vmin=-abs_max,
-                        vmax=abs_max,
-                        base=10,
-                    )
+                # Signed differences require a normalization that supports negatives.
+                # SymLogNorm is valid for positive, negative, and mixed-sign grids.
+                norm = SymLogNorm(
+                    linthresh=min_dtof,
+                    linscale=1.0,
+                    vmin=-abs_max,
+                    vmax=abs_max,
+                    base=10,
+                )
             else:
                 raise ValueError("scale must be 'log' or 'lin'")
         else:
